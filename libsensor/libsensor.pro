@@ -1,15 +1,18 @@
 CONFIG += testing
 
 testing  {
+    OLDTARGET = $$TARGET
     TEMPLATE = app
+    DESTDIR = ../bin
+    TARGET = testing_$$OLDTARGET
 }
 else {
     TEMPLATE = lib
+    DESTDIR = ../lib
 }
 
 QT -= gui
 
-DESTDIR = ../lib
 OBJECTS_DIR = o
 MOC_DIR = o
 

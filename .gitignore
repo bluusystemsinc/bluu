@@ -2,6 +2,7 @@
 
 Makefile
 lib
+bin
 *.o
 moc_*.cpp
 bluu.pro.user
