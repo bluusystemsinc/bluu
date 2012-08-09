@@ -4,3 +4,4 @@ Makefile
 lib
 *.o
 moc_*.cpp
+bluu.pro.user

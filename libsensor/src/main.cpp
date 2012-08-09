@@ -1,7 +1,9 @@
+#include <QTime>
 #include <QDebug>
 #include <QRegExp>
-#include <qextserialport.h>
 #include <qextserialenumerator.h>
+
+#include "ftdiserialport.h"
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -10,11 +12,7 @@ int main(int /*argc*/, char** /*argv*/)
     foreach (QextPortInfo info, ports) {
         if(QRegExp("ttyUSB\\d").exactMatch(info.portName))
         {
-            QextSerialPort port(info.physName, QextSerialPort::EventDriven);
-
-            port.setBaudRate(BAUD57600);
-            port.setParity(PAR_NONE);
-            port.setDataBits(DATA_8);
+            FTDISerialPort serialPort(info.portName);
 
             qDebug() << "port name:"       << info.portName;
             qDebug() << "friendly name:"   << info.friendName;
@@ -27,8 +25,11 @@ int main(int /*argc*/, char** /*argv*/)
 
             forever
             {
-                if(port.bytesAvailable())
+                if(serialPort.bytesAvailable())
                 {
+                    QTime time = QTime::currentTime();
+
+                    qDebug()<<time<<serialPort.readAll();
                 }
             }
         }

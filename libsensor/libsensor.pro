@@ -1,4 +1,11 @@
-TEMPLATE += app
+CONFIG += testing
+
+testing  {
+    TEMPLATE = app
+}
+else {
+    TEMPLATE = lib
+}
 
 QT -= gui
 
@@ -10,5 +17,10 @@ include(../qextserialport/src/qextserialport.pri)
 #QEXTSERIALPORT_LIBRARY = yes
 QEXTSERIALPORT_STATIC = yes
 
+HEADERS += \
+    src/ftdiserialport.h
 
-SOURCES += src/main.cpp
+SOURCES += \
+    src/ftdiserialport.cpp
+
+testing:SOURCES += src/main.cpp
