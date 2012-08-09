@@ -5,11 +5,8 @@
 
 int main(int /*argc*/, char** /*argv*/)
 {
-    //! [1]
     QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
-    //! [1]
     qDebug() << "List of ports:";
-    //! [2]
     foreach (QextPortInfo info, ports) {
         if(QRegExp("ttyUSB\\d").exactMatch(info.portName))
         {
@@ -28,7 +25,7 @@ int main(int /*argc*/, char** /*argv*/)
 
             qDebug() << "===================================";
 
-            while(1)
+            forever
             {
                 if(port.bytesAvailable())
                 {
@@ -36,6 +33,5 @@ int main(int /*argc*/, char** /*argv*/)
             }
         }
     }
-    //! [2]
     return 0;
 }
