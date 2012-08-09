@@ -1,0 +1,6 @@
+# GIT IGNORE FILE
+
+Makefile
+lib
+*.o
+moc_*.cpp
