@@ -1,4 +1,5 @@
 #include <QTime>
+#include <QFile>
 #include <QDebug>
 #include <QRegExp>
 #include <qextserialenumerator.h>
@@ -13,6 +14,7 @@ int main(int /*argc*/, char** /*argv*/)
         if(QRegExp("ttyUSB\\d").exactMatch(info.portName))
         {
             bool result;
+            QFile file("/tmp/dump");
             FTDISerialPort serialPort(info.portName);
 
             qDebug() << "port name:"       << info.portName;
@@ -32,11 +34,17 @@ int main(int /*argc*/, char** /*argv*/)
             {
                 if(serialPort.bytesAvailable())
                 {
+                    QByteArray data = serialPort.readAll();
                     QTime time = QTime::currentTime();
 
-                    qDebug()<<time<<serialPort.readAll();
+                    result = file.open(QIODevice::WriteOnly | QFile::Append);
+                    qDebug()<<"Open?"<<result;
+                    qDebug()<<time<<data;
+                    file.write(data);
+                    file.close();
                 }
             }
+            file.close();
         }
     }
     return 0;
