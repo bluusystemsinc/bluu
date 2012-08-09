@@ -12,6 +12,7 @@ int main(int /*argc*/, char** /*argv*/)
     foreach (QextPortInfo info, ports) {
         if(QRegExp("ttyUSB\\d").exactMatch(info.portName))
         {
+            bool result;
             FTDISerialPort serialPort(info.portName);
 
             qDebug() << "port name:"       << info.portName;
@@ -22,6 +23,10 @@ int main(int /*argc*/, char** /*argv*/)
             qDebug() << "product ID:"      << info.productID;
 
             qDebug() << "===================================";
+
+            result = serialPort.open(QIODevice::ReadWrite);
+
+            qDebug()<<"Result?"<<result<<"("<<serialPort.errorString()<<")";
 
             forever
             {
