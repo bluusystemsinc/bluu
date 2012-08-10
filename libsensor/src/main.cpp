@@ -18,6 +18,25 @@ int main(int /*argc*/, char** /*argv*/)
     {
         qDebug()<<"Num devices:"<<dwNumDevices;
     }
+    else if(dwNumDevices == 0)
+        qFatal("No devices installed");
+    else
+        qFatal("ERROR");
+
+    for(DWORD i = 0; i < dwNumDevices; i++)
+    {
+        FT_DEVICE_LIST_INFO_NODE device;
+
+        result = FT_GetDeviceInfoList(&device, &dwNumDevices);
+
+        qDebug()<<"Flags"<<device.Flags;
+        qDebug()<<"Type"<<device.Type;
+        qDebug()<<"ID"<<device.ID;
+        qDebug()<<"LocId"<<device.LocId;
+        qDebug()<<"SerialNumber"<<device.SerialNumber;
+        qDebug()<<"Description"<<device.Description;
+        qDebug()<<"Handle"<<device.ftHandle;
+    }
 
 
 //    QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
@@ -62,5 +81,5 @@ int main(int /*argc*/, char** /*argv*/)
 //            file.close();
 //        }
 //    }
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -1,6 +1,7 @@
 # GIT IGNORE FILE
 
 Makefile
+libsensor/Makefile.libsensor
 lib
 bin
 *.o
