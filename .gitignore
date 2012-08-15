@@ -10,3 +10,4 @@ moc_*.cpp
 *.user
 qt-components-desktop/components/plugin
 qt-components-desktop/qmldesktopviewer/debug/
+qt-components-desktop/qmldesktopviewer/qmldesktopviewer

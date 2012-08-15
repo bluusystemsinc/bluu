@@ -1,8 +1,7 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
-Item {
-    Label {
-        text: "Hello world"
-    }
+TextArea {
+    text: context.eula
+    readOnly: true
 }

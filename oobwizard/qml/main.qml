@@ -46,16 +46,11 @@ Window {
 
         color: syspal.button
 
-        Flickable {
+        Loader {
+            id: loader
+
             anchors.fill: parent
-            contentWidth: loader.item ? loader.item.width : 0
-            contentHeight: loader.item ? loader.item.height : 0
-
-            Loader {
-                id: loader
-
-                source: context.currentUrl
-            }
+            source: context.currentUrl
         }
     }
 
@@ -83,13 +78,17 @@ Window {
             spacing: root.margin
 
             Button {
-                enabled: !firstStep
+                enabled: context.isBackEnabled
                 text: "&Back"
+
+                onClicked: context.backClicked();
             }
 
             Button {
-                enabled: !lastStep
+                enabled: context.isNextEnabled
                 text: "&Next"
+
+                onClicked: context.nextClicked();
             }
         }
     }
