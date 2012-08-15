@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 
-SUBDIRS += libsensor/libsensor.pro
+unix:SUBDIRS += libsensor/libsensor.pro
+SUBDIRS += oobwizard/oobwizard.pro

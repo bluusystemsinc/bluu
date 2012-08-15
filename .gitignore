@@ -1,9 +1,10 @@
 # GIT IGNORE FILE
 
 Makefile
+Makefile.*
 libsensor/Makefile.libsensor
 lib
 bin
 *.o
 moc_*.cpp
-bluu.pro.user
+*.user
