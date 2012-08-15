@@ -4,8 +4,19 @@ DESTDIR = ../bin
 OBJECTS_DIR = o
 MOC_DIR = o
 
-SOURCES += src/oobwizard.cpp
+HEADERS += \
+    src/wizardcontext.h
+SOURCES += src/oobwizard.cpp \
+    src/wizardcontext.cpp
 
-OTHER_FILES += qml/*.qml
+QML_FILES += qml/main.qml \
+    qml/welcomeStep.qml
 
-HEADERS +=
+OTHER_FILES = $$QML_FILES
+
+for(qml, QML_FILES) {
+    QML = $$basename(qml)
+    QMLNAME = $$replace(QML, \\., _)
+    DEFINES *= '$$upper($$QMLNAME)=\\"$$QML\\"'
+    message($$DEFINES)
+}

@@ -53,6 +53,8 @@ Window {
 
             Loader {
                 id: loader
+
+                source: context.currentUrl
             }
         }
     }
