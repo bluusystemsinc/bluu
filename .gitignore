@@ -8,3 +8,5 @@ bin
 *.o
 moc_*.cpp
 *.user
+qt-components-desktop/components/plugin
+qt-components-desktop/qmldesktopviewer/debug/
