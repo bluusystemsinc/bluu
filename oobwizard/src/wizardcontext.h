@@ -17,6 +17,8 @@ public:
                NOTIFY isBackEnabledChanged)
     Q_PROPERTY(bool isNextEnabled READ isNextEnabled WRITE setNextEnabled
                NOTIFY isNextEnabledChanged)
+    Q_PROPERTY(bool isConnectionTestRunning READ isConnectionTestRunning
+               NOTIFY isConnectionTestRunningChanged)
 
     explicit WizardContext(QObject *parent = 0);
 
@@ -24,10 +26,12 @@ public:
     QString eula() const;
     bool isBackEnabled() const;
     bool isNextEnabled() const;
+    bool isConnectionTestRunning() const;
 
 public slots:
     void setBackEnabled(bool value);
     void setNextEnabled(bool value);
+    void runConnectionTest();
 
 signals:
     void backClicked();
@@ -36,6 +40,7 @@ signals:
     void eulaChanged();
     void isBackEnabledChanged();
     void isNextEnabledChanged();
+    void isConnectionTestRunningChanged();
 
 protected slots:
     void setCurrentUrl(const QUrl &);
@@ -45,6 +50,7 @@ private:
     QUrl m_currentUrl;
     bool m_isBackEnabled;
     bool m_isNextEnabled;
+    bool m_isConnectionTestRunning;
 };
 
 #endif // WIZARDCONTEXT_H

@@ -68,6 +68,11 @@ bool WizardContext::isNextEnabled() const
     return m_isNextEnabled;
 }
 
+bool WizardContext::isConnectionTestRunning() const
+{
+    return m_isConnectionTestRunning;
+}
+
 void WizardContext::setBackEnabled(bool value)
 {
     if(m_isBackEnabled != value)
@@ -84,6 +89,11 @@ void WizardContext::setNextEnabled(bool value)
         m_isNextEnabled = value;
         emit isNextEnabledChanged();
     }
+}
+
+void WizardContext::runConnectionTest()
+{
+    // TODO
 }
 
 void WizardContext::setCurrentUrl(const QUrl &url)
