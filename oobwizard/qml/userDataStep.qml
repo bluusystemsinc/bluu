@@ -1,42 +1,49 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
-Grid {
+Item {
     anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
-    rows: children.length / 2
-    columns: 2
-    spacing: margin
+    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
-    Label {
-        height: firstNameTextField.height
-        text: "First Name:"
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignRight
-    }
+    width: childrenRect.width
+    height: childrenRect.height
 
-    TextField {
-        id: firstNameTextField
-    }
+    Grid {
+        rows: children.length / 2
+        columns: 2
+        spacing: margin
 
-    Label {
-        height: lastNameTextField.height
-        text: "Last Name:"
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignRight
-    }
+        Label {
+            height: firstNameTextField.height
+            text: "First Name:"
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignRight
+        }
 
-    TextField {
-        id: lastNameTextField
-    }
+        TextField {
+            id: firstNameTextField
+        }
 
-    Label {
-        height: emailTextField.height
-        text: "E-mail address:"
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignRight
-    }
+        Label {
+            height: lastNameTextField.height
+            text: "Last Name:"
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignRight
+        }
 
-    TextField {
-        id: emailTextField
+        TextField {
+            id: lastNameTextField
+        }
+
+        Label {
+            height: emailTextField.height
+            text: "E-mail address:"
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignRight
+        }
+
+        TextField {
+            id: emailTextField
+        }
     }
 }
