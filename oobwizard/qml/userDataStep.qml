@@ -8,9 +8,14 @@ Item {
     width: childrenRect.width
     height: childrenRect.height
 
+    function show()
+    {
+        firstNameTextField.focus = true;
+    }
+
     Grid {
-        rows: children.length / 2
-        columns: 2
+        columns: 3
+        rows: children.length / columns
         spacing: margin
 
         Label {
@@ -24,6 +29,14 @@ Item {
             id: firstNameTextField
         }
 
+        Image {
+            width: firstNameTextField.height
+            height: firstNameTextField.height
+            source: firstNameTextField.acceptableInput
+                    ? "../image/accepted_48.png"
+                    : "../image/not_acceptable_48.png"
+        }
+
         Label {
             height: lastNameTextField.height
             text: "Last Name:"
@@ -35,6 +48,14 @@ Item {
             id: lastNameTextField
         }
 
+        Image {
+            width: lastNameTextField.height
+            height: lastNameTextField.height
+            source: lastNameTextField.acceptableInput
+                    ? "../image/accepted_48.png"
+                    : "../image/not_acceptable_48.png"
+        }
+
         Label {
             height: emailTextField.height
             text: "E-mail address:"
@@ -44,6 +65,14 @@ Item {
 
         TextField {
             id: emailTextField
+        }
+
+        Image {
+            width: emailTextField.height
+            height: emailTextField.height
+            source: emailTextField.acceptableInput
+                    ? "../image/accepted_48.png"
+                    : "../image/not_acceptable_48.png"
         }
     }
 }

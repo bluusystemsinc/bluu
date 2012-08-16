@@ -51,6 +51,11 @@ Window {
 
             anchors.fill: parent
             source: context.currentUrl
+
+            onItemChanged: {
+                if(item && item.show)
+                    item.show();
+            }
         }
     }
 
@@ -78,6 +83,8 @@ Window {
             spacing: root.margin
 
             Button {
+                id: backButton
+
                 enabled: context.isBackEnabled
                 text: "&Back"
 
@@ -85,6 +92,8 @@ Window {
             }
 
             Button {
+                id: nextButton
+
                 enabled: context.isNextEnabled
                 text: "&Next"
 
