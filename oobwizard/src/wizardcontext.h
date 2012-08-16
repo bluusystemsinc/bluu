@@ -10,6 +10,13 @@ class WizardContext : public QObject
 {
     Q_OBJECT
 public:
+    enum networkStates {
+        ConnectionNotTested,
+        ConnectionTested,
+        ConnectionOk,
+        ConnecitonError
+    };
+
     Q_PROPERTY(QUrl currentUrl READ currentUrl WRITE setCurrentUrl
                NOTIFY currentUrlChanged)
     Q_PROPERTY(QString eula READ eula NOTIFY eulaChanged)
@@ -31,7 +38,8 @@ public:
 public slots:
     void setBackEnabled(bool value);
     void setNextEnabled(bool value);
-    bool runConnectionTest(QString hostname);
+    void runConnectionTest(QString hostname);
+    void updateExit();
 
 signals:
     void backClicked();
@@ -51,6 +59,8 @@ private:
     bool m_isBackEnabled;
     bool m_isNextEnabled;
     bool m_isConnectionTestRunning;
+    networkStates m_isConnected;
+
 };
 
 #endif // WIZARDCONTEXT_H

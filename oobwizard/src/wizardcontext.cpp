@@ -92,13 +92,15 @@ void WizardContext::setNextEnabled(bool value)
     }
 }
 
-bool WizardContext::runConnectionTest(QString hostname)
+void WizardContext::runConnectionTest(QString hostname)
 {
-    // TODO
+     QString program = "scripts/connectionTest.sh";
+     QStringList arg;
 
-    if(QProcess::execute("ping", QStringList() << "-c1" << hostname) == 0)
-        return true;
-return false;
+     arg << hostname;
+     QProcess *myProcess = new QProcess();
+     connect(myProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(updateExit()));
+     myProcess->start(program,arg);
 }
 
 void WizardContext::setCurrentUrl(const QUrl &url)
@@ -110,4 +112,8 @@ void WizardContext::setCurrentUrl(const QUrl &url)
         m_currentUrl = url;
         emit currentUrlChanged();
     }
+}
+void WizardContext::updateExit()
+{
+
 }
