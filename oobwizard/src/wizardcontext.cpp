@@ -96,8 +96,7 @@ bool WizardContext::runConnectionTest(QString hostname)
 {
     // TODO
 
-    int exitCode = QProcess::execute("ping", QStringList() << "-c1" << hostname);
-    if (0 == exitCode)
+    if(QProcess::execute("ping", QStringList() << "-c1" << hostname) == 0)
         return true;
 return false;
 }
