@@ -13,12 +13,11 @@ int main(int argc, char **argv)
 
     wizardContext->runConnectionTest(hostname);
 
-
     context->setContextProperty("context", wizardContext);
     view.setSource(QUrl::fromLocalFile("qml/main.qml"));
 
     view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    view.resize(640, 480);
+    view.setFixedSize(480, 232);
     view.show();
     return app.exec();
 }

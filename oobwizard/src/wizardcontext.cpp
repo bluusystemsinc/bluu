@@ -97,9 +97,6 @@ void WizardContext::runConnectionTest(QString hostname)
      QString program = "scripts/connectionTest.sh";
      QStringList arg;
 
-
-
-
      arg << hostname;
      QProcess *myProcess = new QProcess();
      connect(myProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(updateExit()));
