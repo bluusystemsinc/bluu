@@ -1,10 +1,9 @@
+include(../common.pri)
+
+TEMPLATE = app
 QT += declarative
 
-CONFIG += debug
-
 DESTDIR = ../bin
-OBJECTS_DIR = o
-MOC_DIR = o
 
 HEADERS += \
     src/wizardcontext.h

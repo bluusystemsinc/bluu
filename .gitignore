@@ -3,6 +3,7 @@
 Makefile
 Makefile.*
 libsensor/Makefile.libsensor
+qmake
 lib
 bin
 *.o

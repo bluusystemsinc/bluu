@@ -1,4 +1,4 @@
-CONFIG += testing debug
+include(../common.pri)
 
 testing  {
     OLDTARGET = $$TARGET
@@ -12,15 +12,6 @@ else {
 }
 
 QT -= gui
-
-OBJECTS_DIR = o
-MOC_DIR = o
-
-CPU = $$(CPU)
-isEmpty(CPU) {
-    CPU = i386
-}
-message(Building for $${CPU})
 
 include(../qextserialport/src/qextserialport.pri)
 #QEXTSERIALPORT_LIBRARY = yes

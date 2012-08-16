@@ -1,5 +1,9 @@
+system(more README)
+
 TEMPLATE = subdirs
 
-unix:SUBDIRS += libsensor/libsensor.pro
-SUBDIRS += oobwizard/oobwizard.pro
-buildQtDesktopComponents:SUBDIRS += qt-components-desktop/desktop.pro
+unix:SUBDIRS += libsensor
+SUBDIRS += oobwizard
+buildQtDesktopComponents: {
+	SUBDIRS += qt-components-desktop/desktop.pro
+}
