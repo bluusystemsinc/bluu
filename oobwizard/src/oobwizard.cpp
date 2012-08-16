@@ -10,6 +10,9 @@ int main(int argc, char **argv)
     WizardContext *wizardContext = new WizardContext(&view);
     QDeclarativeContext *context = view.engine()->rootContext();
 
+    if(!wizardContext->runConnectionTest("192.168.2.107"))
+        qFatal("Host is DOWN");
+
     context->setContextProperty("context", wizardContext);
     view.setSource(QUrl::fromLocalFile("qml/main.qml"));
 

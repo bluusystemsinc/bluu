@@ -39,4 +39,15 @@ Grid {
     TextField {
         id: emailTextField
     }
+
+//    Label {
+//        height: emailTextField.height
+//        text: "Ip-address:"
+//        verticalAlignment: Text.AlignVCenter
+//        horizontalAlignment: Text.AlignRight
+//    }
+
+//    TextField {
+//        id: ipAddrfsTextField
+//    }
 }

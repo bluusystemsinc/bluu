@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QStateMachine>
+#include <QProcess>
 
 WizardContext::WizardContext(QObject *parent) :
     QObject(parent)
@@ -91,9 +92,14 @@ void WizardContext::setNextEnabled(bool value)
     }
 }
 
-void WizardContext::runConnectionTest()
+bool WizardContext::runConnectionTest(QString hostname)
 {
     // TODO
+
+    int exitCode = QProcess::execute("ping", QStringList() << "-c1" << hostname);
+    if (0 == exitCode)
+        return true;
+return false;
 }
 
 void WizardContext::setCurrentUrl(const QUrl &url)

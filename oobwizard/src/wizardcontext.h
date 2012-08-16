@@ -31,7 +31,7 @@ public:
 public slots:
     void setBackEnabled(bool value);
     void setNextEnabled(bool value);
-    void runConnectionTest();
+    bool runConnectionTest(QString hostname);
 
 signals:
     void backClicked();
