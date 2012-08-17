@@ -3,6 +3,7 @@
 
 #include <QUrl>
 #include <QObject>
+#include <QProcess>
 
 class QStateMachine;
 
@@ -11,10 +12,12 @@ class WizardContext : public QObject
     Q_OBJECT
 public:
     enum networkStates {
-        ConnectionNotTested,
-        ConnectionTested,
-        ConnectionOk,
-        ConnecitonError
+        notConnected,
+        connectionNotTested,
+        connectionTested,
+        connectionOk,
+        connecitonError,
+
     };
 
     Q_PROPERTY(QUrl currentUrl READ currentUrl WRITE setCurrentUrl
@@ -39,7 +42,7 @@ public slots:
     void setBackEnabled(bool value);
     void setNextEnabled(bool value);
     void runConnectionTest(QString hostname);
-    void updateExit();
+    void updateExit(int exitCode, QProcess::ExitStatus exitStatus);
 
 signals:
     void backClicked();

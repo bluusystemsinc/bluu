@@ -11,7 +11,6 @@ int main(int argc, char **argv)
     QDeclarativeContext *context = view.engine()->rootContext();
 
     view.engine()->addImportPath("../lib/imports");
-
     context->setContextProperty("context", wizardContext);
     view.setSource(QUrl::fromLocalFile("qml/main.qml"));
 

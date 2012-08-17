@@ -10,7 +10,7 @@
 #include <QProcess>
 
 WizardContext::WizardContext(QObject *parent) :
-    QObject(parent)
+    QObject(parent), m_isConnected(notConnected)
 {
     m_stateMachine = new QStateMachine(this);
 
@@ -94,12 +94,15 @@ void WizardContext::setNextEnabled(bool value)
 
 void WizardContext::runConnectionTest(QString hostname)
 {
-     QString program = "scripts/connectionTest.sh";
+     QString program = "../scripts/connectionTest.sh";
+//      QString program = "/bin/touch";
      QStringList arg;
 
+
      arg << hostname;
+//     arg << "../scripts/latko.txt";
      QProcess *myProcess = new QProcess();
-     connect(myProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(updateExit()));
+     connect(myProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(updateExit(int, QProcess::ExitStatus)));
      myProcess->start(program,arg);
 }
 
@@ -113,7 +116,11 @@ void WizardContext::setCurrentUrl(const QUrl &url)
         emit currentUrlChanged();
     }
 }
-void WizardContext::updateExit()
+void WizardContext::updateExit(int exitCode, QProcess::ExitStatus exitStatus)
 {
-
+    qDebug() << "exitCode:" << exitCode << endl;
+    if(exitCode)
+        this->m_isConnected = connectionTested;
+    else
+        this->m_isConnected = connecitonError;
 }
