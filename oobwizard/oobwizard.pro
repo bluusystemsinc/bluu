@@ -5,6 +5,8 @@ QT += declarative
 
 DESTDIR = ../bin
 
+QML_IMPORT_PATH = ../lib/imports
+
 HEADERS += \
     src/wizardcontext.h
 SOURCES += src/oobwizard.cpp \
