@@ -8,6 +8,8 @@ Window {
     property bool firstStep: true
     property bool lastStep: false
 
+    width: 480; height: 232
+
     SystemPalette { id: syspal; }
 
     Rectangle {

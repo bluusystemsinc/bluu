@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     context->setContextProperty("context", wizardContext);
     view.setSource(QUrl::fromLocalFile("qml/main.qml"));
 
-    view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    view.setResizeMode(QDeclarativeView::SizeViewToRootObject);
     view.setFixedSize(480, 232);
     view.show();
     return app.exec();

@@ -16,7 +16,10 @@ QML_FILES += qml/main.qml \
     qml/welcomeStep.qml \
     qml/userDataStep.qml
 
-OTHER_FILES = $$QML_FILES
+DUMMY_QML_FILES += dummydata/context.qml \
+    dummydata/context/main.qml
+
+OTHER_FILES = $$QML_FILES $$DUMMY_QML_FILES
 
 for(qml, QML_FILES) {
     QML = $$basename(qml)
