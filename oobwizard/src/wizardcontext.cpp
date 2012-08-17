@@ -95,12 +95,9 @@ void WizardContext::setNextEnabled(bool value)
 void WizardContext::runConnectionTest(QString hostname)
 {
      QString program = "../scripts/connectionTest.sh";
-//      QString program = "/bin/touch";
      QStringList arg;
 
-
      arg << hostname;
-//     arg << "../scripts/latko.txt";
      QProcess *myProcess = new QProcess();
      connect(myProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(updateExit(int, QProcess::ExitStatus)));
      myProcess->start(program,arg);
