@@ -9,6 +9,8 @@ int main(int argc, char **argv)
     QDeclarativeView view;
     WizardContext *wizardContext = new WizardContext(&view);
     QDeclarativeContext *context = view.engine()->rootContext();
+
+    //TODO  hostname object value must be initialized with a parameter from ui or else
     QString hostname("192.168.2.107");
 
     wizardContext->runConnectionTest(hostname);
