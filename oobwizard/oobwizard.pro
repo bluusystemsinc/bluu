@@ -8,9 +8,12 @@ DESTDIR = ../bin
 QML_IMPORT_PATH = ../lib/imports
 
 HEADERS += \
-    src/wizardcontext.h
+    src/wizardcontext.h \
+    src/oobwizardwidget.h
+
 SOURCES += src/oobwizard.cpp \
-    src/wizardcontext.cpp
+    src/wizardcontext.cpp \
+    src/oobwizardwidget.cpp
 
 QML_FILES += qml/main.qml \
     qml/welcomeStep.qml \
@@ -27,3 +30,6 @@ for(qml, QML_FILES) {
     DEFINES *= '$$upper($$QMLNAME)=\\"$$QML\\"'
     message($$DEFINES)
 }
+
+FORMS += \
+    src/oobwizardwidget.ui
