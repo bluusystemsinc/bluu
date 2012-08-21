@@ -4,27 +4,55 @@
 #include <QWidget>
 #include "ui_oobwizardwidget.h"
 
+class QState;
+class QStateMachine;
 class WizardContext;
+class WelcomeStepWidget;
+class ControllerStepWidget;
+class ConnectionTypeStepWidget;
+class NetworkSettingsStepWidget;
+class WirelessSettingsStepWidget;
+class SystemConfigurationStepWidget;
+class EndUserRegistrationStepWidget;
+class NetworkSettingsSummaryStepWidget;
 
 class OobWizardWidget : public QWidget, private Ui::OobWizardWidget
 {
     Q_OBJECT
-    
+
 public:
     explicit OobWizardWidget(QWidget *parent = 0);
-    ~OobWizardWidget();
-
-signals:
-    void controllerStepValidated();
 
 protected:
-    void installValidators();
-
-protected slots:
-    void validateControlStep();
+    QState* createState(int index, const QString &title);
+    void setupStateMachine();
 
 private:
-    WizardContext *m_context;
+    enum {
+        WelcomeStepWidgetIndex = 0,
+        ControllerStepWidgetIndex,
+        SystemConfigurationStepWidgetIndex,
+        ConnectionTypeStepWidgetIndex,
+        WirelessSettingsStepWidgetIndex,
+        NetworkSettingsStepWidgetIndex,
+        NetworkSettingsSummaryStepWidgetIndex,
+        EndUserRegistrationStepWidgetIndex
+    };
+
+    QStateMachine *m_stateMachine;
+    QState *m_welcomeState, *m_endUserRegistrationState, *m_controllerState,
+            *m_systemConfigurationState, *m_connectionTypeState,
+            *m_wirelessSettingsState, *m_networkSettingsState,
+            *m_networkSettingsSummaryState;
+
+    WelcomeStepWidget *m_welcomeStepWidget;
+    ControllerStepWidget *m_controllerStepWidget;
+    SystemConfigurationStepWidget *m_systemConfigurationStepWidget;
+    ConnectionTypeStepWidget *m_connectionTypeStepWidget;
+    WirelessSettingsStepWidget *m_wirelessSettingsStepWidget;
+    NetworkSettingsStepWidget *m_networkSettingsStepWidget;
+    NetworkSettingsSummaryStepWidget *m_networkSettingsSummaryStepWidget;
+    EndUserRegistrationStepWidget *m_endUserRegistrationStepWidget;
 };
 
 #endif // OOBWIZARDWIDGET_H

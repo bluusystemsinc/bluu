@@ -5,7 +5,9 @@
 #include <QObject>
 #include <QProcess>
 
+class QState;
 class QStateMachine;
+class QSignalTransition;
 
 namespace Ui {
 class OobWizardWidget;
@@ -58,6 +60,8 @@ signals:
 
 protected slots:
     void setCurrentUrl(const QUrl &);
+    void setSystemControllerTransitions();
+    void setConnectionTypeTransitions();
 
 private:
     QStateMachine *m_stateMachine;
@@ -67,6 +71,9 @@ private:
     bool m_isConnectionTestRunning;
     networkStates m_isConnected;
     Ui::OobWizardWidget *m_ui;
+    QState *m_welcomeState, *m_endUserRegistrationState, *m_controllerState,
+            *m_systemConfigurationState, *m_connectionTypeState,
+            *m_wirelessSettingsState;
 };
 
 #endif // WIZARDCONTEXT_H

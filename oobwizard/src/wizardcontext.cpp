@@ -6,46 +6,82 @@
 #include <QFile>
 #include <QDebug>
 #include <QTimer>
-#include <QStateMachine>
 #include <QProcess>
+#include <QButtonGroup>
+#include <QStateMachine>
 
 #include "ui_oobwizardwidget.h"
 
 WizardContext::WizardContext(Ui::OobWizardWidget *ui, QObject *parent) :
     QObject(parent), m_isConnected(notConnected)
 {
-    m_ui = ui;
+//    QButtonGroup *systemConfigurationButtonGroup = new QButtonGroup(this);
+//    QButtonGroup *connectionTypeButtonGroup = new QButtonGroup(this);
 
-    m_stateMachine = new QStateMachine(this);
+//    systemConfigurationButtonGroup->addButton(ui->networkConfigurationButton);
+//    systemConfigurationButtonGroup->addButton(ui->endUserRegistrationButton);
 
-    QState *welcomeState, *userDataState, *controllerState;
+//    connectionTypeButtonGroup->addButton(ui->wiredConnectionButton);
+//    connectionTypeButtonGroup->addButton(ui->wirelessConnectionButton);
 
-    welcomeState = new QState(m_stateMachine);
-    welcomeState->assignProperty(ui->stackedWidget, "currentIndex", 0);
-    welcomeState->assignProperty(ui->backButton, "enabled", false);
-    welcomeState->assignProperty(ui->nextButton, "enabled", true);
+//    m_ui = ui;
 
-    controllerState = new QState(m_stateMachine);
-    controllerState->assignProperty(ui->stackedWidget, "currentIndex", 1);
-    controllerState->assignProperty(ui->backButton, "enabled", true);
-    controllerState->assignProperty(ui->nextButton, "enabled", false);
 
-    userDataState = new QState(m_stateMachine);
-    userDataState->assignProperty(ui->stackedWidget, "currentIndex", 7);
+//    m_stateMachine = new QStateMachine(this);
 
-    welcomeState->addTransition(ui->nextButton, SIGNAL(clicked()),
-                                controllerState);
+//    m_welcomeState = new QState(m_stateMachine);
+//    m_welcomeState->assignProperty(ui->stackedWidget, "currentIndex", 0);
+//    m_welcomeState->assignProperty(ui->backButton, "enabled", false);
+//    m_welcomeState->assignProperty(ui->nextButton, "enabled", true);
 
-    controllerState->addTransition(ui->backButton, SIGNAL(clicked()),
-                                   welcomeState);
+//    m_controllerState = new QState(m_stateMachine);
+//    m_controllerState->assignProperty(ui->stackedWidget, "currentIndex", 1);
+//    m_controllerState->assignProperty(ui->backButton, "enabled", true);
+//    m_controllerState->assignProperty(ui->nextButton, "enabled", false);
 
-    userDataState->addTransition(this, SIGNAL(backClicked()), welcomeState);
+//    m_systemConfigurationState = new QState(m_stateMachine);
+//    m_systemConfigurationState->assignProperty(ui->stackedWidget,
+//                                               "currentIndex", 2);
 
-    m_stateMachine->setInitialState(welcomeState);
-    m_stateMachine->start();
+//    m_connectionTypeState = new QState(m_stateMachine);
+//    m_connectionTypeState->assignProperty(ui->stackedWidget, "currentIndex", 3);
 
-    ui->eulaTextEdit->setPlainText(eula());
-    emit eulaChanged();
+//    m_wirelessSettingsState = new QState(m_stateMachine);
+//    m_wirelessSettingsState->assignProperty(ui->stackedWidget, "currentIndex",
+//                                            4);
+
+//    m_endUserRegistrationState = new QState(m_stateMachine);
+//    m_endUserRegistrationState->assignProperty(ui->stackedWidget,
+//                                               "currentIndex", 7);
+
+
+//    m_welcomeState->addTransition(ui->nextButton, SIGNAL(clicked()),
+//                                m_controllerState);
+
+//    m_controllerState->addTransition(ui->backButton, SIGNAL(clicked()),
+//                                   m_welcomeState);
+//    m_controllerState->addTransition(ui->nextButton, SIGNAL(clicked()),
+//                                   m_systemConfigurationState);
+
+//    setSystemControllerTransitions();
+
+//    setConnectionTypeTransitions();
+
+//    m_wirelessSettingsState->addTransition(ui->backButton, SIGNAL(clicked()),
+//                                           m_connectionTypeState);
+
+////    m_endUserRegistrationState->addTransition(this, SIGNAL(backClicked()), m_welcomeState);
+
+//    m_stateMachine->setInitialState(m_welcomeState);
+//    m_stateMachine->start();
+
+//    ui->eulaTextEdit->setPlainText(eula());
+//    emit eulaChanged();
+
+//    connect(systemConfigurationButtonGroup, SIGNAL(buttonClicked(int)),
+//            SLOT(setSystemControllerTransitions()));
+//    connect(connectionTypeButtonGroup, SIGNAL(buttonClicked(int)),
+//            SLOT(setConnectionTypeTransitions()));
 }
 
 QUrl WizardContext::currentUrl() const
@@ -111,7 +147,8 @@ void WizardContext::runConnectionTest(QString hostname)
 
      arg << hostname;
      QProcess *myProcess = new QProcess();
-     connect(myProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(updateExit(int, QProcess::ExitStatus)));
+     connect(myProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this,
+             SLOT(updateExit(int, QProcess::ExitStatus)));
      myProcess->start(program,arg);
 }
 
@@ -125,7 +162,45 @@ void WizardContext::setCurrentUrl(const QUrl &url)
         emit currentUrlChanged();
     }
 }
-void WizardContext::updateExit(int exitCode, QProcess::ExitStatus /*exitStatus*/)
+
+void WizardContext::setSystemControllerTransitions()
+{
+//    foreach(QAbstractTransition *transition,
+//            m_systemConfigurationState->transitions())
+//    {
+//        m_systemConfigurationState->removeTransition(transition);
+//    }
+
+//    m_systemConfigurationState->addTransition(m_ui->backButton,
+//                                              SIGNAL(clicked()),
+//                                              m_controllerState);
+
+//    if(m_ui->networkConfigurationButton->isChecked())
+//    {
+//        m_systemConfigurationState->addTransition(m_ui->nextButton,
+//                                                  SIGNAL(clicked()),
+//                                                  m_connectionTypeState);
+//        m_connectionTypeState->addTransition(m_ui->backButton,
+//                                             SIGNAL(clicked()),
+//                                             m_systemConfigurationState);
+//    }
+//    else if(m_ui->endUserRegistrationButton->isChecked())
+//    {
+//        m_systemConfigurationState->addTransition(m_ui->nextButton,
+//                                                  SIGNAL(clicked()),
+//                                                  m_endUserRegistrationState);
+//        m_connectionTypeState->addTransition(m_ui->backButton,
+//                                             SIGNAL(clicked()),
+//                                             m_systemConfigurationState);
+//    }
+}
+
+void WizardContext::setConnectionTypeTransitions()
+{
+}
+
+void WizardContext::updateExit(int exitCode,
+                               QProcess::ExitStatus /*exitStatus*/)
 {
     qDebug() << "exitCode:" << exitCode << endl;
     if(exitCode)
