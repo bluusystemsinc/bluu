@@ -13,3 +13,4 @@ moc_*.cpp
 qt-components-desktop/components/plugin
 qt-components-desktop/qmldesktopviewer/debug/
 qt-components-desktop/qmldesktopviewer/qmldesktopviewer
+qmake.*

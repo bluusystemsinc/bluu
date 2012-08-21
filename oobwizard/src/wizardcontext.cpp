@@ -17,14 +17,9 @@ WizardContext::WizardContext(QObject *parent) :
     QState *welcomeState, *userDataState;
 
     welcomeState = new QState;
-    welcomeState->assignProperty(this, "currentUrl", WELCOMESTEP_QML);
-    welcomeState->assignProperty(this, "isBackEnabled", false);
-    welcomeState->assignProperty(this, "isNextEnabled", true);
     m_stateMachine->addState(welcomeState);
 
     userDataState = new QState;
-    userDataState->assignProperty(this, "currentUrl", USERDATASTEP_QML);
-    userDataState->assignProperty(this, "isBackEnabled", true);
     m_stateMachine->addState(userDataState);
 
     welcomeState->addTransition(this, SIGNAL(nextClicked()), userDataState);
@@ -113,7 +108,7 @@ void WizardContext::setCurrentUrl(const QUrl &url)
         emit currentUrlChanged();
     }
 }
-void WizardContext::updateExit(int exitCode, QProcess::ExitStatus exitStatus)
+void WizardContext::updateExit(int exitCode, QProcess::ExitStatus /*exitStatus*/)
 {
     qDebug() << "exitCode:" << exitCode << endl;
     if(exitCode)

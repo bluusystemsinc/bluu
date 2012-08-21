@@ -3,8 +3,8 @@ else:system(cat README)
 
 TEMPLATE = subdirs
 
-unix:SUBDIRS += libsensor
-SUBDIRS += qt-desktop-components 
+#unix:SUBDIRS += libsensor
+#SUBDIRS += qt-desktop-components
 SUBDIRS += oobwizard
 
 qt-desktop-components.file = qt-components-desktop/desktop.pro
