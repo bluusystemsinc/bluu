@@ -17,9 +17,9 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>7</number>
      </property>
-     <widget class="QWidget" name="page">
+     <widget class="QWidget" name="startPage">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="label_4">
@@ -137,7 +137,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPlainTextEdit" name="plainTextEdit">
+        <widget class="QPlainTextEdit" name="eulaTextEdit">
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -145,7 +145,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_2">
+     <widget class="QWidget" name="controllerPage">
       <layout class="QFormLayout" name="formLayout">
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label">
@@ -268,12 +268,12 @@
           <string>&amp;User name:</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit</cstring>
+          <cstring>userNameLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="userNameLineEdit"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_3">
@@ -281,26 +281,26 @@
           <string>&amp;Password:</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_2</cstring>
+          <cstring>passwordLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_2"/>
+        <widget class="QLineEdit" name="passwordLineEdit"/>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_7">
+     <widget class="QWidget" name="sysConfPage">
       <layout class="QFormLayout" name="formLayout_7">
        <item row="1" column="0">
-        <widget class="QRadioButton" name="radioButton_7">
+        <widget class="QRadioButton" name="networkConfigRbtn">
          <property name="text">
           <string>Continue to &amp;Network Configuration</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QRadioButton" name="radioButton_8">
+        <widget class="QRadioButton" name="endUserRegRbtn">
          <property name="text">
           <string>Continue to End User Registration</string>
          </property>
@@ -423,7 +423,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_3">
+     <widget class="QWidget" name="connectionTypePage">
       <layout class="QFormLayout" name="formLayout_2">
        <item row="1" column="0">
         <widget class="QLabel" name="label_6">
@@ -433,14 +433,14 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QRadioButton" name="radioButton">
+        <widget class="QRadioButton" name="wiredRadioBtn">
          <property name="text">
           <string>&amp;Wired</string>
          </property>
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QRadioButton" name="radioButton_2">
+        <widget class="QRadioButton" name="wifiRadioBtn">
          <property name="text">
           <string>Wirele&amp;ss</string>
          </property>
@@ -563,7 +563,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_4">
+     <widget class="QWidget" name="wifiSettingsPage">
       <layout class="QFormLayout" name="formLayout_3">
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_7">
@@ -698,7 +698,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="wifiNoneBtn">
              <property name="text">
               <string>N&amp;one</string>
              </property>
@@ -727,12 +727,12 @@
           <string>Network name (&amp;SSID):</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_3</cstring>
+          <cstring>wifiSSIDlineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_3"/>
+        <widget class="QLineEdit" name="wifiSSIDlineEdit"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_10">
@@ -740,12 +740,12 @@
           <string>Sec&amp;urity:</string>
          </property>
          <property name="buddy">
-          <cstring>comboBox</cstring>
+          <cstring>wifiSecurityComboBox</cstring>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QComboBox" name="comboBox">
+        <widget class="QComboBox" name="wifiSecurityComboBox">
          <item>
           <property name="text">
            <string>None</string>
@@ -774,12 +774,12 @@
           <string>&amp;Password:</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_4</cstring>
+          <cstring>wifiPassLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEdit_4">
+        <widget class="QLineEdit" name="wifiPassLineEdit">
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
          </property>
@@ -787,7 +787,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_5">
+     <widget class="QWidget" name="networkSettingsPage">
       <layout class="QFormLayout" name="formLayout_5">
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_12">
@@ -905,14 +905,14 @@
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
-        <widget class="QRadioButton" name="radioButton_3">
+        <widget class="QRadioButton" name="wiredDHCPRadioBtn">
          <property name="text">
           <string>&amp;DHCP</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0" colspan="2">
-        <widget class="QRadioButton" name="radioButton_4">
+        <widget class="QRadioButton" name="wiredStaticRadioBtn">
          <property name="text">
           <string>&amp;Static</string>
          </property>
@@ -924,12 +924,12 @@
           <string>Use the following &amp;IP address:</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_5</cstring>
+          <cstring>staticIpAddrlineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_5"/>
+        <widget class="QLineEdit" name="staticIpAddrlineEdit"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_14">
@@ -937,12 +937,12 @@
           <string>Subnet &amp;mask:</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_6</cstring>
+          <cstring>subnetMaskLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEdit_6"/>
+        <widget class="QLineEdit" name="subnetMaskLineEdit"/>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="label_15">
@@ -950,12 +950,12 @@
           <string>Default &amp;Gateway:</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_7</cstring>
+          <cstring>defaultGatewayLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEdit_7"/>
+        <widget class="QLineEdit" name="defaultGatewayLineEdit"/>
        </item>
        <item row="6" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox">
@@ -964,14 +964,14 @@
          </property>
          <layout class="QFormLayout" name="formLayout_4">
           <item row="1" column="0">
-           <widget class="QRadioButton" name="radioButton_5">
+           <widget class="QRadioButton" name="dnsYesRadioBtn">
             <property name="text">
              <string>&amp;Yes</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QRadioButton" name="radioButton_6">
+           <widget class="QRadioButton" name="dnsNoRadioBtn">
             <property name="text">
              <string>&amp;No</string>
             </property>
@@ -983,12 +983,12 @@
              <string>DNS server &amp;1:</string>
             </property>
             <property name="buddy">
-             <cstring>lineEdit_8</cstring>
+             <cstring>dnsServer1LineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QLineEdit" name="lineEdit_8"/>
+           <widget class="QLineEdit" name="dnsServer1LineEdit"/>
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="label_17">
@@ -996,12 +996,12 @@
              <string>DNS server &amp;2:</string>
             </property>
             <property name="buddy">
-             <cstring>lineEdit_9</cstring>
+             <cstring>dnsServer2LineEdit</cstring>
             </property>
            </widget>
           </item>
           <item row="4" column="1">
-           <widget class="QLineEdit" name="lineEdit_9"/>
+           <widget class="QLineEdit" name="dnsServer2LineEdit"/>
           </item>
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="label_18">
@@ -1015,7 +1015,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_8">
+     <widget class="QWidget" name="networkConfigurationSummaryPage">
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_31">
@@ -1133,7 +1133,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QTextEdit" name="textEdit">
+        <widget class="QTextEdit" name="dataTextEdit">
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -1155,7 +1155,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="testConnectionButton">
            <property name="text">
             <string>&amp;Test connection</string>
            </property>
@@ -1267,7 +1267,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_6">
+     <widget class="QWidget" name="endUserRegistrationPage">
       <layout class="QFormLayout" name="formLayout_6">
        <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label_19">
@@ -1390,15 +1390,15 @@
           <string>&amp;First Name</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_10</cstring>
+          <cstring>firstNameLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit_10"/>
+        <widget class="QLineEdit" name="firstNameLineEdit"/>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_11"/>
+        <widget class="QLineEdit" name="middleNameLineEdit"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_21">
@@ -1406,7 +1406,7 @@
           <string>&amp;Middle Initial</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_11</cstring>
+          <cstring>middleNameLineEdit</cstring>
          </property>
         </widget>
        </item>
@@ -1416,12 +1416,12 @@
           <string>&amp;Last Name</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_12</cstring>
+          <cstring>lastNameLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_12"/>
+        <widget class="QLineEdit" name="lastNameLineEdit"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_23">
@@ -1429,12 +1429,12 @@
           <string>Site Street &amp;Address</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_13</cstring>
+          <cstring>addressLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEdit_13"/>
+        <widget class="QLineEdit" name="addressLineEdit"/>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="label_24">
@@ -1442,12 +1442,12 @@
           <string>Site &amp;City</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_14</cstring>
+          <cstring>cityLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEdit_14"/>
+        <widget class="QLineEdit" name="cityLineEdit"/>
        </item>
        <item row="6" column="0">
         <widget class="QLabel" name="label_25">
@@ -1455,12 +1455,12 @@
           <string>&amp;ZIP Code</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_15</cstring>
+          <cstring>zipCodeLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="6" column="1">
-        <widget class="QLineEdit" name="lineEdit_15"/>
+        <widget class="QLineEdit" name="zipCodeLineEdit"/>
        </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_26">
@@ -1468,12 +1468,12 @@
           <string>Site &amp;Country</string>
          </property>
          <property name="buddy">
-          <cstring>comboBox_2</cstring>
+          <cstring>countryLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="7" column="1">
-        <widget class="QComboBox" name="comboBox_2">
+        <widget class="QComboBox" name="countryLineEdit">
          <item>
           <property name="text">
            <string>United State of America</string>
@@ -1487,12 +1487,12 @@
           <string>End user &amp;E-mail Address</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_16</cstring>
+          <cstring>emailAddressLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="8" column="1">
-        <widget class="QLineEdit" name="lineEdit_16"/>
+        <widget class="QLineEdit" name="emailAddressLineEdit"/>
        </item>
        <item row="9" column="0">
         <widget class="QLabel" name="label_28">
@@ -1500,12 +1500,12 @@
           <string>End user &amp;Phone Number</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_17</cstring>
+          <cstring>phoneNumberLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="9" column="1">
-        <widget class="QLineEdit" name="lineEdit_17"/>
+        <widget class="QLineEdit" name="phoneNumberLineEdit"/>
        </item>
        <item row="10" column="0">
         <widget class="QLabel" name="label_29">
@@ -1513,12 +1513,12 @@
           <string>Dealer &amp;ID</string>
          </property>
          <property name="buddy">
-          <cstring>lineEdit_18</cstring>
+          <cstring>dealerIDLineEdit</cstring>
          </property>
         </widget>
        </item>
        <item row="10" column="1">
-        <widget class="QLineEdit" name="lineEdit_18"/>
+        <widget class="QLineEdit" name="dealerIDLineEdit"/>
        </item>
       </layout>
      </widget>
@@ -1540,14 +1540,14 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="backButton">
        <property name="text">
         <string>&amp;Back</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="nextButton">
        <property name="text">
         <string>&amp;Next</string>
        </property>
