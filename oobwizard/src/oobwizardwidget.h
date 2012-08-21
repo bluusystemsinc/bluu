@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class WizardContext;
+
 namespace Ui {
 class OobWizardWidget;
 }
@@ -15,8 +17,18 @@ public:
     explicit OobWizardWidget(QWidget *parent = 0);
     ~OobWizardWidget();
 
+signals:
+    void controllerStepValidated();
+
+protected:
+    void installValidators();
+
+protected slots:
+    void validateControlStep();
+
 private:
-    Ui::OobWizardWidget *ui;
+    WizardContext *m_context;
+    Ui::OobWizardWidget *m_ui;
 };
 
 #endif // OOBWIZARDWIDGET_H

@@ -7,6 +7,10 @@
 
 class QStateMachine;
 
+namespace Ui {
+class OobWizardWidget;
+}
+
 class WizardContext : public QObject
 {
     Q_OBJECT
@@ -16,8 +20,7 @@ public:
         connectionNotTested,
         connectionTested,
         connectionOk,
-        connecitonError,
-
+        connecitonError
     };
 
     Q_PROPERTY(QUrl currentUrl READ currentUrl WRITE setCurrentUrl
@@ -30,7 +33,7 @@ public:
     Q_PROPERTY(bool isConnectionTestRunning READ isConnectionTestRunning
                NOTIFY isConnectionTestRunningChanged)
 
-    explicit WizardContext(QObject *parent = 0);
+    explicit WizardContext(Ui::OobWizardWidget *ui, QObject *parent = 0);
 
     QUrl currentUrl() const;
     QString eula() const;
@@ -63,7 +66,7 @@ private:
     bool m_isNextEnabled;
     bool m_isConnectionTestRunning;
     networkStates m_isConnected;
-
+    Ui::OobWizardWidget *m_ui;
 };
 
 #endif // WIZARDCONTEXT_H

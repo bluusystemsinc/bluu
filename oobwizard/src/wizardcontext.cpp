@@ -9,25 +9,42 @@
 #include <QStateMachine>
 #include <QProcess>
 
-WizardContext::WizardContext(QObject *parent) :
+#include "ui_oobwizardwidget.h"
+
+WizardContext::WizardContext(Ui::OobWizardWidget *ui, QObject *parent) :
     QObject(parent), m_isConnected(notConnected)
 {
+    m_ui = ui;
+
     m_stateMachine = new QStateMachine(this);
 
-    QState *welcomeState, *userDataState;
+    QState *welcomeState, *userDataState, *controllerState;
 
-    welcomeState = new QState;
-    m_stateMachine->addState(welcomeState);
+    welcomeState = new QState(m_stateMachine);
+    welcomeState->assignProperty(ui->stackedWidget, "currentIndex", 0);
+    welcomeState->assignProperty(ui->backButton, "enabled", false);
+    welcomeState->assignProperty(ui->nextButton, "enabled", true);
 
-    userDataState = new QState;
-    m_stateMachine->addState(userDataState);
+    controllerState = new QState(m_stateMachine);
+    controllerState->assignProperty(ui->stackedWidget, "currentIndex", 1);
+    controllerState->assignProperty(ui->backButton, "enabled", true);
+    controllerState->assignProperty(ui->nextButton, "enabled", false);
 
-    welcomeState->addTransition(this, SIGNAL(nextClicked()), userDataState);
+    userDataState = new QState(m_stateMachine);
+    userDataState->assignProperty(ui->stackedWidget, "currentIndex", 7);
+
+    welcomeState->addTransition(ui->nextButton, SIGNAL(clicked()),
+                                controllerState);
+
+    controllerState->addTransition(ui->backButton, SIGNAL(clicked()),
+                                   welcomeState);
+
     userDataState->addTransition(this, SIGNAL(backClicked()), welcomeState);
 
     m_stateMachine->setInitialState(welcomeState);
     m_stateMachine->start();
 
+    ui->eulaTextEdit->setPlainText(eula());
     emit eulaChanged();
 }
 
