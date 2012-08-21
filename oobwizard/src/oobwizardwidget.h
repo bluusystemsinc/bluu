@@ -2,14 +2,11 @@
 #define OOBWIZARDWIDGET_H
 
 #include <QWidget>
+#include "ui_oobwizardwidget.h"
 
 class WizardContext;
 
-namespace Ui {
-class OobWizardWidget;
-}
-
-class OobWizardWidget : public QWidget
+class OobWizardWidget : public QWidget, private Ui::OobWizardWidget
 {
     Q_OBJECT
     
@@ -28,7 +25,6 @@ protected slots:
 
 private:
     WizardContext *m_context;
-    Ui::OobWizardWidget *m_ui;
 };
 
 #endif // OOBWIZARDWIDGET_H
