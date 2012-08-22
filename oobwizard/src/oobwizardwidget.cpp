@@ -64,21 +64,21 @@ QState *OobWizardWidget::createState(int index, const QString &title)
 
 void OobWizardWidget::setupStateMachine()
 {
-    m_welcomeState = createState(WelcomeStepWidgetIndex, "Welcome Step");
+    m_welcomeState = createState(WelcomeStepWidgetIndex, "Bluu Systems");
     m_controllerState = createState(ControllerStepWidgetIndex,
-                                    "Controller Step");
+                                    "Bluu Systems Controller");
     m_systemConfigurationState = createState(SystemConfigurationStepWidgetIndex,
-                                             "System Configuration Step");
+                                             "System Configuration");
     m_connectionTypeState = createState(ConnectionTypeStepWidgetIndex,
-                                        "Connection Type Step");
+                                        "System Connection Type");
     m_wirelessSettingsState = createState(WirelessSettingsStepWidgetIndex,
-                                          "Wireless Settings Step");
+                                          "Wireless Settings");
     m_networkSettingsState = createState(NetworkSettingsStepWidgetIndex,
-                                         "Network Settings Step");
+                                         "Network Settings");
     m_networkSettingsSummaryState = createState(NetworkSettingsSummaryStepWidgetIndex,
-                                         "Network Settings Summary Step");
+                                         "Network Configuration Summary");
     m_endUserRegistrationState = createState(EndUserRegistrationStepWidgetIndex,
-                                             "End User Registration Step");
+                                             "End User Registration");
     m_workflowFisnishedState  = createState(WorkflowFisnishedStepWidgetIndex,
                                           "End User Registration Step");
 
