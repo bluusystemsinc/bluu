@@ -17,7 +17,8 @@ HEADERS += src/wizardcontext.h \
     src/enduserregistrationstepwidget.h \
     src/wirelesssettingsstepwidget.h \
     src/networksettingsstepwidget.h \
-    src/networksettingssummarystepwidget.h
+    src/networksettingssummarystepwidget.h \
+    src/workflowfinishedstepwidget.h
 
 SOURCES += src/oobwizard.cpp \
    src/wizardcontext.cpp \
@@ -29,7 +30,8 @@ SOURCES += src/oobwizard.cpp \
     src/enduserregistrationstepwidget.cpp \
     src/wirelesssettingsstepwidget.cpp \
     src/networksettingsstepwidget.cpp \
-    src/networksettingssummarystepwidget.cpp
+    src/networksettingssummarystepwidget.cpp \
+    src/workflowfinishedstepwidget.cpp
 
 FORMS += ui/oobwizardwidget.ui \
     ui/welcomeStep.ui \
@@ -39,4 +41,5 @@ FORMS += ui/oobwizardwidget.ui \
     ui/wirelessSettingsStep.ui \
     ui/networkSettingsStep.ui \
     ui/networkSettingsSummaryStep.ui \
-    ui/endUserRegistrationStep.ui
+    ui/endUserRegistrationStep.ui \
+    ui/workflowFinished.ui

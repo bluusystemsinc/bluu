@@ -25,13 +25,19 @@
      </item>
      <item row="1" column="0" colspan="2">
       <widget class="QRadioButton" name="wiredStaticRadioBtn">
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>&amp;Static</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_13">
+      <widget class="QLabel" name="ipAddressLabel">
        <property name="text">
         <string>Use the following &amp;IP address:</string>
        </property>
@@ -41,10 +47,14 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="staticIpAddrlineEdit"/>
+      <widget class="QLineEdit" name="staticIpAddrlineEdit">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="label_14">
+      <widget class="QLabel" name="subnetMaskLabel">
        <property name="text">
         <string>Subnet &amp;mask:</string>
        </property>
@@ -57,7 +67,7 @@
       <widget class="QLineEdit" name="subnetMaskLineEdit"/>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="label_15">
+      <widget class="QLabel" name="defGatewayLabel">
        <property name="text">
         <string>Default &amp;Gateway:</string>
        </property>
@@ -70,7 +80,7 @@
       <widget class="QLineEdit" name="defaultGatewayLineEdit"/>
      </item>
      <item row="5" column="0" colspan="2">
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="DNSgroupBox">
        <property name="title">
         <string>DNS</string>
        </property>
@@ -85,12 +95,12 @@
         <item row="2" column="0">
          <widget class="QRadioButton" name="dnsNoRadioBtn">
           <property name="text">
-           <string>&amp;No</string>
+           <string>N&amp;o</string>
           </property>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_16">
+         <widget class="QLabel" name="dnsServer1Label">
           <property name="text">
            <string>DNS server &amp;1:</string>
           </property>
@@ -103,7 +113,7 @@
          <widget class="QLineEdit" name="dnsServer1LineEdit"/>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="label_17">
+         <widget class="QLabel" name="dnsServer2Label">
           <property name="text">
            <string>DNS server &amp;2:</string>
           </property>

@@ -5,6 +5,7 @@
 #include "ui_oobwizardwidget.h"
 
 class QState;
+class QFinalState;
 class QStateMachine;
 class WizardContext;
 class WelcomeStepWidget;
@@ -15,6 +16,7 @@ class WirelessSettingsStepWidget;
 class SystemConfigurationStepWidget;
 class EndUserRegistrationStepWidget;
 class NetworkSettingsSummaryStepWidget;
+class WorkflowFinishedStepWidget;
 
 class OobWizardWidget : public QWidget, private Ui::OobWizardWidget
 {
@@ -36,14 +38,16 @@ private:
         WirelessSettingsStepWidgetIndex,
         NetworkSettingsStepWidgetIndex,
         NetworkSettingsSummaryStepWidgetIndex,
-        EndUserRegistrationStepWidgetIndex
+        EndUserRegistrationStepWidgetIndex,
+        WorkflowFisnishedStepWidgetIndex
     };
 
     QStateMachine *m_stateMachine;
     QState *m_welcomeState, *m_endUserRegistrationState, *m_controllerState,
             *m_systemConfigurationState, *m_connectionTypeState,
             *m_wirelessSettingsState, *m_networkSettingsState,
-            *m_networkSettingsSummaryState;
+            *m_networkSettingsSummaryState,*m_workflowFisnishedState;
+//    QFinalState *m_workflowFisnishedState;
 
     WelcomeStepWidget *m_welcomeStepWidget;
     ControllerStepWidget *m_controllerStepWidget;
@@ -53,6 +57,7 @@ private:
     NetworkSettingsStepWidget *m_networkSettingsStepWidget;
     NetworkSettingsSummaryStepWidget *m_networkSettingsSummaryStepWidget;
     EndUserRegistrationStepWidget *m_endUserRegistrationStepWidget;
+    WorkflowFinishedStepWidget *m_workflowFinidshedStepWidget;
 };
 
 #endif // OOBWIZARDWIDGET_H

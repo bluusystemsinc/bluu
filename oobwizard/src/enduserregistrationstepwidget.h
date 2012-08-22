@@ -13,7 +13,7 @@ public:
     
 signals:
     void back();
-    
+    void next();
 };
 
 #endif // ENDUSERREGISTRATIONSTEPWIDGET_H
