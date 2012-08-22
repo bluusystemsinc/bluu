@@ -14,6 +14,8 @@ public:
 signals:
     void back();
     void next();
+protected slots:
+    void validate();
 };
 
 #endif // ENDUSERREGISTRATIONSTEPWIDGET_H

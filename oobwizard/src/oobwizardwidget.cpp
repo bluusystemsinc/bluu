@@ -126,7 +126,7 @@ void OobWizardWidget::setupStateMachine()
 
 
     m_endUserRegistrationState->addTransition(m_endUserRegistrationStepWidget, SIGNAL(back()),
-                                              m_connectionTypeState);
+                                              m_systemConfigurationState);
 
 //    m_workflowFisnishedState = new QFinalState();
     m_endUserRegistrationState->addTransition(m_endUserRegistrationStepWidget, SIGNAL(next()),
