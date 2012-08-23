@@ -30,7 +30,10 @@
       <widget class="QLineEdit" name="firstNameLineEdit"/>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_21">
+      <widget class="QLabel" name="middleNameLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>&amp;Middle Initial</string>
        </property>
@@ -40,10 +43,17 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="middleNameLineEdit"/>
+      <widget class="QLineEdit" name="middleNameLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_22">
+      <widget class="QLabel" name="lastNameLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>&amp;Last Name</string>
        </property>
@@ -53,10 +63,17 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="lastNameLineEdit"/>
+      <widget class="QLineEdit" name="lastNameLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="label_23">
+      <widget class="QLabel" name="streetAddressLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Site Street &amp;Address</string>
        </property>
@@ -66,10 +83,17 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="addressLineEdit"/>
+      <widget class="QLineEdit" name="addressLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="label_24">
+      <widget class="QLabel" name="cityLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Site &amp;City</string>
        </property>
@@ -79,10 +103,17 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QLineEdit" name="cityLineEdit"/>
+      <widget class="QLineEdit" name="cityLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="5" column="0">
-      <widget class="QLabel" name="label_25">
+      <widget class="QLabel" name="zipCodeLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>&amp;ZIP Code</string>
        </property>
@@ -92,10 +123,17 @@
       </widget>
      </item>
      <item row="5" column="1">
-      <widget class="QLineEdit" name="zipCodeLineEdit"/>
+      <widget class="QLineEdit" name="zipCodeLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="6" column="0">
-      <widget class="QLabel" name="label_26">
+      <widget class="QLabel" name="stateCountryLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Site &amp;Country</string>
        </property>
@@ -106,6 +144,9 @@
      </item>
      <item row="6" column="1">
       <widget class="QComboBox" name="countryLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <item>
         <property name="text">
          <string>United State of America</string>
@@ -114,7 +155,10 @@
       </widget>
      </item>
      <item row="7" column="0">
-      <widget class="QLabel" name="label_27">
+      <widget class="QLabel" name="emailAddressLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>End user &amp;E-mail Address</string>
        </property>
@@ -124,10 +168,17 @@
       </widget>
      </item>
      <item row="7" column="1">
-      <widget class="QLineEdit" name="emailAddressLineEdit"/>
+      <widget class="QLineEdit" name="emailAddressLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="8" column="0">
-      <widget class="QLabel" name="label_28">
+      <widget class="QLabel" name="phoneNumberLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>End user &amp;Phone Number</string>
        </property>
@@ -137,10 +188,17 @@
       </widget>
      </item>
      <item row="8" column="1">
-      <widget class="QLineEdit" name="phoneNumberLineEdit"/>
+      <widget class="QLineEdit" name="phoneNumberLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="9" column="0">
-      <widget class="QLabel" name="label_29">
+      <widget class="QLabel" name="dealerIdLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Dealer &amp;ID</string>
        </property>
@@ -150,7 +208,11 @@
       </widget>
      </item>
      <item row="9" column="1">
-      <widget class="QLineEdit" name="dealerIDLineEdit"/>
+      <widget class="QLineEdit" name="dealerIDLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
