@@ -10,20 +10,7 @@ class EndUserRegistrationStepWidget : public QWidget,
     Q_OBJECT
 public:
     explicit EndUserRegistrationStepWidget(QWidget *parent = 0);
-    bool check(bool value,int inputLineNumber);
 
-    enum {
-        firstName = 1,
-        middleName,
-        lastName,
-        address,
-        city,
-        zipCode,
-        emailAddress,
-        phoneNumber,
-        dealerId
-    };
-    int allValidate;
 signals:
     void back();
     void next();

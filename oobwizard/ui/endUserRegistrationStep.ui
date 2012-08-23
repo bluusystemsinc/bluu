@@ -253,6 +253,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="nextButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>&amp;Next</string>
        </property>

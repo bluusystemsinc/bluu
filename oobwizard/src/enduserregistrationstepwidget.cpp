@@ -1,30 +1,34 @@
 #include "enduserregistrationstepwidget.h"
 
 EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
-    QWidget(parent), allValidate(0)
+    QWidget(parent)
 {
-    QRegExp rx("[a-zA-Z]{3,10}");
-    QRegExpValidator *validator = new QRegExpValidator(rx, this);
+    QRegExp rxStrings("[a-zA-Z]{3,15}");
+    QRegExpValidator *validatorString = new QRegExpValidator(rxStrings, this);
+
+    QRegExp rxNumbers("[0-9]{4,10}");
+    QRegExpValidator *validatorNumbers = new QRegExpValidator(rxNumbers, this);
+
 
     setupUi(this);
 
-    firstNameLineEdit->setValidator(validator);
+    firstNameLineEdit->setValidator(validatorString);
     validateFirstName();
-    middleNameLineEdit->setValidator(validator);
+    middleNameLineEdit->setValidator(validatorString);
     validateMiddleName();
-    lastNameLineEdit->setValidator(validator);
+    lastNameLineEdit->setValidator(validatorString);
     validateLastName();
-    addressLineEdit->setValidator(validator);
+    addressLineEdit->setValidator(validatorString);
     validateAddress();
-    cityLineEdit->setValidator(validator);
+    cityLineEdit->setValidator(validatorString);
     validateCity();
-    zipCodeLineEdit->setValidator(validator);
+    zipCodeLineEdit->setValidator(validatorNumbers);
     validateZipCode();
-    emailAddressLineEdit->setValidator(validator);
+    emailAddressLineEdit->setValidator(validatorString);
     validateEmailAddress();
-    phoneNumberLineEdit->setValidator(validator);
+    phoneNumberLineEdit->setValidator(validatorNumbers);
     validatePhoneNumber();
-    dealerIDLineEdit->setValidator(validator);
+    dealerIDLineEdit->setValidator(validatorNumbers);
     validateDealerId();
 
 
@@ -47,7 +51,6 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
 void EndUserRegistrationStepWidget::validateFirstName()
 {
     QString string = firstNameLineEdit->text();
-    bool ret;
     const QValidator *validator = firstNameLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
@@ -61,7 +64,6 @@ void EndUserRegistrationStepWidget::validateFirstName()
 void EndUserRegistrationStepWidget::validateMiddleName()
 {
     QString string = middleNameLineEdit->text();
-        bool ret;
     const QValidator *validator = middleNameLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
@@ -74,7 +76,7 @@ void EndUserRegistrationStepWidget::validateMiddleName()
 }
 void EndUserRegistrationStepWidget::validateLastName()
 {
-    QString string = lastNameLineEdit->text();    bool ret;
+    QString string = lastNameLineEdit->text();
     const QValidator *validator = lastNameLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
@@ -87,7 +89,7 @@ void EndUserRegistrationStepWidget::validateLastName()
 }
 void EndUserRegistrationStepWidget::validateAddress()
 {
-    QString string = addressLineEdit->text();    bool ret;
+    QString string = addressLineEdit->text();
     const QValidator *validator = addressLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
@@ -100,7 +102,7 @@ void EndUserRegistrationStepWidget::validateAddress()
 }
 void EndUserRegistrationStepWidget::validateCity()
 {
-    QString string = cityLineEdit->text();    bool ret;
+    QString string = cityLineEdit->text();
     const QValidator *validator = cityLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
@@ -113,7 +115,7 @@ void EndUserRegistrationStepWidget::validateCity()
 }
 void EndUserRegistrationStepWidget::validateZipCode()
 {
-    QString string = zipCodeLineEdit->text();    bool ret;
+    QString string = zipCodeLineEdit->text();
     const QValidator *validator = zipCodeLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
@@ -128,7 +130,7 @@ void EndUserRegistrationStepWidget::validateZipCode()
 }
 void EndUserRegistrationStepWidget::validateEmailAddress()
 {
-    QString string = emailAddressLineEdit->text();    bool ret;
+    QString string = emailAddressLineEdit->text();
     const QValidator *validator = emailAddressLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
@@ -140,7 +142,7 @@ void EndUserRegistrationStepWidget::validateEmailAddress()
     }
 }
 void EndUserRegistrationStepWidget::validatePhoneNumber()
-{    bool ret;
+{
     QString string = phoneNumberLineEdit->text();
     const QValidator *validator = phoneNumberLineEdit->validator();
     int pos;
@@ -154,21 +156,11 @@ void EndUserRegistrationStepWidget::validatePhoneNumber()
 }
 void EndUserRegistrationStepWidget::validateDealerId()
 {
-    QString string = dealerIDLineEdit->text();    bool ret;
+    QString string = dealerIDLineEdit->text();
     const QValidator *validator = dealerIDLineEdit->validator();
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-
-    nextButton->setEnabled(value);
-}
-
-bool EndUserRegistrationStepWidget::check(bool value,int inputLineNumber)
-{
-    if(value == true)
-        allValidate+=inputLineNumber;
-
-    if(45 == allValidate)
-        return true;
-return false;
+    if(value)
+        nextButton->setEnabled(value);
 }
