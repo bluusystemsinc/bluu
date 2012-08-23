@@ -12,7 +12,7 @@
 
 #include "ui_oobwizardwidget.h"
 
-WizardContext::WizardContext(Ui::OobWizardWidget *ui, QObject *parent) :
+WizardContext::WizardContext(Ui::OobWizardWidget */*ui*/, QObject *parent) :
     QObject(parent), m_isConnected(notConnected)
 {
 //    QButtonGroup *systemConfigurationButtonGroup = new QButtonGroup(this);
