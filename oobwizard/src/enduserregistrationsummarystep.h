@@ -9,7 +9,7 @@ class endUserRegistrationSummaryStep;
 
 #include "enduserregistrationstepwidget.h"
 
-class endUserRegistrationSummaryStep : public QWidget, public EndUserRegistrationStepWidget
+class endUserRegistrationSummaryStep : public QWidget
 {
     Q_OBJECT
     
