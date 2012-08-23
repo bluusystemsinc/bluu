@@ -18,4 +18,3 @@ signals:
 };
 
 #endif // NETWORKSETTINGSSTEPWIDGET_H
-

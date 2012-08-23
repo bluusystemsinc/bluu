@@ -1,5 +1,8 @@
 #include "enduserregistrationstepwidget.h"
 
+#include <QDebug>
+#include <QMetaMethod>
+
 EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -22,130 +25,129 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
     setupUi(this);
 
     firstNameLineEdit->setValidator(validatorString);
-    validateFirstName();
     middleNameLineEdit->setValidator(validatorString);
-    validateMiddleName();
     lastNameLineEdit->setValidator(validatorString);
-    validateLastName();
     addressLineEdit->setValidator(validatorString);
-    validateAddress();
     cityLineEdit->setValidator(validatorString);
-    validateCity();
     zipCodeLineEdit->setValidator(validatorZipCode);
-    validateZipCode();
     emailAddressLineEdit->setValidator(validatorEmail);
-    validateEmailAddress();
     phoneNumberLineEdit->setValidator(validatorPhoneNumber);
-    validatePhoneNumber();
     dealerIDLineEdit->setValidator(validatorDealerID);
-    validateDealerId();
+    validate();
 
-
-
-    connect(firstNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validateFirstName()));
-    connect(middleNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validateMiddleName()));
-    connect(lastNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validateLastName()));
-    connect(addressLineEdit, SIGNAL(textChanged(QString)), SLOT(validateAddress()));
-    connect(cityLineEdit, SIGNAL(textChanged(QString)), SLOT(validateCity()));
-    connect(zipCodeLineEdit, SIGNAL(textChanged(QString)), SLOT(validateZipCode()));
-    connect(emailAddressLineEdit, SIGNAL(textChanged(QString)), SLOT(validateEmailAddress()));
-    connect(phoneNumberLineEdit, SIGNAL(textChanged(QString)), SLOT(validatePhoneNumber()));
-    connect(dealerIDLineEdit, SIGNAL(textChanged(QString)), SLOT(validateDealerId()));
+    connect(firstNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(middleNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(lastNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(addressLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(cityLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(zipCodeLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(emailAddressLineEdit, SIGNAL(textChanged(QString)),
+            SLOT(validate()));
+    connect(phoneNumberLineEdit, SIGNAL(textChanged(QString)),
+            SLOT(validate()));
+    connect(dealerIDLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
 
 
     connect(nextButton, SIGNAL(clicked()), SIGNAL(next()));
     connect(backButton, SIGNAL(clicked()), SIGNAL(back()));
 }
 
-void EndUserRegistrationStepWidget::validateFirstName()
+bool EndUserRegistrationStepWidget::validateFirstName()
 {
     QString string = firstNameLineEdit->text();
     const QValidator *validator = firstNameLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    middleNameLabel->setEnabled(value);
-    middleNameLineEdit->setEnabled(value);
-
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validateMiddleName()
+
+bool EndUserRegistrationStepWidget::validateMiddleName()
 {
     QString string = middleNameLineEdit->text();
     const QValidator *validator = middleNameLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    lastNameLabel->setEnabled(value);
-    lastNameLineEdit->setEnabled(value);
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validateLastName()
+
+bool EndUserRegistrationStepWidget::validateLastName()
 {
     QString string = lastNameLineEdit->text();
     const QValidator *validator = lastNameLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    streetAddressLabel->setEnabled(value);
-    addressLineEdit->setEnabled(value);
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validateAddress()
+
+bool EndUserRegistrationStepWidget::validateAddress()
 {
     QString string = addressLineEdit->text();
     const QValidator *validator = addressLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    cityLabel->setEnabled(value);
-    cityLineEdit->setEnabled(value);
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validateCity()
+
+bool EndUserRegistrationStepWidget::validateCity()
 {
     QString string = cityLineEdit->text();
     const QValidator *validator = cityLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    zipCodeLabel->setEnabled(value);
-    zipCodeLineEdit->setEnabled(value);
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validateZipCode()
+
+bool EndUserRegistrationStepWidget::validateZipCode()
 {
     QString string = zipCodeLineEdit->text();
     const QValidator *validator = zipCodeLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    stateCountryLabel->setEnabled(value);
-    countryLineEdit->setEnabled(value);
-    emailAddressLabel->setEnabled(value);
-    emailAddressLineEdit->setEnabled(value);
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validateEmailAddress()
+
+bool EndUserRegistrationStepWidget::validateEmailAddress()
 {
     QString string = emailAddressLineEdit->text();
     const QValidator *validator = emailAddressLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    phoneNumberLabel->setEnabled(value);
-    phoneNumberLineEdit->setEnabled(value);
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validatePhoneNumber()
+
+bool EndUserRegistrationStepWidget::validatePhoneNumber()
 {
     QString string = phoneNumberLineEdit->text();
     const QValidator *validator = phoneNumberLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    dealerIdLabel->setEnabled(value);
-    dealerIDLineEdit->setEnabled(value);
+    return QValidator::Acceptable == validator->validate(string, pos);
 }
-void EndUserRegistrationStepWidget::validateDealerId()
+
+bool EndUserRegistrationStepWidget::validateDealerId()
 {
     QString string = dealerIDLineEdit->text();
     const QValidator *validator = dealerIDLineEdit->validator();
     int pos;
-    bool value = QValidator::Acceptable == validator->validate(string, pos);
+
+    return QValidator::Acceptable == validator->validate(string, pos);
+}
+
+void EndUserRegistrationStepWidget::validate()
+{
+    bool value = true;
+
+    for(int i = 0; i < staticMetaObject.methodCount() && value; i++)
+    {
+        QMetaMethod currMethod = staticMetaObject.method(i);
+        QString signature(currMethod.signature());
+
+        if(signature.startsWith("validate")
+                && !signature.endsWith("validate()"))
+        {
+            currMethod.invoke(this, Q_RETURN_ARG(bool, value));
+        }
+    }
 
     nextButton->setEnabled(value);
 }

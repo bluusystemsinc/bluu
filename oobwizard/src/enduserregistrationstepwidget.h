@@ -14,16 +14,20 @@ public:
 signals:
     void back();
     void next();
+
+protected:
+    Q_INVOKABLE bool validateFirstName();
+    Q_INVOKABLE bool validateMiddleName();
+    Q_INVOKABLE bool validateLastName();
+    Q_INVOKABLE bool validateAddress();
+    Q_INVOKABLE bool validateCity();
+    Q_INVOKABLE bool validateZipCode();
+    Q_INVOKABLE bool validateEmailAddress();
+    Q_INVOKABLE bool validatePhoneNumber();
+    Q_INVOKABLE bool validateDealerId();
+
 protected slots:
-    void validateFirstName();
-    void validateMiddleName();
-    void validateLastName();
-    void validateAddress();
-    void validateCity();
-    void validateZipCode();
-    void validateEmailAddress();
-    void validatePhoneNumber();
-    void validateDealerId();
+    void validate();
 
 };
 

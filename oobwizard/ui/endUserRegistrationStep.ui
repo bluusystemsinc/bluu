@@ -32,7 +32,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="middleNameLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>&amp;Middle Initial</string>
@@ -45,14 +45,14 @@
      <item row="1" column="1">
       <widget class="QLineEdit" name="middleNameLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="lastNameLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>&amp;Last Name</string>
@@ -65,14 +65,14 @@
      <item row="2" column="1">
       <widget class="QLineEdit" name="lastNameLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="streetAddressLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Site Street &amp;Address</string>
@@ -85,14 +85,14 @@
      <item row="3" column="1">
       <widget class="QLineEdit" name="addressLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="cityLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Site &amp;City</string>
@@ -105,14 +105,14 @@
      <item row="4" column="1">
       <widget class="QLineEdit" name="cityLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="zipCodeLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>&amp;ZIP Code</string>
@@ -125,14 +125,14 @@
      <item row="5" column="1">
       <widget class="QLineEdit" name="zipCodeLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="6" column="0">
       <widget class="QLabel" name="stateCountryLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Site &amp;Country</string>
@@ -145,7 +145,7 @@
      <item row="6" column="1">
       <widget class="QComboBox" name="countryLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <item>
         <property name="text">
@@ -157,7 +157,7 @@
      <item row="7" column="0">
       <widget class="QLabel" name="emailAddressLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>End user &amp;E-mail Address</string>
@@ -170,14 +170,14 @@
      <item row="7" column="1">
       <widget class="QLineEdit" name="emailAddressLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="8" column="0">
       <widget class="QLabel" name="phoneNumberLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>End user &amp;Phone Number</string>
@@ -190,14 +190,14 @@
      <item row="8" column="1">
       <widget class="QLineEdit" name="phoneNumberLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="9" column="0">
       <widget class="QLabel" name="dealerIdLabel">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Dealer &amp;ID</string>
@@ -210,7 +210,7 @@
      <item row="9" column="1">
       <widget class="QLineEdit" name="dealerIDLineEdit">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
       </widget>
      </item>
