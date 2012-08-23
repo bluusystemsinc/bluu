@@ -15,11 +15,6 @@ signals:
     void back();
     void next();
 
-private slots:
-    void disableStaticConf();
-    void enableStaticConf();
-    void disableDNS();
-    void enableDNS();
 };
 
 #endif // NETWORKSETTINGSSTEPWIDGET_H

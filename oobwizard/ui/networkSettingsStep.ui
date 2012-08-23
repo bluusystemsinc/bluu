@@ -38,6 +38,9 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="ipAddressLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Use the following &amp;IP address:</string>
        </property>
@@ -49,12 +52,15 @@
      <item row="2" column="1">
       <widget class="QLineEdit" name="staticIpAddrlineEdit">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="subnetMaskLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Subnet &amp;mask:</string>
        </property>
@@ -64,10 +70,17 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="subnetMaskLineEdit"/>
+      <widget class="QLineEdit" name="subnetMaskLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="defGatewayLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Default &amp;Gateway:</string>
        </property>
@@ -77,10 +90,17 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QLineEdit" name="defaultGatewayLineEdit"/>
+      <widget class="QLineEdit" name="defaultGatewayLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="5" column="0" colspan="2">
       <widget class="QGroupBox" name="DNSgroupBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="title">
         <string>DNS</string>
        </property>
@@ -96,6 +116,9 @@
          <widget class="QRadioButton" name="dnsNoRadioBtn">
           <property name="text">
            <string>N&amp;o</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -171,5 +194,150 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>wiredStaticRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>staticIpAddrlineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>353</x>
+     <y>51</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>358</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wiredStaticRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>subnetMaskLineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>252</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>255</x>
+     <y>111</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wiredStaticRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>defaultGatewayLineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>209</x>
+     <y>46</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>215</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wiredStaticRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>DNSgroupBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>478</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>106</x>
+     <y>226</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wiredStaticRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ipAddressLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>167</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>167</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wiredStaticRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>subnetMaskLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>41</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wiredStaticRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>defGatewayLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>80</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dnsNoRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dnsServer1LineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>45</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>296</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dnsNoRadioBtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dnsServer2LineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>58</x>
+     <y>235</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>175</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
