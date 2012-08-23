@@ -14,6 +14,7 @@
 #include "enduserregistrationstepwidget.h"
 #include "networksettingssummarystepwidget.h"
 #include "workflowfinishedstepwidget.h"
+#include "enduserregistrationsummarystep.h"
 
 OobWizardWidget::OobWizardWidget(QWidget *parent) :
     QWidget(parent)
@@ -47,6 +48,10 @@ OobWizardWidget::OobWizardWidget(QWidget *parent) :
     stackedWidget->insertWidget(EndUserRegistrationStepWidgetIndex,
                                 m_endUserRegistrationStepWidget);
 
+    m_endUserRegistrationSummaryStepWidget = new endUserRegistrationSummaryStep(this);
+    stackedWidget->insertWidget(EndUserRegistrationSummaryStepWidgetIndex,
+                                m_endUserRegistrationSummaryStepWidget);
+
     m_workflowFinidshedStepWidget = new WorkflowFinishedStepWidget(this);
     stackedWidget->insertWidget(WorkflowFisnishedStepWidgetIndex, m_workflowFinidshedStepWidget);
 
@@ -79,8 +84,10 @@ void OobWizardWidget::setupStateMachine()
                                          "Network Configuration Summary");
     m_endUserRegistrationState = createState(EndUserRegistrationStepWidgetIndex,
                                              "End User Registration");
+    m_endUserRegistrationSummaryState = createState(EndUserRegistrationSummaryStepWidgetIndex,
+                                             "End User Registration Summary");
     m_workflowFisnishedState  = createState(WorkflowFisnishedStepWidgetIndex,
-                                          "End User Registration Step");
+                                          "Finish");
 
 
 
@@ -99,6 +106,8 @@ void OobWizardWidget::setupStateMachine()
                                               m_connectionTypeState);
     m_systemConfigurationState->addTransition(m_systemConfigurationStepWidget, SIGNAL(endUserRegistration()),
                                               m_endUserRegistrationState);
+
+
 
     m_connectionTypeState->addTransition(m_connectionTypeStepWidget, SIGNAL(back()),
                                          m_systemConfigurationState);
@@ -129,6 +138,12 @@ void OobWizardWidget::setupStateMachine()
                                               m_systemConfigurationState);
 
     m_endUserRegistrationState->addTransition(m_endUserRegistrationStepWidget, SIGNAL(next()),
+                                                 m_endUserRegistrationSummaryState);
+
+    m_endUserRegistrationSummaryState->addTransition(m_endUserRegistrationSummaryStepWidget, SIGNAL(back()),
+                                                 m_endUserRegistrationState);
+
+    m_endUserRegistrationSummaryState->addTransition(m_endUserRegistrationSummaryStepWidget, SIGNAL(next()),
                                                  m_workflowFisnishedState);
 
     m_stateMachine->setInitialState(m_welcomeState);

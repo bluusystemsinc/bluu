@@ -2,21 +2,24 @@
 #define ENDUSERREGISTRATIONSUMMARYSTEP_H
 
 #include <QWidget>
+#include "ui_enduserregistrationsummarystep.h"
 
 namespace Ui {
 class endUserRegistrationSummaryStep;
 }
 
-#include "enduserregistrationstepwidget.h"
-
-class endUserRegistrationSummaryStep : public QWidget
+class endUserRegistrationSummaryStep : public QWidget, private Ui::endUserRegistrationSummaryStep
 {
     Q_OBJECT
     
 public:
     explicit endUserRegistrationSummaryStep(QWidget *parent = 0);
     ~endUserRegistrationSummaryStep();
-    
+signals:
+    void back();
+    void next();
+
+
 private:
     Ui::endUserRegistrationSummaryStep *ui;
 };

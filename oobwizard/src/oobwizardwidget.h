@@ -15,6 +15,7 @@ class NetworkSettingsStepWidget;
 class WirelessSettingsStepWidget;
 class SystemConfigurationStepWidget;
 class EndUserRegistrationStepWidget;
+class endUserRegistrationSummaryStep;
 class NetworkSettingsSummaryStepWidget;
 class WorkflowFinishedStepWidget;
 
@@ -39,15 +40,17 @@ private:
         NetworkSettingsStepWidgetIndex,
         NetworkSettingsSummaryStepWidgetIndex,
         EndUserRegistrationStepWidgetIndex,
+        EndUserRegistrationSummaryStepWidgetIndex,
         WorkflowFisnishedStepWidgetIndex
     };
 
     QStateMachine *m_stateMachine;
-    QState *m_welcomeState, *m_endUserRegistrationState, *m_controllerState,
+    QState *m_welcomeState, *m_endUserRegistrationState,*m_endUserRegistrationSummaryState,
+            *m_controllerState,
             *m_systemConfigurationState, *m_connectionTypeState,
             *m_wirelessSettingsState, *m_networkSettingsState,
             *m_networkSettingsSummaryState,*m_workflowFisnishedState;
-//    QFinalState *m_workflowFisnishedState;
+
 
     WelcomeStepWidget *m_welcomeStepWidget;
     ControllerStepWidget *m_controllerStepWidget;
@@ -57,6 +60,7 @@ private:
     NetworkSettingsStepWidget *m_networkSettingsStepWidget;
     NetworkSettingsSummaryStepWidget *m_networkSettingsSummaryStepWidget;
     EndUserRegistrationStepWidget *m_endUserRegistrationStepWidget;
+    endUserRegistrationSummaryStep *m_endUserRegistrationSummaryStepWidget;
     WorkflowFinishedStepWidget *m_workflowFinidshedStepWidget;
 };
 
