@@ -3,12 +3,21 @@
 EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
     QWidget(parent)
 {
-    QRegExp rxStrings("[a-zA-Z]{3,15}");
+    QRegExp rxStrings("[a-zA-Z ]{3,15}");
     QRegExpValidator *validatorString = new QRegExpValidator(rxStrings, this);
 
-    QRegExp rxNumbers("[0-9]{4,10}");
-    QRegExpValidator *validatorNumbers = new QRegExpValidator(rxNumbers, this);
+    QRegExp phoneNumber("[0-9]{7,10}");
+    QRegExpValidator *validatorPhoneNumber = new QRegExpValidator(phoneNumber, this);
 
+
+    QRegExp rxEmail("^[a-zA-Z][\\w\\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\\w\\.-]*[a-zA-Z0-9]\\.[a-zA-Z][a-zA-Z\\.]*[a-zA-Z]$");
+    QRegExpValidator *validatorEmail = new QRegExpValidator(rxEmail, this);
+
+    QRegExp zipCode("[0-9]{5,7}");
+    QRegExpValidator *validatorZipCode = new QRegExpValidator(zipCode, this);
+
+    QRegExp dealerId("[0-9]{5,7}");
+    QRegExpValidator *validatorDealerID = new QRegExpValidator(dealerId, this);
 
     setupUi(this);
 
@@ -22,13 +31,13 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
     validateAddress();
     cityLineEdit->setValidator(validatorString);
     validateCity();
-    zipCodeLineEdit->setValidator(validatorNumbers);
+    zipCodeLineEdit->setValidator(validatorZipCode);
     validateZipCode();
-    emailAddressLineEdit->setValidator(validatorString);
+    emailAddressLineEdit->setValidator(validatorEmail);
     validateEmailAddress();
-    phoneNumberLineEdit->setValidator(validatorNumbers);
+    phoneNumberLineEdit->setValidator(validatorPhoneNumber);
     validatePhoneNumber();
-    dealerIDLineEdit->setValidator(validatorNumbers);
+    dealerIDLineEdit->setValidator(validatorDealerID);
     validateDealerId();
 
 
@@ -55,11 +64,9 @@ void EndUserRegistrationStepWidget::validateFirstName()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-    {
-        middleNameLabel->setEnabled(true);
-        middleNameLineEdit->setEnabled(true);
-    }
+    middleNameLabel->setEnabled(value);
+    middleNameLineEdit->setEnabled(value);
+
 }
 void EndUserRegistrationStepWidget::validateMiddleName()
 {
@@ -68,11 +75,8 @@ void EndUserRegistrationStepWidget::validateMiddleName()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-    {
-        lastNameLabel->setEnabled(true);
-        lastNameLineEdit->setEnabled(true);
-    }
+    lastNameLabel->setEnabled(value);
+    lastNameLineEdit->setEnabled(value);
 }
 void EndUserRegistrationStepWidget::validateLastName()
 {
@@ -81,11 +85,8 @@ void EndUserRegistrationStepWidget::validateLastName()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-    {
-        streetAddressLabel->setEnabled(true);
-        addressLineEdit->setEnabled(true);
-    }
+    streetAddressLabel->setEnabled(value);
+    addressLineEdit->setEnabled(value);
 }
 void EndUserRegistrationStepWidget::validateAddress()
 {
@@ -94,11 +95,8 @@ void EndUserRegistrationStepWidget::validateAddress()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-    {
-        cityLabel->setEnabled(true);
-        cityLineEdit->setEnabled(true);
-    }
+    cityLabel->setEnabled(value);
+    cityLineEdit->setEnabled(value);
 }
 void EndUserRegistrationStepWidget::validateCity()
 {
@@ -107,11 +105,8 @@ void EndUserRegistrationStepWidget::validateCity()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-    {
-        zipCodeLabel->setEnabled(true);
-        zipCodeLineEdit->setEnabled(true);
-    }
+    zipCodeLabel->setEnabled(value);
+    zipCodeLineEdit->setEnabled(value);
 }
 void EndUserRegistrationStepWidget::validateZipCode()
 {
@@ -120,13 +115,10 @@ void EndUserRegistrationStepWidget::validateZipCode()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-    {
-        stateCountryLabel->setEnabled(value);
-        countryLineEdit->setEnabled(value);
-        emailAddressLabel->setEnabled(true);
-        emailAddressLineEdit->setEnabled(true);
-    }
+    stateCountryLabel->setEnabled(value);
+    countryLineEdit->setEnabled(value);
+    emailAddressLabel->setEnabled(value);
+    emailAddressLineEdit->setEnabled(value);
 }
 void EndUserRegistrationStepWidget::validateEmailAddress()
 {
@@ -135,11 +127,8 @@ void EndUserRegistrationStepWidget::validateEmailAddress()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-    {
-        phoneNumberLabel->setEnabled(true);
-        phoneNumberLineEdit->setEnabled(true);
-    }
+    phoneNumberLabel->setEnabled(value);
+    phoneNumberLineEdit->setEnabled(value);
 }
 void EndUserRegistrationStepWidget::validatePhoneNumber()
 {
@@ -148,11 +137,8 @@ void EndUserRegistrationStepWidget::validatePhoneNumber()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-     if(value)
-     {
-         dealerIdLabel->setEnabled(true);
-         dealerIDLineEdit->setEnabled(true);
-     }
+    dealerIdLabel->setEnabled(value);
+    dealerIDLineEdit->setEnabled(value);
 }
 void EndUserRegistrationStepWidget::validateDealerId()
 {
@@ -161,6 +147,5 @@ void EndUserRegistrationStepWidget::validateDealerId()
     int pos;
     bool value = QValidator::Acceptable == validator->validate(string, pos);
 
-    if(value)
-        nextButton->setEnabled(value);
+    nextButton->setEnabled(value);
 }
