@@ -44,13 +44,13 @@ OobWizardWidget::OobWizardWidget(QWidget *parent) :
     m_networkSettingsSummaryStepWidget = new NetworkSettingsSummaryStepWidget(this);
     stackedWidget->insertWidget(NetworkSettingsSummaryStepWidgetIndex, m_networkSettingsSummaryStepWidget);
 
-    m_endUserRegistrationStepWidget = new EndUserRegistrationStepWidget(this);
-    stackedWidget->insertWidget(EndUserRegistrationStepWidgetIndex,
-                                m_endUserRegistrationStepWidget);
-
     m_endUserRegistrationSummaryStepWidget = new endUserRegistrationSummaryStep(this);
     stackedWidget->insertWidget(EndUserRegistrationSummaryStepWidgetIndex,
                                 m_endUserRegistrationSummaryStepWidget);
+
+    m_endUserRegistrationStepWidget = new EndUserRegistrationStepWidget(m_endUserRegistrationSummaryStepWidget,this);
+    stackedWidget->insertWidget(EndUserRegistrationStepWidgetIndex,
+                                m_endUserRegistrationStepWidget);
 
     m_workflowFinidshedStepWidget = new WorkflowFinishedStepWidget(this);
     stackedWidget->insertWidget(WorkflowFisnishedStepWidgetIndex, m_workflowFinidshedStepWidget);

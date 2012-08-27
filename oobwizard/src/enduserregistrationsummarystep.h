@@ -8,7 +8,7 @@ namespace Ui {
 class endUserRegistrationSummaryStep;
 }
 
-class endUserRegistrationSummaryStep : public QWidget, private Ui::endUserRegistrationSummaryStep
+class endUserRegistrationSummaryStep : public QWidget, public Ui::endUserRegistrationSummaryStep
 {
     Q_OBJECT
     

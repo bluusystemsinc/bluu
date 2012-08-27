@@ -11,6 +11,7 @@ endUserRegistrationSummaryStep::endUserRegistrationSummaryStep(QWidget *parent) 
     connect(nextButton, SIGNAL(clicked()), SIGNAL(next()));
 }
 
+
 endUserRegistrationSummaryStep::~endUserRegistrationSummaryStep()
 {
     delete ui;

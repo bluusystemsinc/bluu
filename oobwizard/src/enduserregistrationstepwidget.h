@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <ui_endUserRegistrationStep.h>
+#include "enduserregistrationsummarystep.h"
 
 class EndUserRegistrationStepWidget : public QWidget,
         private Ui::EndUserRegistrationStepWidget
@@ -10,10 +11,12 @@ class EndUserRegistrationStepWidget : public QWidget,
     Q_OBJECT
 public:
     explicit EndUserRegistrationStepWidget(QWidget *parent = 0);
+    EndUserRegistrationStepWidget(endUserRegistrationSummaryStep *endUserRegistrationSummaryStepPtr,QWidget *parent);
 
 signals:
     void back();
     void next();
+    //void next(QStringList);
 
 protected:
     Q_INVOKABLE bool validateFirstName();
@@ -28,7 +31,11 @@ protected:
 
 protected slots:
     void validate();
+public slots:
+    void trt();
 
+private:
+    endUserRegistrationSummaryStep *m_endUserRegistrationSummaryStepPtr;
 };
 
 #endif // ENDUSERREGISTRATIONSTEPWIDGET_H
