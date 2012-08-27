@@ -14,11 +14,9 @@ class endUserRegistrationSummaryStep : public QWidget, public Ui::endUserRegistr
     
 public:
     explicit endUserRegistrationSummaryStep(QWidget *parent = 0);
-    ~endUserRegistrationSummaryStep();
 signals:
     void back();
     void next();
-
 
 private:
     Ui::endUserRegistrationSummaryStep *ui;

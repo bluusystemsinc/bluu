@@ -53,7 +53,10 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
 //    connect(nextButton, SIGNAL(clicked()), this, SIGNAL(trt()));
 }
 
- EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(endUserRegistrationSummaryStep *endUserRegistrationSummaryStepPtr,QWidget *parent)
+ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(
+         endUserRegistrationSummaryStep *endUserRegistrationSummaryStepPtr,
+         QWidget *parent)
+     : QWidget(parent)
  {
      QRegExp rxStrings("[a-zA-Z ]{3,15}");
      QRegExpValidator *validatorString = new QRegExpValidator(rxStrings, this);
