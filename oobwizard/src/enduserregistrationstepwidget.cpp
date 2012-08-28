@@ -218,5 +218,5 @@ void EndUserRegistrationStepWidget::validate()
         }
     }
 
-    nextButton->setEnabled(value);
+    nextButton->setEnabled(true);
 }

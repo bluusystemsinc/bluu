@@ -51,6 +51,10 @@ private:
             *m_wirelessSettingsState, *m_networkSettingsState,
             *m_networkSettingsSummaryState,*m_workflowFisnishedState;
 
+    QState  *m_endUserRegistrationStateR,*m_endUserRegistrationSummaryStateR,
+            *m_systemConfigurationStateR, *m_connectionTypeStateR,
+            *m_wirelessSettingsStateR, *m_networkSettingsStateR,
+            *m_networkSettingsSummaryStateR;
 
     WelcomeStepWidget *m_welcomeStepWidget;
     ControllerStepWidget *m_controllerStepWidget;

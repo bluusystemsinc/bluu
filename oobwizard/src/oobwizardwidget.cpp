@@ -91,6 +91,21 @@ void OobWizardWidget::setupStateMachine()
 
 
 
+    m_systemConfigurationStateR = createState(SystemConfigurationStepWidgetIndex,
+                                             "System Configuration");
+    m_connectionTypeStateR = createState(ConnectionTypeStepWidgetIndex,
+                                        "System Connection Type");
+    m_wirelessSettingsStateR = createState(WirelessSettingsStepWidgetIndex,
+                                          "Wireless Settings");
+    m_networkSettingsStateR = createState(NetworkSettingsStepWidgetIndex,
+                                         "Network Settings");
+    m_networkSettingsSummaryStateR = createState(NetworkSettingsSummaryStepWidgetIndex,
+                                         "Network Configuration Summary");
+    m_endUserRegistrationStateR = createState(EndUserRegistrationStepWidgetIndex,
+                                             "End User Registration");
+    m_endUserRegistrationSummaryStateR = createState(EndUserRegistrationSummaryStepWidgetIndex,
+                                             "End User Registration Summary");
+
 
     m_welcomeState->addTransition(m_welcomeStepWidget, SIGNAL(next()),
                                   m_controllerState);
@@ -105,22 +120,23 @@ void OobWizardWidget::setupStateMachine()
     m_systemConfigurationState->addTransition(m_systemConfigurationStepWidget, SIGNAL(networkConfiguration()),
                                               m_connectionTypeState);
     m_systemConfigurationState->addTransition(m_systemConfigurationStepWidget, SIGNAL(endUserRegistration()),
-                                              m_endUserRegistrationState);
-
-
-
+                                              m_endUserRegistrationStateR);
     m_connectionTypeState->addTransition(m_connectionTypeStepWidget, SIGNAL(back()),
                                          m_systemConfigurationState);
     m_connectionTypeState->addTransition(m_connectionTypeStepWidget, SIGNAL(wirelessConnection()),
                                          m_wirelessSettingsState);
     m_connectionTypeState->addTransition(m_connectionTypeStepWidget, SIGNAL(wiredConnection()),
-                                         m_networkSettingsState);
-
+                                             m_networkSettingsState);
 
     m_wirelessSettingsState->addTransition(m_wirelessSettingsStepWidget, SIGNAL(back()),
                                            m_connectionTypeState);
     m_wirelessSettingsState->addTransition(m_wirelessSettingsStepWidget, SIGNAL(next()),
                                            m_networkSettingsState);
+
+    m_networkSettingsState->addTransition(m_networkSettingsStepWidget, SIGNAL(back()),
+                                          m_connectionTypeState);
+    m_networkSettingsState->addTransition(m_networkSettingsStepWidget, SIGNAL(next()),
+                                          m_networkSettingsSummaryState);
 
     m_networkSettingsState->addTransition(m_networkSettingsStepWidget, SIGNAL(back()),
                                           m_connectionTypeState);
@@ -133,9 +149,8 @@ void OobWizardWidget::setupStateMachine()
     m_networkSettingsSummaryState->addTransition(m_networkSettingsSummaryStepWidget, SIGNAL(next()),
                                           m_endUserRegistrationState);
 
-
     m_endUserRegistrationState->addTransition(m_endUserRegistrationStepWidget, SIGNAL(back()),
-                                              m_systemConfigurationState);
+                                              m_networkSettingsSummaryState);
 
     m_endUserRegistrationState->addTransition(m_endUserRegistrationStepWidget, SIGNAL(next()),
                                                  m_endUserRegistrationSummaryState);
@@ -145,6 +160,50 @@ void OobWizardWidget::setupStateMachine()
 
     m_endUserRegistrationSummaryState->addTransition(m_endUserRegistrationSummaryStepWidget, SIGNAL(next()),
                                                  m_workflowFisnishedState);
+
+    m_endUserRegistrationStateR->addTransition(m_endUserRegistrationStepWidget, SIGNAL(back()),
+                                              m_systemConfigurationState);
+
+    m_endUserRegistrationStateR->addTransition(m_endUserRegistrationStepWidget, SIGNAL(next()),
+                                                 m_endUserRegistrationSummaryStateR);
+
+    m_endUserRegistrationSummaryStateR->addTransition(m_endUserRegistrationSummaryStepWidget, SIGNAL(back()),
+                                                 m_endUserRegistrationStateR);
+
+    m_endUserRegistrationSummaryStateR->addTransition(m_endUserRegistrationSummaryStepWidget, SIGNAL(next()),
+                                                 m_connectionTypeStateR);
+
+
+
+    m_connectionTypeStateR->addTransition(m_connectionTypeStepWidget, SIGNAL(back()),
+                                         m_endUserRegistrationSummaryStateR);
+    m_connectionTypeStateR->addTransition(m_connectionTypeStepWidget, SIGNAL(wirelessConnection()),
+                                         m_wirelessSettingsStateR);
+    m_connectionTypeStateR->addTransition(m_connectionTypeStepWidget, SIGNAL(wiredConnection()),
+                                             m_networkSettingsStateR);
+
+    m_wirelessSettingsStateR->addTransition(m_wirelessSettingsStepWidget, SIGNAL(back()),
+                                           m_connectionTypeStateR);
+    m_wirelessSettingsStateR->addTransition(m_wirelessSettingsStepWidget, SIGNAL(next()),
+                                           m_networkSettingsStateR);
+
+    m_networkSettingsStateR->addTransition(m_networkSettingsStepWidget, SIGNAL(back()),
+                                          m_connectionTypeStateR);
+    m_networkSettingsStateR->addTransition(m_networkSettingsStepWidget, SIGNAL(next()),
+                                          m_networkSettingsSummaryStateR);
+
+
+    m_networkSettingsStateR->addTransition(m_networkSettingsStepWidget, SIGNAL(back()),
+                                          m_connectionTypeStateR);
+    m_networkSettingsStateR->addTransition(m_networkSettingsStepWidget, SIGNAL(next()),
+                                          m_networkSettingsSummaryStateR);
+
+    m_networkSettingsSummaryStateR->addTransition(m_networkSettingsSummaryStepWidget, SIGNAL(back()),
+                                          m_networkSettingsStateR);
+
+    m_networkSettingsSummaryStateR->addTransition(m_networkSettingsSummaryStepWidget, SIGNAL(next()),
+                                          m_workflowFisnishedState);
+
 
     m_stateMachine->setInitialState(m_welcomeState);
     m_stateMachine->start();

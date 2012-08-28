@@ -11,6 +11,7 @@ SystemConfigurationStepWidget::SystemConfigurationStepWidget(QWidget *parent) :
     m_buttonGroup->addButton(endUserRegistrationButton, EndUserRegistration);
 
     connect(backButton, SIGNAL(clicked()), SIGNAL(back()));
+
 }
 
 
