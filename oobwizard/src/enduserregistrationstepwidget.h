@@ -32,7 +32,7 @@ protected:
 protected slots:
     void validate();
 public slots:
-    void trt();
+    void setEndUserRegistrationInfoLabels();
 
 private:
     endUserRegistrationSummaryStep *m_endUserRegistrationSummaryStepPtr;

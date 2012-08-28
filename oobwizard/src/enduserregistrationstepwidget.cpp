@@ -102,12 +102,12 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
 
      connect(nextButton, SIGNAL(clicked()), SIGNAL(next()));
      connect(backButton, SIGNAL(clicked()), SIGNAL(back()));
-     connect(nextButton, SIGNAL(clicked()), this, SLOT(trt()));
+     connect(nextButton, SIGNAL(clicked()), this, SLOT(setEndUserRegistrationInfoLabels()));
 
      m_endUserRegistrationSummaryStepPtr = endUserRegistrationSummaryStepPtr;
  }
 
-void EndUserRegistrationStepWidget::trt()
+void EndUserRegistrationStepWidget::setEndUserRegistrationInfoLabels()
 {
     m_endUserRegistrationSummaryStepPtr->endFirstNameLabel->setText(firstNameLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->endMiddleInitialLabel->setText(middleNameLineEdit->text());
@@ -218,5 +218,5 @@ void EndUserRegistrationStepWidget::validate()
         }
     }
 
-    nextButton->setEnabled(true);
+    nextButton->setEnabled(value);
 }

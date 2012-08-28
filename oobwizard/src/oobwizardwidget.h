@@ -51,6 +51,12 @@ private:
             *m_wirelessSettingsState, *m_networkSettingsState,
             *m_networkSettingsSummaryState,*m_workflowFisnishedState;
 
+    QState  *m_networkSettingsStateL, *m_networkSettingsSummaryStateL,
+    *m_endUserRegistrationStateL,*m_endUserRegistrationSummaryStateL;
+
+    QState  *m_networkSettingsStateRL, *m_networkSettingsSummaryStateRL;
+
+
     QState  *m_endUserRegistrationStateR,*m_endUserRegistrationSummaryStateR,
             *m_systemConfigurationStateR, *m_connectionTypeStateR,
             *m_wirelessSettingsStateR, *m_networkSettingsStateR,
