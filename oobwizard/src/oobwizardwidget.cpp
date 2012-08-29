@@ -37,6 +37,7 @@ OobWizardWidget::OobWizardWidget(QWidget *parent) :
     m_wirelessSettingsStepWidget = new WirelessSettingsStepWidget(this);
     stackedWidget->insertWidget(WirelessSettingsStepWidgetIndex,
                                 m_wirelessSettingsStepWidget);
+
     m_networkSettingsStepWidget = new NetworkSettingsStepWidget(this);
     stackedWidget->insertWidget(NetworkSettingsStepWidgetIndex,
                                 m_networkSettingsStepWidget);

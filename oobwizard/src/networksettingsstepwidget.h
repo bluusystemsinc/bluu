@@ -14,7 +14,8 @@ public:
 signals:
     void back();
     void next();
-
+public slots:
+    void createConnetion();
 };
 
 #endif // NETWORKSETTINGSSTEPWIDGET_H

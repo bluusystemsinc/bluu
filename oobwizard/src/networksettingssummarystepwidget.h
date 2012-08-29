@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <ui_networkSettingsSummaryStep.h>
+#include "networksettingsstepwidget.h"
 
 class NetworkSettingsSummaryStepWidget : public QWidget,
         private Ui::NetworkSettingsSummaryStepWidget
@@ -14,6 +15,11 @@ public:
 signals:
     void back();
     void next();
+public slots:
+    void removeConnectionScript();
+    void testConnection();
+    void testRouter(int exitCode);
+    void testInternet(int exitCode);
 };
 
 #endif // NETWORKSETTINGSSUMMARYSTEPWIDGET_H
