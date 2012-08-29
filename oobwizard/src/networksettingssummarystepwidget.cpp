@@ -41,12 +41,13 @@ void NetworkSettingsSummaryStepWidget::testConnection()
     testPingRouter->start(testIpProgram);
 
     //internet test
-    QStringList arg;
+    QStringList arg,arg1;
     arg << "8.8.8.8";
     testInternet->start(testIpProgram,arg);
 
-
-//    myProcess->start(program);
+    //TODO
+//    arg1 << "ip-address-of-blu-SERVER"
+//    pingBluServer->start(testIpProgram,arg1);
 }
 void NetworkSettingsSummaryStepWidget::testRouter(int exitCode)
 {
