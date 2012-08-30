@@ -1,0 +1,2 @@
+Run the webserver with the following command:
+	python manage.py runserver

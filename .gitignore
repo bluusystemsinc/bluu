@@ -14,3 +14,4 @@ qt-components-desktop/components/plugin
 qt-components-desktop/qmldesktopviewer/debug/
 qt-components-desktop/qmldesktopviewer/qmldesktopviewer
 qmake.*
+django-admin.py
