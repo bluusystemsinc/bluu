@@ -58,8 +58,15 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
          QWidget *parent)
      : QWidget(parent)
  {
-     QRegExp rxStrings("[a-zA-Z ]{3,15}");
+     QRegExp rxStrings("[a-zA-Z]{3,15}");
      QRegExpValidator *validatorString = new QRegExpValidator(rxStrings, this);
+
+     QRegExp middleName("[a-zA-Z]{1,2}");
+     QRegExpValidator *validatorMiddleName = new QRegExpValidator(middleName, this);
+
+
+     QRegExp address("[a-zA-Z0-9\- ]{3,40}");
+     QRegExpValidator *validatorAddress = new QRegExpValidator(address, this);
 
      QRegExp phoneNumber("[0-9]{7,10}");
      QRegExpValidator *validatorPhoneNumber = new QRegExpValidator(phoneNumber, this);
@@ -68,7 +75,7 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
      QRegExp rxEmail("^[a-zA-Z][\\w\\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\\w\\.-]*[a-zA-Z0-9]\\.[a-zA-Z][a-zA-Z\\.]*[a-zA-Z]$");
      QRegExpValidator *validatorEmail = new QRegExpValidator(rxEmail, this);
 
-     QRegExp zipCode("[0-9]{5,7}");
+     QRegExp zipCode("[0-9]{4,7}");
      QRegExpValidator *validatorZipCode = new QRegExpValidator(zipCode, this);
 
      QRegExp dealerId("[0-9]{5,7}");
@@ -77,9 +84,9 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
      setupUi(this);
 
      firstNameLineEdit->setValidator(validatorString);
-     middleNameLineEdit->setValidator(validatorString);
+     middleNameLineEdit->setValidator(validatorMiddleName);
      lastNameLineEdit->setValidator(validatorString);
-     addressLineEdit->setValidator(validatorString);
+     addressLineEdit->setValidator(validatorAddress);
      cityLineEdit->setValidator(validatorString);
      zipCodeLineEdit->setValidator(validatorZipCode);
      emailAddressLineEdit->setValidator(validatorEmail);

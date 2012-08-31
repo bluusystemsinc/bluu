@@ -12,7 +12,7 @@ public:
     explicit WorkflowFinishedStepWidget(QWidget *parent = 0);
     
 private slots:
-    void trt();
+    void finish();
 };
 
 #endif // WORKFLOWFINISHEDSTEPWIDGET_H

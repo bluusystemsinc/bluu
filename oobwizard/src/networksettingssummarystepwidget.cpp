@@ -48,6 +48,10 @@ void NetworkSettingsSummaryStepWidget::testConnection()
     //TODO
 //    arg1 << "ip-address-of-blu-SERVER"
 //    pingBluServer->start(testIpProgram,arg1);
+
+
+    //TODO
+    // create a socket to test if the application is up ad working on the server
 }
 void NetworkSettingsSummaryStepWidget::testRouter(int exitCode)
 {

@@ -17,6 +17,8 @@ public:
 signals:
     void back();
     void next();
+public slots:
+    void saveInfoToFile();
 
 private:
     Ui::endUserRegistrationSummaryStep *ui;
