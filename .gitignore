@@ -16,3 +16,4 @@ qt-components-desktop/qmldesktopviewer/qmldesktopviewer
 qmake.*
 django-admin.py
 *.pyc
+bluuserver.db

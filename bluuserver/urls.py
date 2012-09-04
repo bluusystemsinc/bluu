@@ -1,4 +1,6 @@
 from django.conf.urls.defaults import patterns, include, url
+from djangorestframework import ModelResource, RootModelResource
+from models import MyModel
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -14,6 +16,4 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^passwords/', include('passwords.urls')),
-    url(r'^api/1.0/', include('api.urls'))
 )
