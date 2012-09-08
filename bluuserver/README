@@ -1,5 +1,6 @@
-Run the webserver with the following command:
-	python manage.py runserver
+* Run the debug test server:
+	./manage.py runserver
 
-Dependencies:
-pip install djangorestframework
+* Install dependencies:
+	pip install -r dependencies
+
