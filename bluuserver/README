@@ -1,6 +1,6 @@
 * Run the debug test server:
 	./manage.py runserver
 
-* Install dependencies:
+* Install dependencies (as root):
 	pip install -r dependencies
 
