@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'djangorestframework',
     'bluuserver.clients',
+    'bluuserver.sensors',
 )
 
 # A sample logging configuration. The only tangible logging
