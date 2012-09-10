@@ -1,6 +1,9 @@
-* Run the debug test server:
-	./manage.py runserver
-
 * Install dependencies (as root):
 	pip install -r dependencies
+
+* Create database
+	./manage.py syncdb
+
+* Run the debug test server:
+	./manage.py runserver
 
