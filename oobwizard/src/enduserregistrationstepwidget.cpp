@@ -65,7 +65,7 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
      QRegExpValidator *validatorMiddleName = new QRegExpValidator(middleName, this);
 
 
-     QRegExp address("[a-zA-Z0-9\- ]{3,40}");
+     QRegExp address("[a-zA-Z0-9\\- ]{3,40}");
      QRegExpValidator *validatorAddress = new QRegExpValidator(address, this);
 
      QRegExp phoneNumber("[0-9]{7,10}");
