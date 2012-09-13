@@ -51,8 +51,6 @@ void NetworkSettingsSummaryStepWidget::testConnection()
     arg1 << "127.0.0.1";
     pingBluServer->start(testIpProgram,arg1);
 
-
-    //TODO
     // create a socket to test if the application is up ad working on the server
     webRequest *webAppTest = new webRequest(this,"http://127.0.0.1:8000/");
     webAppTest->sendRequest();

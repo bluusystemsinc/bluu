@@ -59,11 +59,7 @@ void endUserRegistrationSummaryStep::saveInfoToFile()
 
     file.close();
 
-
-
-    //TODO
     // send the info saved in a file to the server
-
     webRequest *sendInfo = new webRequest(this,"http://127.0.0.1:8000/");
     sendInfo->sendFromFile(program);
 }
