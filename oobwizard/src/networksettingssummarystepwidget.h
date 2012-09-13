@@ -20,6 +20,7 @@ public slots:
     void testConnection();
     void testRouter(int exitCode);
     void testInternet(int exitCode);
+    void testBluuServer(int exitCode);
 };
 
 #endif // NETWORKSETTINGSSUMMARYSTEPWIDGET_H

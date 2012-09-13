@@ -11,6 +11,6 @@ WorkflowFinishedStepWidget::WorkflowFinishedStepWidget(QWidget *parent) :
 }
 void WorkflowFinishedStepWidget::finish()
 {
-    QFile::remove("endUserRegistrationInfo.txt");
+    QFile::remove("endUserRegistrationInfo.xml");
     QApplication::quit();
 }

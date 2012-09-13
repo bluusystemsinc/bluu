@@ -8,6 +8,8 @@ embedded {
     DEFINES += EMBEDDED
 }
 
+QT += network
+
 HEADERS += src/wizardcontext.h \
     src/oobwizardwidget.h \
     src/welcomestepwidget.h \
@@ -19,7 +21,8 @@ HEADERS += src/wizardcontext.h \
     src/networksettingsstepwidget.h \
     src/networksettingssummarystepwidget.h \
     src/workflowfinishedstepwidget.h \
-    src/enduserregistrationsummarystep.h
+    src/enduserregistrationsummarystep.h \
+    src/webRequest.h
 
 SOURCES += src/oobwizard.cpp \
    src/wizardcontext.cpp \
@@ -33,7 +36,8 @@ SOURCES += src/oobwizard.cpp \
     src/networksettingsstepwidget.cpp \
     src/networksettingssummarystepwidget.cpp \
     src/workflowfinishedstepwidget.cpp \
-    src/enduserregistrationsummarystep.cpp
+    src/enduserregistrationsummarystep.cpp \
+    src/webRequest.cpp
 
 FORMS += ui/oobwizardwidget.ui \
     ui/welcomeStep.ui \
