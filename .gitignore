@@ -17,3 +17,4 @@ qmake.*
 django-admin.py
 *.pyc
 bluuserver.db
+*.pro.user.*
