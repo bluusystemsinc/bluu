@@ -9,5 +9,8 @@ isEmpty(CPU) {
     CPU = i386
 }
 
+DEFINES += 'ORGANIZATION_NAME=\'\"Bluu Systems\"\''
+DEFINES += 'ORGANIZATION_DOMAIN=\'\"bluu\"\''
+
 message(Building $${TARGET} for $${CPU})
 
