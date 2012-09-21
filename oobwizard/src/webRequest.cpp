@@ -11,8 +11,8 @@
 
 #include <QDebug>
 
-#define USER "brliv"
-#define PASSWORD "brliv123"
+#define USER ""
+#define PASSWORD ""
 
 
 webRequest::webRequest(QObject *parent) :
