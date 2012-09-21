@@ -6,6 +6,7 @@ TEMPLATE = subdirs
 #unix:SUBDIRS += libsensor
 #SUBDIRS += qt-desktop-components
 SUBDIRS += oobwizard
+SUBDIRS += caim
 
 qt-desktop-components.file = qt-components-desktop/desktop.pro
 
