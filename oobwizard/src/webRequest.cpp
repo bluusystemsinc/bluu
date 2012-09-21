@@ -6,20 +6,24 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDir>
+//#include "qjson/parser.h"
+//#include "qjson/serializer.h"
 
 #include <QDebug>
 
-#define USER ""
-#define PASSWORD ""
+#define USER "brliv"
+#define PASSWORD "brliv123"
 
 
 webRequest::webRequest(QObject *parent) :
     QObject(parent)
 {
+
     m_currentState = stateNormal;
 
     manager = new QNetworkAccessManager(this);
-    QObject::connect(manager,     SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
+    QObject::connect(manager, SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
+
 }
 
 webRequest::webRequest(QObject *parent, QString url) :
@@ -41,7 +45,9 @@ void webRequest::sendRequest()
 {
        QUrl url(m_url);
        QNetworkReply* reply = manager->get(QNetworkRequest(url));
+//       request.setUrl(url);
        // NOTE: Store QNetworkReply pointer (maybe into caller).
+
        // When this HTTP request is finished you will receive this same
        // QNetworkReply as response parameter.
        // By the QNetworkReply pointer you can identify request and response.
@@ -72,32 +78,18 @@ void webRequest::finishedSlot(QNetworkReply* reply)
 }
 
 
-void webRequest::sendFromFile(QString &filename)
+void webRequest::sendDataToServer(QVariantMap &info)
 {
-
+    QVariantList infoData;
     QNetworkRequest request;
+    QUrl tmpUrl;
     request.setUrl(m_url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Basic" + QByteArray(QString("%1:%2").arg(USER).arg(PASSWORD).toAscii()).toBase64());
 
-    request.setRawHeader("Authorization", "Basic " + QByteArray(QString("%1:%2").arg(USER).arg(PASSWORD).toAscii()).toBase64());
+    QByteArray json = s.serialize(info);
+    qDebug() << json;
+    QNetworkReply * reply = manager->post(request, json);
 
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    QString list;
-
-    QTextStream in(&file);
-    list.append("[{");
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        list.append(line);
-    }
-    list.append("}]");
-
-    QByteArray ba = list.toAscii();
-    QNetworkReply * reply = manager->post(request, ba);
-
-    file.close();
 }

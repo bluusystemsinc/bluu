@@ -9,6 +9,7 @@ embedded {
 }
 
 QT += network
+LIBS += -L/usr/lib -lqjson
 
 HEADERS += src/wizardcontext.h \
     src/oobwizardwidget.h \

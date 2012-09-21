@@ -5,9 +5,12 @@
 #include <QVariantMap>
 #include <QMap>
 #include <QTimer>
+#include <qjson/parser.h>
+#include <qjson/serializer.h>
 
 class QNetworkAccessManager;
 class QNetworkReply;
+//class QNetworkRequest;
 
 /*
 struct Cache {
@@ -39,7 +42,7 @@ public slots:
 //    void sendHeartbeat(QVariantMap &fields);
 //    void replyFinished(QNetworkReply *);
 //    void restoreState();
-    void sendFromFile(QString &filename);
+    void sendDataToServer(QVariantMap &info);
     void finishedSlot(QNetworkReply* reply);
     
 private:
@@ -56,6 +59,8 @@ private:
 //    int m_retryInterval;
     QTimer * stateTimer;
     QString m_url;
+    QJson::Serializer s;
+
 };
 
 #endif // WEBLOGGER_H

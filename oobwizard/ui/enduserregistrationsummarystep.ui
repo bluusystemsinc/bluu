@@ -83,6 +83,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Site State&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label_8">
        <property name="font">
         <font>
@@ -179,6 +186,13 @@
      </item>
      <item>
       <widget class="QLabel" name="endSiteCityLabel">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="endSiteStateLabel">
        <property name="text">
         <string/>
        </property>

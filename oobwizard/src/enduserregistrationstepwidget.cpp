@@ -29,23 +29,25 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
     lastNameLineEdit->setValidator(validatorString);
     addressLineEdit->setValidator(validatorString);
     cityLineEdit->setValidator(validatorString);
+    StateLineEdit->setValidator(validatorString);
     zipCodeLineEdit->setValidator(validatorZipCode);
     emailAddressLineEdit->setValidator(validatorEmail);
     phoneNumberLineEdit->setValidator(validatorPhoneNumber);
     dealerIDLineEdit->setValidator(validatorDealerID);
+
     validate();
 
     connect(firstNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(middleNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(lastNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(addressLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(StateLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(cityLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(zipCodeLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
-    connect(emailAddressLineEdit, SIGNAL(textChanged(QString)),
-            SLOT(validate()));
-    connect(phoneNumberLineEdit, SIGNAL(textChanged(QString)),
-            SLOT(validate()));
+    connect(emailAddressLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+    connect(phoneNumberLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(dealerIDLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+
 
 
     connect(nextButton, SIGNAL(clicked()), SIGNAL(next()));
@@ -89,6 +91,7 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
      addressLineEdit->setValidator(validatorAddress);
      cityLineEdit->setValidator(validatorString);
      zipCodeLineEdit->setValidator(validatorZipCode);
+     StateLineEdit->setValidator(validatorString);
      emailAddressLineEdit->setValidator(validatorEmail);
      phoneNumberLineEdit->setValidator(validatorPhoneNumber);
      dealerIDLineEdit->setValidator(validatorDealerID);
@@ -99,6 +102,7 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
      connect(lastNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
      connect(addressLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
      connect(cityLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
+     connect(StateLineEdit, SIGNAL(textChanged(QString)), SLOT(validate));
      connect(zipCodeLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
      connect(emailAddressLineEdit, SIGNAL(textChanged(QString)),
              SLOT(validate()));
@@ -121,6 +125,7 @@ void EndUserRegistrationStepWidget::setEndUserRegistrationInfoLabels()
     m_endUserRegistrationSummaryStepPtr->endLastNameLabel->setText(lastNameLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->EndSiteStreetAddressLabel->setText(addressLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->endSiteCityLabel->setText(cityLineEdit->text());
+     m_endUserRegistrationSummaryStepPtr->endSiteStateLabel->setText(StateLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->endZIPCodeLabel->setText(zipCodeLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->endSiteCountryLabel->setText(countryLineEdit->currentText());
     m_endUserRegistrationSummaryStepPtr->endUserEmailAddressLabel->setText(emailAddressLineEdit->text());
@@ -159,6 +164,15 @@ bool EndUserRegistrationStepWidget::validateAddress()
 {
     QString string = addressLineEdit->text();
     const QValidator *validator = addressLineEdit->validator();
+    int pos;
+
+    return QValidator::Acceptable == validator->validate(string, pos);
+}
+
+bool EndUserRegistrationStepWidget::validateState()
+{
+    QString string = StateLineEdit->text();
+    const QValidator *validator = StateLineEdit->validator();
     int pos;
 
     return QValidator::Acceptable == validator->validate(string, pos);

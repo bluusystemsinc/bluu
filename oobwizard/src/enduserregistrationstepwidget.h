@@ -28,6 +28,7 @@ protected:
     Q_INVOKABLE bool validateEmailAddress();
     Q_INVOKABLE bool validatePhoneNumber();
     Q_INVOKABLE bool validateDealerId();
+    Q_INVOKABLE bool validateState();
 
 protected slots:
     void validate();
