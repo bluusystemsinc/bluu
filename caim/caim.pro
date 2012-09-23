@@ -6,8 +6,8 @@ DESTDIR = ../bin
 
 QT = core network
 
-VERSION = $$system(git rev-list HEAD | wc -l)
 DEFINES += 'APPLICATION_NAME=\'\"Caim\"\''
+VERSION = $$system(git rev-list HEAD | wc -l)
 DEFINES += 'APPLICATION_VERSION=\'\"$${VERSION}\"\''
 
 DEPENDPATH += . \
