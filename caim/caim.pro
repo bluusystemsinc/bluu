@@ -20,8 +20,9 @@ INCLUDEPATH += . qtservice/src ../caim_sensorbase/include
 
 # Input
 HEADERS += qtservice/src/qtservice.h \
-           qtservice/src/qtservice_p.h \
-           ../caim_sensorbase/include/abstractsensor.h
+           qtservice/src/qtservice_p.h
+
+HEADERS += ../caim_sensorbase/include/abstractsensor.h
 
 SOURCES += src/caim.cpp \
            qtservice/src/qtservice.cpp
