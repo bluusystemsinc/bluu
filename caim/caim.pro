@@ -16,11 +16,12 @@ DEPENDPATH += . \
               qtservice/examples/interactive \
               qtservice/examples/server
 
-INCLUDEPATH += . qtservice/src
+INCLUDEPATH += . qtservice/src include
 
 # Input
 HEADERS += qtservice/src/qtservice.h \
-           qtservice/src/qtservice_p.h
+           qtservice/src/qtservice_p.h \
+           include/abstractsensor.h
 
 SOURCES += src/caim.cpp \
            qtservice/src/qtservice.cpp
