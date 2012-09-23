@@ -7,8 +7,9 @@ class AbstractSensor : public QObject
 {
     Q_OBJECT
 
-public:
-    AbstractSensor(QObject *parent = 0);
+public slots:
+signals:
+    void dataAvailable();
 };
 
 #endif // ABSTRACTSENSOR_H
