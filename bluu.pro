@@ -7,6 +7,7 @@ TEMPLATE = subdirs
 SUBDIRS += oobwizard
 
 SUBDIRS += caim
+SUBDIRS += caim_ftdisensor
 
 qt-desktop-components.file = qt-components-desktop/desktop.pro
 

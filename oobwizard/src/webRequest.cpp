@@ -44,7 +44,7 @@ webRequest::~webRequest()
 void webRequest::sendRequest()
 {
        QUrl url(m_url);
-       QNetworkReply* reply = manager->get(QNetworkRequest(url));
+       /*QNetworkReply* reply = */manager->get(QNetworkRequest(url));
 //       request.setUrl(url);
        // NOTE: Store QNetworkReply pointer (maybe into caller).
 
@@ -90,6 +90,6 @@ void webRequest::sendDataToServer(QVariantMap &info)
 
     QByteArray json = s.serialize(info);
     qDebug() << json;
-    QNetworkReply * reply = manager->post(request, json);
+    /*QNetworkReply * reply = */manager->post(request, json);
 
 }

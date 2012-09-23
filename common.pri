@@ -9,6 +9,13 @@ isEmpty(CPU) {
     CPU = i386
 }
 
+eval(TEMPLATE = app) {
+    DESTDIR = $$PWD/bin
+}
+eval(TEMPLATE = lib) {
+    DESTDIR = $$PWD/lib
+}
+
 DEFINES += 'ORGANIZATION_NAME=\'\"Bluu Systems\"\''
 DEFINES += 'ORGANIZATION_DOMAIN=\'\"bluu\"\''
 

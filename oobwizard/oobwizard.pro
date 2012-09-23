@@ -1,7 +1,6 @@
-include(../common.pri)
-
 TEMPLATE = app
 
+include(../common.pri)
 DESTDIR = ../bin
 
 embedded {
