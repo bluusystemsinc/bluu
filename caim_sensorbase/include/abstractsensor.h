@@ -10,7 +10,7 @@ class AbstractSensor : public QObject
     Q_OBJECT
 
 public slots:
-    void serialize(QTextStream *stream);
+    virtual void serialize(QTextStream *stream) = 0;
 
 signals:
     void dataAvailable();
