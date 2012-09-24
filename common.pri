@@ -9,10 +9,10 @@ isEmpty(CPU) {
     CPU = i386
 }
 
-eval(TEMPLATE = app) {
+equals(TEMPLATE, app) {
     DESTDIR = $$PWD/bin
 }
-eval(TEMPLATE = lib) {
+equals(TEMPLATE, lib) {
     DESTDIR = $$PWD/lib
 }
 
