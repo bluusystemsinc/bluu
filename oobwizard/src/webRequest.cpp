@@ -6,9 +6,6 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDir>
-//#include "qjson/parser.h"
-//#include "qjson/serializer.h"
-
 #include <QDebug>
 
 #define USER ""
@@ -90,6 +87,5 @@ void webRequest::sendDataToServer(QVariantMap &info)
 
     QByteArray json = s.serialize(info);
     qDebug() << json;
-    /*QNetworkReply * reply = */manager->post(request, json);
-
+    manager->post(request, json);
 }
