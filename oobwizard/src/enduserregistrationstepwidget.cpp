@@ -102,7 +102,7 @@ EndUserRegistrationStepWidget::EndUserRegistrationStepWidget(QWidget *parent) :
      connect(lastNameLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
      connect(addressLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
      connect(cityLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
-     connect(StateLineEdit, SIGNAL(textChanged(QString)), SLOT(validate));
+     connect(StateLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
      connect(zipCodeLineEdit, SIGNAL(textChanged(QString)), SLOT(validate()));
      connect(emailAddressLineEdit, SIGNAL(textChanged(QString)),
              SLOT(validate()));
@@ -125,7 +125,7 @@ void EndUserRegistrationStepWidget::setEndUserRegistrationInfoLabels()
     m_endUserRegistrationSummaryStepPtr->endLastNameLabel->setText(lastNameLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->EndSiteStreetAddressLabel->setText(addressLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->endSiteCityLabel->setText(cityLineEdit->text());
-     m_endUserRegistrationSummaryStepPtr->endSiteStateLabel->setText(StateLineEdit->text());
+    m_endUserRegistrationSummaryStepPtr->endSiteStateLabel->setText(StateLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->endZIPCodeLabel->setText(zipCodeLineEdit->text());
     m_endUserRegistrationSummaryStepPtr->endSiteCountryLabel->setText(countryLineEdit->currentText());
     m_endUserRegistrationSummaryStepPtr->endUserEmailAddressLabel->setText(emailAddressLineEdit->text());

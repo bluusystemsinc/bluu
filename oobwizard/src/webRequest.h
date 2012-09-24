@@ -27,7 +27,7 @@ class webRequest : public QObject
 public:
     enum State {stateNormal, stateNetworkDown, stateRestoring};
     explicit webRequest(QObject *parent);
-    explicit webRequest(QObject *parent, QString url);
+    explicit webRequest(QObject *parent,const QString url);
     ~webRequest();
     void sendRequest();
 //    QString convertToJson(QVariantMap &fields);
@@ -42,7 +42,7 @@ public slots:
 //    void sendHeartbeat(QVariantMap &fields);
 //    void replyFinished(QNetworkReply *);
 //    void restoreState();
-    void sendDataToServer(QVariantMap &info);
+    void sendDataToServer(const QVariantMap &info);
     void finishedSlot(QNetworkReply* reply);
     
 private:

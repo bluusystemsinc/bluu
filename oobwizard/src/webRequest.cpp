@@ -23,7 +23,7 @@ webRequest::webRequest(QObject *parent) :
 
 }
 
-webRequest::webRequest(QObject *parent, QString url) :
+webRequest::webRequest(QObject *parent,const QString url) :
     QObject(parent),
     m_url(url)
 {
@@ -75,7 +75,7 @@ void webRequest::finishedSlot(QNetworkReply* reply)
 }
 
 
-void webRequest::sendDataToServer(QVariantMap &info)
+void webRequest::sendDataToServer(const QVariantMap &info)
 {
     QVariantList infoData;
     QNetworkRequest request;
