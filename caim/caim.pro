@@ -1,8 +1,4 @@
-TEMPLATE = app
-
 include(../common.pri)
-
-DESTDIR = ../bin
 
 QT = core network
 

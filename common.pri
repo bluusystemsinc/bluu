@@ -9,7 +9,7 @@ isEmpty(CPU) {
     CPU = i386
 }
 
-equals(TEMPLATE, app) {
+equals(TEMPLATE, app) { # default value
     DESTDIR = $$PWD/bin
 }
 equals(TEMPLATE, lib) {
