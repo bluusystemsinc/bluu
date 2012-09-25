@@ -12,6 +12,9 @@ class AbstractSensor : public QObject
 public slots:
     virtual void serialize(QTextStream *stream) = 0;
 
+protected:
+    AbstractSensor(QObject *parent = 0) : QObject(parent) {}
+
 signals:
     void dataAvailable();
 };
