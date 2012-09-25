@@ -37,16 +37,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="backButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>&amp;Back</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="nextButton">
        <property name="text">
         <string>&amp;Next</string>

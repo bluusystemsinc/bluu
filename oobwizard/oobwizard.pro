@@ -1,4 +1,4 @@
-TEMPLATE = app
+cdTEMPLATE = app
 
 include(../common.pri)
 DESTDIR = ../bin
