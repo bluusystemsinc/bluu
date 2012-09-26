@@ -20,7 +20,7 @@ void SensorManager::loadSensorLibraries()
     foreach(QFileInfo fi, libraryDir.entryInfoList(
                 QStringList()<<"libcaim*.so"))
     {
-        QLibrary library(fi.fileName());
+        QLibrary library(fi.filePath());
 
         qDebug()<<"Plugin found:"<<fi.fileName();
 
@@ -28,6 +28,10 @@ void SensorManager::loadSensorLibraries()
         {
             qDebug()<<"Plugin loaded";
             library.unload();
+        }
+        else
+        {
+            qCritical()<<"Plugin not loaded"<<library.errorString();
         }
     }
 }
