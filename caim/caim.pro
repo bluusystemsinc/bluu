@@ -41,3 +41,15 @@ SAMPLES += qtservice/examples/controller/main.cpp \
            qtservice/examples/server/main.cpp
 
 OTHER_FILES += $$SAMPLES
+
+HEADERS += \
+    src/senddatamanager.h
+
+SOURCES += \
+    src/senddatamanager.cpp
+
+HEADERS += \
+    src/jsonrequest.h
+
+SOURCES += \
+    src/jsonrequest.cpp
