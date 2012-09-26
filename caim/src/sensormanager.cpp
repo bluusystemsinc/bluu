@@ -6,6 +6,8 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 
+#include <abstractsensor.h>
+
 SensorManager::SensorManager(QObject *parent) :
     QObject(parent)
 {
@@ -26,7 +28,16 @@ void SensorManager::loadSensorLibraries()
 
         if(library.load())
         {
+            fnVersionPointer version = 0;
+            VersionInfo versionInfo;
+
             qDebug()<<"Plugin loaded";
+            version = reinterpret_cast<fnVersionPointer>(
+                        library.resolve("version"));
+
+            versionInfo = version();
+            qDebug()<<"VERSION!!!!:"<<versionInfo.pluginName
+                   <<versionInfo.majorVersion<<versionInfo.minorVersion;
             library.unload();
         }
         else

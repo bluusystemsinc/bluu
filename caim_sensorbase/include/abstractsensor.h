@@ -20,7 +20,28 @@ signals:
 };
 
 typedef QList<AbstractSensor*> AbstractSensorList;
+typedef int MajorVersion, MinorVersion;
+
+struct VersionInfo
+{
+    QString pluginName;
+    int majorVersion;
+    int minorVersion;
+};
 
 AbstractSensorList instances();
+
+extern "C" VersionInfo version();
+
+typedef VersionInfo(*fnVersionPointer)();
+
+// Version info MACRO define it once per plugin
+#define addVersionInfo() extern "C" VersionInfo version() { \
+    VersionInfo r; \
+    r.pluginName = PLUGIN_NAME; \
+    r.majorVersion = MAJOR_VERSION; \
+    r.minorVersion = MINOR_VERSION; \
+    return r; \
+}
 
 #endif // ABSTRACTSENSOR_H
