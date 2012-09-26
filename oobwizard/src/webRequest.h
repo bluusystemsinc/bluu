@@ -6,9 +6,10 @@
 #include <QVariantMap>
 #include <QMap>
 #include <QTimer>
-#include <qjson/parser.h>
-#include <qjson/serializer.h>
 #include <QNetworkReply>
+
+#include "qjson/parser.h"
+#include "qjson/serializer.h"
 
 class QNetworkAccessManager;
 //class QNetworkReply;
