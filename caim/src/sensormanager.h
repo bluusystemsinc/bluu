@@ -2,6 +2,9 @@
 #define SENSORMANAGER_H
 
 #include <QObject>
+#include <QMultiMap>
+
+class AbstractSensor;
 
 class SensorManager : public QObject
 {
@@ -11,6 +14,10 @@ public:
 
 public slots:
     void loadSensorLibraries();
+private:
+    typedef QMultiMap<QString,AbstractSensor*>PluginsLoadedMap;
+
+    PluginsLoadedMap m_pluginsLoaded;
 };
 
 #endif // SENSORMANAGER_H

@@ -29,11 +29,12 @@ struct VersionInfo
     int minorVersion;
 };
 
-AbstractSensorList instances();
+extern "C" AbstractSensorList instances();
 
 extern "C" VersionInfo version();
 
-typedef VersionInfo(*fnVersionPointer)();
+typedef VersionInfo(*FNVersionPtr)();
+typedef AbstractSensorList(*FNInstancesPtr)();
 
 // Version info MACRO define it once per plugin
 #define addVersionInfo() extern "C" VersionInfo version() { \
