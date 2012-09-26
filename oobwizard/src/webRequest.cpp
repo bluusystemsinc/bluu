@@ -7,13 +7,17 @@
 #include <QFile>
 #include <QDir>
 #include <QDebug>
+#include <QMessageBox>
+#include <QString>
+#include <QtCore>
+#include <QtGui>
 
 #define USER ""
 #define PASSWORD ""
 
 
-webRequest::webRequest(QObject *parent) :
-    QObject(parent)
+webRequest::webRequest(QWidget *parent) :
+    QWidget(parent)
 {
 
     m_currentState = stateNormal;
@@ -23,8 +27,8 @@ webRequest::webRequest(QObject *parent) :
 
 }
 
-webRequest::webRequest(QObject *parent,const QString url) :
-    QObject(parent),
+webRequest::webRequest(QWidget *parent,const QString url) :
+    QWidget(parent),
     m_url(url)
 {
     m_currentState = stateNormal;
@@ -69,7 +73,8 @@ void webRequest::finishedSlot(QNetworkReply* reply)
     }
     else
     {
-        qDebug() << "NOT OK!"<< reply->errorString() << endl;
+        QMessageBox::warning(this ,"Server Status","Server error!\n"+reply->errorString());
+        qDebug() << "NOT OK!"<< reply->errorString() << reply->error() << endl;
         // handle errors here
     }
 }
@@ -88,4 +93,5 @@ void webRequest::sendDataToServer(const QVariantMap &info)
     QByteArray json = s.serialize(info);
     qDebug() << json;
     manager->post(request, json);
+
 }

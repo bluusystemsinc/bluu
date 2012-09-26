@@ -4,6 +4,8 @@
 #include <QTextStream>
 #include "webRequest.h"
 #include <QNetworkRequest>
+#include <QMessageBox>
+#include <QDebug>
 
 endUserRegistrationSummaryStep::endUserRegistrationSummaryStep(QWidget *parent) :
     QWidget(parent)
@@ -31,6 +33,6 @@ void endUserRegistrationSummaryStep::saveInfoToFile()
      userInfoData.insert("zip_code", endZIPCodeLabel->text());
 
    // send data to the server
-    webRequest *sendInfo = new webRequest(this,"http://127.0.0.1:8000");
+    webRequest *sendInfo = new webRequest(this,"http://127.0.0.1:800");
     sendInfo->sendDataToServer(userInfoData);
 }

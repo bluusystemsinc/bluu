@@ -1,4 +1,4 @@
-cdTEMPLATE = app
+TEMPLATE = app
 
 include(../common.pri)
 DESTDIR = ../bin
@@ -8,7 +8,6 @@ embedded {
 }
 
 QT += network
-LIBS += -L/usr/lib -lqjson
 
 HEADERS += src/wizardcontext.h \
     src/oobwizardwidget.h \
@@ -22,7 +21,18 @@ HEADERS += src/wizardcontext.h \
     src/networksettingssummarystepwidget.h \
     src/workflowfinishedstepwidget.h \
     src/enduserregistrationsummarystep.h \
-    src/webRequest.h
+    src/webRequest.h \
+    src/qjson/stack.hh \
+    src/qjson/serializerrunnable.h \
+    src/qjson/serializer.h \
+    src/qjson/qobjecthelper.h \
+    src/qjson/qjson_export.h \
+    src/qjson/qjson_debug.h \
+    src/qjson/position.hh \
+    src/qjson/parserrunnable.h \
+    src/qjson/parser_p.h \
+    src/qjson/parser.h \
+    src/qjson/location.hh
 
 SOURCES += src/oobwizard.cpp \
    src/wizardcontext.cpp \
@@ -37,7 +47,14 @@ SOURCES += src/oobwizard.cpp \
     src/networksettingssummarystepwidget.cpp \
     src/workflowfinishedstepwidget.cpp \
     src/enduserregistrationsummarystep.cpp \
-    src/webRequest.cpp
+    src/webRequest.cpp \
+    src/qjson/serializerrunnable.cpp \
+    src/qjson/serializer.cpp \
+    src/qjson/qobjecthelper.cpp \
+    src/qjson/parserrunnable.cpp \
+    src/qjson/parser.cpp \
+    src/qjson/json_scanner.cpp \
+    src/qjson/json_parser.cc
 
 FORMS += ui/oobwizardwidget.ui \
     ui/welcomeStep.ui \
@@ -50,3 +67,8 @@ FORMS += ui/oobwizardwidget.ui \
     ui/endUserRegistrationStep.ui \
     ui/workflowFinished.ui \
     ui/enduserregistrationsummarystep.ui
+
+OTHER_FILES += \
+    src/qjson/json_parser.yy \
+    ../../../qjson/src/json_parser.yy \
+    src/qjson/json_parser.yy

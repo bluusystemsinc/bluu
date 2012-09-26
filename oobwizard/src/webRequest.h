@@ -1,15 +1,17 @@
 #ifndef WEBLOGGER_H
 #define WEBLOGGER_H
 
-#include <QObject>
+//#include <QObject>
+#include <QWidget>
 #include <QVariantMap>
 #include <QMap>
 #include <QTimer>
 #include <qjson/parser.h>
 #include <qjson/serializer.h>
+#include <QNetworkReply>
 
 class QNetworkAccessManager;
-class QNetworkReply;
+//class QNetworkReply;
 //class QNetworkRequest;
 
 /*
@@ -21,18 +23,17 @@ struct Cache {
 
 //safeLevel {slLow, slMedium, slHigh}
 
-class webRequest : public QObject
+class webRequest : public QWidget
 {
     Q_OBJECT
 public:
     enum State {stateNormal, stateNetworkDown, stateRestoring};
-    explicit webRequest(QObject *parent);
-    explicit webRequest(QObject *parent,const QString url);
+    explicit webRequest(QWidget *parent);
+    explicit webRequest(QWidget *parent,const QString url);
     ~webRequest();
     void sendRequest();
 //    QString convertToJson(QVariantMap &fields);
 
-    
 signals:
     void logMessage(int, QString message);
 
@@ -60,7 +61,6 @@ private:
     QTimer * stateTimer;
     QString m_url;
     QJson::Serializer s;
-
 };
 
 #endif // WEBLOGGER_H
