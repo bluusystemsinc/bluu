@@ -9,6 +9,9 @@ class AbstractSensor : public QObject
 {
     Q_OBJECT
 
+public:
+    Q_INVOKABLE virtual void plug() = 0;
+
 public slots:
     virtual void serialize(QTextStream *stream) = 0;
 

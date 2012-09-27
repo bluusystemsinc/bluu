@@ -2,6 +2,7 @@
 
 #include <QDir>
 #include <QDebug>
+#include <QThread>
 #include <QLibrary>
 #include <QFileInfo>
 #include <QCoreApplication>
@@ -49,8 +50,15 @@ void SensorManager::loadSensorLibraries()
                 qDebug()<<"Number of sensors:"<<sensorList.count();
                 foreach(AbstractSensor *sensor, sensorList)
                 {
-                    sensor->setParent(this);
+                    QThread *thread = new QThread(this);
+
+                    sensor->moveToThread(thread);
+                    qDebug()<<"Sensor moved"<<qApp->thread()<<
+                              "->"<<sensor->thread();
+                    thread->start();
                     m_pluginsLoaded.insert(versionInfo.pluginName, sensor);
+
+                    metaObject()->invokeMethod(sensor, "plug");
                 }
             }
             else

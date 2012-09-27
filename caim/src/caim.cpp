@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QThread>
 #include <QCoreApplication>
 
 #include "sensormanager.h"
@@ -15,6 +16,8 @@ int main(int argc, char **argv)
 
     qDebug()<<QString("Starting %1 %2 %3...").arg(app.organizationName())
               .arg(app.applicationName()).arg(app.applicationVersion());
+
+    qDebug()<<"Ideal thread count:"<<QThread::idealThreadCount();
 
     sm.loadSensorLibraries();
 
