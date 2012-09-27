@@ -9,6 +9,8 @@ class FtdiSensor : public AbstractSensor
 public:
     explicit FtdiSensor(QObject *parent = 0);
 
+    Q_INVOKABLE virtual void plug();
+
     virtual void serialize(QTextStream *stream);
 };
 
