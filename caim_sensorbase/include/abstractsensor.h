@@ -10,15 +10,20 @@ class AbstractSensor : public QObject
     Q_OBJECT
 
 public:
+    // Class members initialization go in this function. It will be called in
+    // sensor thread
     Q_INVOKABLE virtual void plug() = 0;
 
 public slots:
+    // This function will serialize the data in json format to send to
+    // the server
     virtual void serialize(QTextStream *stream) = 0;
 
 protected:
     AbstractSensor(QObject *parent = 0) : QObject(parent) {}
 
 signals:
+    // For notify Caim about new data available
     void dataAvailable();
 };
 
