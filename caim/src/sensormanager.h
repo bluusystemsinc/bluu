@@ -13,12 +13,9 @@ class SensorManager : public QObject
 public:
     explicit SensorManager(QObject *parent = 0);
 
-    QTimer *timer;
-
 public slots:
     void loadSensorLibraries();
 
-    void timerSlot();
 private:
     typedef QMultiMap<QString,AbstractSensor*>PluginsLoadedMap;
 
