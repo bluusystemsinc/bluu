@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QMultiMap>
-#include <QTimer>
 
 class AbstractSensor;
 
@@ -15,7 +14,6 @@ public:
 
 public slots:
     void loadSensorLibraries();
-
 private:
     typedef QMultiMap<QString,AbstractSensor*>PluginsLoadedMap;
 
