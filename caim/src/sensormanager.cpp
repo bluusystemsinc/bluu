@@ -12,10 +12,6 @@
 SensorManager::SensorManager(QObject *parent) :
     QObject(parent)
 {
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this,SLOT(timerSlot()));
-
-    timer->start(5000);
 }
 
 void SensorManager::loadSensorLibraries()
@@ -79,21 +75,4 @@ void SensorManager::loadSensorLibraries()
             delete library;
         }
     }
-}
-
-void SensorManager::timerSlot()
-{
-    QFile file("/dev/urandom");
-    quint32 x;
-
-    if(!file.open(QIODevice::ReadOnly))
-    {
-        qDebug() << "Can not open for read";
-    }
-
-    QDataStream in(&file);
-    in >> x;
-
-    qDebug() << "Timer elipsed" << x << "\n";
-
 }
