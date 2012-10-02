@@ -2,7 +2,7 @@ win32:system(type README)
 else:system(cat README)
 
 TEMPLATE = subdirs
-#unix:SUBDIRS += libsensor
+unix:SUBDIRS += libsensor
 #SUBDIRS += qt-desktop-components
 SUBDIRS += oobwizard
 
