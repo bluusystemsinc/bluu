@@ -27,6 +27,8 @@ bool FtdiSensor::plug()
     FT_STATUS ftStatus;
     DWORD numDevices = 0;
     FT_DEVICE_LIST_INFO_NODE *devInfo;
+    FT_DEVICE_LIST_INFO_NODE *node;
+    char buffer[256];
 
     qDebug()<<"I'm at working at"<<QThread::currentThread();
 
@@ -37,33 +39,47 @@ bool FtdiSensor::plug()
         return false;
     }
     qDebug()<<"FT_CreateDeviceInfoList"<<ftStatus;
-    devInfo = new FT_DEVICE_LIST_INFO_NODE[numDevices];
+    node = devInfo = new FT_DEVICE_LIST_INFO_NODE[numDevices];
     ftStatus = FT_GetDeviceInfoList(devInfo, &numDevices);
     if(FT_OK != ftStatus)
     {
         qCritical()<<"Error FT_GetDeviceInfoList"<<ftStatus;
         return false;
     }
-    for(DWORD i = 0; i < numDevices; i++)
+
+
+    ftStatus = FT_Open(0, &(node->ftHandle));
+    if(FT_OK != ftStatus)
     {
-        FT_DEVICE_LIST_INFO_NODE *node = devInfo + i;
-
-        ftStatus = FT_Open(i, &(node->ftHandle));
-        if(FT_OK != ftStatus)
-        {
-            qCritical()<<"Error FT_Open"<<ftStatus;
-            return false;
-        }
-
-        qDebug()<<"Device"<<i;
-        qDebug()<<" Flags"<<node->Flags;
-        qDebug()<<" Type"<<node->Type;
-        qDebug()<<" ID"<<node->ID;
-        qDebug()<<" LocId"<<node->LocId;
-        qDebug()<<" Serial number"<<node->SerialNumber;
-        qDebug()<<" Description"<<node->Description;
-        qDebug()<<" ftHandle"<<node->ftHandle;
+        qCritical()<<"Error FT_Open"<<ftStatus;
+        return false;
     }
+    ftStatus = FT_SetBaudRate(node->ftHandle, FT_BAUD_57600);
+    ftStatus = FT_SetDataCharacteristics(node->ftHandle, FT_BITS_8,
+                                         FT_STOP_BITS_1, FT_PARITY_NONE);
+
+    qDebug()<<"Flags"<<node->Flags;
+    qDebug()<<"Type"<<node->Type;
+    qDebug()<<"ID"<<node->ID;
+    qDebug()<<"LocId"<<node->LocId;
+    qDebug()<<"Serial number"<<node->SerialNumber;
+    qDebug()<<"Description"<<node->Description;
+    qDebug()<<"ftHandle"<<node->ftHandle;
+
+    while(FT_OK == ftStatus)
+    {
+        DWORD rxBytes, txBytes, bytesReceived, event;
+        char *bytes;
+
+        ftStatus = FT_GetStatus(node->ftHandle, &rxBytes, &txBytes, &event);
+        if(rxBytes > 0)
+        {
+            bytes = new char[rxBytes];
+            ftStatus = FT_Read(node->ftHandle, bytes, rxBytes, &bytesReceived);
+            delete [] bytes;
+        }
+    }
+//    while(FT_OK == FT_Read(node->ftHandle, buffer, )
     return true;
 }
 
