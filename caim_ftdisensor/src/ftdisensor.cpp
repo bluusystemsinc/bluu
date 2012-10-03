@@ -28,7 +28,6 @@ bool FtdiSensor::plug()
     DWORD numDevices = 0;
     FT_DEVICE_LIST_INFO_NODE *devInfo;
     FT_DEVICE_LIST_INFO_NODE *node;
-    char buffer[256];
     QByteArray array;
 
     qDebug()<<"I'm at working at"<<QThread::currentThread();
