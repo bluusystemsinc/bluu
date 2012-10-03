@@ -22,3 +22,9 @@ HEADERS += \
 
 SOURCES += \
     src/ftdisensor.cpp
+
+HEADERS += \
+    src/ftdidevice.h
+
+SOURCES += \
+    src/ftdidevice.cpp
