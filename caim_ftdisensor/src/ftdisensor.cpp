@@ -29,6 +29,7 @@ bool FtdiSensor::plug()
     FT_DEVICE_LIST_INFO_NODE *devInfo;
     FT_DEVICE_LIST_INFO_NODE *node;
     char buffer[256];
+    QByteArray array;
 
     qDebug()<<"I'm at working at"<<QThread::currentThread();
 
@@ -76,7 +77,16 @@ bool FtdiSensor::plug()
         {
             bytes = new char[rxBytes];
             ftStatus = FT_Read(node->ftHandle, bytes, rxBytes, &bytesReceived);
+            qDebug()<<bytes;
+            if(bytes[0] == 'U' && bytes[1] == 'B')
+            {
+                qDebug()<<"Final array:"<<array.toHex()<<array.toInt();
+                array.setRawData(bytes, rxBytes);
+            }
+            else
+                array.append(bytes, rxBytes);
             delete [] bytes;
+
         }
     }
 //    while(FT_OK == FT_Read(node->ftHandle, buffer, )
