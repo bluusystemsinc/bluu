@@ -7,8 +7,8 @@ unix:SUBDIRS += libsensor
 SUBDIRS += oobwizard
 
 SUBDIRS += caim
-SUBDIRS += caim_ftdisensor
-SUBDIRS += caim_testsensor
+SUBDIRS += caim_ftdiplugin
+SUBDIRS += caim_testplugin
 
 qt-desktop-components.file = qt-components-desktop/desktop.pro
 

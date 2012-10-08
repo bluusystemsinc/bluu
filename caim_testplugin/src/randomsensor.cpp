@@ -2,6 +2,7 @@
 
 #include <QTime>
 #include <QDebug>
+#include <QThread>
 
 addVersionInfo()
 
@@ -30,11 +31,12 @@ void RandomSensor::serialize(QTextStream *stream)
 {
     int value = qrand();
 
+    qDebug()<<__PRETTY_FUNCTION__<<value<<QThread::currentThread();
     (*stream)<<QString::number(value);
 }
 
 void RandomSensor::timerEvent(QTimerEvent *)
 {
-    qDebug()<<__PRETTY_FUNCTION__;
+    qDebug()<<__PRETTY_FUNCTION__<<QThread::currentThread();
     emit dataAvailable();
 }

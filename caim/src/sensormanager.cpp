@@ -80,15 +80,13 @@ void SensorManager::loadSensorLibraries()
 
 void SensorManager::readData()
 {
-    qDebug()<<__PRETTY_FUNCTION__;
-
     QByteArray data;
     QTextStream stream(&data, QIODevice::WriteOnly);
     AbstractSensor *sensor = dynamic_cast<AbstractSensor*>(sender());
 
-    qDebug()<<sensor->metaObject()->className()<<data;
     sensor->serialize(&stream);
     stream.flush();
-    qDebug()<<sensor->metaObject()->className()<<data;
+    qDebug()<<__PRETTY_FUNCTION__<<sensor->metaObject()->className()<<data<<
+              QThread::currentThread();
 }
 
