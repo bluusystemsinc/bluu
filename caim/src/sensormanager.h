@@ -14,6 +14,9 @@ public:
 
 public slots:
     void loadSensorLibraries();
+
+protected slots:
+    void readData();
 private:
     typedef QMultiMap<QString,AbstractSensor*>PluginsLoadedMap;
 

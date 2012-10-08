@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QLibrary>
 #include <QFileInfo>
+#include <QTextStream>
 #include <QCoreApplication>
 
 #include <abstractsensor.h>
@@ -52,12 +53,13 @@ void SensorManager::loadSensorLibraries()
                 {
                     QThread *thread = new QThread(this);
 
+                    thread->start();
                     sensor->moveToThread(thread);
                     connect(thread, SIGNAL(started()), sensor, SLOT(plug()));
+                    connect(sensor, SIGNAL(dataAvailable()), SLOT(readData()));
                     qDebug()<<"Sensor moved"<<qApp->thread()<<
                               "->"<<sensor->thread();
                     m_pluginsLoaded.insert(versionInfo.pluginName, sensor);
-                    thread->start();
                 }
             }
             else
@@ -74,5 +76,19 @@ void SensorManager::loadSensorLibraries()
             delete library;
         }
     }
+}
+
+void SensorManager::readData()
+{
+    qDebug()<<__PRETTY_FUNCTION__;
+
+    QByteArray data;
+    QTextStream stream(&data, QIODevice::WriteOnly);
+    AbstractSensor *sensor = dynamic_cast<AbstractSensor*>(sender());
+
+    qDebug()<<sensor->metaObject()->className()<<data;
+    sensor->serialize(&stream);
+    stream.flush();
+    qDebug()<<sensor->metaObject()->className()<<data;
 }
 

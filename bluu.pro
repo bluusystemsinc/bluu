@@ -8,6 +8,7 @@ SUBDIRS += oobwizard
 
 SUBDIRS += caim
 SUBDIRS += caim_ftdisensor
+SUBDIRS += caim_testsensor
 
 qt-desktop-components.file = qt-components-desktop/desktop.pro
 
