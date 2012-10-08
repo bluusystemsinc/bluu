@@ -9,12 +9,11 @@ class AbstractSensor : public QObject
 {
     Q_OBJECT
 
-public:
+public slots:
     // Class members initialization go in this function. It will be called in
     // sensor thread
-    Q_INVOKABLE virtual bool plug() = 0;
+    virtual bool plug() = 0;
 
-public slots:
     // This function will serialize the data in json format to send to
     // the server
     virtual void serialize(QTextStream *stream) = 0;

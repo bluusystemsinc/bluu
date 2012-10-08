@@ -53,12 +53,11 @@ void SensorManager::loadSensorLibraries()
                     QThread *thread = new QThread(this);
 
                     sensor->moveToThread(thread);
+                    connect(thread, SIGNAL(started()), sensor, SLOT(plug()));
                     qDebug()<<"Sensor moved"<<qApp->thread()<<
                               "->"<<sensor->thread();
-                    thread->start();
                     m_pluginsLoaded.insert(versionInfo.pluginName, sensor);
-
-                    metaObject()->invokeMethod(sensor, "plug");
+                    thread->start();
                 }
             }
             else

@@ -15,8 +15,8 @@ class FtdiSensor : public AbstractSensor
 public:
     explicit FtdiSensor(QObject *parent = 0);
 
-    Q_INVOKABLE virtual bool plug();
-
+public slots:
+    virtual bool plug();
     virtual void serialize(QTextStream *stream);
 
 #ifdef CAIM_FTDISENSOR_USE_FILE
