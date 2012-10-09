@@ -53,3 +53,6 @@ HEADERS += \
 
 SOURCES += \
     src/jsonrequest.cpp
+
+HEADERS += \
+    ../caim_sensorbase/include/debug.h

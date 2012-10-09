@@ -5,6 +5,8 @@
 
 #ifdef CAIM_FTDISENSOR_USE_FILE
 class QFile;
+#else
+class FtdiDevice;
 #endif
 
 
@@ -19,9 +21,11 @@ public slots:
     virtual bool plug();
     virtual void serialize(QTextStream *stream);
 
-#ifdef CAIM_FTDISENSOR_USE_FILE
 private:
+#ifdef CAIM_FTDISENSOR_USE_FILE
     QFile *m_file;
+#else
+    FtdiDevice *m_device;
 #endif
 };
 

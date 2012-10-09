@@ -10,7 +10,7 @@ extern "C" AbstractSensorList instances()
 {
     AbstractSensorList list;
 
-    list.append(new RandomSensor);
+//    list.append(new RandomSensor);
     return list;
 }
 
@@ -31,12 +31,12 @@ void RandomSensor::serialize(QTextStream *stream)
 {
     int value = qrand();
 
-    qDebug()<<__PRETTY_FUNCTION__<<value<<QThread::currentThread();
+//    qDebug()<<__PRETTY_FUNCTION__<<value<<QThread::currentThread();
     (*stream)<<QString::number(value);
 }
 
 void RandomSensor::timerEvent(QTimerEvent *)
 {
-    qDebug()<<__PRETTY_FUNCTION__<<QThread::currentThread();
+//    qDebug()<<__PRETTY_FUNCTION__<<QThread::currentThread();
     emit dataAvailable();
 }

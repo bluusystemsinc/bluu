@@ -26,12 +26,15 @@ FtdiSensor::FtdiSensor(QObject *parent) :
 
 bool FtdiSensor::plug()
 {
-    FTDIDevice device;
+    m_device = new FtdiDevice(this);
 
-    if(device.open(0))
+    if(!m_device->open(0))
     {
-        qDebug()<<"Device open";
+        return false;
     }
+    qDebug()<<"FTDIDevice open";
+    connect(m_device, SIGNAL(readyRead()), SIGNAL(dataAvailable()));
+
     return true;
 //    FT_STATUS ftStatus;
 //    DWORD numDevices = 0;
@@ -101,6 +104,10 @@ bool FtdiSensor::plug()
 //    return true;
 }
 
-void FtdiSensor::serialize(QTextStream */*stream*/)
+void FtdiSensor::serialize(QTextStream *stream)
 {
+    qDebug()<<__PRETTY_FUNCTION__;
+    QTextStream out(stream->device());
+
+    out<<m_device->readAll();
 }
