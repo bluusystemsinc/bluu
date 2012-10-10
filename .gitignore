@@ -8,6 +8,7 @@ qmake
 lib
 bin
 *.o
+*.a
 moc_*.cpp
 *.user
 qt-components-desktop/components/plugin
