@@ -13,9 +13,3 @@ this command after building:
 
 A complete build command could be:
   qmake && make && make copy_qtdesktop
-
-
-
-
-
-
