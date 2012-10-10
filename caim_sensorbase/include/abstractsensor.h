@@ -24,6 +24,8 @@ protected:
 signals:
     // For notify Caim about new data available
     void dataAvailable();
+    void plugged();
+    void unplugged();
 };
 
 typedef QList<AbstractSensor*> AbstractSensorList;

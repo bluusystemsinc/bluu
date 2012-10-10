@@ -6,8 +6,10 @@
 #include <QLibrary>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QMetaObject>
 #include <QCoreApplication>
 
+#include <debug.h>
 #include <abstractsensor.h>
 
 SensorManager::SensorManager(QObject *parent) :
@@ -57,9 +59,11 @@ void SensorManager::loadSensorLibraries()
                     sensor->moveToThread(thread);
                     connect(thread, SIGNAL(started()), sensor, SLOT(plug()));
                     connect(sensor, SIGNAL(dataAvailable()), SLOT(readData()));
+                    connect(sensor, SIGNAL(unplugged()),
+                            SLOT(sensorUnplugged()));
                     qDebug()<<"Sensor moved"<<qApp->thread()<<
                               "->"<<sensor->thread();
-                    m_pluginsLoaded.insert(versionInfo.pluginName, sensor);
+                    m_pluginsLoaded.insert(thread, sensor);
                 }
             }
             else
@@ -90,3 +94,7 @@ void SensorManager::readData()
               QThread::currentThread();
 }
 
+void SensorManager::sensorUnplugged()
+{
+    log()<<sender()->metaObject()->className()<<"unplugged";
+}

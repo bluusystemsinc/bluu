@@ -24,6 +24,7 @@ bool RandomSensor::plug()
     qsrand(QTime::currentTime().msec());
     startTimer(1000);
 
+    emit plugged();
     return true;
 }
 

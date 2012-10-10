@@ -30,11 +30,13 @@ bool FtdiSensor::plug()
 
     if(!m_device->open(0))
     {
+        emit unplugged();
         return false;
     }
     qDebug()<<"FTDIDevice open";
     connect(m_device, SIGNAL(readyRead()), SIGNAL(dataAvailable()));
 
+    emit plugged();
     return true;
 }
 
