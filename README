@@ -5,11 +5,8 @@ FTDI drivers downloaded from: http://www.ftdichip.com/Drivers/D2XX/Linux/libftd2
 Contact:
 Kacper Gazda    ( kgazda@milosolutions.com )
 Jesus Fernandez ( jfernandez@milosolutions.com )
+Robert Gosztyla ( rgosztyla@milosolutions.com )
 Zlatko Gjuroski ( zgjuroski@milosolutions.com )
 
-IMPORTANT!!!!! To copy the Qt Desktop Components to the right place please use
-this command after building:
-  make copy_qtdesktop
-
 A complete build command could be:
-  qmake && make && make copy_qtdesktop
+  qmake && make
