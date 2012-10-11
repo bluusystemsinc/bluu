@@ -1,1 +1,14 @@
 FTDI sensor for CAIM
+
+	$ lsmod | grep ftdi
+	ftdi_sio               44771  0 
+	usbserial              51132  1 ftdi_sio
+
+To avoid using default driver ftdi driver in your system it's neccesary to run rmmod as root:
+	$ sudo /sbin/rmmod ftdi_sio
+This will allow the plugin to use the ftdi device.
+
+If you are not running caim as root you will allow your user to have access to the usb device this error will be printed in stdout:
+	libusb couldn't open USB device /dev/bus/usb/006/004: Permission denied.
+To fix it run:
+	sudo chown <your_user>:root /dev/bus/usb/006/004
