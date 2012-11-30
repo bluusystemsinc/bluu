@@ -154,7 +154,7 @@ class CompanyListView(ListView):
     template_name = "accounts/company_list.html"
 
     @method_decorator(login_required)
-    #@method_decorator(permission_required('testsaccounts.browse_entities'))
+    @method_decorator(permission_required('accounts.browse_companies'))
     def dispatch(self, *args, **kwargs):
         return super(CompanyListView, self).dispatch(*args, **kwargs)
 
@@ -162,7 +162,6 @@ class CompanyListView(ListView):
 class CompanyCreateView(CreateView):
     model = Company
     template_name = "accounts/company_create.html"
-    success_url = reverse_lazy('company-list')
     form_class = CompanyForm
 
     def form_valid(self, form):
@@ -215,7 +214,7 @@ class ContractListView(ListView):
     template_name = "accounts/contract_list.html"
 
     @method_decorator(login_required)
-    #@method_decorator(permission_required('testsaccounts.browse_entities'))
+    @method_decorator(permission_required('accounts.browse_contracts'))
     def dispatch(self, *args, **kwargs):
         return super(ContractListView, self).dispatch(*args, **kwargs)
 
@@ -223,7 +222,6 @@ class ContractListView(ListView):
 class ContractCreateView(CreateView):
     model = Contract
     template_name = "accounts/contract_create.html"
-    success_url = reverse_lazy('contract-list')
     form_class = ContractForm
 
     def form_valid(self, form):
@@ -290,7 +288,7 @@ class ContractUserListView(ListView):
         return context
 
     @method_decorator(login_required)
-    #@method_decorator(permission_required('testsaccounts.browse_entities'))
+    @method_decorator(permission_required('accounts.browse_bluuusers'))
     def dispatch(self, *args, **kwargs):
         return super(ContractUserListView, self).dispatch(*args, **kwargs)
 
@@ -324,8 +322,54 @@ class ContractUserCreateView(CreateView):
         return context
 
     @method_decorator(login_required)
+    @method_decorator(permission_required('accounts.add_bluuusers'))
     def dispatch(self, *args, **kwargs):
         pk = kwargs.get('pk', None)
         self.contract = get_object_or_404(Contract, pk=pk)
 
         return super(ContractUserCreateView, self).dispatch(*args, **kwargs)
+
+
+class ContractUserUpdateView(UpdateView):
+    model = BluuUser
+    template_name = "accounts/contractuser_update.html"
+    form_class = BluuUserForm
+    pk_url_kwarg = 'upk'
+
+    def get_success_url(self):
+        pk = self.kwargs.get('pk', None)
+        return reverse_lazy('contract-users', args=(pk,))
+
+    def get_form(self, form_class):
+        """
+        Returns an instance of the form to be used in this view.
+        """
+        return form_class(self.request.user, self.contract, **self.get_form_kwargs())
+
+    def form_valid(self, form):
+        response = super(ContractUserUpdateView, self).form_valid(form)
+        messages.success(self.request, _('User changed'))
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super(ContractUserUpdateView, self).get_context_data(**kwargs)
+        context['contract'] = self.contract
+        return context
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('accounts.change_bluuuser'))
+    def dispatch(self, *args, **kwargs):
+        pk = kwargs.get('pk', None)
+        self.contract = get_object_or_404(Contract, pk=pk)
+        return super(ContractUserUpdateView, self).dispatch(*args, **kwargs)
+
+
+@permission_required('accounts.delete_bluuuser')
+def contract_user_delete(request, pk, contract_id):
+    obj = get_object_or_404(BluuUser, pk=pk)
+    contract = get_object_or_404(Contract, pk=contract_id)
+    # TODO: validate if user can delete this user!!!
+
+    obj.delete()
+    messages.success(request, _('Bluuuser deleted'))
+    return redirect('contract-users', pk=contract.pk)

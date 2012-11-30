@@ -1,15 +1,11 @@
 from django.contrib import admin
-#from django.contrib.auth.models import User
-
-#from reversion.helpers import patch_admin
-#from reversion.admin import VersionAdmin
+from django.contrib.auth.admin import UserAdmin
 from accounts.models import Contract, Company, BluuUser
 
-#patch_admin(User)
 
-#class UserProfileAdmin(VersionAdmin):
-#    """Admin settings go here."""
+class BluuUserAdmin(UserAdmin):
+    pass
 
 admin.site.register(Contract)
 admin.site.register(Company)
-admin.site.register(BluuUser)
+admin.site.register(BluuUser, BluuUserAdmin)

@@ -43,22 +43,23 @@ class ContractForm(ModelForm):
 
 
 class BluuUserForm(ModelForm):
-
     username = forms.RegexField(regex=r'^\w+$',
             max_length=30,
             label=_('Username'),
             required=True,
             help_text=_('30 characters or fewer. Alphanumeric '
-                          'characters only (letters, digits and underscores).'),
+                        'characters only (letters, digits and underscores).'),
             error_message=_('This value must contain only letters, '
                             'numbers and underscores.'))
     email = forms.EmailField(required=False, label=_('Email'))
     first_name = forms.CharField(required=True, label=_('First name'))
     last_name = forms.CharField(required=True, label=_('Last name'))
     password1 = forms.CharField(label=_("Password"),
-                                widget=forms.PasswordInput)
+                                widget=forms.PasswordInput,
+                                required=False)
     password2 = forms.CharField(label=_("Password confirmation"),
-                                widget=forms.PasswordInput)
+                                widget=forms.PasswordInput,
+                                required=False)
 
     def __init__(self, user, contract, *args, **kwargs):
         super(BluuUserForm, self).__init__(*args, **kwargs)
@@ -98,7 +99,7 @@ class BluuUserForm(ModelForm):
         # he can only add (edit) standard users
         # (neither TestCenter Admins nor Group Admins) to his entity
         if user.pk and \
-                not self.user.has_perm('accounts.manage_group_admins'):
+                not self.user.has_perm('accounts.manage_dealers'):
             user.groups.clear()
 
         password = self.cleaned_data["password1"]

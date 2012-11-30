@@ -9,7 +9,8 @@ from views import register, UserProfileUpdateView,\
                   CompanyUpdateView, company_delete,\
                   ContractListView, ContractCreateView,\
                   ContractUpdateView, contract_delete,\
-                  ContractUserListView, ContractUserCreateView
+                  ContractUserListView, ContractUserCreateView,\
+                  ContractUserUpdateView
 from forms import RegistrationForm, EmailAuthenticationForm
 from django.views.generic import TemplateView
 from accounts.api_views import ContractList
@@ -38,6 +39,8 @@ urlpatterns = patterns('accounts.views',
         name='contract-delete'),
     url(r'^contracts/(?P<pk>\d+)/users/$', ContractUserListView.as_view(), name='contract-users'),
     url(r'^contracts/(?P<pk>\d+)/users/add/$', ContractUserCreateView.as_view(), name='contract-user-add'),
+    url(r'^contracts/(?P<pk>\d+)/users/(?P<upk>\d+)/$', ContractUserUpdateView.as_view(), name='contract-user-edit'),
+    url(r'^contracts/(?P<contract_id>\d+)/users/(?P<pk>\d+)/delete/$', 'contract_user_delete', name='contract-user-delete'),
 )
 
 urlpatterns += format_suffix_patterns(patterns('accounts.api_views',

@@ -24,15 +24,14 @@ class ContractList(APIView):
             obj = serializer.save()
             data = serializer.data
             # create initial user
-            BluuUser.objects.create(
-                username='initial',
-                password='initial',
-                first_name=data['first_name'],
-                last_name=data['last_name'],
-                email=data['email'],
-                contract=obj,
-                is_active=True,
-            )
+            user = BluuUser.objects.create_user(username='initial',
+                                                email=data['email'],
+                                                password='initial')
+            user.first_name = data['first_name']
+            user.last_name = data['last_name']
+            user.contract = obj
+            user.is_active = True
+            user.save()
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -37,6 +37,9 @@ class Company(Entity):
     class Meta:
         verbose_name = _("company")
         verbose_name_plural = _("companies")
+        permissions = (
+            ("browse_companies", "Can browse companies"),
+        )
 
 
 class Contract(Entity):
@@ -56,6 +59,9 @@ class Contract(Entity):
     class Meta:
         verbose_name = _("Contract")
         verbose_name_plural = _("Contracts")
+        permissions = (
+            ("browse_contracts", "Can browse contracts"),
+        )
 
 
 class BluuUser(AbstractUser):
@@ -90,6 +96,14 @@ class BluuUser(AbstractUser):
         if not ret:
             ret = u'---'
         return ret
+
+    class Meta:
+        verbose_name = _("User")
+        verbose_name_plural = _("Users")
+        permissions = (
+            ("browse_bluuusers", "Can browse users"),
+            ("manage_dealers", "Can manage dealers"),
+        )
 
 #class UserProfile(models.Model):
 #    user = models.ForeignKey(User, unique=True)
