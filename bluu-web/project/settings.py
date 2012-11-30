@@ -148,7 +148,7 @@ AUTH_USER_MODEL = 'accounts.BluuUser'
 
 AUTHENTICATION_BACKENDS = (
                            'django.contrib.auth.backends.ModelBackend',
-                           'accounts.auth_backends.EmailAuthBackend',
+                           #'accounts.auth_backends.EmailAuthBackend',
                            )
 
 #django-registration settings

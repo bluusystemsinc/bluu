@@ -26,7 +26,7 @@
     <form method="post" action="{% url 'django.contrib.auth.views.login' %}" class="form-horizontal">
         {% csrf_token %}
         <div class="control-group">
-            <label class="control-label" for="id_username">{% trans "E-mail address" %}</label>
+            <label class="control-label" for="id_username">{% trans "Username" %}</label>
             <div class="controls">
                 <input type="text" maxlength="30" name="username" id="id_username">
             </div>
