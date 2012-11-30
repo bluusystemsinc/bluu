@@ -1,0 +1,13 @@
+{% extends "accounts/_cu_base.html" %}
+
+{% load i18n theme_tags %}
+
+{% block sidebar %}
+<div class="well">
+<ul class="nav nav-list">
+    <li class="nav-header">{% trans "Contract management" %}</li>
+    <li class="{% active request "^/accounts/contracts/\d+/edit/$" %}"><a href="{% url 'contract-edit' contract.pk %}">{% trans "Edit contract" %}</a></li>
+    <li class="{% active request "^/accounts/contracts/\d+/users" %}"><a href="{% url 'contract-users' contract.pk %}">{% trans "Manage users" %}</a></li>
+</ul>
+</div>
+{% endblock %}

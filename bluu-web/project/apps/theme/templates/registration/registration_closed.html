@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Registration closed" %} | {% endblock %}
+
+{% block content %}
+<h1>
+  {% trans "Registration closed" %}
+</h1>
+
+<div class="form-container vertical-space">
+    <p class="page-message">{% trans "We're sorry. Registration is not allowed at the moment." %}</p>
+    <p class="page-message">{% trans "Back to" %}: <a href="/">{% trans "Home Page" %}</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+{% trans 'Edit company' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'company-list' %}">{% trans "Company list" %}</a> &gt; {% trans "Edit company" %}
+{% endblock %}
+
+{% block content %}
+<h3 class="form-label">
+    {% trans "Edit company" %}
+</h3>
+
+<form action="" method="POST">{% csrf_token %}
+<table class="manage-form">
+    {{ form.as_table }}
+    <tr><td><input type="submit" value="{% trans 'Edit' %}" /></td></tr>
+</table>
+</form>
+{% endblock %}

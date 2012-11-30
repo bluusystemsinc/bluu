@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Remove account" %} | {% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="span2">&nbsp;</div>
+    <div class="span8">
+      <div class="page-header content-wrapper">
+          <h1>
+              {% trans "Remove account" %}
+          </h1>
+      </div>
+    </div>
+    <div class="span2">&nbsp;</div>
+</div>
+<div class="row-fluid">
+    <div class="span4">&nbsp;</div>
+    <div class="span4">
+        <p class="content-wrapper">{{ account.email }}</p>
+        <p class="content-wrapper">{% trans "Are you sure you want to delete your account?" %}</p>
+        <form class="form-horizontal" action="" method="post">{% csrf_token %}
+            <div class="form-actions vspaced">
+                <button class="btn btn-primary" type="submit">{% trans "Delete" %}</button>
+            </div>
+        </form>
+    </div>
+    <div class="span4">&nbsp;</div>
+</div>
+{% endblock %}

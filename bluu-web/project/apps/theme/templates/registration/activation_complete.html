@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Activation successful" %} | {% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+    <div class="span2">&nbsp;</div>
+    <div class="span8">
+      <div class="page-header content-wrapper">
+          <h1>
+              {% trans "Activation successful" %}
+          </h1>
+      </div>
+    </div>
+    <div class="span2">&nbsp;</div>
+</div>
+
+<div class="row-fluid">
+    <div class="span4">&nbsp;</div>
+    <div class="span4">
+        <div class="well">{% trans "You have successfully activated your account and logged in." %}</div>
+        <div>{% trans "Back to" %}: <a href="/">{% trans "Home Page" %}</a></div>
+    </div>
+    <div class="span4">&nbsp;</div>
+</div>
+{% endblock %}

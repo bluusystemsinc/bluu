@@ -1,0 +1,24 @@
+{% extends "accounts/_contract_base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+{% trans 'Edit contract' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'contract-list' %}">{% trans "Contract list" %}</a> &gt; {% trans "Edit contract" %}
+{% endblock %}
+
+{% block main %}
+<h3 class="form-label">
+    {% trans "Edit contract" %}
+</h3>
+
+<form action="" method="POST">{% csrf_token %}
+<table class="manage-form">
+    {{ form.as_table }}
+    <tr><td><input type="submit" value="{% trans 'Edit' %}" /></td></tr>
+</table>
+</form>
+{% endblock %}

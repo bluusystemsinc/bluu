@@ -1,0 +1,129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Photo contest\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-05-31 17:27-0500\n"
+"PO-Revision-Date: 2012-05-31 23:27+0100\n"
+"Last-Translator: Jakub Wiśniowski <jakub.wisniowski@natcam.pl>\n"
+"Language-Team: Natcam <hello@natcam.pl>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2)\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: forms.py:26
+msgid "Username"
+msgstr "Nazwa użytkownika"
+
+#: forms.py:28
+msgid "If you don't want to change your password leave these fields empty."
+msgstr "Jeśli nie chcesz zmieniać hasła pozostaw te pola puste."
+
+#: forms.py:32
+msgid "First name"
+msgstr "Imię"
+
+#: forms.py:33
+msgid "Last name"
+msgstr "Nazwisko"
+
+#: forms.py:35
+#, python-format
+msgid "I have read and agree to the <a href=\"%(url)s\">Terms of Service</a>"
+msgstr "Przeczytałem i akceptuję <a href=\"%(url)s\">Regulamin</a>"
+
+#: forms.py:36
+msgid "You must agree to the terms to register"
+msgstr "Musisz zaakceptować regulamin"
+
+#: forms.py:47
+msgid "Register to be able to change your photo"
+msgstr "Zarejestruj się, aby móc zmienić zdjęcie"
+
+#: forms.py:63
+msgid "This email address already exists."
+msgstr "Ten adres e-mail już istnieje."
+
+#: forms.py:68
+msgid "E-mail"
+msgstr "E-mail"
+
+#: forms.py:85
+msgid "Profile"
+msgstr "Profil"
+
+#: forms.py:88
+msgid "Submit"
+msgstr "Wyślij"
+
+#: forms.py:109
+msgid "Old password"
+msgstr "Dotychczasowe hasło"
+
+#: forms.py:111 forms.py:130
+msgid "Password"
+msgstr "Hasło"
+
+#: forms.py:113
+msgid "Password confirmation"
+msgstr "Potwierdzenie hasła"
+
+#: forms.py:127
+msgid "Your data"
+msgstr "Twoje dane"
+
+#: forms.py:149
+msgid "The two password fields didn't match."
+msgstr "Niepoprawnie powtórzono hasło"
+
+#: forms.py:159
+msgid "Your old password was entered incorrectly. Please enter it again."
+msgstr "Swoje dotychczasowe hasło podałeś niepoprawnie. Spróbuj ponownie."
+
+#: views.py:63
+msgid "Account changed!"
+msgstr "Konto zostało zmienione!"
+
+#: views.py:79
+msgid "User account removed!"
+msgstr "Konto zostało usunięte!"
+
+#: views.py:114
+msgid "User Profile added!"
+msgstr "Twój profil został dodany!"
+
+#: views.py:137
+msgid "User Profile changed!"
+msgstr "Twój profil został zmieniony!"
+
+#: templates/accounts/account_change_form.html:4
+#: templates/accounts/account_change_form.html:8
+msgid "Account settings"
+msgstr "Ustawienia konta"
+
+#: templates/accounts/account_change_form.html:12
+#: templates/accounts/account_confirm_delete.html:8
+msgid "Remove account"
+msgstr "Usuń konto"
+
+#: templates/accounts/account_change_form.html:21
+msgid "Save"
+msgstr "Zapisz"
+
+#: templates/accounts/account_confirm_delete.html:12
+msgid "Are you sure you want to delete your account?"
+msgstr "Czy na pewno chcesz usunąć swoje konto?"
+
+#: templates/accounts/account_confirm_delete.html:14
+msgid "Delete"
+msgstr "Usuń"

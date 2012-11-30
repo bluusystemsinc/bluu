@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Registration completed" %} | {% endblock %}
+
+{% block content %}
+<div class="page-header content-wrapper">
+    <h1>
+        {% trans "Registration completed" %}
+    </h1>
+</div>
+<div class="row-fluid">
+    <div class="span4">&nbsp;</div>
+    <div class="span4">
+        <div class="well">{% trans "Thank you for registering! Check your e-mail account for further details." %}</div>
+        <div>{% trans "Back to" %}: <a href="/">{% trans "Home Page" %}</a></div>
+    </div>
+    <div class="span4">&nbsp;</div>
+</div>
+{% endblock %}

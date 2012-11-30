@@ -1,0 +1,6 @@
+{% load i18n%}
+{% trans "Your account has been sucessfully created. To activate it, click the link below:" %}
+http://{{ site.domain }}{% url registration_activate activation_key %}
+
+--
+{% blocktrans with site.domain as sitedomain %}This message has been generated automatically by http://{{ sitedomain }}{% endblocktrans %}
