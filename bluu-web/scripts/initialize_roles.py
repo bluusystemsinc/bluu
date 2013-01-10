@@ -7,8 +7,8 @@ user_type = ContentType.objects.get(app_label="accounts",
 
 company_type = ContentType.objects.get(app_label="accounts",
                                         model="company")
-contract_type = ContentType.objects.get(app_label="accounts",
-                                        model="contract")
+site_type = ContentType.objects.get(app_label="accounts",
+                                        model="site")
 
 
 # permissions
@@ -32,16 +32,20 @@ perm_change_company = Permission.objects.get(content_type=company_type,
 perm_delete_company = Permission.objects.get(content_type=company_type,
                         codename=u"delete_company")
 perm_browse_companies = Permission.objects.get(content_type=company_type,
-                                                  codename=u"browse_companies")
+                        codename=u"browse_companies")
+perm_view_company = Permission.objects.get(content_type=company_type,
+                        codename=u"view_company")
 
-perm_add_contract = Permission.objects.get(content_type=contract_type,
-                        codename=u"add_contract")
-perm_change_contract = Permission.objects.get(content_type=contract_type,
-                        codename=u"change_contract")
-perm_delete_contract = Permission.objects.get(content_type=contract_type,
-                        codename=u"delete_contract")
-perm_browse_contract = Permission.objects.get(content_type=contract_type,
-                                                  codename=u"browse_contracts")
+
+
+perm_add_site = Permission.objects.get(content_type=site_type,
+                        codename=u"add_site")
+perm_change_site = Permission.objects.get(content_type=site_type,
+                        codename=u"change_site")
+perm_delete_site = Permission.objects.get(content_type=site_type,
+                        codename=u"delete_site")
+perm_browse_site = Permission.objects.get(content_type=site_type,
+                                                  codename=u"browse_sites")
 
 
 def run():
@@ -65,6 +69,7 @@ def run():
         perm_add_company,
         perm_change_company,
         perm_delete_company,
+        perm_view_company,
         perm_browse_companies]
 
     # create Dealer role
@@ -90,5 +95,3 @@ def run():
         perm_change_user,
         perm_delete_user,
         perm_browse_user]
-
-    print u'Done!'

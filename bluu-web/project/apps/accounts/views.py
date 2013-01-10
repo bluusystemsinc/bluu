@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.messages.api import get_messages
-from django.views.generic import UpdateView, CreateView,\
+from django.views.generic import UpdateView, CreateView, DetailView,\
                                  TemplateView, DeleteView, ListView
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,10 +21,12 @@ from accounts.forms import ProfileForm, AccountForm, BluuUserForm
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers import reverse_lazy
-from accounts.models import Company, Contract, BluuUser
-from accounts.forms import CompanyForm, ContractForm
+from accounts.models import Company, Site, BluuUser
+from accounts.forms import CompanyForm, SiteForm
 #from forms import UserForm, UserProfileForm
 
+from guardian.decorators import permission_required_or_403
+from guardian.shortcuts import get_objects_for_user
 
 def register(request, backend, success_url=None, form_class=None,
              disallowed_url='registration_disallowed',
@@ -153,6 +155,11 @@ class CompanyListView(ListView):
     model = Company
     template_name = "accounts/company_list.html"
 
+    def get_queryset(self):
+        if self.request.user.has_perm('accounts.view_company'):
+            return super(CompanyListView, self).get_queryset()
+        return get_objects_for_user(self.request.user, 'accounts.view_company')
+
     @method_decorator(login_required)
     @method_decorator(permission_required('accounts.browse_companies'))
     def dispatch(self, *args, **kwargs):
@@ -186,12 +193,13 @@ class CompanyUpdateView(UpdateView):
         return response
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('accounts.change_company'))
+    @method_decorator(permission_required_or_403('accounts.change_company',
+            (Company, 'pk', 'pk'), accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(CompanyUpdateView, self).dispatch(*args, **kwargs)
 
 
-@permission_required('accounts.delete_company')
+@permission_required_or_403('accounts.delete_company')
 def company_delete(request, pk):
     obj = get_object_or_404(Company, pk=pk)
     obj.delete()
@@ -204,112 +212,129 @@ class CompanyDeleteView(DeleteView):
     template_name = "accounts/company_delete.html"
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('accounts.delete_company'))
+    @method_decorator(permission_required_or_403('accounts.delete_company',
+            (Company, 'pk', 'pk')))
     def dispatch(self, *args, **kwargs):
         return super(CompanyDeleteView, self).dispatch(*args, **kwargs)
 
-
-class ContractListView(ListView):
-    model = Contract
-    template_name = "accounts/contract_list.html"
+class CompanyAccessManagementView(DetailView):
+    model = Company
+    template_name = "accounts/company_access.html"
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('accounts.browse_contracts'))
+    @method_decorator(permission_required_or_403('accounts.change_company',
+            (Company, 'pk', 'pk')))
     def dispatch(self, *args, **kwargs):
-        return super(ContractListView, self).dispatch(*args, **kwargs)
+        return super(CompanyAccessManagementView, self).\
+                dispatch(*args, **kwargs)
 
 
-class ContractCreateView(CreateView):
-    model = Contract
-    template_name = "accounts/contract_create.html"
-    form_class = ContractForm
+
+
+class SiteListView(ListView):
+    model = Site
+    template_name = "accounts/site_list.html"
+
+    def get_queryset(self):
+        return get_objects_for_user(self.request.user, 'accounts.view_site')
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('accounts.browse_sites'))
+    def dispatch(self, *args, **kwargs):
+        return super(SiteListView, self).dispatch(*args, **kwargs)
+
+
+class SiteCreateView(CreateView):
+    model = Site
+    template_name = "accounts/site_create.html"
+    form_class = SiteForm
 
     def form_valid(self, form):
-        response = super(ContractCreateView, self).form_valid(form)
-        messages.success(self.request, _('Contract added'))
+        response = super(SiteCreateView, self).form_valid(form)
+        messages.success(self.request, _('Site added'))
         return response
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('accounts.add_contract'))
+    @method_decorator(permission_required('accounts.add_site'))
     def dispatch(self, *args, **kwargs):
-        return super(ContractCreateView, self).dispatch(*args, **kwargs)
+        return super(SiteCreateView, self).dispatch(*args, **kwargs)
 
 
-class ContractUpdateView(UpdateView):
-    model = Contract
-    template_name = "accounts/contract_update.html"
-    form_class = ContractForm
+class SiteUpdateView(UpdateView):
+    model = Site
+    template_name = "accounts/site_update.html"
+    form_class = SiteForm
 
     def form_valid(self, form):
-        response = super(ContractUpdateView, self).form_valid(form)
-        messages.success(self.request, _('Contract changed'))
+        response = super(SiteUpdateView, self).form_valid(form)
+        messages.success(self.request, _('Site changed'))
         return response
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('accounts.change_contract'))
+    @method_decorator(permission_required('accounts.change_site'))
     def dispatch(self, *args, **kwargs):
-        return super(ContractUpdateView, self).dispatch(*args, **kwargs)
+        return super(SiteUpdateView, self).dispatch(*args, **kwargs)
 
 
-@permission_required('accounts.delete_contract')
-def contract_delete(request, pk):
-    obj = get_object_or_404(Contract, pk=pk)
+@permission_required('accounts.delete_site')
+def site_delete(request, pk):
+    obj = get_object_or_404(Site, pk=pk)
     obj.delete()
-    messages.success(request, _('Contract deleted'))
-    return redirect('contract-list')
+    messages.success(request, _('Site deleted'))
+    return redirect('site-list')
 
 
-class ContractDeleteView(DeleteView):
-    model = Contract
-    template_name = "accounts/contract_delete.html"
+class SiteDeleteView(DeleteView):
+    model = Site
+    template_name = "accounts/site_delete.html"
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('accounts.delete_contract'))
+    @method_decorator(permission_required('accounts.delete_site'))
     def dispatch(self, *args, **kwargs):
-        return super(ContractDeleteView, self).dispatch(*args, **kwargs)
+        return super(SiteDeleteView, self).dispatch(*args, **kwargs)
 
 
-class ContractUserListView(ListView):
+class SiteUserListView(ListView):
     model = BluuUser
-    template_name = "accounts/contractuser_list.html"
+    template_name = "accounts/siteuser_list.html"
 
     def get(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk', None)
-        self.contract = get_object_or_404(Contract, pk=pk)
-        return super(ContractUserListView, self).get(request, *args, **kwargs)
+        self.site = get_object_or_404(Site, pk=pk)
+        return super(SiteUserListView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = self.model._default_manager.filter(contract=self.contract)
+        queryset = self.model._default_manager.filter(site=self.site)
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(ContractUserListView, self).get_context_data(**kwargs)
-        context['contract'] = self.contract
+        context = super(SiteUserListView, self).get_context_data(**kwargs)
+        context['site'] = self.site
         return context
 
     @method_decorator(login_required)
     @method_decorator(permission_required('accounts.browse_bluuusers'))
     def dispatch(self, *args, **kwargs):
-        return super(ContractUserListView, self).dispatch(*args, **kwargs)
+        return super(SiteUserListView, self).dispatch(*args, **kwargs)
 
 
-class ContractUserCreateView(CreateView):
+class SiteUserCreateView(CreateView):
     model = BluuUser
-    template_name = "accounts/contractuser_create.html"
+    template_name = "accounts/siteuser_create.html"
     form_class = BluuUserForm
 
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
-        return reverse_lazy('contract-users', args=(pk,))
+        return reverse_lazy('site-users', args=(pk,))
 
     def get_form(self, form_class):
         """
         Returns an instance of the form to be used in this view.
         """
-        return form_class(self.request.user, self.contract, **self.get_form_kwargs())
+        return form_class(self.request.user, self.site, **self.get_form_kwargs())
 
     def form_valid(self, form):
-        response = super(ContractUserCreateView, self).form_valid(form)
+        response = super(SiteUserCreateView, self).form_valid(form)
         messages.success(self.request, _('User added'))
         return response
 
@@ -317,59 +342,59 @@ class ContractUserCreateView(CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_context_data(self, **kwargs):
-        context = super(ContractUserCreateView, self).get_context_data(**kwargs)
-        context['contract'] = self.contract
+        context = super(SiteUserCreateView, self).get_context_data(**kwargs)
+        context['site'] = self.site
         return context
 
     @method_decorator(login_required)
     @method_decorator(permission_required('accounts.add_bluuusers'))
     def dispatch(self, *args, **kwargs):
         pk = kwargs.get('pk', None)
-        self.contract = get_object_or_404(Contract, pk=pk)
+        self.site = get_object_or_404(Site, pk=pk)
 
-        return super(ContractUserCreateView, self).dispatch(*args, **kwargs)
+        return super(SiteUserCreateView, self).dispatch(*args, **kwargs)
 
 
-class ContractUserUpdateView(UpdateView):
+class SiteUserUpdateView(UpdateView):
     model = BluuUser
-    template_name = "accounts/contractuser_update.html"
+    template_name = "accounts/siteuser_update.html"
     form_class = BluuUserForm
     pk_url_kwarg = 'upk'
 
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
-        return reverse_lazy('contract-users', args=(pk,))
+        return reverse_lazy('site-users', args=(pk,))
 
     def get_form(self, form_class):
         """
         Returns an instance of the form to be used in this view.
         """
-        return form_class(self.request.user, self.contract, **self.get_form_kwargs())
+        return form_class(self.request.user, self.site, **self.get_form_kwargs())
 
     def form_valid(self, form):
-        response = super(ContractUserUpdateView, self).form_valid(form)
+        response = super(SiteUserUpdateView, self).form_valid(form)
         messages.success(self.request, _('User changed'))
         return response
 
     def get_context_data(self, **kwargs):
-        context = super(ContractUserUpdateView, self).get_context_data(**kwargs)
-        context['contract'] = self.contract
+        context = super(SiteUserUpdateView, self).get_context_data(**kwargs)
+        context['site'] = self.site
         return context
 
     @method_decorator(login_required)
     @method_decorator(permission_required('accounts.change_bluuuser'))
     def dispatch(self, *args, **kwargs):
         pk = kwargs.get('pk', None)
-        self.contract = get_object_or_404(Contract, pk=pk)
-        return super(ContractUserUpdateView, self).dispatch(*args, **kwargs)
+        self.site = get_object_or_404(Site, pk=pk)
+        return super(SiteUserUpdateView, self).dispatch(*args, **kwargs)
 
 
 @permission_required('accounts.delete_bluuuser')
-def contract_user_delete(request, pk, contract_id):
+def site_user_delete(request, pk, site_id):
     obj = get_object_or_404(BluuUser, pk=pk)
-    contract = get_object_or_404(Contract, pk=contract_id)
+    site = get_object_or_404(Site, pk=site_id)
     # TODO: validate if user can delete this user!!!
 
     obj.delete()
     messages.success(request, _('Bluuuser deleted'))
-    return redirect('contract-users', pk=contract.pk)
+    return redirect('site-users', pk=site.pk)

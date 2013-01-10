@@ -1,8 +1,8 @@
-{% load i18n theme_tags compress %}<!DOCTYPE html>
+{% load i18n guardian_tags theme_tags compress %}<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock %}{% trans "Welcome to sample Django project" %}</title>
+    <title>{% block title %}{% endblock %}{% trans "Bluu Web" %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -57,13 +57,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="/">Sample Django Project</a>
+          <a class="brand" href="/">Bluu Web</a>
           <div class="nav-collapse">
             <ul class="nav">
                 <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home icon-white"></i> {% trans "Home Page" %}</a></li>
                 {% if user.is_authenticated %}
-                    <li class="{% active request "^/accounts/company/$" %}"><a href="{% url 'company-list' %}"><i class="icon-user"></i> {% trans "Companies" %}</a></li>
-                    <li class="{% active request "^/accounts/contract/$" %}"><a href="{% url 'contract-list' %}"><i class="icon-user"></i> {% trans "Customer Contracts" %}</a></li>
+                    <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company-list' %}"><i class="icon-user"></i> {% trans "Companies" %}</a></li>
+                    <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site-list' %}"><i class="icon-user"></i> {% trans "Sites" %}</a></li>
+                    <li class="{% active request "^/accounts/users/$" %}"><a href="{% url 'site-list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
                 {% endif %}
             </ul>
             <ul class="nav pull-right">

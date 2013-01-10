@@ -3,16 +3,16 @@
 {% load i18n %}
 
 {% block title %}
-{% trans 'Add contract' %} |
+{% trans 'Add site' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'contract-list' %}">{% trans "Contract list" %}</a> &gt; {% trans "Add contract" %}
+    <a href="{% url 'site-list' %}">{% trans "Contract list" %}</a> &gt; {% trans "Add site" %}
 {% endblock %}
 
 {% block content %}
 <h3 class="form-label">
-    {% trans "Add contract" %}
+    {% trans "Add site" %}
 </h3>
 
 <form action="" method="POST">{% csrf_token %}

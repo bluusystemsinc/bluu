@@ -7,14 +7,14 @@ from views import register, UserProfileUpdateView,\
                   UserProfileCreateView, AccountUpdateView,\
                   AccountDeleteView, CompanyListView, CompanyCreateView,\
                   CompanyUpdateView, company_delete,\
-                  ContractListView, ContractCreateView,\
-                  ContractUpdateView, contract_delete,\
-                  ContractUserListView, ContractUserCreateView,\
-                  ContractUserUpdateView
+                  CompanyAccessManagementView,\
+                  SiteListView, SiteCreateView,\
+                  SiteUpdateView, site_delete,\
+                  SiteUserListView, SiteUserCreateView,\
+                  SiteUserUpdateView
 from forms import RegistrationForm, EmailAuthenticationForm
 from django.views.generic import TemplateView
-from accounts.api_views import ContractList
-from rest_framework.urlpatterns import format_suffix_patterns
+from accounts.api_views import SiteList, CompanyList, CompanyDetail
 
 try:
     from django.core.urlresolvers import reverse_lazy
@@ -26,27 +26,25 @@ except ImportError, e:
 urlpatterns = patterns('accounts.views',
     url(r'^companies/$', CompanyListView.as_view(), name='company-list'),
     url(r'^companies/add/$', CompanyCreateView.as_view(), name='company-add'),
-    url(r'^companies/edit/(?P<pk>\d+)/$',
-                            CompanyUpdateView.as_view(), name='company-edit'),
+    url(r'^companies/(?P<pk>\d+)/$',
+            CompanyUpdateView.as_view(), name='company-edit'),
+    url(r'^companies/(?P<pk>\d+)/access/$',
+            CompanyAccessManagementView.as_view(), name='company-access'),
+
     url(r'^companies/delete/(?P<pk>\d+)/$', 'company_delete',
         name='company-delete'),
 
-    url(r'^contracts/$', ContractListView.as_view(), name='contract-list'),
-    url(r'^contracts/add/$', ContractCreateView.as_view(), name='contract-add'),
-    url(r'^contracts/(?P<pk>\d+)/edit/$',
-                            ContractUpdateView.as_view(), name='contract-edit'),
-    url(r'^contracts/(?P<pk>\d+)/delete/$', 'contract_delete',
-        name='contract-delete'),
-    url(r'^contracts/(?P<pk>\d+)/users/$', ContractUserListView.as_view(), name='contract-users'),
-    url(r'^contracts/(?P<pk>\d+)/users/add/$', ContractUserCreateView.as_view(), name='contract-user-add'),
-    url(r'^contracts/(?P<pk>\d+)/users/(?P<upk>\d+)/$', ContractUserUpdateView.as_view(), name='contract-user-edit'),
-    url(r'^contracts/(?P<contract_id>\d+)/users/(?P<pk>\d+)/delete/$', 'contract_user_delete', name='contract-user-delete'),
+    url(r'^sites/$', SiteListView.as_view(), name='site-list'),
+    url(r'^sites/add/$', SiteCreateView.as_view(), name='site-add'),
+    url(r'^sites/(?P<pk>\d+)/edit/$',
+                            SiteUpdateView.as_view(), name='site-edit'),
+    url(r'^sites/(?P<pk>\d+)/delete/$', 'site_delete',
+        name='site-delete'),
+    url(r'^sites/(?P<pk>\d+)/users/$', SiteUserListView.as_view(), name='site-users'),
+    url(r'^sites/(?P<pk>\d+)/users/add/$', SiteUserCreateView.as_view(), name='site-user-add'),
+    url(r'^sites/(?P<pk>\d+)/users/(?P<upk>\d+)/$', SiteUserUpdateView.as_view(), name='site-user-edit'),
+    url(r'^sites/(?P<site_id>\d+)/users/(?P<pk>\d+)/delete/$', 'site_user_delete', name='site-user-delete'),
 )
-
-urlpatterns += format_suffix_patterns(patterns('accounts.api_views',
-    url(r'^api/contracts/$', ContractList.as_view(), name='api-contract-list'),
-), allowed=['json', 'html'])
-
 
 urlpatterns += patterns('',
            url(r'^activate/complete/$',

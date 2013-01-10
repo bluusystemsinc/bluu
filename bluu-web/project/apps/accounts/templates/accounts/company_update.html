@@ -1,18 +1,18 @@
-{% extends "base.html" %}
+{% extends "accounts/company_base.html" %}
 
 {% load i18n %}
 
 {% block title %}
-{% trans 'Edit company' %} |
+{% trans 'Company Details' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'company-list' %}">{% trans "Company list" %}</a> &gt; {% trans "Edit company" %}
+    <a href="{% url 'company-list' %}">{% trans "Company list" %}</a> &gt; {% trans "Company Details" %}
 {% endblock %}
 
-{% block content %}
+{% block main %}
 <h3 class="form-label">
-    {% trans "Edit company" %}
+    {% trans "Company Details" %}
 </h3>
 
 <form action="" method="POST">{% csrf_token %}

@@ -1,0 +1,24 @@
+{% extends "accounts/company_base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+{% trans 'Company Access Management' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'company-list' %}">{% trans "Company list" %}</a> &gt; {% trans "Company Access Management" %}
+{% endblock %}
+
+{% block main %}
+<h3 class="form-label">
+    {% trans "Company Access Management" %}
+</h3>
+
+
+{% endblock %}
+
+{% block javascript %}
+ <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
+{% endblock %}
+

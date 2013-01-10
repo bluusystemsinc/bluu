@@ -19,7 +19,7 @@ from django.shortcuts import redirect, render_to_response, get_object_or_404
 #from accounts.models import UserProfile
 #from mieszkanie.layout import BootstrappedSubmit
 from django.contrib.auth.forms import AuthenticationForm
-from accounts.models import Company, Contract, BluuUser
+from accounts.models import Company, Site, BluuUser
 
 rev = lambda s: reverse(s)
 
@@ -34,9 +34,9 @@ class CompanyForm(ModelForm):
                   'phone', 'email', 'contact_name')
 
 
-class ContractForm(ModelForm):
+class SiteForm(ModelForm):
     class Meta:
-        model = Contract
+        model = Site
         fields = (  # 'number',
                   'first_name', 'middle_initial', 'last_name', 'city',
                   'state', 'zip_code', 'country', 'phone', 'email')
@@ -105,7 +105,15 @@ class BluuUserForm(ModelForm):
         password = self.cleaned_data["password1"]
         if password:
             user.set_password(password)
-        user.contract = self.contract
+
+        # Prepare a 'save_m2m' method for the form,
+        old_save_m2m = self.save_m2m
+
+        def save_m2m():
+            old_save_m2m()
+            user.contract.add(self.contract)
+
+        self.save_m2m = save_m2m
 
         if commit:
             user.save()

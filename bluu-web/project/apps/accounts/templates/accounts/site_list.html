@@ -1,10 +1,10 @@
-{% extends "accounts/_contract_base.html" %}
+{% extends "base.html" %}
 
 {% load i18n %}
 
 
 {% block title %}
-{% trans 'List of users assigned to the contract' %} |
+{% trans 'Contract list' %} |
 {% endblock %}
 
 {% block css %}
@@ -45,25 +45,12 @@
 </script>
 {% endblock %}
 
-{% block breadcrumbs %}
-    <a href="{% url 'contract-list' %}">{% trans "Contract list" %}</a> &gt;
-    <a href="{% url 'contract-edit' contract.pk %}">{% trans "Contract" %}</a> &gt;
-    {% trans "User list" %}
-{% endblock %}
+{% block content %}
+    <h3 class="form-label">{% trans "Contract list" %}</h3>
 
-{% block main %}
-    <h3 class="form-label">{% trans "Users list" %}</h3>
-
-    <dl class="dl-horizontal">
-        <dt>{% trans "Contract number" %}</dt>
-        <dd>{{ contract.pk }}</dd>
-        <dt>{% trans "Contract signer" %}</dt>
-        <dd>{{ contract.first_name }} {{ contract.middle_initial }} {{ contract.last_name }}</dd>
-    </dl>
-
-    {% if perms.accounts.add_bluuuser %}
+    {% if perms.accounts.add_site %}
     <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'contract-user-add' contract.pk %}">{% trans "Add user" %}</a></li>
+        <li><a href="{% url 'site-add' %}">{% trans "Add site" %}</a></li>
     </ul>
     {% endif %}
 
@@ -72,26 +59,26 @@
         <thead>
             <tr>
                 <th>{% trans "No." %}</th>
-                <th>{% trans 'Name' %}</th>
-                <th>{% trans 'Groups' %}</th>
+                <th>{% trans 'Contract number' %}</th>
+                <th>{% trans 'Last name' %}</th>
                 <th>{% trans 'Actions' %}</th>
             </tr>
         </thead>
         <tbody>
-        {% for user in object_list %}
+        {% for site in site_list %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ user.get_name }}</td>
-                <td>{{ user.get_groups }}</td>
+                <td>{{ site.pk }}</td>
+                <td>{{ site.last_name }}</td>
                 <td>
-                    {% if perms.accounts.change_bluuuser %}<a href="{% url 'contract-user-edit' contract.pk user.pk %}">{% trans 'Edit' %}</a>{% endif %}
-                    {% if perms.accounts.delete_bluuuser %}<a href="{% url 'contract-user-delete' contract.pk user.pk %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Remove' %}</a>{% endif %}
+                    {% if perms.accounts.change_site %}<a href="{% url 'site-edit' site.id %}">{% trans 'Edit' %}</a>{% endif %}
+                    {% if perms.accounts.delete_site %}<a href="{% url 'site-delete' site.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove' %}</a>{% endif %}
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
     {% else %}
-        {% trans 'There are no users to display' %}
+        {% trans 'There are no sites to display' %}
     {% endif %}
 {% endblock %}

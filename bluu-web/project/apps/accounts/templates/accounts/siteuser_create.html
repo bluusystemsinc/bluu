@@ -1,13 +1,13 @@
-{% extends "accounts/_contract_base.html" %}
+{% extends "accounts/_site_base.html" %}
 
 {% load i18n %}
 
 {% block title %}
-{% trans 'Add contract' %} |
+{% trans 'Add site' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'contract-users' contract.pk %}">{% trans "User list" %}</a> &gt; {% trans "Add user" %}
+    <a href="{% url 'site-users' site.pk %}">{% trans "User list" %}</a> &gt; {% trans "Add user" %}
 {% endblock %}
 
 {% block main %}

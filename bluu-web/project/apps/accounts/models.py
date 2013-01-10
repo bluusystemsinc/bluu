@@ -1,12 +1,15 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import login
 from django.dispatch import receiver
 from registration.signals import user_activated
+from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
-from countries import CountryField
+from .countries import CountryField
+from south.modelsinspector import add_introspection_rules
+
+add_introspection_rules([], ["^accounts\.countries\.CountryField"])
 
 
 class Entity(models.Model):
@@ -39,10 +42,11 @@ class Company(Entity):
         verbose_name_plural = _("companies")
         permissions = (
             ("browse_companies", "Can browse companies"),
+            ("view_company", "Can view company"),
         )
 
 
-class Contract(Entity):
+class Site(Entity):
     #number = models.CharField(_('number'), max_length=255, blank=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
@@ -54,13 +58,14 @@ class Contract(Entity):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('contract-edit', [str(self.id)])
+        return ('site-edit', [str(self.id)])
 
     class Meta:
-        verbose_name = _("Contract")
-        verbose_name_plural = _("Contracts")
+        verbose_name = _("Site")
+        verbose_name_plural = _("Sites")
         permissions = (
-            ("browse_contracts", "Can browse contracts"),
+            ("browse_sites", "Can browse sites"),
+            ("view_site", "Can view site"),
         )
 
 
@@ -72,13 +77,13 @@ class BluuUser(AbstractUser):
     cell = models.CharField(_('cell'), max_length=10, blank=True)
     cell_text_email = models.EmailField(_('cell text email address'),
         blank=True)
-    company = models.ForeignKey(Company, blank=True, null=True,
+    company = models.ManyToManyField(Company, blank=True, null=True,
                          related_name='company_bluuuser',
                          verbose_name=_('company'))
 
-    contract = models.ForeignKey(Contract, blank=True, null=True,
-                         related_name='contract_bluuuser',
-                         verbose_name=_('contract'))
+    site = models.ManyToManyField(Site, blank=True, null=True,
+                         related_name='site_bluuuser',
+                         verbose_name=_('site'))
 
     def get_name(self):
         if self.get_full_name():
@@ -87,14 +92,14 @@ class BluuUser(AbstractUser):
 
     @property
     def get_groups(self):
-        ret = u''
+        ret = ''
         groups = self.groups.all()
         for idx, group in enumerate(groups):
             ret += group.name
             if idx < len(groups) - 1:
                 ret += ', '
         if not ret:
-            ret = u'---'
+            ret = '---'
         return ret
 
     class Meta:

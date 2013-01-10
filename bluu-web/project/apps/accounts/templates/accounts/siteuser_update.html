@@ -1,18 +1,18 @@
-{% extends "accounts/_contract_base.html" %}
+{% extends "accounts/_site_base.html" %}
 
 {% load i18n %}
 
 {% block title %}
-{% trans 'Edit contract' %} |
+{% trans 'Edit user' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'contract-list' %}">{% trans "Contract list" %}</a> &gt; {% trans "Edit contract" %}
+    <a href="{% url 'site-users' site.pk %}">{% trans "User list" %}</a> &gt; {% trans "Edit user" %}
 {% endblock %}
 
 {% block main %}
 <h3 class="form-label">
-    {% trans "Edit contract" %}
+    {% trans "Edit user" %}
 </h3>
 
 <form action="" method="POST">{% csrf_token %}

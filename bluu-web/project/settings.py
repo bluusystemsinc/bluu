@@ -62,11 +62,15 @@ STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static')
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
+
+NG_ROOT = os.path.join(os.path.dirname(__file__), 'frontend')
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    ('ng', NG_ROOT),
 )
 
 # List of finder classes that know how to find static files in
@@ -141,6 +145,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'accounts',
     'rest_framework',
+    'guardian',
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"
@@ -150,6 +155,7 @@ AUTH_USER_MODEL = 'accounts.BluuUser'
 AUTHENTICATION_BACKENDS = (
                            'django.contrib.auth.backends.ModelBackend',
                            #'accounts.auth_backends.EmailAuthBackend',
+                           'guardian.backends.ObjectPermissionBackend',
                            )
 
 #django-registration settings
@@ -186,6 +192,11 @@ LOGGING = {
 #django-compress settings
 COMPRESS_ENABLED = False
 COMPRESS_CACHE_BACKEND = 'locmem:///'
+
+#django-guardian
+ANONYMOUS_USER_ID = -1
+
+SOUTH_TESTS_MIGRATE = False
 
 TOS_URL = u'#'
 
