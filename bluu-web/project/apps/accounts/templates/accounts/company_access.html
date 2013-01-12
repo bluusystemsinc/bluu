@@ -14,11 +14,12 @@
 <h3 class="form-label">
     {% trans "Company Access Management" %}
 </h3>
-
+<div ng-controller="CompanyAccessController">
+    <div class="gridStyle" ng-grid="gridOptions"></div>
+</div>
 
 {% endblock %}
 
 {% block javascript %}
- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
 {% endblock %}
 

@@ -1,5 +1,5 @@
 {% load i18n guardian_tags theme_tags compress %}<!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="Bluu">
   <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}{% trans "Bluu Web" %}</title>
@@ -16,14 +16,24 @@
     {% compress css %}
     <link href="{{ STATIC_URL }}theme/components/bootstrap.css/css/bootstrap.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}theme/components/bootstrap.css/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui.min.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}theme/components/angular-grid/ng-grid.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}theme/css/style.css" rel="stylesheet">
     {% endcompress %}
     {% block css %}{% endblock %}
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <!--[if lte IE 8]>
+    <script>
+    // The ieshiv takes care of our ui.directives, bootstrap module directives and
+    // AngularJS's ng-view, ng-include, ng-pluralize and ng-switch directives.
+    // However, IF you have custom directives (yours or someone else's) then
+    // enumerate the list of tags in window.myCustomTags
+     
+    //window.myCustomTags = [ 'yourDirective', 'somebodyElsesDirective' ]; // optional
+    </script>
+    <script src="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui-ieshiv.js"></script>
     <![endif]-->
+
 
     {% block head-javascript %}{% endblock %}
 
@@ -126,6 +136,18 @@
     <script type="text/javascript">
         var STATIC_URL = '{{ STATIC_URL }}';
     </script>
+
+    <script src="{{ STATIC_URL }}theme/components/angular-complete/angular.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/angular-complete/angular-resource.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/angular-grid/ng-grid-1.6.2.js"></script>
+    <script src="{{ STATIC_URL }}theme/js/ng/app.js"></script>
+    <script src="{{ STATIC_URL }}theme/js/ng/services.js"></script>
+    <script src="{{ STATIC_URL }}theme/js/ng/controllers.js"></script>
+    <script src="{{ STATIC_URL }}theme/js/ng/filters.js"></script>
+    <script src="{{ STATIC_URL }}theme/js/ng/directives.js"></script>
+
+
     {% block javascript %}{% endblock %}
 </body>
 </html>

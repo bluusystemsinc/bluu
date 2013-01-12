@@ -1,0 +1,14 @@
+{
+  "name": "angular-complete",
+  "version": "0.0.0",
+  "main": "./angular.js",
+  "dependencies": {},
+  "_id": "angular-complete@1.0.3",
+  "readme": "ERROR: No README.md file found!",
+  "description": "ERROR: No README.md file found!",
+  "commit": "b70807224ffa8dcb41c1e42e229da10748e7b0de",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jpillora/bower-angular"
+  }
+}

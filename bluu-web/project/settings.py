@@ -200,6 +200,11 @@ SOUTH_TESTS_MIGRATE = False
 
 TOS_URL = u'#'
 
+# REST Framework
+REST_FRAMEWORK = {
+    'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend'
+}
+
 try:
     from settings_local import *
 except Exception, err:

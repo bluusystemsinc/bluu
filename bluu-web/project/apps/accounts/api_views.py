@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework import generics
 from rest_framework.renderers import JSONPRenderer, JSONRenderer
+import django_filters
 
 
 class SiteList(APIView):
@@ -39,10 +40,17 @@ class SiteList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class CompanyFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_type='icontains')
+    class Meta:
+        model = Company
+        fields = ['name']
 
 class CompanyList(generics.ListCreateAPIView):
     model = Company
     serializer_class = CompanySerializer
+    filter_class = CompanyFilter
+    filter_fields = ('name',)
 
 
 class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):

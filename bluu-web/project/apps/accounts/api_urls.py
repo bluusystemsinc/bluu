@@ -11,8 +11,8 @@ from accounts.api_views import SiteList, CompanyList, CompanyDetail
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = format_suffix_patterns(patterns('accounts.api_views',
-    url(r'^api/sites/$', SiteList.as_view(), name='api-site-list'),
-    url(r'^api/companies/$', CompanyList.as_view(), name='api-company-list'),
-    url(r'^api/companies/(?P<pk>[0-9]+)[/]?$', CompanyDetail.as_view(),
+    url(r'^sites/$', SiteList.as_view(), name='api-site-list'),
+    url(r'^companies/$', CompanyList.as_view(), name='api-company-list'),
+    url(r'^companies/(?P<pk>[0-9]+)[/]?$', CompanyDetail.as_view(),
         name='api-company-details'),
 ), allowed=['jsonp', 'json', 'html'])
