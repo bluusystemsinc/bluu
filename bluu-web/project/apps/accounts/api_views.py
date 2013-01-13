@@ -61,6 +61,11 @@ class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CompanySerializer
 
 
+class UserPerms:
+    def __init__(self, user, perms):
+        self.user = user
+        self.perms = perms
+
 class CompanyAccessList(APIView):
 
     def get_object(self, pk):
@@ -74,20 +79,28 @@ class CompanyAccessList(APIView):
         users = get_users_with_perms(company, attach_perms=True)
         ret = []
         for user, perms in users.items():
-            udata = UserSerializer(user)
-            data = udata.data.copy()
-            data.update({'perms': perms})
-            ret.append(data)
-        return Response(ret)
+            obj = UserPerms(user, perms)
+            ret.append(obj)
+
+        sobj = CompanyAccessSerializer(ret)
+        return Response(sobj.data)
 
     def post(self, request, pk, format=None):
         company = self.get_object(pk)
-        serializer = CompanyAccessSerializer(data=request.DATA)
-        if serializer.is_valid():
-            obj = serializer.save()
-            data = serializer.data
+        data = JSONParser().parse(request)
+        print 'recived data: ', data
+        #TODO:
+        # 1. check if user with email exists
+        # 2. in doesn't then
+        #   2.1 store new user's email and assigned perms
+        #   2.2 sent invitation to the user
+        #   2.3 after user is registered search accesses looking by email
+        #   2.4 assign found permissions to the user
+        # 3. set user permissions
+        #   3.1 assign permissions to the user
+        #   3.2 send invitation to the user
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            #return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -33,12 +33,12 @@ function CompanyAccessController(CompanyAccess, $scope, $http) {
             var data;
             if (searchText) {
                 var ft = searchText.toLowerCase();
-                data = CompanyAccess.query({'companyId': COMPANY_ID}, function(data){
+                CompanyAccess.query({'companyId': COMPANY_ID}, function(data){
                     data.filter(function(item) {
                         return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
                     });
+                    $scope.setPagingData(data,page,pageSize);
                 });
-                $scope.setPagingData(data,page,pageSize);
 
                 /*$http.get('http://localhost:8000/api/accounts/companies/').success(function (largeLoad) {		
                     data = largeLoad.filter(function(item) {
@@ -84,6 +84,20 @@ function CompanyAccessController(CompanyAccess, $scope, $http) {
     };
 }
 CompanyAccessController.$inject = ['CompanyAccess', '$scope', '$http'];
+
+
+function CompanyAccessNewController(CompanyAccess, $scope) {
+    $scope.company_access = new CompanyAccess();
+    
+    $scope.save = function () {
+        CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access, function (res){
+            if (res.ok === 1) { console.log('success');}}
+        );
+    };
+}
+CompanyAccessNewController.$inject = ['CompanyAccess', '$scope', '$http'];
+
+
 //MyCtrl1.$inject = [];
 
 

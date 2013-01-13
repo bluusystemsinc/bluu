@@ -43,6 +43,7 @@ class Company(Entity):
         permissions = (
             ("browse_companies", "Can browse companies"),
             ("view_company", "Can view company"),
+            ("manage_company_access", "Can manage company access"),
         )
 
 

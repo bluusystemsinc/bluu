@@ -35,6 +35,9 @@ perm_browse_companies = Permission.objects.get(content_type=company_type,
                         codename=u"browse_companies")
 perm_view_company = Permission.objects.get(content_type=company_type,
                         codename=u"view_company")
+perm_manage_company_access = Permission.objects.get(content_type=company_type,
+                        codename=u"manage_company_access")
+
 
 
 
@@ -70,7 +73,8 @@ def run():
         perm_change_company,
         perm_delete_company,
         perm_view_company,
-        perm_browse_companies]
+        perm_browse_companies,
+        perm_manage_company_access]
 
     # create Dealer role
     dealer_group = Group.objects.get_or_create(name=u'Dealer')[0]

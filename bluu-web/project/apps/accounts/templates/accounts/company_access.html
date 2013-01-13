@@ -11,16 +11,39 @@
 {% endblock %}
 
 {% block main %}
-<h3 class="form-label">
+<h1 class="form-label">
     {% trans "Company Access Management" %}
-</h3>
+</h1>
 <div ng-controller="CompanyAccessController">
+    {% if perms.accounts.add_bluuuser %}
     <div>
-        New Group: <input name="name" ng-model="name" />
+        <h2>{% trans "Create new user" %}</h2>
+        <div><a href="#">{% trans "Click to create a new user" %}</a></div>
     </div>
+    {% endif %}
+    {% if perms.accounts.manage_company_access %}
+    <div ng-controller="CompanyAccessNewController">
+        <h2>{% trans "Invite user" %}</h2>
+        <div>
+            <form>
+            <input name="email" ng-model="company_access.email" placeholder="e-mail" />
+            <select ng-model="company_access.perms" name="company_access">
+                <option>{% trans "Dealer" %}</option>
+                <option>{% trans "Technician" %}</option>
+            </select>
+            <button type="submit" ng-click="save()">{% trans "Add" %}</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
     <div class="gridStyle" ng-grid="gridOptions"></div>
 </div>
 
+
+<hr/>
+Debug View:
+<pre>form={{form}} <br>
+email={{company_access.email}} <br> perm={{company_access.perm}} <br> _id={{company_access.id}} </pre>
 {% endblock %}
 
 {% block javascript %}

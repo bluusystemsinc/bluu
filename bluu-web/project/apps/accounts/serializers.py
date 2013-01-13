@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 
+
 class SiteSerializer(serializers.ModelSerializer):
     contract_bluuuser = serializers.ManyPrimaryKeyRelatedField()
 
@@ -16,7 +17,7 @@ class SiteSerializer(serializers.ModelSerializer):
 class BluuUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
+        model = models.BluuUser
         fields = ('url', 'username', 'snippets')
 
 
@@ -28,14 +29,12 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'contact_name', 'street',
             'city', 'state', 'zip_code', 'country', 'phone', 'email')
 
-class UserSerializer(serializers.Serializer):
-    pk = serializers.Field()
-    username = serializers.Field()
-    email = serializers.Field()
-    first_name = serializers.Field()
-    last_name = serializers.Field()
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BluuUser
+        fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
 
 class CompanyAccessSerializer(serializers.Serializer):
-    username = serializers.Field()
-    first_name = serializers.Field()
+    user = UserSerializer()
+    perms = serializers.Field()
