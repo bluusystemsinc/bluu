@@ -28,4 +28,14 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'contact_name', 'street',
             'city', 'state', 'zip_code', 'country', 'phone', 'email')
 
+class UserSerializer(serializers.Serializer):
+    pk = serializers.Field()
+    username = serializers.Field()
+    email = serializers.Field()
+    first_name = serializers.Field()
+    last_name = serializers.Field()
 
+
+class CompanyAccessSerializer(serializers.Serializer):
+    username = serializers.Field()
+    first_name = serializers.Field()

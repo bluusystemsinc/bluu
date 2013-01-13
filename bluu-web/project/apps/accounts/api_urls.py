@@ -7,12 +7,14 @@ from views import register, UserProfileUpdateView,\
                   SiteUpdateView, site_delete,\
                   SiteUserListView, SiteUserCreateView,\
                   SiteUserUpdateView
-from accounts.api_views import SiteList, CompanyList, CompanyDetail
+from accounts.api_views import SiteList, CompanyList, CompanyDetail, CompanyAccessList
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = format_suffix_patterns(patterns('accounts.api_views',
     url(r'^sites/$', SiteList.as_view(), name='api-site-list'),
-    url(r'^companies/$', CompanyList.as_view(), name='api-company-list'),
+    url(r'^companies[/]$', CompanyList.as_view(), name='api-company-list'),
     url(r'^companies/(?P<pk>[0-9]+)[/]?$', CompanyDetail.as_view(),
         name='api-company-details'),
+    url(r'^companies/(?P<pk>[0-9]+)/access[/]?$', CompanyAccessList.as_view(),
+        name='api-company-access'),
 ), allowed=['jsonp', 'json', 'html'])

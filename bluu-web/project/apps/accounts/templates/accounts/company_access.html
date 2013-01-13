@@ -15,11 +15,17 @@
     {% trans "Company Access Management" %}
 </h3>
 <div ng-controller="CompanyAccessController">
+    <div>
+        New Group: <input name="name" ng-model="name" />
+    </div>
     <div class="gridStyle" ng-grid="gridOptions"></div>
 </div>
 
 {% endblock %}
 
 {% block javascript %}
+<script type="text/javascript">
+var COMPANY_ID = {{ company.id }};
+</script>
 {% endblock %}
 

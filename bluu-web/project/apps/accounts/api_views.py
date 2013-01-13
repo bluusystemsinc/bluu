@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from accounts.models import Site, BluuUser, Company
-from accounts.serializers import SiteSerializer, CompanySerializer
+from accounts.serializers import SiteSerializer, CompanySerializer, CompanyAccessSerializer, UserSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,7 +8,10 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework import generics
 from rest_framework.renderers import JSONPRenderer, JSONRenderer
+from rest_framework.parsers import JSONParser
+
 import django_filters
+from guardian.shortcuts import get_users_with_perms
 
 
 class SiteList(APIView):
@@ -56,6 +59,37 @@ class CompanyList(generics.ListCreateAPIView):
 class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
     model = Company
     serializer_class = CompanySerializer
+
+
+class CompanyAccessList(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Company.objects.get(pk=pk)
+        except Company.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        company = self.get_object(pk)
+        users = get_users_with_perms(company, attach_perms=True)
+        ret = []
+        for user, perms in users.items():
+            udata = UserSerializer(user)
+            data = udata.data.copy()
+            data.update({'perms': perms})
+            ret.append(data)
+        return Response(ret)
+
+    def post(self, request, pk, format=None):
+        company = self.get_object(pk)
+        serializer = CompanyAccessSerializer(data=request.DATA)
+        if serializer.is_valid():
+            obj = serializer.save()
+            data = serializer.data
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CompanyList_old(APIView):

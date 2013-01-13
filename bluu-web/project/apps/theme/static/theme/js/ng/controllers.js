@@ -2,7 +2,7 @@
 
 /* Controllers */
 
-function CompanyAccessController(Company, $scope, $http) {
+function CompanyAccessController(CompanyAccess, $scope, $http) {
    /*$scope.myData = [{name: "Moroni", age: 50},
                  {name: "Tiancum", age: 43},
                  {name: "Jacob", age: 27},
@@ -32,9 +32,8 @@ function CompanyAccessController(Company, $scope, $http) {
         setTimeout(function () {
             var data;
             if (searchText) {
-                console.log('searching: ' + searchText);
                 var ft = searchText.toLowerCase();
-                data = Company.query(function(data){
+                data = CompanyAccess.query({'companyId': COMPANY_ID}, function(data){
                     data.filter(function(item) {
                         return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
                     });
@@ -48,7 +47,7 @@ function CompanyAccessController(Company, $scope, $http) {
                     $scope.setPagingData(data,page,pageSize);
                 });*/
             } else {
-                Company.query(function(data){
+                CompanyAccess.query({'companyId':COMPANY_ID}, function(data){
                     $scope.setPagingData(data,page,pageSize);
                 });
                 
@@ -69,9 +68,9 @@ function CompanyAccessController(Company, $scope, $http) {
     }, true);   
 
 
-    $scope.columnDefs = [{ field: 'name', displayName: 'Name', width: "50%", resizable: false},
-                  { field: 'city', displayName: 'City', width: "25%" },
-                  { field: 'contact_name', displayName: 'Contact', width: "25%" }
+    $scope.columnDefs = [{ field: 'username', displayName: 'Username', width: "50%", resizable: false},
+                  { field: 'first_name', displayName: 'First Name', width: "25%" },
+                  { field: 'last_name', displayName: 'Last Name', width: "25%" }
                   ];
 	
     $scope.gridOptions = {
@@ -82,7 +81,7 @@ function CompanyAccessController(Company, $scope, $http) {
         columnDefs: 'columnDefs'
     };
 }
-CompanyAccessController.$inject = ['Company', '$scope', '$http'];
+CompanyAccessController.$inject = ['CompanyAccess', '$scope', '$http'];
 //MyCtrl1.$inject = [];
 
 
