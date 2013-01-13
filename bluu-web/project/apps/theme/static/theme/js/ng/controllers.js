@@ -68,9 +68,11 @@ function CompanyAccessController(CompanyAccess, $scope, $http) {
     }, true);   
 
 
-    $scope.columnDefs = [{ field: 'username', displayName: 'Username', width: "50%", resizable: false},
-                  { field: 'first_name', displayName: 'First Name', width: "25%" },
-                  { field: 'last_name', displayName: 'Last Name', width: "25%" }
+    $scope.columnDefs = [{ field: 'username', displayName: 'Username', width: "20%", resizable: false},
+                  { field: 'first_name', displayName: 'First Name', width: "20%" },
+                  { field: 'last_name', displayName: 'Last Name', width: "20%" },
+                  { field: 'last_name', displayName: 'Access', width: "20%" },
+                  { field: 'last_name', displayName: 'Action', width: "20%" }
                   ];
 	
     $scope.gridOptions = {
