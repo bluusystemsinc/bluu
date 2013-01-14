@@ -37,4 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class CompanyAccessSerializer(serializers.Serializer):
     user = UserSerializer()
-    perms = serializers.Field()
+    groups = serializers.Field()
+
+class CompanyAccessGroupsSerializer(serializers.Serializer):
+    name = serializers.Field()
+ 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from accounts.models import Site, BluuUser, Company
-from accounts.serializers import SiteSerializer, CompanySerializer, CompanyAccessSerializer, UserSerializer
+from accounts.serializers import SiteSerializer, CompanySerializer,\
+        CompanyAccessSerializer, UserSerializer, CompanyAccessGroupsSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,7 +12,7 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer
 from rest_framework.parsers import JSONParser
 
 import django_filters
-from guardian.shortcuts import get_users_with_perms
+from guardian.shortcuts import get_users_with_perms, get_groups_with_perms
 
 
 class SiteList(APIView):
@@ -61,12 +62,14 @@ class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CompanySerializer
 
 
-class UserPerms:
-    def __init__(self, user, perms):
+class UserGroups:
+    def __init__(self, user, groups):
         self.user = user
-        self.perms = perms
+        self.groups = groups
+
 
 class CompanyAccessList(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self, pk):
         try:
@@ -76,11 +79,12 @@ class CompanyAccessList(APIView):
 
     def get(self, request, pk, format=None):
         company = self.get_object(pk)
-        users = get_users_with_perms(company, attach_perms=True)
+        groups = get_groups_with_perms(company)
+        users = get_users_with_perms(company)
         ret = []
-        for user, perms in users.items():
-            obj = UserPerms(user, perms)
-            ret.append(obj)
+        for user in users:
+            user_groups = set(groups) & set(user.groups.all())
+            ret.append(UserGroups(user, user_groups))
 
         sobj = CompanyAccessSerializer(ret)
         return Response(sobj.data)
@@ -102,6 +106,23 @@ class CompanyAccessList(APIView):
 
             #return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CompanyAccessGroups(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self, pk):
+        try:
+            return Company.objects.get(pk=pk)
+        except Company.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        company = self.get_object(pk)
+        groups = get_groups_with_perms(company)
+        sobj = CompanyAccessGroupsSerializer(groups)
+        return Response(sobj.data)
+
 
 
 

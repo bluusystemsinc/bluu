@@ -13,7 +13,7 @@ from django.http import HttpResponseRedirect
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from registration.backends import get_backend
 from accounts.forms import ProfileForm, AccountForm, BluuUserForm
@@ -26,7 +26,7 @@ from accounts.forms import CompanyForm, SiteForm
 #from forms import UserForm, UserProfileForm
 
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import get_objects_for_user, assign
 
 def register(request, backend, success_url=None, form_class=None,
              disallowed_url='registration_disallowed',
@@ -166,6 +166,22 @@ class CompanyListView(ListView):
         return super(CompanyListView, self).dispatch(*args, **kwargs)
 
 
+def _create_groups_for_company(company):
+    dealer = Group.objects.get_or_create(name='%s: Dealer' % company.name)[0] 
+    technician = Group.objects.get_or_create(\
+            name='%s: Technician' % company.name)[0] 
+
+    # Dealer assignments
+    assign('browse_companies', dealer, company)
+    assign('view_company', dealer, company)
+    assign('change_company', dealer, company)
+    assign('manage_company_access', dealer, company)
+
+    #Technician assignments
+    assign('browse_companies', technician, company)
+    assign('view_company', technician, company)
+
+
 class CompanyCreateView(CreateView):
     model = Company
     template_name = "accounts/company_create.html"
@@ -173,6 +189,7 @@ class CompanyCreateView(CreateView):
 
     def form_valid(self, form):
         response = super(CompanyCreateView, self).form_valid(form)
+        _create_groups_for_company(self.object)
         messages.success(self.request, _('Company added'))
         return response
 
@@ -216,6 +233,7 @@ class CompanyDeleteView(DeleteView):
             (Company, 'pk', 'pk')))
     def dispatch(self, *args, **kwargs):
         return super(CompanyDeleteView, self).dispatch(*args, **kwargs)
+
 
 class CompanyAccessManagementView(DetailView):
     model = Company

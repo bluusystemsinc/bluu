@@ -68,11 +68,11 @@ function CompanyAccessController(CompanyAccess, $scope, $http) {
     }, true);   
 
 
-    $scope.columnDefs = [{ field: 'username', displayName: 'Username', width: "20%", resizable: false},
-                  { field: 'first_name', displayName: 'First Name', width: "20%" },
-                  { field: 'last_name', displayName: 'Last Name', width: "20%" },
-                  { field: 'last_name', displayName: 'Access', width: "20%" },
-                  { field: 'last_name', displayName: 'Action', width: "20%" }
+    $scope.columnDefs = [{ field: 'user.username', displayName: 'Username', width: "20%", resizable: false},
+                  { field: 'user.first_name', displayName: 'First Name', width: "20%" },
+                  { field: 'user.last_name', displayName: 'Last Name', width: "20%" },
+                  { field: 'groups[0]', displayName: 'Access', width: "20%" },
+                  { field: 'user.last_name', displayName: 'Action', width: "20%" }
                   ];
 	
     $scope.gridOptions = {
@@ -86,16 +86,22 @@ function CompanyAccessController(CompanyAccess, $scope, $http) {
 CompanyAccessController.$inject = ['CompanyAccess', '$scope', '$http'];
 
 
-function CompanyAccessNewController(CompanyAccess, $scope) {
+function CompanyAccessNewController(CompanyAccess, CompanyAccessGroups, $scope) {
     $scope.company_access = new CompanyAccess();
-    
+    //$scope.company_access_groups = new CompanyAccessGroups();
+
+    CompanyAccessGroups.query({'companyId':COMPANY_ID}, function(data){
+        $scope.groups = data;
+    });
+
     $scope.save = function () {
         CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access, function (res){
             if (res.ok === 1) { console.log('success');}}
         );
     };
 }
-CompanyAccessNewController.$inject = ['CompanyAccess', '$scope', '$http'];
+CompanyAccessNewController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
+                                      '$scope', '$http'];
 
 
 //MyCtrl1.$inject = [];

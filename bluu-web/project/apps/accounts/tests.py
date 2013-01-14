@@ -81,17 +81,20 @@ class CompaniesTestCase(WebTest):
         self.app.get(reverse('company-add'), user='test1', status=302)
         res = self.app.get(reverse('company-add'), user='test2', status=200)
         form = res.form
-        form.name = 'Company1'
-        form.street = 'street'
-        form.city = 'city'
-        form.state = 'alaska'
-        form.zip_code = '345 324 23'
-        form.country = 'US'
-        form.phone = '+34 32 4 32423'
-        form.email = 'test@example.com'
-        form.contact_name = 'Ian Shimmy'
+        form['name'] = 'Company1'
+        form['street'] = 'street'
+        form['city'] = 'city'
+        form['state'] = 'alaska'
+        form['zip_code'] = '345 23'
+        form['country'] = 'US'
+        form['phone'] = '+34 32 4 3'
+        form['email'] = 'test@example.com'
+        form['contact_name'] = 'Ian Shimmy'
         form_res = form.submit().follow()
+
         assert "Company added" in form_res
+        self.assertTrue(Group.objects.filter(name='Company1: Dealer').exists())
+        self.assertTrue(Group.objects.filter(name='Company1: Technician').exists())
         
 
 

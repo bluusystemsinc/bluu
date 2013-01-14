@@ -18,4 +18,10 @@ angular.module('Bluu.services', ['ngResource']).
         {}, {
         query: { method:'GET', isArray:true }
     });
+  }).
+  factory('CompanyAccessGroups', function($resource){
+    return $resource('/api/accounts/companies/:companyId/access/groups/',
+        {}, {
+        query: { method:'GET', isArray:true }
+    });
   });
