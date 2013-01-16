@@ -11,7 +11,8 @@ from django.core.urlresolvers import reverse
 from registration.forms import RegistrationFormTermsOfService
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
-from crispy_forms.layout import Layout, HTML, Fieldset, ButtonHolder, Div
+from crispy_forms.layout import Layout, HTML, Fieldset, Div
+from crispy_forms.bootstrap import FormActions
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm #SetPasswordForm
 from django.shortcuts import redirect, render_to_response, get_object_or_404
@@ -28,6 +29,27 @@ rev = lambda s: reverse(s)
 
 
 class CompanyForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                    'name',
+                    'street',
+                    'city',
+                    'state',
+                    'zip_code',
+                    'country',
+                    'phone',
+                    'email',
+                    'contact_name',
+            ),
+            FormActions(
+                Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
+        super(CompanyForm, self).__init__(*args, **kwargs)
+    
     class Meta:
         model = Company
         fields = ('name', 'street', 'city', 'state', 'zip_code', 'country',
@@ -35,11 +57,38 @@ class CompanyForm(ModelForm):
 
 
 class SiteForm(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        # user with 'manage_site' permission can assign site to any company
+        if not self.user.has_perm('accounts.manage_site'):
+            self.fields['company'].queryset = self.user.companies.all()
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                    'company',
+                    'first_name',
+                    'middle_initial',
+                    'last_name',
+                    'city',
+                    'state',
+                    'zip_code',
+                    'country',
+                    'phone',
+                    'email',
+            ),
+            FormActions(
+                Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
+        super(SiteForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = Site
-        fields = (  # 'number',
-                  'first_name', 'middle_initial', 'last_name', 'city',
-                  'state', 'zip_code', 'country', 'phone', 'email')
+        fields = ('company', 'first_name', 'middle_initial', 'last_name', 
+                  'city', 'state', 'zip_code', 'country', 'phone', 'email')
 
 
 class BluuUserForm(ModelForm):

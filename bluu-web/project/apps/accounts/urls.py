@@ -11,7 +11,7 @@ from views import register, UserProfileUpdateView,\
                   SiteListView, SiteCreateView,\
                   SiteUpdateView, site_delete,\
                   SiteUserListView, SiteUserCreateView,\
-                  SiteUserUpdateView
+                  SiteUserUpdateView, SiteAccessManagementView
 from forms import RegistrationForm, EmailAuthenticationForm
 from django.views.generic import TemplateView
 from accounts.api_views import SiteList, CompanyList, CompanyDetail
@@ -30,20 +30,19 @@ urlpatterns = patterns('accounts.views',
             CompanyUpdateView.as_view(), name='company-edit'),
     url(r'^companies/(?P<pk>\d+)/access/$',
             CompanyAccessManagementView.as_view(), name='company-access'),
-
     url(r'^companies/delete/(?P<pk>\d+)/$', 'company_delete',
         name='company-delete'),
 
     url(r'^sites/$', SiteListView.as_view(), name='site-list'),
     url(r'^sites/add/$', SiteCreateView.as_view(), name='site-add'),
-    url(r'^sites/(?P<pk>\d+)/edit/$',
-                            SiteUpdateView.as_view(), name='site-edit'),
+    url(r'^sites/(?P<pk>\d+)/$', SiteUpdateView.as_view(), name='site-edit'),
+    url(r'^sites/(?P<pk>\d+)/access/$', SiteAccessManagementView.as_view(), name='site-access'),
     url(r'^sites/(?P<pk>\d+)/delete/$', 'site_delete',
         name='site-delete'),
-    url(r'^sites/(?P<pk>\d+)/users/$', SiteUserListView.as_view(), name='site-users'),
-    url(r'^sites/(?P<pk>\d+)/users/add/$', SiteUserCreateView.as_view(), name='site-user-add'),
-    url(r'^sites/(?P<pk>\d+)/users/(?P<upk>\d+)/$', SiteUserUpdateView.as_view(), name='site-user-edit'),
-    url(r'^sites/(?P<site_id>\d+)/users/(?P<pk>\d+)/delete/$', 'site_user_delete', name='site-user-delete'),
+    #url(r'^sites/(?P<pk>\d+)/access/$', SiteUserListView.as_view(), name='site-users'),
+    #url(r'^sites/(?P<pk>\d+)/access/add/$', SiteUserCreateView.as_view(), name='site-user-add'),
+    #url(r'^sites/(?P<pk>\d+)/access/(?P<upk>\d+)/$', SiteUserUpdateView.as_view(), name='site-user-edit'),
+    #url(r'^sites/(?P<site_id>\d+)/access/(?P<pk>\d+)/delete/$', 'site_user_delete', name='site-user-delete'),
 )
 
 urlpatterns += patterns('',

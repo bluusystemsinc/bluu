@@ -53,6 +53,7 @@ class Site(Entity):
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     middle_initial = models.CharField(_('middle initial'), max_length=2,
         blank=True)
+    company = models.ForeignKey(Company, verbose_name=_('company'))
 
     def __unicode__(self):
         return str(self.pk)
@@ -67,6 +68,7 @@ class Site(Entity):
         permissions = (
             ("browse_sites", "Can browse sites"),
             ("view_site", "Can view site"),
+            ("manage_site", "Can manage site"),
         )
 
 
@@ -78,13 +80,11 @@ class BluuUser(AbstractUser):
     cell = models.CharField(_('cell'), max_length=10, blank=True)
     cell_text_email = models.EmailField(_('cell text email address'),
         blank=True)
-    company = models.ManyToManyField(Company, blank=True, null=True,
-                         related_name='company_bluuuser',
-                         verbose_name=_('company'))
+    companies = models.ManyToManyField(Company, blank=True, null=True,
+                         verbose_name=_('companies'))
 
-    site = models.ManyToManyField(Site, blank=True, null=True,
-                         related_name='site_bluuuser',
-                         verbose_name=_('site'))
+    sites = models.ManyToManyField(Site, blank=True, null=True,
+                         verbose_name=_('sites'))
 
     def get_name(self):
         if self.get_full_name():
@@ -111,25 +111,3 @@ class BluuUser(AbstractUser):
             ("manage_dealers", "Can manage dealers"),
         )
 
-#class UserProfile(models.Model):
-#    user = models.ForeignKey(User, unique=True)
-
-#User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
-
-# force emails to be uniqe
-#User._meta.get_field_by_name('email')[0]._unique = True
-
-#http://djangosnippets.org/snippets/1960/
-#@receiver(user_activated)
-#def login_on_activation(sender, user, request, **kwargs):
-    """Automatically login a user after activation
-    """
-#    user.backend='accounts.auth_backends.EmailAuthBackend'
-#    login(request, user)
-
-# When model instance is saved, trigger creation of corresponding profile
-#@receiver(post_save, sender=User)
-#def create_profile(sender, instance, signal, created, **kwargs):
-#    """When user is created also create a matching profile."""
-#    if created:
-#        UserProfile(user = instance).save()

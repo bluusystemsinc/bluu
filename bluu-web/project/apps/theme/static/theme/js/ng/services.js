@@ -25,6 +25,18 @@ angular.module('Bluu.services', ['ngResource']).
         query: { method:'GET', isArray:true }
     });
   }).
+  factory('SiteAccess', function($resource){
+    return $resource('/api/accounts/sites/:siteId/access/',
+        {}, {
+        query: { method:'GET', isArray:true }
+    });
+  }).
+  factory('SiteAccessGroups', function($resource){
+    return $resource('/api/accounts/sites/:siteId/access/groups/',
+        {}, {
+        query: { method:'GET', isArray:true }
+    });
+  }).
   factory('$configService', function(){
       var hgtOpts = {minHeight: 120};
 

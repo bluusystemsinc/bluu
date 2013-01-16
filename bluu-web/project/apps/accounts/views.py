@@ -166,6 +166,7 @@ class CompanyListView(ListView):
         return super(CompanyListView, self).dispatch(*args, **kwargs)
 
 
+#TODO: move to signals
 def _create_groups_for_company(company):
     dealer = Group.objects.get_or_create(name='%s: Dealer' % company.name)[0] 
     technician = Group.objects.get_or_create(\
@@ -246,14 +247,13 @@ class CompanyAccessManagementView(DetailView):
         return super(CompanyAccessManagementView, self).\
                 dispatch(*args, **kwargs)
 
-
-
-
 class SiteListView(ListView):
     model = Site
     template_name = "accounts/site_list.html"
 
     def get_queryset(self):
+        if self.request.user.has_perm('accounts.view_site'):
+            return super(SiteListView, self).get_queryset()
         return get_objects_for_user(self.request.user, 'accounts.view_site')
 
     @method_decorator(login_required)
@@ -261,14 +261,35 @@ class SiteListView(ListView):
     def dispatch(self, *args, **kwargs):
         return super(SiteListView, self).dispatch(*args, **kwargs)
 
+#TODO: move to signals
+def _create_groups_for_site(site):
+    master = Group.objects.get_or_create(name='%s: Master User' % site.name)[0] 
+    user = Group.objects.get_or_create(name='%s: User' % site.name)[0] 
+
+    # Master assignments
+    assign('browse_sites', master, site)
+    assign('view_site', master, site)
+    assign('change_site', master, site)
+    assign('manage_site_access', master, site)
+
+    #Technician assignments
+    assign('browse_sites', user, site)
+    assign('view_site', user, site)
+
 
 class SiteCreateView(CreateView):
     model = Site
     template_name = "accounts/site_create.html"
     form_class = SiteForm
 
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(SiteCreateView, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         response = super(SiteCreateView, self).form_valid(form)
+        _create_groups_for_site(self.object)
         messages.success(self.request, _('Site added'))
         return response
 
@@ -283,6 +304,11 @@ class SiteUpdateView(UpdateView):
     template_name = "accounts/site_update.html"
     form_class = SiteForm
 
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(SiteUpdateView, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         response = super(SiteUpdateView, self).form_valid(form)
         messages.success(self.request, _('Site changed'))
@@ -292,6 +318,18 @@ class SiteUpdateView(UpdateView):
     @method_decorator(permission_required('accounts.change_site'))
     def dispatch(self, *args, **kwargs):
         return super(SiteUpdateView, self).dispatch(*args, **kwargs)
+
+
+class SiteAccessManagementView(DetailView):
+    model = Site
+    template_name = "accounts/site_access.html"
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required_or_403('accounts.change_site',
+            (Site, 'pk', 'pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(SiteAccessManagementView, self).\
+                dispatch(*args, **kwargs)
 
 
 @permission_required('accounts.delete_site')

@@ -1,0 +1,13 @@
+{% extends "accounts/_cu_base.html" %}
+{% load i18n theme_tags %}
+
+{% block sidebar %}
+<div class="box">
+  <ul class="nav nav-list">
+    {% if perms.accounts.change_company %}<li class="{% active request "^/accounts/companies/\d+/$" %}"><a href="{% url 'company-edit' company.id %}">{% trans "Company details" %}</a></li>{% endif %}
+    {% if perms.accounts.change_company %}<li class="{% active request "^/accounts/companies/\d+/access/$" %}"><a href="{% url 'company-access' company.id %}">{% trans "Access management" %}</a></li>{% endif %}
+    {% if perms.accounts.delete_company %}<li><a href="{% url 'company-delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove company' %}</a></li>{% endif %}
+  </ul>
+</div>
+{% endblock%}
+

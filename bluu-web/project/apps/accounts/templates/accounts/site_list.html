@@ -4,7 +4,7 @@
 
 
 {% block title %}
-{% trans 'Contract list' %} |
+{% trans 'Site list' %} |
 {% endblock %}
 
 {% block css %}
@@ -46,7 +46,7 @@
 {% endblock %}
 
 {% block content %}
-    <h3 class="form-label">{% trans "Contract list" %}</h3>
+    <h3 class="form-label">{% trans "Site list" %}</h3>
 
     {% if perms.accounts.add_site %}
     <ul class="nav nav-pills nav-stacked">
@@ -59,8 +59,9 @@
         <thead>
             <tr>
                 <th>{% trans "No." %}</th>
-                <th>{% trans 'Contract number' %}</th>
+                <th>{% trans 'First name' %}</th>
                 <th>{% trans 'Last name' %}</th>
+                <th>{% trans 'Company' %}</th>
                 <th>{% trans 'Actions' %}</th>
             </tr>
         </thead>
@@ -68,8 +69,9 @@
         {% for site in site_list %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ site.pk }}</td>
+                <td>{{ site.first_name }}</td>
                 <td>{{ site.last_name }}</td>
+                <td>{{ site.company }}</td>
                 <td>
                     {% if perms.accounts.change_site %}<a href="{% url 'site-edit' site.id %}">{% trans 'Edit' %}</a>{% endif %}
                     {% if perms.accounts.delete_site %}<a href="{% url 'site-delete' site.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove' %}</a>{% endif %}

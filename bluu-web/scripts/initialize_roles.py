@@ -49,6 +49,9 @@ perm_delete_site = Permission.objects.get(content_type=site_type,
                         codename=u"delete_site")
 perm_browse_site = Permission.objects.get(content_type=site_type,
                                                   codename=u"browse_sites")
+perm_manage_site = Permission.objects.get(content_type=site_type,
+                                                  codename=u"manage_site")
+
 
 
 def run():
@@ -74,7 +77,8 @@ def run():
         perm_delete_company,
         perm_view_company,
         perm_browse_companies,
-        perm_manage_company_access]
+        perm_manage_company_access,
+        perm_manage_site]
 
     # create Dealer role
     dealer_group = Group.objects.get_or_create(name=u'Dealer')[0]

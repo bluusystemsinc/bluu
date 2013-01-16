@@ -1,14 +1,19 @@
 {% extends "base.html" %}
-
-{% load i18n %}
+{% load i18n theme_tags %}
 
 {% block content %}
-<div class="row-fluid">
-    <div class="span8">
-        {% block main %}{% endblock %}
+<div class="admin-layout">
+  <aside class="span3">
+    {% block sidebar %}
+    <div class="box">
+      <ul class="nav nav-list">
+          <li>dummy</li>
+      </ul>
     </div>
-    <div class="span4">
-        {% block sidebar %}{% endblock %}
-    </div>
+    {% endblock%}
+  </aside>
+  <div class="span9">
+    {% block main %}{% endblock%}
+  </div>
 </div>
 {% endblock %}

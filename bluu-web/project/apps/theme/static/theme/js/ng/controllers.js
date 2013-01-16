@@ -73,7 +73,7 @@ function CompanyAccessController(CompanyAccess, $configService, $scope) {
                   { field: 'user.first_name', displayName: 'First Name'},
                   { field: 'user.last_name', displayName: 'Last Name'},
                   { field: 'groups[0]', displayName: 'Access'},
-                  { field: 'user.last_name', displayName: 'Action'}
+                  { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Delete</a></div>'}
                   ];
 	
     $scope.AccessGridOptions = {
@@ -100,28 +100,143 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
     });
 
     $scope.save = function () {
-        CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
+        console.debug($scope.company_access);
+        $scope.invitationData.push({email: $scope.company_access.email, invitation: 'pending'});
+
+        if (!$scope.$$phase) {
+            $scope.$apply();
+        }
+
+        /*CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
             function (res){
                 if (res.ok === 1) { console.log('success');}}
-        );
+        );*/
     };
 
-   $scope.invitationData = [{first_name: "Ian", last_name: 'Nowitzki', invitation: 'pending'},
-       {first_name: "Roberto", last_name: 'Gonzales', invitation: 'pending'}
-       ];
-   $scope.InvitationGridOptions = { data : 'invitationData',
+    $scope.invitationColumnDefs = [{ field: 'email', displayName: 'E-mail'},
+        { field: 'invitation', displayName: 'Status'},
+        { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Resend</a></div>' }];
+
+    $scope.invitationData = [
+       {email: 'ian.nowitzki@example.com', invitation: 'pending'},
+       {email: 'roberto.gonzales@example.com', invitation: 'pending'}
+    ];
+    $scope.InvitationGridOptions = { data : 'invitationData',
        displaySelectionCheckbox: false,
-       plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())]
-   };
+       plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
+       columnDefs: 'invitationColumnDefs'
+    };
 
 }
 CompanyInvitationController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
                                       '$configService', '$scope'];
 
 
-//MyCtrl1.$inject = [];
+function SiteAccessController(SiteAccess, $configService, $scope) {
+    $scope.myData = [];
+    $scope.filterOptions = {
+        filterText: "",
+        useExternalFilter: false
+    };
+    $scope.pagingOptions = {
+        pageSizes: [250, 500, 1000],
+        pageSize: 250,
+        totalServerItems: 0,
+        currentPage: 1
+    };	
+    $scope.setPagingData = function(data, page, pageSize){	
+        var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
+        $scope.myData = pagedData;
+        $scope.pagingOptions.totalServerItems = data.length;
+        if (!$scope.$$phase) {
+            $scope.$apply();
+        }
+    };
+    $scope.getPagedDataAsync = function (pageSize, page, searchText) {
+        setTimeout(function () {
+            var data;
+            if (searchText) {
+                var ft = searchText.toLowerCase();
+                SiteAccess.query({'siteId': SITE_ID}, function(data){
+                    data.filter(function(item) {
+                        return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
+                    });
+                    $scope.setPagingData(data,page,pageSize);
+                });
+            } else {
+                SiteAccess.query({'siteId':SITE_ID}, function(data){
+                    $scope.setPagingData(data,page,pageSize);
+                });
+            }
+        }, 100);
+    };
+	
+    $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
+	
+    $scope.$watch('pagingOptions', function () {
+        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+    }, true);
+    $scope.$watch('filterOptions', function () {
+        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+    }, true);   
 
 
-//function MyCtrl2() {
-//}
-//MyCtrl2.$inject = [];
+    $scope.columnDefs = [{ field: 'user.username', displayName: 'Username'},
+                  { field: 'user.first_name', displayName: 'First Name'},
+                  { field: 'user.last_name', displayName: 'Last Name'},
+                  { field: 'groups[0]', displayName: 'Access'},
+                  { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Delete</a></div>'}
+                  ];
+	
+    $scope.AccessGridOptions = {
+        data: 'myData',
+        displaySelectionCheckbox: false,
+        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
+        //enablePaging: false,
+        //pagingOptions: $scope.pagingOptions,
+        //filterOptions: $scope.filterOptions,
+        columnDefs: 'columnDefs'
+    };
+}
+SiteAccessController.$inject = ['SiteAccess', '$configService', '$scope'];
+
+
+function SiteInvitationController(SiteAccess, SiteAccessGroups,
+                                     $configService, $scope) {
+    $scope.site_access = new SiteAccess();
+
+    SiteAccessGroups.query({'siteId':SITE_ID}, function(data){
+        $scope.groups = data;
+    });
+
+    $scope.save = function () {
+        $scope.invitationData.push({email: $scope.site_access.email, invitation: 'pending'});
+
+        if (!$scope.$$phase) {
+            $scope.$apply();
+        }
+
+        /*SiteAccess.save({'siteId':SITE_ID}, $scope.site_access,
+            function (res){
+                if (res.ok === 1) { console.log('success');}}
+        );*/
+    };
+
+    $scope.invitationColumnDefs = [{ field: 'email', displayName: 'E-mail'},
+        { field: 'invitation', displayName: 'Status'},
+        { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Resend</a></div>' }];
+
+    $scope.invitationData = [
+       {email: 'ian.nowitzki@example.com', invitation: 'pending'},
+       {email: 'roberto.gonzales@example.com', invitation: 'pending'}
+    ];
+    $scope.InvitationGridOptions = { data : 'invitationData',
+       displaySelectionCheckbox: false,
+       plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
+       columnDefs: 'invitationColumnDefs'
+    };
+
+}
+SiteInvitationController.$inject = ['SiteAccess', 'SiteAccessGroups',
+                                      '$configService', '$scope'];
+

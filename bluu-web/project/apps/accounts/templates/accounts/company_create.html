@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "accounts/_company_base.html" %}
 
-{% load i18n %}
+{% load i18n crispy_forms_tags %}
 
 {% block title %}
 {% trans 'Add company' %} |
@@ -15,10 +15,7 @@
     {% trans "Add company" %}
 </h3>
 
-<form action="." method="POST">{% csrf_token %}
-<table class="manage-form">
-    {{ form.as_table }}
-    <tr><td><button type="submit" class="btn">{% trans 'Add' %}</button></td></tr>
-</table>
+<form class="form-horizontal" action="." method="post">{% csrf_token %}
+    {% crispy form form.helper %}
 </form>
 {% endblock %}
