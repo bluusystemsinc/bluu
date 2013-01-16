@@ -2,9 +2,28 @@
 @import "compass/css3/box-sizing";
 
 .gridStyle {
-    border: 1px solid rgb(212,212,212);
     height: 1400px;
 }
+
+.ngFooterPanel{
+    border: 0;
+}
+
+.ngGrid{
+    background-color: transparent;
+}
+
+.ngRow{
+    border: 0;
+}
+
+.ngCell{
+    &:last-child{
+        border-right: 0;
+    }
+}
+
+
 
 .admin-layout{
 }
