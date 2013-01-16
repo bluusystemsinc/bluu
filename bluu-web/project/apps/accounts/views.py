@@ -24,6 +24,7 @@ from django.core.urlresolvers import reverse_lazy
 from accounts.models import Company, Site, BluuUser
 from accounts.forms import CompanyForm, SiteForm
 #from forms import UserForm, UserProfileForm
+from django.contrib.auth import get_user_model
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import get_objects_for_user, assign
@@ -74,10 +75,10 @@ class AccountUpdateView(UpdateView):
         return reverse('account_edit')
 
     def get_object(self, queryset=None):
-        return get_object_or_404(User, pk=self.request.user.pk)
+        return get_object_or_404(get_user_model(), pk=self.request.user.pk)
 
 class AccountDeleteView(DeleteView):
-    model = User
+    model = get_user_model()
     template_name='accounts/account_confirm_delete.html'
     context_object_name='account'
     success_url = '/'
@@ -263,14 +264,13 @@ class SiteListView(ListView):
 
 #TODO: move to signals
 def _create_groups_for_site(site):
-    master = Group.objects.get_or_create(name='%s: Master User' % site.name)[0] 
-    user = Group.objects.get_or_create(name='%s: User' % site.name)[0] 
+    master = Group.objects.get_or_create(name='%s (%d): Master User' % (site.last_name, site.pk))[0] 
+    user = Group.objects.get_or_create(name='%s (%d): User' % (site.last_name, site.pk))[0] 
 
     # Master assignments
     assign('browse_sites', master, site)
     assign('view_site', master, site)
     assign('change_site', master, site)
-    assign('manage_site_access', master, site)
 
     #Technician assignments
     assign('browse_sites', user, site)

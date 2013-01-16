@@ -83,7 +83,8 @@ function CompanyAccessController(CompanyAccess, $configService, $scope) {
         //enablePaging: false,
         //pagingOptions: $scope.pagingOptions,
         //filterOptions: $scope.filterOptions,
-        columnDefs: 'columnDefs'
+        columnDefs: 'columnDefs',
+        footerVisible: false
     };
 }
 CompanyAccessController.$inject = ['CompanyAccess', '$configService',
@@ -124,7 +125,8 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
     $scope.InvitationGridOptions = { data : 'invitationData',
        displaySelectionCheckbox: false,
        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
-       columnDefs: 'invitationColumnDefs'
+       columnDefs: 'invitationColumnDefs',
+       footerVisible: false
     };
 
 }
@@ -195,7 +197,8 @@ function SiteAccessController(SiteAccess, $configService, $scope) {
         //enablePaging: false,
         //pagingOptions: $scope.pagingOptions,
         //filterOptions: $scope.filterOptions,
-        columnDefs: 'columnDefs'
+        columnDefs: 'columnDefs',
+        footerVisible: false
     };
 }
 SiteAccessController.$inject = ['SiteAccess', '$configService', '$scope'];
@@ -233,7 +236,8 @@ function SiteInvitationController(SiteAccess, SiteAccessGroups,
     $scope.InvitationGridOptions = { data : 'invitationData',
        displaySelectionCheckbox: false,
        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
-       columnDefs: 'invitationColumnDefs'
+       columnDefs: 'invitationColumnDefs',
+       footerVisible: false
     };
 
 }

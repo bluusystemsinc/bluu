@@ -10,11 +10,11 @@
     <a href="{% url 'site-list' %}">{% trans "Site list" %}</a> &gt; {% trans "Edit site" %}
 {% endblock %}
 
-{% block main %}
-<h3 class="form-label">
+{% block page-title %}
     {% trans "Site Details" %}
-</h3>
+{% endblock %}
 
+{% block main %}
 <form class="form-horizontal" action="." method="post">{% csrf_token %}
     {% crispy form form.helper %}
 </form>

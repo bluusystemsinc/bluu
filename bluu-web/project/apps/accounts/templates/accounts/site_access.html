@@ -10,12 +10,12 @@
     <a href="{% url 'site-list' %}">{% trans "Site list" %}</a> &gt; {% trans "Site Access Management" %}
 {% endblock %}
 
-{% block main %}
-<h1 class="form-label">
+{% block page-title %}
     {% trans "Site Access Management" %}
-</h1>
-<div ng-controller="SiteAccessController">
+{% endblock %}
 
+{% block main %}
+<div ng-controller="SiteAccessController">
     <div class="gridStyle" ng-grid="AccessGridOptions"></div>
 
     {% if perms.accounts.manage_company_access %}

@@ -130,7 +130,7 @@ class SiteAccessList(APIView):
 
     def get_object(self, pk):
         try:
-            return Company.objects.get(pk=pk)
+            return Site.objects.get(pk=pk)
         except Company.DoesNotExist:
             raise Http404
 

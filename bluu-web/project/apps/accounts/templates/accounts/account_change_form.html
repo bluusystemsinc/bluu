@@ -10,7 +10,7 @@
       <div class="page-header content-wrapper">
         <h1>{% trans 'Account settings' %}</h1>
       </div>
-      <p class="pull-right"><a href="{% url account_delete user.pk %}">{% trans "Remove account" %}</a></p>
+      <p class="pull-right"><a href="{% url 'account_delete' user.pk %}">{% trans "Remove account" %}</a></p>
   </div>
   <div class="span2">&nbsp;</div>
 </div>

@@ -46,7 +46,9 @@
 {% endblock %}
 
 {% block content %}
-    <h3 class="form-label">{% trans "Company list" %}</h3>
+    <div class="page-header content-wrapper">
+        <h1 class="form-label">{% trans "Company list" %}</h1>
+    </div>
 
     {% if perms.accounts.add_company %}
     <ul class="nav nav-pills nav-stacked">
