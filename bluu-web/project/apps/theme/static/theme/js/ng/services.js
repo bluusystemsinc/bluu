@@ -24,4 +24,13 @@ angular.module('Bluu.services', ['ngResource']).
         {}, {
         query: { method:'GET', isArray:true }
     });
+  }).
+  factory('$configService', function(){
+      var hgtOpts = {minHeight: 120};
+
+      return {
+          getGridHeight: function(){
+            return hgtOpts;
+          }
+      };
   });

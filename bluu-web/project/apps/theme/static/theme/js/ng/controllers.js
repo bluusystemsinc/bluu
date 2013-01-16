@@ -2,7 +2,7 @@
 
 /* Controllers */
 
-function CompanyAccessController(CompanyAccess, $scope, $http) {
+function CompanyAccessController(CompanyAccess, $configService, $scope) {
    /*$scope.myData = [{name: "Moroni", age: 50},
                  {name: "Tiancum", age: 43},
                  {name: "Jacob", age: 27},
@@ -10,6 +10,7 @@ function CompanyAccessController(CompanyAccess, $scope, $http) {
                  {name: "Enos", age: 34}];
    $scope.gridOptions = { data : 'myData' };*/
 
+    $scope.myData = [];
     $scope.filterOptions = {
         filterText: "",
         useExternalFilter: false
@@ -68,25 +69,29 @@ function CompanyAccessController(CompanyAccess, $scope, $http) {
     }, true);   
 
 
-    $scope.columnDefs = [{ field: 'user.username', displayName: 'Username', width: "20%", resizable: false},
-                  { field: 'user.first_name', displayName: 'First Name', width: "20%" },
-                  { field: 'user.last_name', displayName: 'Last Name', width: "20%" },
-                  { field: 'groups[0]', displayName: 'Access', width: "20%" },
-                  { field: 'user.last_name', displayName: 'Action', width: "20%" }
+    $scope.columnDefs = [{ field: 'user.username', displayName: 'Username'},
+                  { field: 'user.first_name', displayName: 'First Name'},
+                  { field: 'user.last_name', displayName: 'Last Name'},
+                  { field: 'groups[0]', displayName: 'Access'},
+                  { field: 'user.last_name', displayName: 'Action'}
                   ];
 	
-    $scope.gridOptions = {
+    $scope.AccessGridOptions = {
         data: 'myData',
-        enablePaging: true,
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: $scope.filterOptions,
+        displaySelectionCheckbox: false,
+        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
+        //enablePaging: false,
+        //pagingOptions: $scope.pagingOptions,
+        //filterOptions: $scope.filterOptions,
         columnDefs: 'columnDefs'
     };
 }
-CompanyAccessController.$inject = ['CompanyAccess', '$scope', '$http'];
+CompanyAccessController.$inject = ['CompanyAccess', '$configService',
+                                   '$scope'];
 
 
-function CompanyAccessNewController(CompanyAccess, CompanyAccessGroups, $scope) {
+function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
+                                     $configService, $scope) {
     $scope.company_access = new CompanyAccess();
     //$scope.company_access_groups = new CompanyAccessGroups();
 
@@ -95,13 +100,23 @@ function CompanyAccessNewController(CompanyAccess, CompanyAccessGroups, $scope) 
     });
 
     $scope.save = function () {
-        CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access, function (res){
-            if (res.ok === 1) { console.log('success');}}
+        CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
+            function (res){
+                if (res.ok === 1) { console.log('success');}}
         );
     };
+
+   $scope.invitationData = [{first_name: "Ian", last_name: 'Nowitzki', invitation: 'pending'},
+       {first_name: "Roberto", last_name: 'Gonzales', invitation: 'pending'}
+       ];
+   $scope.InvitationGridOptions = { data : 'invitationData',
+       displaySelectionCheckbox: false,
+       plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())]
+   };
+
 }
-CompanyAccessNewController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
-                                      '$scope', '$http'];
+CompanyInvitationController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
+                                      '$configService', '$scope'];
 
 
 //MyCtrl1.$inject = [];

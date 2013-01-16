@@ -15,26 +15,20 @@
     {% trans "Company Access Management" %}
 </h1>
 <div ng-controller="CompanyAccessController">
-    {% if perms.accounts.add_bluuuser %}
-    <div>
-        <h2>{% trans "Create new user" %}</h2>
-        <div><a href="#">{% trans "Click to create a new user" %}</a></div>
-    </div>
-    {% endif %}
+
+    <div class="gridStyle" ng-grid="AccessGridOptions"></div>
+
     {% if perms.accounts.manage_company_access %}
-    <div ng-controller="CompanyAccessNewController">
+    <div ng-controller="CompanyInvitationController">
         <h2>{% trans "Invite user" %}</h2>
-        <div ng-init="company_access.csrfmiddlewaretoken='{{csrf_token}}';">
             <form class="form-inline">
-                <input type="text" name="csrfmiddlewaretoken" ng-model="company_access.csrfmiddlewaretoken"  />
                 <input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />
                 <select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>
                 <button type="submit" class="btn" ng-click="save()">{% trans "Add" %}</button>
             </form>
-        </div>
+        <div class="gridStyle" ng-grid="InvitationGridOptions"></div>
     </div>
     {% endif %}
-    <div class="gridStyle" ng-grid="gridOptions"></div>
 </div>
 {% endblock %}
 

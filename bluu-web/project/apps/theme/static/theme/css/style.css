@@ -1,16 +1,15 @@
 /* line 4, ../sass/style.scss */
 .gridStyle {
   border: 1px solid #d4d4d4;
-  width: 80%;
-  height: 500px;
+  height: 1400px;
 }
 
-/* line 13, ../sass/style.scss */
+/* line 12, ../sass/style.scss */
 .box {
   margin: 10px;
 }
 
-/* line 17, ../sass/style.scss */
+/* line 16, ../sass/style.scss */
 footer {
   background-color: #F5F5F5;
   border-top: 1px solid #e5e5e5;

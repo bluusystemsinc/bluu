@@ -80,7 +80,8 @@ class CompanyAccessList(APIView):
     def get(self, request, pk, format=None):
         company = self.get_object(pk)
         groups = get_groups_with_perms(company)
-        users = get_users_with_perms(company)
+        users = BluuUser.objects.filter(groups__in=groups)
+        #users = get_users_with_perms(company)
         ret = []
         for user in users:
             user_groups = set(groups) & set(user.groups.all())

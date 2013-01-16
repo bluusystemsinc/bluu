@@ -11,6 +11,6 @@
   "description": "__Contributors:__",
   "repository": {
     "type": "git",
-    "url": "git://github.com/angular-ui/ng-grid"
+    "url": "git://github.com/angular-ui/ng-grid.git"
   }
 }
