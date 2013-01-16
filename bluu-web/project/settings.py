@@ -205,6 +205,10 @@ REST_FRAMEWORK = {
     'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend'
 }
 
+SOUTH_MIGRATION_MODULES = {
+    'guardian': 'ignore',
+}
+
 try:
     from settings_local import *
 except Exception, err:
