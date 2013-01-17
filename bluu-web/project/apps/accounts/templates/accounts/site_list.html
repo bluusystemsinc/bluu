@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load i18n %}
+{% load i18n guardian_tags %}
 
 
 {% block title %}
@@ -69,14 +69,15 @@
         </thead>
         <tbody>
         {% for site in site_list %}
+            {% get_obj_perms request.user for site as "site_perms" %}
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ site.first_name }}</td>
                 <td>{{ site.last_name }}</td>
                 <td>{{ site.company }}</td>
                 <td>
-                    {% if perms.accounts.change_site %}<a href="{% url 'site-edit' site.id %}">{% trans 'Edit' %}</a>{% endif %}
-                    {% if perms.accounts.delete_site %}<a href="{% url 'site-delete' site.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove' %}</a>{% endif %}
+                    {% if "change_site" in site_perms %}<a href="{% url 'site-edit' site.id %}">{% trans 'Edit' %}</a>{% endif %}
+                    {% if "delete_site" in site_perms %}<a href="{% url 'site-delete' site.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove' %}</a>{% endif %}
                 </td>
             </tr>
         {% endfor %}
