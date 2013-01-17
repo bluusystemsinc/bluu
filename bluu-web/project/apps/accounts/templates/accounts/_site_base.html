@@ -1,6 +1,6 @@
 {% extends "accounts/_cu_base.html" %}
 
-{% load i18n theme_tags %}
+{% load i18n theme_tags guardian_tags %}
 
 {% block sidebar %}
 {% get_obj_perms request.user for site as "site_perms" %}
