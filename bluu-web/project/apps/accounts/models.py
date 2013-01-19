@@ -111,3 +111,19 @@ class BluuUser(AbstractUser):
             ("manage_dealers", "Can manage dealers"),
         )
 
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from django.db.models.signals import pre_delete
+
+def remove_orphaned_obj_perms(sender, instance, **kwargs):
+    from guardian.models import UserObjectPermission
+    from guardian.models import GroupObjectPermission
+
+    filters = Q(content_type=ContentType.objects.get_for_model(instance),
+        object_pk=instance.pk)
+    UserObjectPermission.objects.filter(filters).delete()
+    GroupObjectPermission.objects.filter(filters).delete()
+
+pre_delete.connect(remove_orphaned_obj_perms, sender=Company)
+pre_delete.connect(remove_orphaned_obj_perms, sender=Site)
+

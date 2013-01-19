@@ -174,13 +174,13 @@ def _create_groups_for_company(company):
             name='%s: Technician' % company.name)[0] 
 
     # Dealer assignments
-    assign('browse_companies', dealer, company)
+    assign('accounts.browse_companies', dealer)
     assign('view_company', dealer, company)
     assign('change_company', dealer, company)
     assign('manage_company_access', dealer, company)
 
     #Technician assignments
-    assign('browse_companies', technician, company)
+    assign('accounts.browse_companies', technician)
     assign('view_company', technician, company)
 
 
