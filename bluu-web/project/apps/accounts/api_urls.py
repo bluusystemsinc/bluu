@@ -4,7 +4,6 @@ from accounts.api_views import SiteList, CompanyList, CompanyDetail,\
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = format_suffix_patterns(patterns('accounts.api_views',
-    url(r'^sites/$', SiteList.as_view(), name='api-site-list'),
     url(r'^companies[/]$', CompanyList.as_view(), name='api-company-list'),
     url(r'^companies/(?P<pk>[0-9]+)[/]?$', CompanyDetail.as_view(),
         name='api-company-details'),
@@ -12,6 +11,7 @@ urlpatterns = format_suffix_patterns(patterns('accounts.api_views',
         name='api-company-access'),
     url(r'^companies/(?P<pk>[0-9]+)/access/groups[/]?$', CompanyAccessGroups.as_view(),
         name='api-company-access-groups'),
+    url(r'^sites[/]$', SiteList.as_view(), name='api-site-list'),
     url(r'^sites/(?P<pk>[0-9]+)/access[/]?$', SiteAccessList.as_view(),
         name='api-site-access'),
     url(r'^sites/(?P<pk>[0-9]+)/access/groups[/]?$', SiteAccessGroups.as_view(),

@@ -12,10 +12,10 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer
 from rest_framework.parsers import JSONParser
 
 import django_filters
-from guardian.shortcuts import get_users_with_perms, get_groups_with_perms
+from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
 
 
-class SiteList(APIView):
+class SiteList_old(APIView):
     """
     List all contracts, or create a new contract.
     """
@@ -44,20 +44,51 @@ class SiteList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class SiteFilter(django_filters.FilterSet):
+    first_name = django_filters.CharFilter(lookup_type='icontains')
+    last_name = django_filters.CharFilter(lookup_type='icontains')
+    class Meta:
+        model = Site
+        fields = ['first_name', 'last_name', 'company']
+
+
+class SiteList(generics.ListCreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    model = Site
+    serializer_class = SiteSerializer
+    filter_class = SiteFilter
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.has_perm('accounts.view_site'):
+            return super(SiteList, self).get_queryset()
+        return get_objects_for_user(user, 'accounts.view_site')
+
+
 class CompanyFilter(django_filters.FilterSet):
     name = django_filters.CharFilter(lookup_type='icontains')
     class Meta:
         model = Company
         fields = ['name']
 
+
 class CompanyList(generics.ListCreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
     model = Company
     serializer_class = CompanySerializer
     filter_class = CompanyFilter
     filter_fields = ('name',)
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.has_perm('accounts.view_company'):
+            return super(CompanyList, self).get_queryset()
+        return get_objects_for_user(user, 'accounts.view_company')
+
 
 class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
     model = Company
     serializer_class = CompanySerializer
 

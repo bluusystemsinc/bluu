@@ -8,6 +8,11 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from .countries import CountryField
 from south.modelsinspector import add_introspection_rules
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from django.db.models.signals import post_save, pre_delete
+from django.contrib.auth.models import Group
+from django.dispatch import receiver
 
 add_introspection_rules([], ["^accounts\.countries\.CountryField"])
 
@@ -111,10 +116,52 @@ class BluuUser(AbstractUser):
             ("manage_dealers", "Can manage dealers"),
         )
 
-from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
-from django.db.models.signals import pre_delete
 
+@receiver(post_save, sender=Company)
+def _create_groups_for_company(sender, instance, *args, **kwargs):
+    from guardian.shortcuts import assign
+    dealer = Group.objects.get_or_create(name='%s: Dealer' % instance.name)[0] 
+    technician = Group.objects.get_or_create(\
+            name='%s: Technician' % instance.name)[0] 
+
+    # Dealer assignments
+    assign('accounts.browse_companies', dealer)
+    assign('accounts.browse_sites', dealer)
+    assign('view_company', dealer, instance)
+    assign('change_company', dealer, instance)
+    assign('manage_company_access', dealer, instance)
+
+    #Technician assignments
+    assign('accounts.browse_companies', technician)
+    assign('accounts.browse_sites', technician)
+    assign('view_company', technician, instance)
+
+@receiver(post_save, sender=Site)
+def _create_groups_for_site(sender, instance, *args, **kwargs):
+    from guardian.shortcuts import assign
+    from guardian.shortcuts import get_groups_with_perms
+    master = Group.objects.get_or_create(name='%s (%d): Master User' % (instance.last_name, instance.pk))[0] 
+    user = Group.objects.get_or_create(name='%s (%d): User' % (instance.last_name, instance.pk))[0] 
+
+    company_groups = get_groups_with_perms(instance.company)
+    for group in company_groups:
+        print group.name
+        assign('browse_sites', group, instance)
+        assign('view_site', group, instance)
+        assign('change_site', group, instance)
+
+    # Master assignments
+    assign('browse_sites', master, instance)
+    assign('view_site', master, instance)
+    assign('change_site', master, instance)
+
+    #Technician assignments
+    assign('browse_sites', user, instance)
+    assign('view_site', user, instance)
+
+
+@receiver(pre_delete, sender=Company)
+@receiver(pre_delete, sender=Site)
 def remove_orphaned_obj_perms(sender, instance, **kwargs):
     from guardian.models import UserObjectPermission
     from guardian.models import GroupObjectPermission
@@ -124,6 +171,6 @@ def remove_orphaned_obj_perms(sender, instance, **kwargs):
     UserObjectPermission.objects.filter(filters).delete()
     GroupObjectPermission.objects.filter(filters).delete()
 
-pre_delete.connect(remove_orphaned_obj_perms, sender=Company)
-pre_delete.connect(remove_orphaned_obj_perms, sender=Site)
+#pre_delete.connect(remove_orphaned_obj_perms, sender=Company)
+#pre_delete.connect(remove_orphaned_obj_perms, sender=Site)
 

@@ -134,6 +134,76 @@ CompanyInvitationController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
                                       '$configService', '$scope'];
 
 
+function CompanySitesController(CompanySites, $configService, $scope) {
+    $scope.myData = [];
+    $scope.filterOptions = {
+        filterText: "",
+        useExternalFilter: false
+    };
+    $scope.pagingOptions = {
+        pageSizes: [250, 500, 1000],
+        pageSize: 250,
+        totalServerItems: 0,
+        currentPage: 1
+    };	
+    $scope.setPagingData = function(data, page, pageSize){	
+        var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
+        $scope.myData = pagedData;
+        $scope.pagingOptions.totalServerItems = data.length;
+        if (!$scope.$$phase) {
+            $scope.$apply();
+        }
+    };
+    $scope.getPagedDataAsync = function (pageSize, page, searchText) {
+        setTimeout(function () {
+            var data;
+            if (searchText) {
+                var ft = searchText.toLowerCase();
+                CompanySites.query({'company': COMPANY_ID}, function(data){
+                    data.filter(function(item) {
+                        return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
+                    });
+                    $scope.setPagingData(data,page,pageSize);
+                });
+            } else {
+                CompanySites.query({'company':COMPANY_ID}, function(data){
+                    $scope.setPagingData(data,page,pageSize);
+                });
+            }
+        }, 100);
+    };
+	
+    $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
+	
+    $scope.$watch('pagingOptions', function () {
+        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+    }, true);
+    $scope.$watch('filterOptions', function () {
+        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
+    }, true);   
+
+
+    $scope.columnDefs = [{ field: 'first_name', displayName: 'First Name'},
+                  { field: 'last_name', displayName: 'Last Name'},
+                  { field: 'company.name', displayName: 'Company'},
+                  { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Delete</a></div>'}
+                  ];
+	
+    $scope.CompanySitesGridOptions = {
+        data: 'myData',
+        displaySelectionCheckbox: false,
+        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
+        //enablePaging: false,
+        //pagingOptions: $scope.pagingOptions,
+        //filterOptions: $scope.filterOptions,
+        columnDefs: 'columnDefs',
+        footerVisible: false
+    };
+}
+CompanySitesController.$inject = ['CompanySites', '$configService',
+                                   '$scope'];
+
+
 function SiteAccessController(SiteAccess, $configService, $scope) {
     $scope.myData = [];
     $scope.filterOptions = {

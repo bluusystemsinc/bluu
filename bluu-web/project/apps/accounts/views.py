@@ -29,6 +29,7 @@ from django.contrib.auth import get_user_model
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import get_objects_for_user, assign
 
+
 def register(request, backend, success_url=None, form_class=None,
              disallowed_url='registration_disallowed',
              template_name='registration/registration_form.html',
@@ -167,23 +168,6 @@ class CompanyListView(ListView):
         return super(CompanyListView, self).dispatch(*args, **kwargs)
 
 
-#TODO: move to signals
-def _create_groups_for_company(company):
-    dealer = Group.objects.get_or_create(name='%s: Dealer' % company.name)[0] 
-    technician = Group.objects.get_or_create(\
-            name='%s: Technician' % company.name)[0] 
-
-    # Dealer assignments
-    assign('accounts.browse_companies', dealer)
-    assign('view_company', dealer, company)
-    assign('change_company', dealer, company)
-    assign('manage_company_access', dealer, company)
-
-    #Technician assignments
-    assign('accounts.browse_companies', technician)
-    assign('view_company', technician, company)
-
-
 class CompanyCreateView(CreateView):
     model = Company
     template_name = "accounts/company_create.html"
@@ -191,7 +175,7 @@ class CompanyCreateView(CreateView):
 
     def form_valid(self, form):
         response = super(CompanyCreateView, self).form_valid(form)
-        _create_groups_for_company(self.object)
+        #_create_groups_for_company(self.object)
         messages.success(self.request, _('Company added'))
         return response
 
@@ -248,6 +232,17 @@ class CompanyAccessManagementView(DetailView):
         return super(CompanyAccessManagementView, self).\
                 dispatch(*args, **kwargs)
 
+
+class CompanySitesManagementView(DetailView):
+    model = Company
+    template_name = "accounts/company_sites_management.html"
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('accounts.browse_sites'))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanySitesManagementView, self).dispatch(*args, **kwargs)
+
+
 class SiteListView(ListView):
     model = Site
     template_name = "accounts/site_list.html"
@@ -262,20 +257,6 @@ class SiteListView(ListView):
     def dispatch(self, *args, **kwargs):
         return super(SiteListView, self).dispatch(*args, **kwargs)
 
-#TODO: move to signals
-def _create_groups_for_site(site):
-    master = Group.objects.get_or_create(name='%s (%d): Master User' % (site.last_name, site.pk))[0] 
-    user = Group.objects.get_or_create(name='%s (%d): User' % (site.last_name, site.pk))[0] 
-
-    # Master assignments
-    assign('browse_sites', master, site)
-    assign('view_site', master, site)
-    assign('change_site', master, site)
-
-    #Technician assignments
-    assign('browse_sites', user, site)
-    assign('view_site', user, site)
-
 
 class SiteCreateView(CreateView):
     model = Site
@@ -289,7 +270,7 @@ class SiteCreateView(CreateView):
 
     def form_valid(self, form):
         response = super(SiteCreateView, self).form_valid(form)
-        _create_groups_for_site(self.object)
+        #_create_groups_for_site(self.object)
         messages.success(self.request, _('Site added'))
         return response
 
@@ -454,3 +435,6 @@ def site_user_delete(request, pk, site_id):
     obj.delete()
     messages.success(request, _('Bluuuser deleted'))
     return redirect('site-users', pk=site.pk)
+
+
+

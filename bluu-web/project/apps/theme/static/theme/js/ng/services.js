@@ -25,6 +25,12 @@ angular.module('Bluu.services', ['ngResource']).
         query: { method:'GET', isArray:true }
     });
   }).
+  factory('CompanySites', function($resource){
+    return $resource('/api/accounts/sites/',
+        {}, {
+        query: { method:'GET', isArray:true }
+    });
+  }).
   factory('SiteAccess', function($resource){
     return $resource('/api/accounts/sites/:siteId/access/',
         {}, {

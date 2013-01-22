@@ -11,7 +11,9 @@ from views import register, UserProfileUpdateView,\
                   SiteListView, SiteCreateView,\
                   SiteUpdateView, site_delete,\
                   SiteUserListView, SiteUserCreateView,\
-                  SiteUserUpdateView, SiteAccessManagementView
+                  SiteUserUpdateView, SiteAccessManagementView,\
+                  CompanySitesManagementView
+
 from forms import RegistrationForm, EmailAuthenticationForm
 from django.views.generic import TemplateView
 from accounts.api_views import SiteList, CompanyList, CompanyDetail
@@ -30,6 +32,8 @@ urlpatterns = patterns('accounts.views',
             CompanyUpdateView.as_view(), name='company-edit'),
     url(r'^companies/(?P<pk>\d+)/access/$',
             CompanyAccessManagementView.as_view(), name='company-access'),
+    url(r'^companies/(?P<pk>\d+)/sites/$',
+            CompanySitesManagementView.as_view(), name='company-sites'),
     url(r'^companies/delete/(?P<pk>\d+)/$', 'company_delete',
         name='company-delete'),
 

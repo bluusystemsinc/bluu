@@ -198,7 +198,10 @@ TOS_URL = u'#'
 
 # REST Framework
 REST_FRAMEWORK = {
-    'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend'
+    'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
 }
 
 SOUTH_MIGRATION_MODULES = {
