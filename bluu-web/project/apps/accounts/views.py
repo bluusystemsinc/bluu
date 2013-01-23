@@ -237,6 +237,10 @@ class CompanySitesManagementView(DetailView):
     model = Company
     template_name = "accounts/company_sites_management.html"
 
+    def get_context_data(self, **kwargs):
+        kwargs['form'] = SiteForm(user=self.request.user)
+        return super(CompanySitesManagementView, self).get_context_data(**kwargs)
+
     @method_decorator(login_required)
     @method_decorator(permission_required('accounts.browse_sites'))
     def dispatch(self, *args, **kwargs):

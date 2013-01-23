@@ -3,7 +3,7 @@
 {% load i18n crispy_forms_tags guardian_tags %}
 
 {% block title %}
-{% trans 'Company Access Management' %} |
+{% trans 'Company Sites Management' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -11,19 +11,34 @@
 {% endblock %}
 
 {% block page-title %}
-    {% trans "Company's Sites Management" %}
+    {% trans "Company Sites Management" %}
 {% endblock %}
 
 {% block main %}
 {% get_obj_perms request.user for company as "company_perms" %}
-<div ng-controller="CompanySitesController">
-    <div class="gridStyle" ng-grid="CompanySitesGridOptions"></div>
+
+<ul id="sites-tab" class="nav nav-tabs">
+    <li class="active"><a href="#sites" data-toggle="tab">{% trans "Sites" %}</a></li>
+    <li><a href="#add-site" data-toggle="tab">{% trans "Add Site" %}</a></li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="sites">
+        <div ng-controller="CompanySitesController">
+            <div class="gridStyle" ng-grid="CompanySitesGridOptions"></div>
+        </div>
+    </div>
+    <div class="tab-pane" id="add-site">
+        <form class="form-horizontal" action="." method="post">{% csrf_token %}
+        {% crispy form form.helper %}
+        </form>
+    </div>
 </div>
 {% endblock %}
 
 {% block javascript %}
 <script type="text/javascript">
 var COMPANY_ID = {{ company.id }};
+
 </script>
 {% endblock %}
 

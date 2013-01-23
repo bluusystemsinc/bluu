@@ -23,12 +23,17 @@
   border-right: 0;
 }
 
-/* line 31, ../sass/style.scss */
+/* line 27, ../sass/style.scss */
+.navbar a.brand {
+  padding: 5px 10px;
+}
+
+/* line 35, ../sass/style.scss */
 .box {
   margin: 10px;
 }
 
-/* line 35, ../sass/style.scss */
+/* line 39, ../sass/style.scss */
 footer {
   background-color: #F5F5F5;
   border-top: 1px solid #e5e5e5;

@@ -67,7 +67,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="/">Bluu Web</a>
+          <a class="brand" href="/">
+             <img src="{{ STATIC_URL }}theme/img/logo.png" alt="Bluu Web" title="Bluu Web" />
+          </a>
           <div class="nav-collapse">
             <ul class="nav">
                 <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home icon-white"></i> {% trans "Home Page" %}</a></li>
@@ -134,11 +136,6 @@
     <script src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
     {% compress js %}
     <script src="{{ STATIC_URL }}theme/components/bootstrap.css/js/bootstrap.min.js"></script>
-    {% endcompress %}
-    <script type="text/javascript">
-        var STATIC_URL = '{{ STATIC_URL }}';
-    </script>
-
     <script src="{{ STATIC_URL }}theme/components/angular-complete/angular.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-complete/angular-resource.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui.min.js"></script>
@@ -149,6 +146,11 @@
     <script src="{{ STATIC_URL }}theme/js/ng/controllers.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/filters.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/directives.js"></script>
+    {% endcompress %}
+    <script type="text/javascript">
+        var STATIC_URL = '{{ STATIC_URL }}';
+    </script>
+
 
 
     {% block javascript %}{% endblock %}

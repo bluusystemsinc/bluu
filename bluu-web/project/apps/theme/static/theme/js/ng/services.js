@@ -8,34 +8,19 @@
 angular.module('Bluu.services', ['ngResource']).
   value('version', '0.1').
   factory('Company', function($resource){
-    return $resource('/api/accounts/companies/:companyId/',
-        { companyId: '@id' }, {
-        query: { method:'GET', isArray:true }
-    });
+    return $resource('/api/accounts/companies/:companyId/', {companyId: '@id'});
   }).
   factory('CompanyAccess', function($resource){
-    return $resource('/api/accounts/companies/:companyId/access/',
-        {}, {
-        query: { method:'GET', isArray:true }
-    });
+    return $resource('/api/accounts/companies/:companyId/access/');
   }).
   factory('CompanyAccessGroups', function($resource){
-    return $resource('/api/accounts/companies/:companyId/access/groups/',
-        {}, {
-        query: { method:'GET', isArray:true }
-    });
+    return $resource('/api/accounts/companies/:companyId/access/groups/');
   }).
-  factory('CompanySites', function($resource){
-    return $resource('/api/accounts/sites/',
-        {}, {
-        query: { method:'GET', isArray:true }
-    });
+  factory('Sites', function($resource){
+    return $resource('/api/accounts/sites/:siteId', {siteId: '@id'});
   }).
   factory('SiteAccess', function($resource){
-    return $resource('/api/accounts/sites/:siteId/access/',
-        {}, {
-        query: { method:'GET', isArray:true }
-    });
+    return $resource('/api/accounts/sites/:siteId/access/');
   }).
   factory('SiteAccessGroups', function($resource){
     return $resource('/api/accounts/sites/:siteId/access/groups/',
