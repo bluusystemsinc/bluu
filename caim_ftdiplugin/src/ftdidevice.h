@@ -2,9 +2,28 @@
 #define FTDIDEVICE_H
 
 #include <QIODevice>
+#include <QThread>
 #include <ftd2xx.h>
 
 class QTimer;
+
+class FtdiDeviceThread : public QThread
+{
+    Q_OBJECT
+
+public:
+    void setHandle(const FT_HANDLE& _handle);
+
+protected:
+    virtual void run();
+    void waitForBuffer();
+
+protected:
+    FT_HANDLE   handle;
+
+signals:
+    void dataAvailable();
+};
 
 class FtdiDevice : public QIODevice
 {
@@ -40,6 +59,7 @@ public:
     virtual FtStatus error() const;
     virtual bool open(int deviceNumber);
     virtual qint64 bytesAvailable();
+    QByteArray readAll();
 
 protected:
     virtual qint64 readData(char *data, qint64 maxlen);
@@ -54,6 +74,7 @@ private:
     FtStatus m_lastStatus;
     FT_HANDLE m_handle;
     DWORD m_rxBytes, m_txBytes, m_event, m_bytesReceived;
+    FtdiDeviceThread     thread;
 };
 
 #endif // FTDIDEVICE_H

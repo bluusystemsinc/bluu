@@ -45,5 +45,6 @@ void FtdiSensor::serialize(QTextStream *stream)
     qDebug()<<__PRETTY_FUNCTION__;
     QTextStream out(stream->device());
 
-    out<<m_device->readAll();
+    qDebug() << m_device->readAll();
+   //  out<<m_device->readAll();
 }
