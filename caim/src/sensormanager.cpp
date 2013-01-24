@@ -82,6 +82,33 @@ void SensorManager::loadSensorLibraries()
     }
 }
 
+void SensorManager::unloadSensorsSlot()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+
+    PluginsLoadedMap::iterator  it = m_pluginsLoaded.begin();
+
+    while(0 < m_pluginsLoaded.count())
+    {
+        QThread*        thread = NULL;
+        AbstractSensor*     sensor = NULL;
+
+        it = m_pluginsLoaded.begin();
+        thread = it.key();
+
+        if(NULL != thread)
+        {
+            sensor = m_pluginsLoaded.value(thread);
+
+            if(NULL != sensor)
+                delete sensor;
+
+            thread->exit();
+            m_pluginsLoaded.remove(thread);
+        }
+    }
+}
+
 void SensorManager::readData()
 {
     QByteArray data;

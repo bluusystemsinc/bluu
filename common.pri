@@ -6,7 +6,8 @@ UI_DIR = .o
 
 CPU = $$(CPU)
 isEmpty(CPU) {
-    CPU = i386
+    # CPU = i386
+    CPU = x86_64
 }
 
 equals(TEMPLATE, app) { # default value
