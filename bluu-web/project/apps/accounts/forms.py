@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from registration.forms import RegistrationFormTermsOfService
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
-from crispy_forms.layout import Layout, HTML, Fieldset, Div
+from crispy_forms.layout import Layout, HTML, Fieldset, Div, Field
 from crispy_forms.bootstrap import FormActions
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm #SetPasswordForm
@@ -66,21 +66,46 @@ class SiteForm(ModelForm):
 
         self.helper = FormHelper()
         self.helper.form_tag = False
+        company = Field('company', required="required")
+        company.attrs['ng-model'] = "site.company"
+        first_name = Field('first_name')
+        first_name.attrs['ng-model'] = "site.first_name"
+        middle_initial = Field('middle_initial')
+        middle_initial.attrs['ng-model'] = "site.middle_initial"
+        last_name = Field('last_name')
+        last_name.attrs['ng-model'] = "site.last_name"
+        city = Field('city')
+        city.attrs['ng-model'] = "site.city"
+        state = Field('state')
+        state.attrs['ng-model'] = "site.state"
+        zip_code = Field('zip_code')
+        zip_code.attrs['ng-model'] = "site.zip_code"
+        country = Field('country')
+        country.attrs['ng-model'] = "site.country"
+        phone = Field('phone')
+        phone.attrs['ng-model'] = "site.phone"
+        email = Field('email')
+        email.attrs['ng-model'] = "site.email"
+
+        submit = Submit('submit', _('Submit'), css_class="btn-primary")
+        print submit.flat_attrs
+        submit.flat_attrs += 'ng-click="save(site)"'
+
         self.helper.layout = Layout(
             Div(
-                    'company',
-                    'first_name',
-                    'middle_initial',
-                    'last_name',
-                    'city',
-                    'state',
-                    'zip_code',
-                    'country',
-                    'phone',
-                    'email',
+                    company,
+                    first_name,
+                    middle_initial,
+                    last_name,
+                    city,
+                    state,
+                    zip_code,
+                    country,
+                    phone,
+                    email,
             ),
             FormActions(
-                Submit('submit', _('Submit'), css_class="btn-primary")
+               submit 
             )
         )
         super(SiteForm, self).__init__(*args, **kwargs)

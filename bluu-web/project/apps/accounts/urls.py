@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required

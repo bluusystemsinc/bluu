@@ -134,7 +134,7 @@ CompanyInvitationController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
                                       '$configService', '$scope'];
 
 
-function CompanySitesController(CompanySites, $configService, $scope) {
+function CompanySitesController(Site, $configService, $scope) {
     $scope.myData = [];
     $scope.filterOptions = {
         filterText: "",
@@ -159,14 +159,14 @@ function CompanySitesController(CompanySites, $configService, $scope) {
             var data;
             if (searchText) {
                 var ft = searchText.toLowerCase();
-                CompanySites.query({'company': COMPANY_ID}, function(data){
+                Site.query({'company': COMPANY_ID}, function(data){
                     data.filter(function(item) {
                         return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
                     });
                     $scope.setPagingData(data,page,pageSize);
                 });
             } else {
-                CompanySites.query({'company':COMPANY_ID}, function(data){
+                Site.query({'company':COMPANY_ID}, function(data){
                     $scope.setPagingData(data,page,pageSize);
                 });
             }
@@ -200,8 +200,17 @@ function CompanySitesController(CompanySites, $configService, $scope) {
         footerVisible: false
     };
 }
-CompanySitesController.$inject = ['CompanySites', '$configService',
-                                   '$scope'];
+CompanySitesController.$inject = ['Site', '$configService', '$scope'];
+
+function CompanySiteCreateController(Site, $configService, $scope) {
+    $scope.site = new Site();
+
+    $scope.save = function(){
+        console.log('saving');
+        $scope.site.$save(function(res){console.log('done'); alert(res);});
+    }
+} 
+CompanySiteCreateController.$inject = ['Site', '$configService', '$scope'];
 
 
 function SiteAccessController(SiteAccess, $configService, $scope) {

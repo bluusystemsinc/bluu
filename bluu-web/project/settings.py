@@ -208,6 +208,8 @@ SOUTH_MIGRATION_MODULES = {
     'guardian': 'ignore',
 }
 
+APPEND_SLASH = False
+
 try:
     from settings_local import *
 except Exception, err:

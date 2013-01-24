@@ -27,8 +27,8 @@
             <div class="gridStyle" ng-grid="CompanySitesGridOptions"></div>
         </div>
     </div>
-    <div class="tab-pane" id="add-site">
-        <form class="form-horizontal" action="." method="post">{% csrf_token %}
+    <div class="tab-pane" id="add-site" ng-controller="CompanySiteCreateController">
+        <form novalidate class="form-horizontal" action="" method="post">{% csrf_token %}
         {% crispy form form.helper %}
         </form>
     </div>
