@@ -3,12 +3,14 @@
 #include <QCoreApplication>
 
 #include "sensormanager.h"
+#include "unixsignals.h"
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     SensorManager sm;
 
+    CBluuUnixSignals::Instance()->setupUnixSignalHandlers();
     app.setOrganizationName(ORGANIZATION_NAME);
     app.setOrganizationDomain(ORGANIZATION_DOMAIN);
     app.setApplicationName(APPLICATION_NAME);
@@ -18,7 +20,7 @@ int main(int argc, char **argv)
               .arg(app.applicationName()).arg(app.applicationVersion());
 
     qDebug()<<"Ideal thread count:"<<QThread::idealThreadCount();
-
+    sm.connect(CBluuUnixSignals::Instance(), SIGNAL(unloadSensorsSignal()), SLOT(unloadSensorsSlot()));
     sm.loadSensorLibraries();
 
     return app.exec();

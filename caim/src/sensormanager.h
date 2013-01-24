@@ -15,6 +15,7 @@ public:
 
 public slots:
     void loadSensorLibraries();
+    void unloadSensorsSlot();
 
 protected slots:
     void sensorUnplugged();
