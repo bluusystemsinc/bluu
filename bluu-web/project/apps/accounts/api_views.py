@@ -10,6 +10,8 @@ from rest_framework import permissions
 from rest_framework import generics
 from rest_framework.renderers import JSONPRenderer, JSONRenderer
 from rest_framework.parsers import JSONParser
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 import django_filters
 from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
@@ -64,6 +66,47 @@ class SiteList(generics.ListCreateAPIView):
         if user.has_perm('accounts.view_site'):
             return super(SiteList, self).get_queryset()
         return get_objects_for_user(user, 'accounts.view_site')
+
+
+class CompanySiteList(generics.ListCreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    model = Site
+    serializer_class = SiteSerializer
+    filter_class = SiteFilter
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.has_perm('accounts.view_site'):
+            return super(CompanySiteList, self).get_queryset()
+        return get_objects_for_user(user, 'accounts.view_site')
+
+    def pre_save(self, obj):
+        # pk and/or slug attributes are implicit in the URL.
+        company_pk = self.kwargs.get('company', None)
+        if company_pk:
+            company = Company.objects.get(pk=company_pk)
+            setattr(obj, 'company', company)
+
+        if hasattr(obj, 'full_clean'):
+            obj.full_clean()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+
+        if serializer.is_valid():
+            self.pre_save(serializer.object)
+            self.object = serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
+                            headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(CompanySiteList, self).dispatch(*args, **kwargs)
+
+
 
 
 class CompanyFilter(django_filters.FilterSet):

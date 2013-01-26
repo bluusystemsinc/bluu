@@ -21,14 +21,14 @@
     <li class="active"><a href="#sites" data-toggle="tab">{% trans "Sites" %}</a></li>
     <li><a href="#add-site" data-toggle="tab">{% trans "Add Site" %}</a></li>
 </ul>
-<div class="tab-content">
+<div class="tab-content" ng-controller="CompanySitesController">
     <div class="tab-pane active" id="sites">
-        <div ng-controller="CompanySitesController">
+        <div >
             <div class="gridStyle" ng-grid="CompanySitesGridOptions"></div>
         </div>
     </div>
-    <div class="tab-pane" id="add-site" ng-controller="CompanySiteCreateController">
-        <form novalidate class="form-horizontal" action="" method="post">{% csrf_token %}
+    <div class="tab-pane" id="add-site">
+        <form name="newsite" novalidate class="form-horizontal" action="" method="post">{% csrf_token %}
         {% crispy form form.helper %}
         </form>
     </div>

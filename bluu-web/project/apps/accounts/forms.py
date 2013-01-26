@@ -58,21 +58,17 @@ class CompanyForm(ModelForm):
 
 class SiteForm(ModelForm):
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
-        # user with 'manage_site' permission can assign site to any company
-        if not self.user.has_perm('accounts.manage_site'):
-            self.fields['company'].queryset = self.user.companies.all()
 
+    def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
         company = Field('company', required="required")
         company.attrs['ng-model'] = "site.company"
-        first_name = Field('first_name')
+        first_name = Field('first_name', required="")
         first_name.attrs['ng-model'] = "site.first_name"
         middle_initial = Field('middle_initial')
         middle_initial.attrs['ng-model'] = "site.middle_initial"
-        last_name = Field('last_name')
+        last_name = Field('last_name', required="")
         last_name.attrs['ng-model'] = "site.last_name"
         city = Field('city')
         city.attrs['ng-model'] = "site.city"
@@ -84,16 +80,14 @@ class SiteForm(ModelForm):
         country.attrs['ng-model'] = "site.country"
         phone = Field('phone')
         phone.attrs['ng-model'] = "site.phone"
-        email = Field('email')
+        email = Field('email', type='email')
         email.attrs['ng-model'] = "site.email"
 
         submit = Submit('submit', _('Submit'), css_class="btn-primary")
-        print submit.flat_attrs
-        submit.flat_attrs += 'ng-click="save(site)"'
+        submit.flat_attrs += 'ng-click="save(site)" ng-disabled="newsite.$invalid"'
 
         self.helper.layout = Layout(
             Div(
-                    company,
                     first_name,
                     middle_initial,
                     last_name,
@@ -110,9 +104,24 @@ class SiteForm(ModelForm):
         )
         super(SiteForm, self).__init__(*args, **kwargs)
 
+        self.fields['email'].widget = forms.TextInput(attrs={'type':'email'})
+        """self.user = kwargs.pop('user')
+        try:
+            self.company = kwargs.pop('company')
+        except KeyError:
+            pass
+        if not self.user.has_perm('accounts.manage_site'):
+            self.fields['company'].queryset = self.user.companies.get(pk=self.company.pk)
+        else:
+            self.fields['company'].queryset = Company.objects.get(pk=self.company.pk)
+        # user with 'manage_site' permission can assign site to any company
+        if not self.user.has_perm('accounts.manage_site'):
+            self.fields['company'].queryset = self.user.companies.all()
+        """
+
     class Meta:
         model = Site
-        fields = ('company', 'first_name', 'middle_initial', 'last_name', 
+        fields = ('first_name', 'middle_initial', 'last_name', 
                   'city', 'state', 'zip_code', 'country', 'phone', 'email')
 
 

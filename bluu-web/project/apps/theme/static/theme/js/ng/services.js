@@ -17,7 +17,7 @@ angular.module('Bluu.services', ['ngResource']).
     return $resource('/api/accounts/companies/:companyId/access/groups/');
   }).
   factory('Site', function($resource){
-    return $resource('/api/accounts/sites/:siteId/', {siteId: '@id'});
+    return $resource('/api/accounts/companies/:companyId/sites/:siteId/', {siteId: '@id'});
   }).
   factory('SiteAccess', function($resource){
     return $resource('/api/accounts/sites/:siteId/access/');

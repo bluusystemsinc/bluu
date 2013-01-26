@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from accounts.api_views import SiteList, CompanyList, CompanyDetail,\
-        CompanyAccessList, CompanyAccessGroups, SiteAccessList, SiteAccessGroups
+        CompanyAccessList, CompanyAccessGroups, SiteAccessList,\
+        SiteAccessGroups, CompanySiteList
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = format_suffix_patterns(patterns('accounts.api_views',
@@ -11,6 +12,8 @@ urlpatterns = format_suffix_patterns(patterns('accounts.api_views',
         name='api-company-access'),
     url(r'^companies/(?P<pk>[0-9]+)/access/groups[/]?$', CompanyAccessGroups.as_view(),
         name='api-company-access-groups'),
+    url(r'^companies/(?P<company>[0-9]+)/sites[/]?$', CompanySiteList.as_view(),
+        name='api-company-site-list'),
     url(r'^sites[/]$', SiteList.as_view(), name='api-site-list'),
     url(r'^sites/(?P<pk>[0-9]+)/access[/]?$', SiteAccessList.as_view(),
         name='api-site-access'),

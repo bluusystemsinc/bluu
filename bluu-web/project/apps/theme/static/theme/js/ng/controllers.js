@@ -159,14 +159,14 @@ function CompanySitesController(Site, $configService, $scope) {
             var data;
             if (searchText) {
                 var ft = searchText.toLowerCase();
-                Site.query({'company': COMPANY_ID}, function(data){
+                Site.query({'companyId': COMPANY_ID}, function(data){
                     data.filter(function(item) {
                         return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
                     });
                     $scope.setPagingData(data,page,pageSize);
                 });
             } else {
-                Site.query({'company':COMPANY_ID}, function(data){
+                Site.query({'companyId':COMPANY_ID}, function(data){
                     $scope.setPagingData(data,page,pageSize);
                 });
             }
@@ -192,23 +192,37 @@ function CompanySitesController(Site, $configService, $scope) {
     $scope.CompanySitesGridOptions = {
         data: 'myData',
         displaySelectionCheckbox: false,
-        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
-        //enablePaging: false,
-        //pagingOptions: $scope.pagingOptions,
+        //plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
+        enablePaging: true,
+        pagingOptions: $scope.pagingOptions,
         //filterOptions: $scope.filterOptions,
         columnDefs: 'columnDefs',
-        footerVisible: false
+        footerVisible: true,
+        canSelectRows: false
+    };
+    $scope.site = new Site();
+
+    $scope.save = function(){
+        $scope.site.$save({'companyId':COMPANY_ID}, function(res){
+            $scope.myData.push(res);
+            $scope.site = new Site();
+            $scope.newsite.$setPristine();
+            $('#sites-tab a[href="#sites"]').tab('show');
+        }, function(res){
+            console.log('error happened');
+            console.log(res);
+        });
     };
 }
 CompanySitesController.$inject = ['Site', '$configService', '$scope'];
 
 function CompanySiteCreateController(Site, $configService, $scope) {
-    $scope.site = new Site();
+    //$scope.site = new Site();
 
-    $scope.save = function(){
-        console.log('saving');
-        $scope.site.$save(function(res){console.log('done'); alert(res);});
-    }
+    //$scope.saver = function(){
+    //    console.log('saving');
+    //    $scope.site.$save({'companyId':COMPANY_ID}, function(res){console.log('done');});
+    //};
 } 
 CompanySiteCreateController.$inject = ['Site', '$configService', '$scope'];
 

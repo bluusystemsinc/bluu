@@ -238,7 +238,7 @@ class CompanySitesManagementView(DetailView):
     template_name = "accounts/company_sites_management.html"
 
     def get_context_data(self, **kwargs):
-        kwargs['form'] = SiteForm(user=self.request.user)
+        kwargs['form'] = SiteForm()
         return super(CompanySitesManagementView, self).get_context_data(**kwargs)
 
     @method_decorator(login_required)
