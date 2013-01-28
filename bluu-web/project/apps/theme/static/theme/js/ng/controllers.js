@@ -209,6 +209,17 @@ function CompanySitesController(Site, $configService, $scope) {
             $scope.newsite.$setPristine();
             $('#sites-tab a[href="#sites"]').tab('show');
         }, function(res){
+            if (res.status === 400){
+                $scope.newsite.$dirty = true;
+                $scope.newsite.$invalid = true;
+                var field;
+                for(field in res.data){
+                    console.log(field);
+                    console.log(res.data[field]);
+                    $scope.newsite[field].$dirty = true;
+                    $scope.newsite[field].$invalid = true;
+                }
+            }
             console.log('error happened');
             console.log(res);
         });

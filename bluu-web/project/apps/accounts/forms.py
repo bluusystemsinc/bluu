@@ -104,7 +104,7 @@ class SiteForm(ModelForm):
         )
         super(SiteForm, self).__init__(*args, **kwargs)
 
-        self.fields['email'].widget = forms.TextInput(attrs={'type':'email'})
+        #self.fields['email'].widget = forms.TextInput(attrs={'type':'email'})
         """self.user = kwargs.pop('user')
         try:
             self.company = kwargs.pop('company')

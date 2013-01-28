@@ -31,7 +31,7 @@ class Entity(models.Model):
 
 
 class Company(Entity):
-    name = models.CharField(_('name'), max_length=255, blank=True)
+    name = models.CharField(_('name'), max_length=255)
     contact_name = models.CharField(_('contact name'), max_length=255,
                          blank=True)
 
@@ -54,8 +54,8 @@ class Company(Entity):
 
 class Site(Entity):
     #number = models.CharField(_('number'), max_length=255, blank=True)
-    first_name = models.CharField(_('first name'), max_length=30, blank=True)
-    last_name = models.CharField(_('last name'), max_length=30, blank=True)
+    first_name = models.CharField(_('first name'), max_length=30)
+    last_name = models.CharField(_('last name'), max_length=30)
     middle_initial = models.CharField(_('middle initial'), max_length=2,
         blank=True)
     company = models.ForeignKey(Company, verbose_name=_('company'))
