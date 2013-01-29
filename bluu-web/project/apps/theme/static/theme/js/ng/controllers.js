@@ -1,6 +1,11 @@
 'use strict';
 
 /* Controllers */
+var VALID_CLASS = 'ng-valid',
+    INVALID_CLASS = 'ng-invalid',
+    PRISTINE_CLASS = 'ng-pristine',
+    DIRTY_CLASS = 'ng-dirty';
+
 
 function CompanyAccessController(CompanyAccess, $configService, $scope) {
    /*$scope.myData = [{name: "Moroni", age: 50},
@@ -210,18 +215,17 @@ function CompanySitesController(Site, $configService, $scope) {
             $('#sites-tab a[href="#sites"]').tab('show');
         }, function(res){
             if (res.status === 400){
-                $scope.newsite.$dirty = true;
-                $scope.newsite.$invalid = true;
                 var field;
                 for(field in res.data){
                     console.log(field);
                     console.log(res.data[field]);
-                    $scope.newsite[field].$dirty = true;
-                    $scope.newsite[field].$invalid = true;
+                    console.log($scope.newsite[field]);
+                    //$scope.newsite[field].$setDirty(false);
+                    //$scope.newsite[field].removeClass(PRISTINE_CLASS).addClass(DIRTY_CLASS);
+                    $scope.newsite.$setDirty();
+                    $scope.newsite[field].$setValidity(false);
                 }
             }
-            console.log('error happened');
-            console.log(res);
         });
     };
 }

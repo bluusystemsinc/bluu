@@ -64,11 +64,11 @@ class SiteForm(ModelForm):
         self.helper.form_tag = False
         company = Field('company', required="required")
         company.attrs['ng-model'] = "site.company"
-        first_name = Field('first_name', required="")
+        first_name = Field('first_name', required="required")
         first_name.attrs['ng-model'] = "site.first_name"
         middle_initial = Field('middle_initial')
         middle_initial.attrs['ng-model'] = "site.middle_initial"
-        last_name = Field('last_name', required="")
+        last_name = Field('last_name', required="required")
         last_name.attrs['ng-model'] = "site.last_name"
         city = Field('city')
         city.attrs['ng-model'] = "site.city"
@@ -103,8 +103,9 @@ class SiteForm(ModelForm):
             )
         )
         super(SiteForm, self).__init__(*args, **kwargs)
+        self.fields['email'].widget = forms.TextInput(attrs={'type':'email'})
+        #self.fields['email'].required = True
 
-        #self.fields['email'].widget = forms.TextInput(attrs={'type':'email'})
         """self.user = kwargs.pop('user')
         try:
             self.company = kwargs.pop('company')
