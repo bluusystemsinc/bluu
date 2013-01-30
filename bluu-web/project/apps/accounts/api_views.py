@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from accounts.models import Site, BluuUser, Company
 from accounts.serializers import SiteSerializer, CompanySerializer,\
-        CompanyAccessSerializer, UserSerializer, CompanyAccessGroupsSerializer
+        CompanyAccessSerializer, UserSerializer, CompanyAccessGroupsSerializer,\
+        InvitationSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,9 +13,10 @@ from rest_framework.renderers import JSONPRenderer, JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import Group
 
 import django_filters
-from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
+from guardian.shortcuts import get_groups_with_perms, get_objects_for_user, assign
 
 
 class SiteList_old(APIView):
@@ -142,8 +144,9 @@ class UserGroups:
         self.groups = groups
 
 
-class CompanyAccessList(APIView):
+class CompanyAccessList(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
+    model = Company
 
     def get_object(self, pk):
         try:
@@ -166,8 +169,12 @@ class CompanyAccessList(APIView):
 
     def post(self, request, pk, format=None):
         company = self.get_object(pk)
-        data = JSONParser().parse(request)
-        print 'recived data: ', data
+        user = BluuUser.objects.get(email=request.DATA['email'])
+        groups = request.DATA['groups']
+        group = Group.objects.get(name=groups['name'])
+        user.groups.add(group) 
+
+
         #TODO:
         # 1. check if user with email exists
         # 2. in doesn't then

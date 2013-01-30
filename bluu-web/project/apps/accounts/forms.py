@@ -58,7 +58,6 @@ class CompanyForm(ModelForm):
 
 class SiteForm(ModelForm):
 
-
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -146,6 +145,10 @@ class BluuUserForm(ModelForm):
                                 required=False)
 
     def __init__(self, user, contract, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+
         super(BluuUserForm, self).__init__(*args, **kwargs)
         self.user = user
         self.contract = contract

@@ -145,7 +145,6 @@ def _create_groups_for_site(sender, instance, *args, **kwargs):
 
     company_groups = get_groups_with_perms(instance.company)
     for group in company_groups:
-        print group.name
         assign('browse_sites', group, instance)
         assign('view_site', group, instance)
         assign('change_site', group, instance)

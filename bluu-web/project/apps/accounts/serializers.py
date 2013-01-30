@@ -44,4 +44,19 @@ class CompanyAccessSerializer(serializers.Serializer):
 
 class CompanyAccessGroupsSerializer(serializers.Serializer):
     name = serializers.Field()
- 
+
+class Invitation(object):
+    def __init__(self, email, groups):
+        self.email = email
+        self.groups = groups
+
+class InvitationSerializer(serializers.Serializer):
+    email = serializers.CharField()
+    groups = serializers.RelatedField()
+
+    def restore_object(self, attrs, instance=None):
+        if instance is not None:
+            instance.title = attrs['email']
+            instance.groups = attrs['groups']
+            return instance
+        return Invitation(**attrs)

@@ -16,7 +16,13 @@
 
 {% block main %}
 {% get_obj_perms request.user for company as "company_perms" %}
-<div ng-controller="CompanyAccessController">
+<ul id="users-tab" class="nav nav-tabs">
+    <li class="active"><a href="#users" data-toggle="tab">{% trans "Users" %}</a></li>
+    <li><a href="#add-user" data-toggle="tab">{% trans "Add User" %}</a></li>
+</ul>
+
+<div class="tab-content" ng-controller="CompanyAccessController">
+    <div class="tab-pane active" id="users">
     <div class="gridStyle" ng-grid="AccessGridOptions"></div>
 
     {% if "manage_company_access" in company_perms %}
@@ -28,6 +34,12 @@
                 <button type="submit" class="btn" ng-click="save()">{% trans "Add" %}</button>
             </form>
         <div class="gridStyle" ng-grid="InvitationGridOptions"></div>
+    </div>
+    </div>
+    <div class="tab-pane" id="add-user">
+        <form name="newuser" novalidate class="form-horizontal" action="" method="post">{% csrf_token %}
+        {% crispy form form.helper %}
+        </form>
     </div>
     {% endif %}
 </div>

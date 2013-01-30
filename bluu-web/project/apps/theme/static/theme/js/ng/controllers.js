@@ -113,10 +113,10 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
             $scope.$apply();
         }
 
-        /*CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
+        CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
             function (res){
                 if (res.ok === 1) { console.log('success');}}
-        );*/
+        );
     };
 
     $scope.invitationColumnDefs = [{ field: 'email', displayName: 'E-mail'},
@@ -217,13 +217,8 @@ function CompanySitesController(Site, $configService, $scope) {
             if (res.status === 400){
                 var field;
                 for(field in res.data){
-                    console.log(field);
-                    console.log(res.data[field]);
-                    console.log($scope.newsite[field]);
-                    //$scope.newsite[field].$setDirty(false);
-                    //$scope.newsite[field].removeClass(PRISTINE_CLASS).addClass(DIRTY_CLASS);
                     $scope.newsite.$setDirty();
-                    $scope.newsite[field].$setValidity(false);
+                    $scope.newsite[field].$setValidity('ngInvalid', false);
                 }
             }
         });

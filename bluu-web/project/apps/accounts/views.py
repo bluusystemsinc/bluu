@@ -225,6 +225,11 @@ class CompanyAccessManagementView(DetailView):
     model = Company
     template_name = "accounts/company_access.html"
 
+    def get_context_data(self, **kwargs):
+        kwargs['form'] = BluuUserForm(self.request.user, None)
+        return super(CompanyAccessManagementView, self).get_context_data(**kwargs)
+
+
     @method_decorator(login_required)
     @method_decorator(permission_required_or_403('accounts.change_company',
             (Company, 'pk', 'pk')))
