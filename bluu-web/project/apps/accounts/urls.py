@@ -1,22 +1,11 @@
 from django.conf.urls import patterns, url, include
-from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from registration.views import activate
-from views import register, UserProfileUpdateView,\
-                  UserProfileCreateView, AccountUpdateView,\
-                  AccountDeleteView, CompanyListView, CompanyCreateView,\
-                  CompanyUpdateView, company_delete,\
-                  CompanyAccessManagementView,\
-                  SiteListView, SiteCreateView,\
-                  SiteUpdateView, site_delete,\
-                  SiteUserListView, SiteUserCreateView,\
-                  SiteUserUpdateView, SiteAccessManagementView,\
-                  CompanySitesManagementView
+from accounts import views
 
 from forms import RegistrationForm, EmailAuthenticationForm
 from django.views.generic import TemplateView
-from accounts.api_views import SiteList, CompanyList, CompanyDetail
 
 try:
     from django.core.urlresolvers import reverse_lazy
@@ -26,23 +15,24 @@ except ImportError, e:
     reverse_lazy = lazy(reverse, str)
 
 urlpatterns = patterns('accounts.views',
-    url(r'^companies/$', CompanyListView.as_view(), name='company-list'),
-    url(r'^companies/add/$', CompanyCreateView.as_view(), name='company-add'),
+    url(r'^companies/$', views.CompanyListView.as_view(), name='company-list'),
+    url(r'^companies/add/$', views.CompanyCreateView.as_view(), name='company-add'),
     url(r'^companies/(?P<pk>\d+)/$',
-            CompanyUpdateView.as_view(), name='company-edit'),
+            views.CompanyUpdateView.as_view(), name='company-edit'),
     url(r'^companies/(?P<pk>\d+)/access/$',
-            CompanyAccessManagementView.as_view(), name='company-access'),
-    url(r'^companies/(?P<pk>\d+)/sites/$',
-            CompanySitesManagementView.as_view(), name='company-sites'),
+            views.CompanyAccessManagementView.as_view(), name='company-access'),
+    url(r'^companies/(?P<company_pk>\d+)/sites/$',
+            views.CompanySiteListView.as_view(), name='company-site-list'),
+    url(r'^companies/(?P<company_pk>\d+)/sites/add/$',
+            views.CompanySiteCreateView.as_view(), name='company-site-add'),
     url(r'^companies/delete/(?P<pk>\d+)/$', 'company_delete',
         name='company-delete'),
 
-    url(r'^sites/$', SiteListView.as_view(), name='site-list'),
-    url(r'^sites/add/$', SiteCreateView.as_view(), name='site-add'),
-    url(r'^sites/(?P<pk>\d+)/$', SiteUpdateView.as_view(), name='site-edit'),
-    url(r'^sites/(?P<pk>\d+)/access/$', SiteAccessManagementView.as_view(), name='site-access'),
-    url(r'^sites/(?P<pk>\d+)/delete/$', 'site_delete',
-        name='site-delete'),
+    url(r'^sites/$', views.SiteListView.as_view(), name='site-list'),
+    url(r'^sites/add/$', views.SiteCreateView.as_view(), name='site-add'),
+    url(r'^sites/(?P<pk>\d+)/$', views.SiteUpdateView.as_view(), name='site-edit'),
+    url(r'^sites/(?P<pk>\d+)/access/$', views.SiteAccessManagementView.as_view(), name='site-access'),
+    url(r'^sites/(?P<pk>\d+)/delete/$', 'site_delete', name='site-delete'),
     #url(r'^sites/(?P<pk>\d+)/access/$', SiteUserListView.as_view(), name='site-users'),
     #url(r'^sites/(?P<pk>\d+)/access/add/$', SiteUserCreateView.as_view(), name='site-user-add'),
     #url(r'^sites/(?P<pk>\d+)/access/(?P<upk>\d+)/$', SiteUserUpdateView.as_view(), name='site-user-edit'),
@@ -63,7 +53,7 @@ urlpatterns += patterns('',
                {'backend': 'accounts.registration_backend.PhotoBackend'},
                name='registration_activate'),
            url(r'^register/$',
-               register,
+               views.register,
                {'backend': 'accounts.registration_backend.PhotoBackend',
                 'form_class': RegistrationForm},
                name='registration_register'),
@@ -76,18 +66,18 @@ urlpatterns += patterns('',
                    template_name='registration/registration_closed.html'),
                name='registration_disallowed'),
            url(r'^password/$',
-               login_required(AccountUpdateView.as_view()),
+               login_required(views.AccountUpdateView.as_view()),
                name='account_edit'),
            url('^(?P<pk>\d+)/delete/$',
-               AccountDeleteView.as_view(),
+               views.AccountDeleteView.as_view(),
                name="account_delete"),
            #url(r'^done/$', "accounts.views.fb_done", name='dsa_done'),
            #url(r'^error/$', "accounts.views.fb_error", name='dsa_error'),
            url('^profile/new',
-               login_required(UserProfileCreateView.as_view()),
+               login_required(views.UserProfileCreateView.as_view()),
                name="profiles_create_profile"),
            url('^profile',
-               login_required(UserProfileUpdateView.as_view()),
+               login_required(views.UserProfileUpdateView.as_view()),
                name="profiles_edit_profile"),
            url(r'^login/$',
                 auth_views.login,

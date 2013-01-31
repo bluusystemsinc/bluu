@@ -78,6 +78,7 @@ class AccountUpdateView(UpdateView):
     def get_object(self, queryset=None):
         return get_object_or_404(get_user_model(), pk=self.request.user.pk)
 
+
 class AccountDeleteView(DeleteView):
     model = get_user_model()
     template_name='accounts/account_confirm_delete.html'
@@ -238,19 +239,60 @@ class CompanyAccessManagementView(DetailView):
                 dispatch(*args, **kwargs)
 
 
-class CompanySitesManagementView(DetailView):
+class CompanySiteListView(DetailView):
     model = Company
-    template_name = "accounts/company_sites_management.html"
+    template_name = "accounts/company_site_list.html"
+    pk_url_kwarg = 'company_pk'
 
     def get_context_data(self, **kwargs):
         kwargs['form'] = SiteForm()
-        return super(CompanySitesManagementView, self).get_context_data(**kwargs)
+        return super(CompanySiteListView, self).get_context_data(**kwargs)
 
     @method_decorator(login_required)
     @method_decorator(permission_required('accounts.browse_sites'))
     def dispatch(self, *args, **kwargs):
-        return super(CompanySitesManagementView, self).dispatch(*args, **kwargs)
+        return super(CompanySiteListView, self).dispatch(*args, **kwargs)
 
+
+class CompanySiteCreateView(CreateView):
+    model = Site
+    template_name = "accounts/company_site_create.html"
+    form_class = SiteForm
+    pk_url_kwarg = 'company_pk'
+
+    #def get_form_kwargs(self, **kwargs):
+        #kwargs = super(CompanySiteCreateView, self).get_form_kwargs(**kwargs)
+        #kwargs['user'] = self.request.user
+        #return kwargs
+
+    def get_success_url(self):
+        return reverse('company-site-list', args=[self.company.pk]) 
+
+    def get_context_data(self, **kwargs):
+        context = super(CompanySiteCreateView, self).get_context_data(**kwargs)
+        context['company'] = self.company
+        return context 
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.company = self.company
+        self.object.save()
+        form.save_m2m()
+
+        messages.success(self.request, _('Site added'))
+        return HttpResponseRedirect(self.get_success_url())
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required_or_403('accounts.change_company',
+            (Company, 'pk', 'company_pk')))
+    #@method_decorator(permission_required('accounts.add_site'))
+    def dispatch(self, *args, **kwargs):
+        try:
+            self.company = \
+                    Company.objects.get(pk=kwargs.get('company_pk', None))
+        except ObjectDoesNotExist:
+            pass
+        return super(CompanySiteCreateView, self).dispatch(*args, **kwargs)
 
 class SiteListView(ListView):
     model = Site

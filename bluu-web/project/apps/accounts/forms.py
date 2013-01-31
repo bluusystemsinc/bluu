@@ -61,8 +61,8 @@ class SiteForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
-        company = Field('company', required="required")
-        company.attrs['ng-model'] = "site.company"
+        #company = Field('company', required="required")
+        #company.attrs['ng-model'] = "site.company"
         first_name = Field('first_name', required="required")
         first_name.attrs['ng-model'] = "site.first_name"
         middle_initial = Field('middle_initial')

@@ -217,8 +217,14 @@ function CompanySitesController(Site, $configService, $scope) {
             if (res.status === 400){
                 var field;
                 for(field in res.data){
+                    console.log(res.data[field]);
                     $scope.newsite.$setDirty();
-                    $scope.newsite[field].$setValidity('ngInvalid', false);
+                    $scope.newsite[field].$setValidity(false);
+                    $scope.newsite[field].$dirty = true;
+                    var element_string = 'form[name="newsite"] [name="' + field + '"]';
+                    var $element = angular.element(element_string);
+                    $element.removeClass(PRISTINE_CLASS);
+                    $element.addClass(DIRTY_CLASS);
                 }
             }
         });

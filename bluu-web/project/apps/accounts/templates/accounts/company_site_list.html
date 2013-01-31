@@ -15,9 +15,20 @@
 {% endblock %}
 
 {% block main %}
-{% get_obj_perms request.user for company as "company_perms" %}
 
-<ul id="sites-tab" class="nav nav-tabs">
+{{ block.super }}
+
+{% get_obj_perms request.user for company as "company_perms" %}
+<div class="tab-content" ng-controller="CompanySitesController">
+    <div class="tab-pane active" id="sites">
+        <div >
+            <div class="gridStyle" ng-grid="CompanySitesGridOptions"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% comment %}<ul id="sites-tab" class="nav nav-tabs">
     <li class="active"><a href="#sites" data-toggle="tab">{% trans "Sites" %}</a></li>
     <li><a href="#add-site" data-toggle="tab">{% trans "Add Site" %}</a></li>
 </ul>
@@ -33,7 +44,7 @@
         </form>
     </div>
 </div>
-{% endblock %}
+{% endcomment %}
 
 {% block javascript %}
 <script type="text/javascript">
