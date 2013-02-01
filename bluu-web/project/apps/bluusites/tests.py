@@ -6,9 +6,9 @@ from django.core.urlresolvers import reverse
 from guardian.shortcuts import assign
 from django.contrib.auth.models import Group
 
-from .models import BluuUser, Company
+from accounts.models import BluuUser, Company
 
-class AccountsTestCase(WebTest):
+class SitesTestCase(WebTest):
 
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
@@ -23,6 +23,7 @@ class AccountsTestCase(WebTest):
                        groups=[Group.objects.get(name='Bluu')])
 
         self.user3 = G(BluuUser, username='test3')
-        assign('companies.browse_companies', self.user3)
-        assign('companies.view_company', self.user3, self.company1)
+        assign('accounts.browse_companies', self.user3)
+        assign('accounts.view_company', self.user3, self.company1)
+
 

@@ -3,126 +3,18 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django import forms
 from django.forms import ModelForm
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.db.models.base import ObjectDoesNotExist
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+
 from registration.forms import RegistrationFormTermsOfService
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from crispy_forms.layout import Layout, HTML, Fieldset, Div, Field
-from crispy_forms.bootstrap import FormActions
-from django.contrib import messages
-from django.contrib.auth.forms import PasswordChangeForm #SetPasswordForm
-from django.shortcuts import redirect, render_to_response, get_object_or_404
+from crispy_forms import layout
+#from crispy_forms.bootstrap import FormActions
 
-#from accounts.models import UserProfile
-#from mieszkanie.layout import BootstrappedSubmit
 from django.contrib.auth.forms import AuthenticationForm
-from accounts.models import Company, Site, BluuUser
+from accounts.models import BluuUser
 
 rev = lambda s: reverse(s)
-
-# force emails to be uniqe
-# User._meta.get_field_by_name('email')[0]._unique = True
-
-
-class CompanyForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-        self.helper.layout = Layout(
-            Div(
-                    'name',
-                    'street',
-                    'city',
-                    'state',
-                    'zip_code',
-                    'country',
-                    'phone',
-                    'email',
-                    'contact_name',
-            ),
-            FormActions(
-                Submit('submit', _('Submit'), css_class="btn-primary")
-            )
-        )
-        super(CompanyForm, self).__init__(*args, **kwargs)
-    
-    class Meta:
-        model = Company
-        fields = ('name', 'street', 'city', 'state', 'zip_code', 'country',
-                  'phone', 'email', 'contact_name')
-
-
-class SiteForm(ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-        #company = Field('company', required="required")
-        #company.attrs['ng-model'] = "site.company"
-        first_name = Field('first_name', required="required")
-        first_name.attrs['ng-model'] = "site.first_name"
-        middle_initial = Field('middle_initial')
-        middle_initial.attrs['ng-model'] = "site.middle_initial"
-        last_name = Field('last_name', required="required")
-        last_name.attrs['ng-model'] = "site.last_name"
-        city = Field('city')
-        city.attrs['ng-model'] = "site.city"
-        state = Field('state')
-        state.attrs['ng-model'] = "site.state"
-        zip_code = Field('zip_code')
-        zip_code.attrs['ng-model'] = "site.zip_code"
-        country = Field('country')
-        country.attrs['ng-model'] = "site.country"
-        phone = Field('phone')
-        phone.attrs['ng-model'] = "site.phone"
-        email = Field('email', type='email')
-        email.attrs['ng-model'] = "site.email"
-
-        submit = Submit('submit', _('Submit'), css_class="btn-primary")
-        submit.flat_attrs += 'ng-click="save(site)" ng-disabled="newsite.$invalid"'
-
-        self.helper.layout = Layout(
-            Div(
-                    first_name,
-                    middle_initial,
-                    last_name,
-                    city,
-                    state,
-                    zip_code,
-                    country,
-                    phone,
-                    email,
-            ),
-            FormActions(
-               submit 
-            )
-        )
-        super(SiteForm, self).__init__(*args, **kwargs)
-        self.fields['email'].widget = forms.TextInput(attrs={'type':'email'})
-        #self.fields['email'].required = True
-
-        """self.user = kwargs.pop('user')
-        try:
-            self.company = kwargs.pop('company')
-        except KeyError:
-            pass
-        if not self.user.has_perm('accounts.manage_site'):
-            self.fields['company'].queryset = self.user.companies.get(pk=self.company.pk)
-        else:
-            self.fields['company'].queryset = Company.objects.get(pk=self.company.pk)
-        # user with 'manage_site' permission can assign site to any company
-        if not self.user.has_perm('accounts.manage_site'):
-            self.fields['company'].queryset = self.user.companies.all()
-        """
-
-    class Meta:
-        model = Site
-        fields = ('first_name', 'middle_initial', 'last_name', 
-                  'city', 'state', 'zip_code', 'country', 'phone', 'email')
 
 
 class BluuUserForm(ModelForm):
@@ -229,8 +121,8 @@ class RegistrationForm(RegistrationFormTermsOfService):
         self.helper.form_action = 'registration_register'
         self.helper.form_style = 'inline'
         self.helper.form_tag = False
-        self.helper.layout = Layout(
-                Fieldset(_('Register to be able to change your photo'),
+        self.helper.layout = layout.Layout(
+                layout.Fieldset(_('Register to be able to change your photo'),
                     'first_name',
                     'last_name',
                     'email',
@@ -245,9 +137,9 @@ class RegistrationForm(RegistrationFormTermsOfService):
     def clean_email(self):
         email = self.cleaned_data["email"]
         try:
-            user = User.objects.get(email=email)
+            user = BluuUser.objects.get(email=email)
             raise forms.ValidationError(_("This email address already exists."))
-        except User.DoesNotExist:
+        except BluuUser.DoesNotExist:
             return email
 
 class ProfileForm(ModelForm):
@@ -267,11 +159,11 @@ class ProfileForm(ModelForm):
         self.helper.form_id = 'id-ProfileForm'
         self.helper.form_style = 'inline'
         self.helper.form_tag = False
-        self.helper.layout = Layout(
-                Fieldset(_('Profile'),
+        self.helper.layout = layout.Layout(
+                layout.Fieldset(_('Profile'),
                     *uni_fields
                     ),
-                ButtonHolder(BootstrappedSubmit('submit', _('Submit')))
+                layout.ButtonHolder(layout.Submit('submit', _('Submit')))
         )
 
     #class Meta:
@@ -309,12 +201,12 @@ class AccountForm(forms.ModelForm):
         self.helper.form_id = 'id-AccountForm'
         self.helper.form_style = 'inline'
         self.helper.form_tag = False
-        self.helper.layout = Layout(
-                Fieldset(_(u'Your data'),
+        self.helper.layout = layout.Layout(
+                layout.Fieldset(_(u'Your data'),
                     'first_name',
                     'last_name',),
-                Fieldset(_(u'Password'),
-                    HTML("""{% load i18n %}
+                layout.Fieldset(_(u'Password'),
+                    layout.HTML("""{% load i18n %}
                     <p class="info">{% trans "If you don't want to change your password leave these fields empty." %}</p>
                     """),
                     'old_password',
@@ -323,7 +215,7 @@ class AccountForm(forms.ModelForm):
         )
 
     class Meta:
-        model = User
+        model = BluuUser
         fields = ('first_name', 'last_name', 'old_password', 'new_password1',
                   'new_password2')
 

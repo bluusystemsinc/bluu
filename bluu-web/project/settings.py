@@ -140,9 +140,13 @@ INSTALLED_APPS = [
     'mailer',
     'compressor',
     'crispy_forms',
-    'accounts',
     'rest_framework',
     'guardian',
+    'accounts',
+    'companies',
+    'bluusites',
+    'utils',
+
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"

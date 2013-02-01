@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n theme_tags %}
+
+{% block content %}
+<div class="admin-layout">
+  <aside class="span3">
+    {% block sidebar %}
+    <div class="box">
+      <ul class="nav nav-list">
+          <li>dummy</li>
+      </ul>
+    </div>
+    {% endblock%}
+  </aside>
+  <div class="span9">
+    <div class="page-header content-wrapper">
+        <h1>{% block page-title %}{% endblock %}</h1>
+    </div>
+    {% block main %}{% endblock%}
+  </div>
+</div>
+{% endblock %}
