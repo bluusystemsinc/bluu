@@ -31,7 +31,7 @@ class Company(Entity):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('company-edit', [str(self.id)])
+        return ('company_edit', [str(self.id)])
 
     class Meta:
         verbose_name = _("company")

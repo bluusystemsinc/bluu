@@ -59,6 +59,8 @@ class BluuUserUpdateView(PermissionRequiredMixin, UpdateView):
     template_name = "accounts/user_update.html"
     form_class = BluuUserForm
     permission_required = 'accounts.change_bluuuser'
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
 
     def form_valid(self, form):
         response = super(BluuUserUpdateView, self).form_valid(form)
@@ -70,6 +72,13 @@ class BluuUserUpdateView(PermissionRequiredMixin, UpdateView):
     #        (BluuUser, 'pk', 'pk'), accept_global_perms=True))
     #def dispatch(self, *args, **kwargs):
     #    return super(BluuUserUpdateView, self).dispatch(*args, **kwargs)
+
+@permission_required_or_403('accounts.delete_bluuuser')
+def bluuuser_delete(request, username):
+    obj = get_object_or_404(BluuUser, username=username)
+    obj.delete()
+    messages.success(request, _('User deleted'))
+    return redirect('bluuuser_list')
 
 
 

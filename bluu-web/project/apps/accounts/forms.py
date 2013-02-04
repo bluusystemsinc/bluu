@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from registration.forms import RegistrationFormTermsOfService
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
-#from crispy_forms.bootstrap import FormActions
+from crispy_forms.bootstrap import FormActions
 
 from django.contrib.auth.forms import AuthenticationForm
 from accounts.models import BluuUser
@@ -18,14 +18,14 @@ rev = lambda s: reverse(s)
 
 
 class BluuUserForm(ModelForm):
-    username = forms.RegexField(regex=r'^\w+$',
-            max_length=30,
-            label=_('Username'),
-            required=True,
-            help_text=_('30 characters or fewer. Alphanumeric '
-                        'characters only (letters, digits and underscores).'),
-            error_message=_('This value must contain only letters, '
-                            'numbers and underscores.'))
+    username = forms.RegexField(label=_("Username"), max_length=30,
+        regex=r'^[\w.@+-]+$',
+        help_text=_("Required. 30 characters or fewer. Letters, digits and "
+                      "@/./+/-/_ only."),
+        error_messages={
+            'invalid': _("This value may contain only letters, numbers and "
+                         "@/./+/-/_ characters.")})
+
     email = forms.EmailField(required=False, label=_('Email'))
     first_name = forms.CharField(required=True, label=_('First name'))
     last_name = forms.CharField(required=True, label=_('Last name'))
@@ -34,17 +34,36 @@ class BluuUserForm(ModelForm):
                                 required=False)
     password2 = forms.CharField(label=_("Password confirmation"),
                                 widget=forms.PasswordInput,
+                                help_text=_("Enter the same password as above, for verification."),
                                 required=False)
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
-
+        self.helper.layout = layout.Layout(
+            layout.Div(
+                    'username',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'password1',
+                    'password2',
+                    'cell',
+                    'cell_text_email',
+                    'is_active',
+            ),
+            FormActions(
+                layout.Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
         super(BluuUserForm, self).__init__(*args, **kwargs)
 
         if self.instance.pk:
             self.fields['password2'].help_text =\
             ("Leave both password fields blank if you don't want to change it")
+        else:
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
 
         self.fields.keyOrder = ['username',
             'first_name', 'last_name', 'email',
@@ -62,10 +81,9 @@ class BluuUserForm(ModelForm):
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
-        if password1 and password2:
-            if password1 != password2:
-                raise forms.ValidationError(
-                            ugettext("The two password fields didn't match."))
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(
+                ugettext("Passwords don't match"))
         return password2
 
     def save(self, commit=True):
@@ -73,23 +91,19 @@ class BluuUserForm(ModelForm):
 
         # if user doesn't have manage_group_admins permission then
         # he can only add (edit) standard users
-        # (neither TestCenter Admins nor Group Admins) to his entity
-        if user.pk and \
-                not self.user.has_perm('accounts.manage_dealers'):
-            user.groups.clear()
+        #if user.pk and \
+        #        not self.user.has_perm('accounts.manage_dealers'):
+        #    user.groups.clear()
 
         password = self.cleaned_data["password1"]
         if password:
             user.set_password(password)
 
         # Prepare a 'save_m2m' method for the form,
-        old_save_m2m = self.save_m2m
-
-        def save_m2m():
-            old_save_m2m()
-            user.contract.add(self.contract)
-
-        self.save_m2m = save_m2m
+        #old_save_m2m = self.save_m2m
+        #def save_m2m():
+        #    old_save_m2m()
+        #self.save_m2m = save_m2m
 
         if commit:
             user.save()

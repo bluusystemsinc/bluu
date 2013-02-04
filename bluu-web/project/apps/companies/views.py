@@ -66,13 +66,13 @@ class CompanyUpdateView(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(CompanyUpdateView, self).dispatch(*args, **kwargs)
 
-
 @permission_required_or_403('companies.delete_company')
+
 def company_delete(request, pk):
     obj = get_object_or_404(Company, pk=pk)
     obj.delete()
     messages.success(request, _('Company deleted'))
-    return redirect('company-list')
+    return redirect('company_list')
 
 
 class CompanyDeleteView(DeleteView):
@@ -130,7 +130,7 @@ class CompanySiteCreateView(CreateView):
         #return kwargs
 
     def get_success_url(self):
-        return reverse('company-site-list', args=[self.company.pk]) 
+        return reverse('company_site_list', args=[self.company.pk]) 
 
     def get_context_data(self, **kwargs):
         context = super(CompanySiteCreateView, self).get_context_data(**kwargs)

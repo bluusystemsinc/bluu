@@ -3,17 +3,17 @@ from . import views
 
 
 urlpatterns = patterns('',
-    url(r'^companies/$', views.CompanyListView.as_view(), name='company-list'),
-    url(r'^companies/add/$', views.CompanyCreateView.as_view(), name='company-add'),
+    url(r'^companies/$', views.CompanyListView.as_view(), name='company_list'),
+    url(r'^companies/add/$', views.CompanyCreateView.as_view(), name='company_add'),
     url(r'^companies/(?P<pk>\d+)/edit/$',
-            views.CompanyUpdateView.as_view(), name='company-edit'),
+            views.CompanyUpdateView.as_view(), name='company_edit'),
     url(r'^companies/(?P<pk>\d+)/access/$',
-            views.CompanyAccessManagementView.as_view(), name='company-access'),
+            views.CompanyAccessManagementView.as_view(), name='company_access'),
     url(r'^companies/(?P<company_pk>\d+)/sites/$',
-            views.CompanySiteListView.as_view(), name='company-site-list'),
+            views.CompanySiteListView.as_view(), name='company_site_list'),
     url(r'^companies/(?P<company_pk>\d+)/sites/add/$',
-            views.CompanySiteCreateView.as_view(), name='company-site-add'),
+            views.CompanySiteCreateView.as_view(), name='company_site_add'),
     url(r'^companies/delete/(?P<pk>\d+)/$', views.company_delete,
-        name='company-delete'),
+        name='company_delete'),
 )
 

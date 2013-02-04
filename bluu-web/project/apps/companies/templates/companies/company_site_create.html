@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'company-list' %}">{% trans "Company list" %}</a> &gt;
-        <a href="{% url 'company-site-list' company.id %}">{% trans "Company site list" %}</a> &gt;
+    <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt;
+        <a href="{% url 'company_site_list' company.id %}">{% trans "Company site list" %}</a> &gt;
             {% trans "Add site to company" %}
 {% endblock %}
 

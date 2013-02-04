@@ -10,16 +10,27 @@ class BluuUser(AbstractUser):
     """
     A class representing users of Bluu system.
     """
-
     cell = models.CharField(_('cell'), max_length=10, blank=True)
     cell_text_email = models.EmailField(_('cell text email address'),
-        blank=True)
-    companies = models.ManyToManyField("companies.Company", blank=True, null=True,
-                         verbose_name=_('companies'))
-
+                         blank=True)
+    companies = models.ManyToManyField("companies.Company", blank=True,
+                         null=True, verbose_name=_('companies'))
     sites = models.ManyToManyField("bluusites.BluuSite", blank=True, null=True,
                          verbose_name=_('sites'))
 
+    class Meta:
+        verbose_name = _("User")
+        verbose_name_plural = _("Users")
+        permissions = (
+            ("browse_bluuusers", "Can browse users"),
+            ("manage_dealers", "Can manage dealers"),
+        )
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('bluuuser_edit', (), {"username": self.username})
+
+    @property
     def get_name(self):
         if self.get_full_name():
             return self.get_full_name()
@@ -36,13 +47,5 @@ class BluuUser(AbstractUser):
         if not ret:
             ret = '---'
         return ret
-
-    class Meta:
-        verbose_name = _("User")
-        verbose_name_plural = _("Users")
-        permissions = (
-            ("browse_bluuusers", "Can browse users"),
-            ("manage_dealers", "Can manage dealers"),
-        )
 
 

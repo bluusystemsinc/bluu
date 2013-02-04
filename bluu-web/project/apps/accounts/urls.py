@@ -10,18 +10,25 @@ urlpatterns = patterns('',
     url(
         regex=r'^users/$', 
         view=views.BluuUserListView.as_view(),
-        name='bluuuser-list'
+        name='bluuuser_list'
     ),
     url(
         regex=r'^users/add/$',
         view=views.BluuUserCreateView.as_view(),
-        name='bluuuser-add'
+        name='bluuuser_add'
     ),
     url(
-        regex=r'^users/(?P<pk>\d+)/edit/$',
+        regex=r'^users/(?P<username>[\w.@+-]+)/edit/$',
         view=views.BluuUserUpdateView.as_view(),
-        name='bluuuser-edit'
+        name='bluuuser_edit'
     ),
+    #url('^users/(?P<username>[\w.@+-]+)/delete/$',
+    #   views.BluuUserDeleteView.as_view(),
+    #   name="bluuuser_delete"),
+
+    url(r'^users/(?P<username>[\w.@+-]+)/delete/$', views.bluuuser_delete,
+        name='bluuuser_delete'),
+
 
    url(r'^activate/complete/$',
        TemplateView.as_view(
@@ -37,8 +44,7 @@ urlpatterns = patterns('',
        name='registration_activate'),
    url(r'^register/$',
        views.register,
-       {'backend': 'accounts.registration_backend.PhotoBackend',
-        'form_class': RegistrationForm},
+       {'form_class': RegistrationForm},
        name='registration_register'),
    url(r'^register/complete/$',
        TemplateView.as_view(
@@ -51,9 +57,7 @@ urlpatterns = patterns('',
    url(r'^password/$',
        login_required(views.AccountUpdateView.as_view()),
        name='account_edit'),
-   url('^(?P<pk>\d+)/delete/$',
-       views.AccountDeleteView.as_view(),
-       name="account_delete"),
+
    #url(r'^done/$', "accounts.views.fb_done", name='dsa_done'),
    #url(r'^error/$', "accounts.views.fb_error", name='dsa_error'),
    url('^profile/new',

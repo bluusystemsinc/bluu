@@ -1,4 +1,4 @@
-{% extends "companies/_cu_base.html" %}
+{% extends "_cu_base.html" %}
 {% load i18n theme_tags guardian_tags %}
 
 {% block sidebar %}
@@ -6,18 +6,18 @@
 <div class="box">
   <ul class="nav nav-list">
     <li class="nav-header">{{ company.name }}</li>
-    {% if "change_company" in company_perms %}<li class="{% active request "^/accounts/companies/\d+/$" %}"><a href="{% url 'company-edit' company.id %}">{% trans "Company details" %}</a></li>{% endif %}
-    {% if "change_company" in company_perms %}<li class="{% active request "^/accounts/companies/\d+/access/$" %}"><a href="{% url 'company-access' company.id %}">{% trans "Access management" %}</a></li>{% endif %}
-    {% if perms.accounts.browse_sites %}<li class="{% active request "^/accounts/companies/\d+/sites/$" %}"><a href="{% url 'company-site-list' company.id %}">{% trans "Sites management" %}</a></li>{% endif %}
+    {% if "change_company" in company_perms %}<li class="{% active request "^/accounts/companies/\d+/$" %}"><a href="{% url 'company_edit' company.id %}">{% trans "Company details" %}</a></li>{% endif %}
+    {% if "change_company" in company_perms %}<li class="{% active request "^/accounts/companies/\d+/access/$" %}"><a href="{% url 'company_access' company.id %}">{% trans "Access management" %}</a></li>{% endif %}
+    {% if perms.accounts.browse_sites %}<li class="{% active request "^/accounts/companies/\d+/sites/$" %}"><a href="{% url 'company_site_list' company.id %}">{% trans "Sites management" %}</a></li>{% endif %}
     <li class="divider"></li>
-    {% if "delete_company" in company_perms %}<li><a href="{% url 'company-delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove company' %}</a></li>{% endif %}
+    {% if "delete_company" in company_perms %}<li><a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove company' %}</a></li>{% endif %}
   </ul>
 </div>
 {% endblock%}
 
 {% block main %}
 <ul id="sites-tab" class="nav nav-tabs">
-    <li class="{% active request "^/accounts/companies/\d+/sites/$" %}"><a href="{% url 'company-site-list' company.id %}">{% trans "Sites" %}</a></li>
-    <li class="{% active request "^/accounts/companies/\d+/sites/add/$" %}"><a href="{% url 'company-site-add' company.id %}">{% trans "Add Site" %}</a></li>
+    <li class="{% active request "^/accounts/companies/\d+/sites/$" %}"><a href="{% url 'company_site_list' company.id %}">{% trans "Sites" %}</a></li>
+    <li class="{% active request "^/accounts/companies/\d+/sites/add/$" %}"><a href="{% url 'company_site_add' company.id %}">{% trans "Add Site" %}</a></li>
 </ul>
 {% endblock %}

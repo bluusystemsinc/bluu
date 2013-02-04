@@ -95,7 +95,7 @@ def site_delete(request, pk):
     obj = get_object_or_404(BluuSite, pk=pk)
     obj.delete()
     messages.success(request, _('Site deleted'))
-    return redirect('site-list')
+    return redirect('site_list')
 
 
 class SiteDeleteView(DeleteView):
@@ -139,7 +139,7 @@ class SiteUserCreateView(CreateView):
 
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
-        return reverse_lazy('site-users', args=(pk,))
+        return reverse_lazy('site_users', args=(pk,))
 
     def get_form(self, form_class):
         """
@@ -177,7 +177,7 @@ class SiteUserUpdateView(UpdateView):
 
     def get_success_url(self):
         pk = self.kwargs.get('pk', None)
-        return reverse_lazy('site-users', args=(pk,))
+        return reverse_lazy('site_users', args=(pk,))
 
     def get_form(self, form_class):
         """
@@ -211,7 +211,7 @@ def site_user_delete(request, pk, site_id):
 
     obj.delete()
     messages.success(request, _('Bluuuser deleted'))
-    return redirect('site-users', pk=site.pk)
+    return redirect('site_users', pk=site.pk)
 
 
 

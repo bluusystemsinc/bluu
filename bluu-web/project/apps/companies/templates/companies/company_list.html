@@ -51,7 +51,7 @@
 
     {% if perms.companies.add_company %}
     <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'company-add' %}">{% trans "Add company" %}</a></li>
+        <li><a href="{% url 'company_add' %}">{% trans "Add company" %}</a></li>
     </ul>
     {% endif %}
 
@@ -71,8 +71,8 @@
                 <td>{{ company.name }}</td>
                 <td>
                     {% get_obj_perms request.user for company as "company_perms" %}
-                    {% if perms.companies.change_company or "change_company" in company_perms %}<a href="{% url 'company-edit' company.id %}">{% trans 'Edit' %}</a>{% endif %}
-                    {% if perms.companies.delete_company or "delete_company" in company_perms %}<a href="{% url 'company-delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove' %}</a>{% endif %}
+                    {% if perms.companies.change_company or "change_company" in company_perms %}<a href="{% url 'company_edit' company.id %}">{% trans 'Edit' %}</a>{% endif %}
+                    {% if perms.companies.delete_company or "delete_company" in company_perms %}<a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove' %}</a>{% endif %}
                 </td>
             </tr>
         {% endfor %}

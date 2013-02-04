@@ -51,7 +51,7 @@
 
     {% if perms.accounts.add_bluuuser %}
     <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'bluuuser-add' %}">{% trans "Add user" %}</a></li>
+        <li><a href="{% url 'bluuuser_add' %}">{% trans "Add user" %}</a></li>
     </ul>
     {% endif %}
 
@@ -66,15 +66,15 @@
             </tr>
         </thead>
         <tbody>
-        {% for user in bluuser_list %}
+        {% for user in object_list %}
             <tr>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ user.first_name }}</td>
                 <td>{{ user.last_name }}</td>
                 <td>
                     {% get_obj_perms request.user for user as "bluuuser_perms" %}
-                    {% if perms.accounts.change_bluuser or "change_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser-edit' user.id %}">{% trans 'Edit' %}</a>{% endif %}
-                    {% if perms.accounts.delete_bluuser or "delete_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser-delete' user.id %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Remove' %}</a>{% endif %}
+                    {% if perms.accounts.change_bluuser or "change_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser_edit' user.username %}">{% trans 'Edit' %}</a>{% endif %}
+                    {% if perms.accounts.delete_bluuser or "delete_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser_delete' user.username %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Remove' %}</a>{% endif %}
                 </td>
             </tr>
         {% endfor %}
