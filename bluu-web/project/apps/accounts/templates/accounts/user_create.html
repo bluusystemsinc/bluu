@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load i18n crispy_forms_tags %}
+
+{% block title %}
+{% trans 'Add user' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'bluuuser-list' %}">{% trans "User list" %}</a> &gt; {% trans "Add user" %}
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+  <div class="span2">&nbsp;</div>
+  <div class="span8">
+      <div class="page-header content-wrapper">
+          <h1>{% trans "Add user" %}</h1>
+      </div>
+  </div>
+  <div class="span2">&nbsp;</div>
+</div>
+<div class="row-fluid">
+  <div class="span4">&nbsp;</div>
+  <div class="span4">
+    <form class="form-horizontal" action="." method="post">{% csrf_token %}
+        {% crispy form form.helper %}
+    </form>
+  </div>
+  <div class="span4">&nbsp;</div>
+</div>
+{% endblock %}

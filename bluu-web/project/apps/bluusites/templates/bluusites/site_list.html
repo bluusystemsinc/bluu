@@ -50,7 +50,7 @@
         <h1 class="form-label">{% trans "Site list" %}</h1>
     </div>
 
-    {% if perms.accounts.add_site %}
+    {% if perms.sites.add_site %}
     <ul class="nav nav-pills nav-stacked">
         <li><a href="{% url 'site-add' %}">{% trans "Add site" %}</a></li>
     </ul>
@@ -76,8 +76,8 @@
                 <td>{{ site.last_name }}</td>
                 <td>{{ site.company }}</td>
                 <td>
-                    {% if "change_site" in site_perms %}<a href="{% url 'site-edit' site.id %}">{% trans 'Edit' %}</a>{% endif %}
-                    {% if "delete_site" in site_perms %}<a href="{% url 'site-delete' site.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove' %}</a>{% endif %}
+                    {% if perms.sites.change_site or "change_site" in site_perms %}<a href="{% url 'site-edit' site.id %}">{% trans 'Edit' %}</a>{% endif %}
+                    {% if perms.sites.delete_site or "delete_site" in site_perms %}<a href="{% url 'site-delete' site.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove' %}</a>{% endif %}
                 </td>
             </tr>
         {% endfor %}

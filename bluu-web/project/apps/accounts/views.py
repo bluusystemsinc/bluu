@@ -16,8 +16,63 @@ from django.contrib.auth.decorators import permission_required
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import get_objects_for_user, assign
 from registration.backends import get_backend
+from braces.views import LoginRequiredMixin
+from guardian.mixins import PermissionRequiredMixin
 from .forms import ProfileForm, AccountForm, BluuUserForm
 from .models import BluuUser
+
+
+class BluuUserListView(PermissionRequiredMixin, ListView):
+    model = BluuUser
+    template_name = "accounts/user_list.html"
+    permission_required = 'accounts.browse_bluuusers'
+
+    def get_queryset(self):
+        if self.request.user.has_perm('accounts.view_bluuuser'):
+            return super(BluuUserListView, self).get_queryset()
+        return get_objects_for_user(self.request.user, 'accounts.view_bluuusers')
+
+    #@method_decorator(login_required)
+    #@method_decorator(permission_required('accounts.browse_bluuusers'))
+    #def dispatch(self, *args, **kwargs):
+    #    return super(BluuUserListView, self).dispatch(*args, **kwargs)
+
+
+class BluuUserCreateView(CreateView):
+    model = BluuUser
+    template_name = "accounts/user_create.html"
+    form_class = BluuUserForm
+
+    def form_valid(self, form):
+        response = super(BluuUserCreateView, self).form_valid(form)
+        messages.success(self.request, _('User added'))
+        return response
+
+    #@method_decorator(login_required)
+    #@method_decorator(permission_required('accounts.add_bluuuser'))
+    #def dispatch(self, *args, **kwargs):
+    #    return super(BluuUserCreateView, self).dispatch(*args, **kwargs)
+
+
+class BluuUserUpdateView(PermissionRequiredMixin, UpdateView):
+    model = BluuUser
+    template_name = "accounts/user_update.html"
+    form_class = BluuUserForm
+    permission_required = 'accounts.change_bluuuser'
+
+    def form_valid(self, form):
+        response = super(BluuUserUpdateView, self).form_valid(form)
+        messages.success(self.request, _('User changed'))
+        return response
+
+    #@method_decorator(login_required)
+    #@method_decorator(permission_required_or_403('companies.change_bluuuser',
+    #        (BluuUser, 'pk', 'pk'), accept_global_perms=True))
+    #def dispatch(self, *args, **kwargs):
+    #    return super(BluuUserUpdateView, self).dispatch(*args, **kwargs)
+
+
+
 
 
 def register(request, backend, success_url=None, form_class=None,

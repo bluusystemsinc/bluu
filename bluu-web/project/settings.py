@@ -141,6 +141,7 @@ INSTALLED_APPS = [
     'compressor',
     'crispy_forms',
     'rest_framework',
+    'braces',
     'guardian',
     'accounts',
     'companies',

@@ -78,7 +78,7 @@
                     <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company-list' %}"><i class="icon-user"></i> {% trans "Companies" %}</a></li>
                     <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site-list' %}"><i class="icon-user"></i> {% trans "Sites" %}</a></li>
                     {% if perms.browse_bluuusers %}
-                    <li class="{% active request "^/accounts/users/$" %}"><a href="#"><i class="icon-user"></i> {% trans "Users" %}</a></li>
+                    <li class="{% active request "^/accounts/users/$" %}"><a href="{% url 'bluuuser-list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
                     {% endif %}
                 {% endif %}
             </ul>

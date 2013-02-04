@@ -3,7 +3,7 @@
 {% load i18n guardian_tags %}
 
 {% block title %}
-{% trans 'Company list' %} |
+{% trans 'User list' %} |
 {% endblock %}
 
 {% block css %}
@@ -46,12 +46,12 @@
 
 {% block content %}
     <div class="page-header content-wrapper">
-        <h1 class="form-label">{% trans "Company list" %}</h1>
+        <h1 class="form-label">{% trans "User list" %}</h1>
     </div>
 
-    {% if perms.companies.add_company %}
+    {% if perms.accounts.add_bluuuser %}
     <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'company-add' %}">{% trans "Add company" %}</a></li>
+        <li><a href="{% url 'bluuuser-add' %}">{% trans "Add user" %}</a></li>
     </ul>
     {% endif %}
 
@@ -60,25 +60,27 @@
         <thead>
             <tr>
                 <th>{% trans "No." %}</th>
-                <th>{% trans 'Company name' %}</th>
+                <th>{% trans 'First name' %}</th>
+                <th>{% trans 'Last name' %}</th>
                 <th>{% trans 'Actions' %}</th>
             </tr>
         </thead>
         <tbody>
-        {% for company in company_list %}
+        {% for user in bluuser_list %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ company.name }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
                 <td>
-                    {% get_obj_perms request.user for company as "company_perms" %}
-                    {% if perms.companies.change_company or "change_company" in company_perms %}<a href="{% url 'company-edit' company.id %}">{% trans 'Edit' %}</a>{% endif %}
-                    {% if perms.companies.delete_company or "delete_company" in company_perms %}<a href="{% url 'company-delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove' %}</a>{% endif %}
+                    {% get_obj_perms request.user for user as "bluuuser_perms" %}
+                    {% if perms.accounts.change_bluuser or "change_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser-edit' user.id %}">{% trans 'Edit' %}</a>{% endif %}
+                    {% if perms.accounts.delete_bluuser or "delete_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser-delete' user.id %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Remove' %}</a>{% endif %}
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
     {% else %}
-        {% trans 'There are no companies to display' %}
+        {% trans 'There are no users to display' %}
     {% endif %}
 {% endblock %}

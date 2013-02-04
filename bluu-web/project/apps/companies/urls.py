@@ -5,7 +5,7 @@ from . import views
 urlpatterns = patterns('',
     url(r'^companies/$', views.CompanyListView.as_view(), name='company-list'),
     url(r'^companies/add/$', views.CompanyCreateView.as_view(), name='company-add'),
-    url(r'^companies/(?P<pk>\d+)/$',
+    url(r'^companies/(?P<pk>\d+)/edit/$',
             views.CompanyUpdateView.as_view(), name='company-edit'),
     url(r'^companies/(?P<pk>\d+)/access/$',
             views.CompanyAccessManagementView.as_view(), name='company-access'),

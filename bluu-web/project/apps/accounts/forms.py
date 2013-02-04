@@ -36,14 +36,11 @@ class BluuUserForm(ModelForm):
                                 widget=forms.PasswordInput,
                                 required=False)
 
-    def __init__(self, user, contract, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
-
         super(BluuUserForm, self).__init__(*args, **kwargs)
-        self.user = user
-        self.contract = contract
 
         if self.instance.pk:
             self.fields['password2'].help_text =\
@@ -54,8 +51,8 @@ class BluuUserForm(ModelForm):
             'password1', 'password2', 'cell', 'cell_text_email', 'is_active'
         ]
 
-        if self.user.has_perm('accounts.manage_group_admins'):
-            self.fields.keyOrder.append('groups')
+        #if self.user.has_perm('accounts.manage_group_admins'):
+        #    self.fields.keyOrder.append('groups')
 
     class Meta:
         model = BluuUser
