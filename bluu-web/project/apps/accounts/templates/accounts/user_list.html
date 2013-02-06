@@ -60,8 +60,8 @@
         <thead>
             <tr>
                 <th>{% trans "No." %}</th>
-                <th>{% trans 'First name' %}</th>
-                <th>{% trans 'Last name' %}</th>
+                <th>{% trans 'Username' %}</th>
+                <th>{% trans 'Full name' %}</th>
                 <th>{% trans 'Actions' %}</th>
             </tr>
         </thead>
@@ -69,8 +69,8 @@
         {% for user in object_list %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.get_name }}</td>
                 <td>
                     {% get_obj_perms request.user for user as "bluuuser_perms" %}
                     {% if perms.accounts.change_bluuser or "change_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser_edit' user.username %}">{% trans 'Edit' %}</a>{% endif %}

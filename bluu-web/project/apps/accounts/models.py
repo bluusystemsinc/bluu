@@ -1,9 +1,15 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import (AbstractUser, UserManager)
 from django.utils.translation import ugettext_lazy as _
 #from companies.models import Company
 #from sites.models import Site
+
+
+class AppBluuUserManager(models.Manager):
+    def get_query_set(self):
+        return super(AppBluuUserManager, self).get_query_set().\
+                     exclude(pk=-1).filter(is_staff=False, is_superuser=False)
 
 
 class BluuUser(AbstractUser):
@@ -13,10 +19,10 @@ class BluuUser(AbstractUser):
     cell = models.CharField(_('cell'), max_length=10, blank=True)
     cell_text_email = models.EmailField(_('cell text email address'),
                          blank=True)
-    companies = models.ManyToManyField("companies.Company", blank=True,
-                         null=True, verbose_name=_('companies'))
-    sites = models.ManyToManyField("bluusites.BluuSite", blank=True, null=True,
-                         verbose_name=_('sites'))
+
+    # objects = UserManager() is required to have it treated as default manager
+    objects = UserManager()
+    app_users = AppBluuUserManager()
 
     class Meta:
         verbose_name = _("User")

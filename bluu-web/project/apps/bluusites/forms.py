@@ -21,6 +21,8 @@ class SiteForm(forms.ModelForm):
         middle_initial.attrs['ng-model'] = "site.middle_initial"
         last_name = layout.Field('last_name', required="required")
         last_name.attrs['ng-model'] = "site.last_name"
+        street = layout.Field('street')
+        street.attrs['ng-model'] = "site.street"
         city = layout.Field('city')
         city.attrs['ng-model'] = "site.city"
         state = layout.Field('state')
@@ -42,6 +44,7 @@ class SiteForm(forms.ModelForm):
                     first_name,
                     middle_initial,
                     last_name,
+                    street,
                     city,
                     state,
                     zip_code,
@@ -73,6 +76,6 @@ class SiteForm(forms.ModelForm):
 
     class Meta:
         model = BluuSite
-        fields = ('first_name', 'middle_initial', 'last_name', 
+        fields = ('first_name', 'middle_initial', 'last_name', 'street', 
                   'city', 'state', 'zip_code', 'country', 'phone', 'email')
 

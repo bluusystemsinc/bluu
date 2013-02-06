@@ -28,9 +28,12 @@ class BluuUserListView(PermissionRequiredMixin, ListView):
     permission_required = 'accounts.browse_bluuusers'
 
     def get_queryset(self):
-        if self.request.user.has_perm('accounts.view_bluuuser'):
-            return super(BluuUserListView, self).get_queryset()
-        return get_objects_for_user(self.request.user, 'accounts.view_bluuusers')
+        return self.model.app_users.all()
+        # if user has a global permission view_bluuuser then show all users
+        # except anonymous and admins
+        #if self.request.user.has_perm('accounts.view_bluuuser'):
+        # else show ony user's he has granted direct permission
+        #return get_objects_for_user(self.request.user, 'accounts.view_bluuuser')
 
     #@method_decorator(login_required)
     #@method_decorator(permission_required('accounts.browse_bluuusers'))
@@ -38,10 +41,11 @@ class BluuUserListView(PermissionRequiredMixin, ListView):
     #    return super(BluuUserListView, self).dispatch(*args, **kwargs)
 
 
-class BluuUserCreateView(CreateView):
+class BluuUserCreateView(PermissionRequiredMixin, CreateView):
     model = BluuUser
     template_name = "accounts/user_create.html"
     form_class = BluuUserForm
+    permission_required = 'accounts.add_bluuuser'
 
     def form_valid(self, form):
         response = super(BluuUserCreateView, self).form_valid(form)
@@ -62,6 +66,9 @@ class BluuUserUpdateView(PermissionRequiredMixin, UpdateView):
     slug_field = 'username'
     slug_url_kwarg = 'username'
 
+    def get_queryset(self):
+        return self.model.app_users.all()
+
     def form_valid(self, form):
         response = super(BluuUserUpdateView, self).form_valid(form)
         messages.success(self.request, _('User changed'))
@@ -73,15 +80,13 @@ class BluuUserUpdateView(PermissionRequiredMixin, UpdateView):
     #def dispatch(self, *args, **kwargs):
     #    return super(BluuUserUpdateView, self).dispatch(*args, **kwargs)
 
+
 @permission_required_or_403('accounts.delete_bluuuser')
 def bluuuser_delete(request, username):
     obj = get_object_or_404(BluuUser, username=username)
     obj.delete()
     messages.success(request, _('User deleted'))
     return redirect('bluuuser_list')
-
-
-
 
 
 def register(request, backend, success_url=None, form_class=None,

@@ -190,7 +190,8 @@ function CompanySitesController(Site, $configService, $scope) {
 
     $scope.columnDefs = [{ field: 'first_name', displayName: 'First Name'},
                   { field: 'last_name', displayName: 'Last Name'},
-                  { field: 'company.name', displayName: 'Company'},
+                  { field: 'city', displayName: 'City'},
+                  { field: 'street', displayName: 'Street'},
                   { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Delete</a></div>'}
                   ];
 	

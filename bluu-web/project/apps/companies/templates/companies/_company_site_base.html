@@ -16,3 +16,10 @@
   </ul>
 </div>
 {% endblock%}
+
+{% block main %}
+<ul id="sites-tab" class="nav nav-tabs">
+    <li class="{% active request "^/companies/\d+/sites/$" %}"><a href="{% url 'company_site_list' company.id %}">{% trans "Sites" %}</a></li>
+    <li class="{% active request "^/companies/\d+/sites/add/$" %}"><a href="{% url 'company_site_add' company.id %}">{% trans "Add Site" %}</a></li>
+</ul>
+{% endblock %}

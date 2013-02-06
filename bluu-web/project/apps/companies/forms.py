@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
+from accounts.forms import BluuUserForm
 from .models import Company
 
 
@@ -34,4 +35,11 @@ class CompanyForm(forms.ModelForm):
         model = Company
         fields = ('name', 'street', 'city', 'state', 'zip_code', 'country',
                   'phone', 'email', 'contact_name')
+
+
+class CompanyBluuUserForm(BluuUserForm):
+    def __init__(self, user, company, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        self.company = kwargs.pop('company')
+        super(CompanyBluuUserForm, self).__init__(*args, **kwargs)
 

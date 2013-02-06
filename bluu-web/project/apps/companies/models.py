@@ -4,6 +4,8 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_delete
 from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+from django.conf import settings
 from utils.misc import remove_orphaned_obj_perms
 from utils.countries import CountryField
 
@@ -25,13 +27,11 @@ class Company(Entity):
     name = models.CharField(_('name'), max_length=255)
     contact_name = models.CharField(_('contact name'), max_length=255,
                          blank=True)
-
-    def __unicode__(self):
-        return self.name
-
-    @models.permalink
-    def get_absolute_url(self):
-        return ('company_edit', [str(self.id)])
+    employees = models.ManyToManyField(settings.AUTH_USER_MODEL,
+                         blank=True,
+                         null=True,
+                         verbose_name=_('employees'), 
+                         through='CompanyAccess')
 
     class Meta:
         verbose_name = _("company")
@@ -41,6 +41,18 @@ class Company(Entity):
             ("view_company", "Can view company"),
             ("manage_company_access", "Can manage company access"),
         )
+
+    def __unicode__(self):
+        return self.name
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('company_edit', [str(self.id)])
+
+        
+class CompanyAccess(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    site = models.ForeignKey(Company)
 
 
 @receiver(post_save, sender=Company)

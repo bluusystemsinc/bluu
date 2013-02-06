@@ -1,5 +1,4 @@
-{% extends "companies/_company_base.html" %}
-
+{% extends "companies/_company_site_base.html" %}
 {% load i18n crispy_forms_tags guardian_tags %}
 
 {% block title %}
@@ -7,11 +6,11 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; {% trans "Company Sites Management" %}
+<a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Company's Sites" %}
 {% endblock %}
 
 {% block page-title %}
-    {% trans "Company Sites Management" %}
+    {% trans "Company's Sites Management" %}
 {% endblock %}
 
 {% block main %}
@@ -19,6 +18,26 @@
 {{ block.super }}
 
 {% get_obj_perms request.user for company as "company_perms" %}
+
+<table id="entity_list_table" class="infotable datatable">
+    <thead>
+        <tr>
+            <th>{% trans "First name" %}</th>
+            <th>{% trans 'Last name' %}</th>
+            <th>{% trans 'City' %}</th>
+            <th>{% trans 'Actions' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="4" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+        </tr>
+    </tbody>
+</table>
+
+
+
+{% comment %}
 <div class="tab-content" ng-controller="CompanySitesController">
     <div class="tab-pane active" id="sites">
         <div >
@@ -26,6 +45,7 @@
         </div>
     </div>
 </div>
+{% endcomment %}
 {% endblock %}
 
 {% comment %}<ul id="sites-tab" class="nav nav-tabs">
@@ -47,9 +67,48 @@
 {% endcomment %}
 
 {% block javascript %}
-<script type="text/javascript">
-var COMPANY_ID = {{ company.id }};
-
+    {{ block.super }}
+    var COMPANY_ID = {{ company.id }};
+    <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    <script charset="utf-8" type="text/javascript">
+    $(document).ready(function() {
+        $('#entity_list_table').dataTable( {
+            "oLanguage": {
+            "sProcessing":   "{% trans 'Processing...' %}",
+            "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
+            "sZeroRecords":  "{% trans 'No matching records found' %}",
+            "sInfo":         "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+            "sInfoEmpty":    "{% trans 'Showing 0 to 0 of 0 entries' %}",
+            "sInfoFiltered": "{% trans '(filtered from _MAX_ total entries)' %}",
+            "sInfoPostFix":  "",
+            "sSearch":       "{% trans 'Search:' %}",
+            "sUrl":          "",
+            "oPaginate": {
+                "sFirst":    "{% trans 'First' %}",
+                "sPrevious": "{% trans 'Previous' %}",
+                "sNext":     "{% trans 'Next' %}",
+                "sLast":     "{% trans 'Last' %}"
+            }
+         },
+         "sDom":'lfriptip',
+         "bServerSide": true,
+         "sAjaxSource": "{% url 'companies:api-company-site-list' company.pk %}",
+         "aoColumnDefs": [
+                { "bSortable": false, "aTargets": [2] },
+                {
+                    "aTargets":[3], // Your actual column number goes here
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                    {
+                        $(nTd).css('text-align', 'center');
+                    },
+                    "mData": null,
+                    "mRender": function( data, type, full) {
+                        return '<td><a href="#" class="YOUR-ACTION"><i class="aug-accept" rel="tooltip" data-placement="right" title="ActionType"></i></a></td>';
+                    }
+                }
+            ]
+    });
+});
 </script>
 {% endblock %}
 
