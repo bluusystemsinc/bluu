@@ -7,11 +7,11 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; {% trans "Company Access Management" %}
+    <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Access Management" %}
 {% endblock %}
 
 {% block page-title %}
-    {% trans "Company Access Management" %}
+    {% trans "Access Management" %}
 {% endblock %}
 
 {% block main %}
@@ -20,26 +20,102 @@
 {% get_obj_perms request.user for company as "company_perms" %}
 <div class="tab-content" ng-controller="CompanyAccessController">
     <div class="tab-pane active" id="users">
-    <div class="gridStyle" ng-grid="AccessGridOptions"></div>
+        {% comment %}<div class="gridStyle" ng-grid="AccessGridOptions"></div>{% endcomment %}
 
-    {% if "manage_company_access" in company_perms %}
-    <div ng-controller="CompanyInvitationController">
-        <h2>{% trans "Invite user" %}</h2>
+        <table id="access_list_table" class="infotable datatable">
+            <thead>
+                <tr>
+                    <th>{% trans 'No.' %}</th>
+                    <th>{% trans 'Username' %}</th>
+                    <th>{% trans 'Full name' %}</th>
+                    <th>{% trans 'E-mail' %}</th>
+                    <th>{% trans 'Is active' %}</th>
+                    <th>{% trans 'Actions' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="5" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+                </tr>
+            </tbody>
+        </table>
+
+
+        {% if "manage_company_access" in company_perms %}
+        <div ng-controller="CompanyInvitationController">
+            <h2>{% trans "Invite user" %}</h2>
             <form class="form-inline">
                 <input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />
                 <select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>
                 <button type="submit" class="btn" ng-click="save()">{% trans "Add" %}</button>
             </form>
-        <div class="gridStyle" ng-grid="InvitationGridOptions"></div>
-    </div>
+        </div>
     </div>
     {% endif %}
 </div>
 {% endblock %}
 
+
+{% block css %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}theme/components/datatables/media/css/jquery.dataTables.css" />
+    {{ block.super }}
+{% endblock %}
+
+
 {% block javascript %}
-<script type="text/javascript">
-var COMPANY_ID = {{ company.id }};
+    {{ block.super }}
+    var COMPANY_ID = {{ company.id }};
+    <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    <script charset="utf-8" type="text/javascript">
+    //var COMPANY_ID = {{ company.id }};
+    $(document).ready(function() {
+        $('#access_list_table').dataTable( {
+         "oLanguage": {
+            "sProcessing":   "{% trans 'Processing...' %}",
+            "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
+            "sZeroRecords":  "{% trans 'No matching records found' %}",
+            "sInfo":         "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+            "sInfoEmpty":    "{% trans 'Showing 0 to 0 of 0 entries' %}",
+            "sInfoFiltered": "{% trans '(filtered from _MAX_ total entries)' %}",
+            "sInfoPostFix":  "",
+            "sSearch":       "{% trans 'Search:' %}",
+            "sUrl":          "",
+            "oPaginate": {
+                "sFirst":    "{% trans 'First' %}",
+                "sPrevious": "{% trans 'Previous' %}",
+                "sNext":     "{% trans 'Next' %}",
+                "sLast":     "{% trans 'Last' %}"
+            }
+         },
+         "sDom":'lfriptip',
+         "bServerSide": true,
+         "bProcessing": true,
+         "sAjaxSource": "{% url 'companies:api-company-site-list-json' company.pk %}",
+         "aaSorting": [[2, 'asc']],
+         "aoColumns": [
+                {
+                  "mData": 'no',
+                  "bSearchable": false, 
+                  "bSortable": false
+                },
+                { "mData": 'first_name'},
+                { "mData": 'last_name'},
+                { "mData": 'city'},
+                {
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                    {
+                        $(nTd).css('text-align', 'center');
+                    },
+                    "mData": null,
+                    "mRender": function( data, type, full) {
+                        return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
+                    },
+                    "bSearchable": false, 
+                    "bSortable": false
+                }
+            ]
+    });
+});
 </script>
 {% endblock %}
 

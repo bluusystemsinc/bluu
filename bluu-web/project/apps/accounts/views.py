@@ -2,6 +2,7 @@ from random import choice
 from string import letters
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.views.generic import UpdateView, CreateView,\
                                  DeleteView, ListView
 from django.http import HttpResponseRedirect
@@ -13,16 +14,20 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import permission_required
+
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import get_objects_for_user, assign
 from registration.backends import get_backend
 from braces.views import LoginRequiredMixin
-from guardian.mixins import PermissionRequiredMixin
+from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
+from braces.views import PermissionRequiredMixin
+from django_datatables_view.base_datatable_view import BaseDatatableView
+
 from .forms import ProfileForm, AccountForm, BluuUserForm
 from .models import BluuUser
 
 
-class BluuUserListView(PermissionRequiredMixin, ListView):
+class BluuUserListView(GPermissionRequiredMixin, ListView):
     model = BluuUser
     template_name = "accounts/user_list.html"
     permission_required = 'accounts.browse_bluuusers'
@@ -39,6 +44,51 @@ class BluuUserListView(PermissionRequiredMixin, ListView):
     #@method_decorator(permission_required('accounts.browse_bluuusers'))
     #def dispatch(self, *args, **kwargs):
     #    return super(BluuUserListView, self).dispatch(*args, **kwargs)
+
+
+class BluuUserListJson(PermissionRequiredMixin, BaseDatatableView):
+    permission_required = 'accounts.browse_bluuusers'
+    order_columns = ['id', BluuUser.USERNAME_FIELD, 'last_name', 'email',\
+                     'is_active']
+
+    def get_initial_queryset(self):
+        # return queryset used as base for futher sorting/filtering
+        # these are simply objects displayed in datatable
+        return BluuUser.app_users.all()
+
+    def filter_queryset(self, qs):
+        q = self.request.GET.get('sSearch', None)
+        if q is not None:
+            return qs.filter(Q(username__istartswith=q) |\
+                             Q(first_name__istartswith=q) |\
+                             Q(last_name__istartswith=q) |\
+                             Q(email__istartswith=q)
+                             )
+        return qs
+ 
+    def prepare_results(self, qs):
+        # prepare list with output column data
+        # queryset is already paginated here
+        json_data = []
+
+        try:
+            no = int(self.request.GET.get('iDisplayStart', 0)) + 1
+        except (ValueError, TypeError):
+            no = 0
+
+        for item in qs:
+            json_data.append(
+                {
+                    "no": no,
+                    "username": item.get_username(),
+                    "full_name": item.get_full_name(),
+                    "email": item.email,
+                    "is_active": item.is_active and _('active') or _('inactive'),
+                    "edit_url": reverse('bluuuser_edit', args=[item.username]),
+                }
+            )
+            no += 1
+        return json_data
 
 
 class BluuUserCreateView(PermissionRequiredMixin, CreateView):
@@ -58,7 +108,7 @@ class BluuUserCreateView(PermissionRequiredMixin, CreateView):
     #    return super(BluuUserCreateView, self).dispatch(*args, **kwargs)
 
 
-class BluuUserUpdateView(PermissionRequiredMixin, UpdateView):
+class BluuUserUpdateView(GPermissionRequiredMixin, UpdateView):
     model = BluuUser
     template_name = "accounts/user_update.html"
     form_class = BluuUserForm
@@ -87,6 +137,12 @@ def bluuuser_delete(request, username):
     obj.delete()
     messages.success(request, _('User deleted'))
     return redirect('bluuuser_list')
+
+
+
+
+
+
 
 
 def register(request, backend, success_url=None, form_class=None,

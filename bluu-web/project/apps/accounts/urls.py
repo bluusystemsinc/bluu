@@ -13,6 +13,11 @@ urlpatterns = patterns('',
         name='bluuuser_list'
     ),
     url(
+        regex=r'^users\.json/$', 
+        view=views.BluuUserListJson.as_view(),
+        name='bluuuser_list_json'
+    ),
+    url(
         regex=r'^users/add/$',
         view=views.BluuUserCreateView.as_view(),
         name='bluuuser_add'

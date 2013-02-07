@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 from rest_framework.urlpatterns import format_suffix_patterns
 from .api_views import CompanyList, CompanyDetail,\
         CompanyAccessList, CompanyAccessGroups,\
-        CompanySiteList
+        CompanySiteList, CompanySiteListJson
 
 
 urlpatterns = format_suffix_patterns(patterns('',
@@ -13,6 +13,8 @@ urlpatterns = format_suffix_patterns(patterns('',
         name='api-company-access'),
     url(r'^(?P<pk>[0-9]+)/access/groups[/]?$', CompanyAccessGroups.as_view(),
         name='api-company-access-groups'),
-    url(r'^(?P<company>[0-9]+)/sites[/]?$', CompanySiteList.as_view(),
-        name='api-company-site-list'),
+    #url(r'^(?P<company>[0-9]+)/sites[/]?$', CompanySiteList.as_view(),
+    #    name='api-company-site-list'),
+    url(r'^(?P<company_pk>[0-9]+)/sites\.json[/]?$', CompanySiteListJson.as_view(),
+        name='api-company-site-list-json'),
 ), allowed=['jsonp', 'json', 'html'])

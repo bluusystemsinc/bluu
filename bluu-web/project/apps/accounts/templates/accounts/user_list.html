@@ -3,7 +3,41 @@
 {% load i18n guardian_tags %}
 
 {% block title %}
-{% trans 'User list' %} |
+    {% trans 'User list' %} |
+{% endblock %}
+
+{% block content %}
+    <div class="page-header content-wrapper">
+        <h1 class="form-label">{% trans "User list" %}</h1>
+    </div>
+
+    {% if perms.accounts.add_bluuuser %}
+    <ul class="nav nav-pills nav-stacked">
+        <li><a href="{% url 'bluuuser_add' %}">{% trans "Add user" %}</a></li>
+    </ul>
+    {% endif %}
+
+    {% if object_list %}
+    <table id="user_list_table" class="infotable datatable">
+        <thead>
+            <tr>
+                <th>{% trans 'No.' %}</th>
+                <th>{% trans 'Username' %}</th>
+                <th>{% trans 'Full name' %}</th>
+                <th>{% trans 'E-mail' %}</th>
+                <th>{% trans 'Is active' %}</th>
+                <th>{% trans 'Actions' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="5" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+            </tr>
+        </tbody>
+    </table>
+    {% else %}
+        {% trans 'There are no users to display' %}
+    {% endif %}
 {% endblock %}
 
 {% block css %}
@@ -16,7 +50,7 @@
 <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
 <script charset="utf-8" type="text/javascript">
     $(document).ready(function() {
-        $('#entity_list_table').dataTable( {
+        $('#user_list_table').dataTable( {
             "oLanguage": {
             "sProcessing":   "{% trans 'Processing...' %}",
             "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
@@ -35,8 +69,32 @@
             }
          },
          "sDom":'lfriptip',
-         "aoColumnDefs": [
-                { "bSortable": false, "aTargets": [2] }
+         "bServerSide": true,
+         "bProcessing": true,
+         "sAjaxSource": "{% url 'bluuuser_list_json' %}",
+         "aaSorting": [[2, 'asc']],
+         "aoColumns": [
+                {
+                  "mData": 'no',
+                  "bSearchable": false, 
+                  "bSortable": false
+                },
+                { "mData": 'username'},
+                { "mData": 'full_name'},
+                { "mData": 'email'},
+                { "mData": 'is_active'},
+                {
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                    {
+                        $(nTd).css('text-align', 'center');
+                    },
+                    "mData": "edit_url",
+                    "mRender": function( data, type, full) {
+                        return '<a href="' + data + '">{% trans "Edit" %}</a>';
+                    },
+                    "bSearchable": false, 
+                    "bSortable": false
+                }
             ]
     });
 });
@@ -44,43 +102,4 @@
 </script>
 {% endblock %}
 
-{% block content %}
-    <div class="page-header content-wrapper">
-        <h1 class="form-label">{% trans "User list" %}</h1>
-    </div>
 
-    {% if perms.accounts.add_bluuuser %}
-    <ul class="nav nav-pills nav-stacked">
-        <li><a href="{% url 'bluuuser_add' %}">{% trans "Add user" %}</a></li>
-    </ul>
-    {% endif %}
-
-    {% if object_list %}
-    <table id="entity_list_table" class="infotable datatable">
-        <thead>
-            <tr>
-                <th>{% trans "No." %}</th>
-                <th>{% trans 'Username' %}</th>
-                <th>{% trans 'Full name' %}</th>
-                <th>{% trans 'Actions' %}</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in object_list %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.get_name }}</td>
-                <td>
-                    {% get_obj_perms request.user for user as "bluuuser_perms" %}
-                    {% if perms.accounts.change_bluuser or "change_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser_edit' user.username %}">{% trans 'Edit' %}</a>{% endif %}
-                    {% if perms.accounts.delete_bluuser or "delete_bluuser" in bluuuser_perms %}<a href="{% url 'bluuuser_delete' user.username %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Remove' %}</a>{% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        {% trans 'There are no users to display' %}
-    {% endif %}
-{% endblock %}

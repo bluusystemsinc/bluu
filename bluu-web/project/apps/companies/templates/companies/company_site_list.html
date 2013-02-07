@@ -1,28 +1,31 @@
 {% extends "companies/_company_site_base.html" %}
 {% load i18n crispy_forms_tags guardian_tags %}
 
+
 {% block title %}
-{% trans 'Company Sites Management' %} |
+    {% trans 'Company Sites Management' %} |
 {% endblock %}
+
 
 {% block breadcrumbs %}
-<a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Company's Sites" %}
+<a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Sites Management" %}
 {% endblock %}
+
 
 {% block page-title %}
-    {% trans "Company's Sites Management" %}
+    {% trans "Sites Management" %}
 {% endblock %}
 
+
 {% block main %}
-
 {{ block.super }}
-
 {% get_obj_perms request.user for company as "company_perms" %}
 
-<table id="entity_list_table" class="infotable datatable">
+<table id="site_list_table" class="infotable datatable">
     <thead>
         <tr>
-            <th>{% trans "First name" %}</th>
+            <th>{% trans 'No.' %}</th>
+            <th>{% trans 'First name' %}</th>
             <th>{% trans 'Last name' %}</th>
             <th>{% trans 'City' %}</th>
             <th>{% trans 'Actions' %}</th>
@@ -34,46 +37,23 @@
         </tr>
     </tbody>
 </table>
-
-
-
-{% comment %}
-<div class="tab-content" ng-controller="CompanySitesController">
-    <div class="tab-pane active" id="sites">
-        <div >
-            <div class="gridStyle" ng-grid="CompanySitesGridOptions"></div>
-        </div>
-    </div>
-</div>
-{% endcomment %}
 {% endblock %}
 
-{% comment %}<ul id="sites-tab" class="nav nav-tabs">
-    <li class="active"><a href="#sites" data-toggle="tab">{% trans "Sites" %}</a></li>
-    <li><a href="#add-site" data-toggle="tab">{% trans "Add Site" %}</a></li>
-</ul>
-<div class="tab-content" ng-controller="CompanySitesController">
-    <div class="tab-pane active" id="sites">
-        <div >
-            <div class="gridStyle" ng-grid="CompanySitesGridOptions"></div>
-        </div>
-    </div>
-    <div class="tab-pane" id="add-site">
-        <form name="newsite" novalidate class="form-horizontal" action="" method="post">{% csrf_token %}
-        {% crispy form form.helper %}
-        </form>
-    </div>
-</div>
-{% endcomment %}
+
+{% block css %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}theme/components/datatables/media/css/jquery.dataTables.css" />
+    {{ block.super }}
+{% endblock %}
+
 
 {% block javascript %}
     {{ block.super }}
-    var COMPANY_ID = {{ company.id }};
     <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
     <script charset="utf-8" type="text/javascript">
+    //var COMPANY_ID = {{ company.id }};
     $(document).ready(function() {
-        $('#entity_list_table').dataTable( {
-            "oLanguage": {
+        $('#site_list_table').dataTable( {
+         "oLanguage": {
             "sProcessing":   "{% trans 'Processing...' %}",
             "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
             "sZeroRecords":  "{% trans 'No matching records found' %}",
@@ -92,19 +72,29 @@
          },
          "sDom":'lfriptip',
          "bServerSide": true,
-         "sAjaxSource": "{% url 'companies:api-company-site-list' company.pk %}",
-         "aoColumnDefs": [
-                { "bSortable": false, "aTargets": [2] },
+         "bProcessing": true,
+         "sAjaxSource": "{% url 'companies:api-company-site-list-json' company.pk %}",
+         "aaSorting": [[2, 'asc']],
+         "aoColumns": [
                 {
-                    "aTargets":[3], // Your actual column number goes here
+                  "mData": 'no',
+                  "bSearchable": false, 
+                  "bSortable": false
+                },
+                { "mData": 'first_name'},
+                { "mData": 'last_name'},
+                { "mData": 'city'},
+                {
                     "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
                     {
                         $(nTd).css('text-align', 'center');
                     },
                     "mData": null,
                     "mRender": function( data, type, full) {
-                        return '<td><a href="#" class="YOUR-ACTION"><i class="aug-accept" rel="tooltip" data-placement="right" title="ActionType"></i></a></td>';
-                    }
+                        return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
+                    },
+                    "bSearchable": false, 
+                    "bSortable": false
                 }
             ]
     });
