@@ -1,6 +1,6 @@
 from project.settings import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 MANAGERS = (
