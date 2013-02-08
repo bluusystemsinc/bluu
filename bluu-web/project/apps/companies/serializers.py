@@ -19,4 +19,5 @@ class CompanyAccessSerializer(serializers.Serializer):
 
 
 class CompanyAccessGroupsSerializer(serializers.Serializer):
+    id = serializers.Field()
     name = serializers.Field()

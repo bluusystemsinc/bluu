@@ -101,12 +101,11 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
     $scope.company_access = new CompanyAccess();
     //$scope.company_access_groups = new CompanyAccessGroups();
 
-    CompanyAccessGroups.query({'companyId':COMPANY_ID}, function(data){
-        $scope.groups = data;
-    });
+    //CompanyAccessGroups.query({'companyId':COMPANY_ID}, function(data){
+    //    $scope.group = data;
+    //});
 
     $scope.save = function () {
-        console.debug($scope.company_access);
         $scope.invitationData.push({email: $scope.company_access.email, invitation: 'pending'});
 
         if (!$scope.$$phase) {
@@ -115,7 +114,9 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
 
         CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
             function (res){
-                if (res.ok === 1) { console.log('success');}}
+                if (res.ok === 1) { console.log('success');}
+                access_datatable.fnDraw();
+            }
         );
     };
 

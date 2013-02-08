@@ -77,7 +77,7 @@
                 {% if user.is_authenticated %}
                     <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company_list' %}"><i class="icon-user"></i> {% trans "Companies" %}</a></li>
                     <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site_list' %}"><i class="icon-user"></i> {% trans "Sites" %}</a></li>
-                    {% if perms.browse_bluuusers %}
+                    {% if perms.accounts.browse_bluuusers %}
                     <li class="{% active request "^/accounts/users/$" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
                     {% endif %}
                 {% endif %}

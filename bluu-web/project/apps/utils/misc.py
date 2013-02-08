@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 
 
 def remove_orphaned_obj_perms(sender, instance, **kwargs):

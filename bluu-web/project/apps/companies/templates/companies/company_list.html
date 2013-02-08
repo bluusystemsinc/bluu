@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load i18n guardian_tags %}
+{% load i18n grontextual_tags %}
 
 {% block title %}
 {% trans 'Company list' %} |
@@ -70,7 +70,7 @@
                 <td>{{ forloop.counter }}</td>
                 <td>{{ company.name }}</td>
                 <td>
-                    {% get_obj_perms request.user for company as "company_perms" %}
+                    {% get_uog_perms request.user for company as "company_perms" %}
                     {% if perms.companies.change_company or "change_company" in company_perms %}<a href="{% url 'company_edit' company.id %}">{% trans 'Edit' %}</a>{% endif %}
                     {% if perms.companies.delete_company or "delete_company" in company_perms %}<a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove' %}</a>{% endif %}
                 </td>

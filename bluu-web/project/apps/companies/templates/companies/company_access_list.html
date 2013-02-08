@@ -1,6 +1,6 @@
 {% extends "companies/_company_access_base.html" %}
 
-{% load i18n crispy_forms_tags guardian_tags %}
+{% load i18n crispy_forms_tags grontextual_tags %}
 
 {% block title %}
 {% trans 'Company Access Management' %} |
@@ -17,41 +17,39 @@
 {% block main %}
 {{ block.super }}
 
-{% get_obj_perms request.user for company as "company_perms" %}
-<div class="tab-content" ng-controller="CompanyAccessController">
+{% get_uog_perms request.user for company as "company_perms" %}
+<div class="tab-content">
     <div class="tab-pane active" id="users">
         {% comment %}<div class="gridStyle" ng-grid="AccessGridOptions"></div>{% endcomment %}
+
+        <div ng-controller="CompanyInvitationController">
+            <p>{% trans "Invite user" %}</p>
+            <form class="form-inline">
+                {#% crispy invitation_form invitation_form.helper %#}
+                {% comment %}<input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />{% endcomment %}
+                {{ invitation_form.email }}
+                {{ invitation_form.group }}
+                {% comment %}<select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>{% endcomment %}
+                <button type="submit" class="btn" ng-click="save()">{% trans "Add" %}</button>
+            </form>
+        </div>
 
         <table id="access_list_table" class="infotable datatable">
             <thead>
                 <tr>
                     <th>{% trans 'No.' %}</th>
-                    <th>{% trans 'Username' %}</th>
-                    <th>{% trans 'Full name' %}</th>
                     <th>{% trans 'E-mail' %}</th>
-                    <th>{% trans 'Is active' %}</th>
+                    <th>{% trans 'Access' %}</th>
                     <th>{% trans 'Actions' %}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="5" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+                    <td colspan="4" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
                 </tr>
             </tbody>
         </table>
-
-
-        {% if "manage_company_access" in company_perms %}
-        <div ng-controller="CompanyInvitationController">
-            <h2>{% trans "Invite user" %}</h2>
-            <form class="form-inline">
-                <input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />
-                <select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>
-                <button type="submit" class="btn" ng-click="save()">{% trans "Add" %}</button>
-            </form>
-        </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}
 
@@ -64,12 +62,13 @@
 
 {% block javascript %}
     {{ block.super }}
-    var COMPANY_ID = {{ company.id }};
     <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
     <script charset="utf-8" type="text/javascript">
+    var COMPANY_ID = {{ company.id }};
+    var access_datatable = '';
     //var COMPANY_ID = {{ company.id }};
     $(document).ready(function() {
-        $('#access_list_table').dataTable( {
+        access_datatable = $('#access_list_table').dataTable( {
          "oLanguage": {
             "sProcessing":   "{% trans 'Processing...' %}",
             "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
@@ -90,17 +89,28 @@
          "sDom":'lfriptip',
          "bServerSide": true,
          "bProcessing": true,
-         "sAjaxSource": "{% url 'companies:api-company-site-list-json' company.pk %}",
-         "aaSorting": [[2, 'asc']],
+         "sAjaxSource": "{% url 'companies:api_company_access_json' company.pk %}",
+         "aaSorting": [[1, 'asc']],
          "aoColumns": [
                 {
                   "mData": 'no',
                   "bSearchable": false, 
                   "bSortable": false
                 },
-                { "mData": 'first_name'},
-                { "mData": 'last_name'},
-                { "mData": 'city'},
+                { "mData": 'email'},
+                {
+                   "mData": 'groups',
+                   "mRender": function(data, type, full){
+                        ret = ''
+                        for (var i=0; i < data.length; i++){ 
+                            if (i != 0)
+                                ret += ' ';
+                            ret += data[i].name;
+                        }
+                        return ret
+                   }
+                
+                },
                 {
                     "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
                     {

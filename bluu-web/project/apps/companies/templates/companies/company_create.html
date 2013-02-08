@@ -23,10 +23,11 @@
 <div class="row-fluid">
   <div class="span4">&nbsp;</div>
   <div class="span4">
-    <form class="form-horizontal" action="." method="post">{% csrf_token %}
+    <form name="newcompany" novalidate class="form-horizontal" action="." method="post">{% csrf_token %}
         {% crispy form form.helper %}
     </form>
   </div>
   <div class="span4">&nbsp;</div>
 </div>
 {% endblock %}
+

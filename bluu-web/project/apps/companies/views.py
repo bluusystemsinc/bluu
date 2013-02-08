@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.views.generic import UpdateView, CreateView, DetailView,\
-                                 DeleteView, ListView
+                                 DeleteView, ListView, TemplateView
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -16,11 +16,12 @@ from braces.views import LoginRequiredMixin
 from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 from braces.views import PermissionRequiredMixin
 
+from grontextual.models import UserObjectGroup
 from accounts.forms import BluuUserForm
 from bluusites.models import BluuSite
 from bluusites.forms import SiteForm
-from .models import Company
-from .forms import CompanyForm
+from .models import Company, CompanyAccess
+from .forms import CompanyForm, CompanyInvitationForm
 
 
 class CompanyListView(GPermissionRequiredMixin, ListView):
@@ -82,7 +83,7 @@ def company_delete(request, pk):
     messages.success(request, _('Company deleted'))
     return redirect('company_list')
 
-
+"""
 class CompanyDeleteView(GPermissionRequiredMixin, DeleteView):
     model = Company
     template_name = "companies/company_delete.html"
@@ -93,13 +94,36 @@ class CompanyDeleteView(GPermissionRequiredMixin, DeleteView):
     #        (Company, 'pk', 'pk')))
     #def dispatch(self, *args, **kwargs):
     #    return super(CompanyDeleteView, self).dispatch(*args, **kwargs)
+"""
 
-
-class CompanyAccessListView(GPermissionRequiredMixin, DetailView):
-    model = Company
+class CompanyAccessListView(GPermissionRequiredMixin, TemplateView):
     template_name = "companies/company_access_list.html"
     pk_url_kwarg = 'company_pk'
     permission_required = 'companies.change_company'
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get(self.pk_url_kwarg, None)
+        return get_object_or_404(Company, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        company = self.get_object()
+        access_list = []
+        for access in CompanyAccess.objects.filter(company=company):
+            groups = [uog.group for uog in UserObjectGroup.objects.get_for_object(access.user, company)]
+            access_list.append(
+                {
+                    "user": access.user,
+                    "groups": groups
+                }
+            )
+        invitation_form = CompanyInvitationForm()
+        return {
+            'params': kwargs,
+            'company': company,
+            'access_list': access_list,
+            'invitation_form': invitation_form
+        } 
+
 
     #@method_decorator(login_required)
     #@method_decorator(permission_required_or_403('companies.change_company',
@@ -118,6 +142,10 @@ class CompanyAccessCreateView(GPermissionRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         kwargs['form'] = BluuUserForm(self.request.user, None)
         return super(CompanyAccessListView, self).get_context_data(**kwargs)
+
+    #def get_context_data(self, **kwargs):
+    #    kwargs['form'] = SiteForm()
+    #    return super(CompanySiteListView, self).get_context_data(**kwargs)
 
     #@method_decorator(login_required)
     #@method_decorator(permission_required_or_403('companies.change_company',
@@ -187,7 +215,7 @@ class CompanySiteCreateView(CreateView):
     @method_decorator(login_required)
     @method_decorator(permission_required_or_403('companies.change_company',
             (Company, 'pk', 'company_pk')))
-    @method_decorator(permission_required('accounts.add_bluusite'))
+    @method_decorator(permission_required('bluusites.add_bluusite'))
     def dispatch(self, *args, **kwargs):
         try:
             self.company = \

@@ -25,7 +25,8 @@ class SiteListView(ListView):
     template_name = "bluusites/site_list.html"
 
     def get_queryset(self):
-        if self.request.user.has_perm('bluusites.view_bluusite'):
+        user = self.request.user
+        if user.has_perm('bluusites.view_bluusite'):
             return super(SiteListView, self).get_queryset()
         return get_objects_for_user(self.request.user, 'bluusites.view_bluusite')
 

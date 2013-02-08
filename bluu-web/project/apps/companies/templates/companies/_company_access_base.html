@@ -1,25 +1,9 @@
-{% extends "_cu_base.html" %}
+{% extends "companies/_company_base.html" %}
 {% load i18n theme_tags guardian_tags %}
-
-{% block sidebar %}
-{% get_obj_perms request.user for company as "company_perms" %}
-<div class="box">
-  <h4 class="box-heading">
-    {{ company.name }}
-  </h4>
-  <ul class="nav nav-list">
-    {% if "change_company" in company_perms %}<li class="{% active request "^/companies/\d+/edit/$" %}"><a href="{% url 'company_edit' company.id %}">{% trans "Company details" %}</a></li>{% endif %}
-    {% if "change_company" in company_perms %}<li class="{% active request "^/companies/\d+/access/$" %}"><a href="{% url 'company_access_list' company.id %}">{% trans "Access management" %}</a></li>{% endif %}
-    {% if perms.accounts.browse_sites %}<li class="{% active request "^/companies/\d+/sites/" %}"><a href="{% url 'company_site_list' company.id %}">{% trans "Sites management" %}</a></li>{% endif %}
-    <li class="divider"></li>
-    {% if "delete_company" in company_perms %}<li><a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove company' %}</a></li>{% endif %}
-  </ul>
-</div>
-{% endblock%}
 
 {% block main %}
 <ul id="access-tab" class="nav nav-tabs">
     <li class="{% active request "^/companies/\d+/access/$" %}"><a href="{% url 'company_access_list' company.id %}">{% trans "Access" %}</a></li>
-    <li class="{% active request "^/companies/\d+/access/add/$" %}"><a href="{% url 'company_access_add' company.id %}">{% trans "Add Access" %}</a></li>
+    {% comment %}<li class="{% active request "^/companies/\d+/access/add/$" %}"><a href="{% url 'company_access_add' company.id %}">{% trans "Add Access" %}</a></li> {% endcomment %}
 </ul>
 {% endblock %}

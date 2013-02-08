@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import (AbstractUser, UserManager)
+from django.contrib.auth.models import (Group, AbstractUser, UserManager)
 from django.utils.translation import ugettext_lazy as _
 #from companies.models import Company
 #from sites.models import Site
@@ -16,9 +17,11 @@ class BluuUser(AbstractUser):
     """
     A class representing users of Bluu system.
     """
+    #email = models.EmailField(_('email address'))
     cell = models.CharField(_('cell'), max_length=10, blank=True)
     cell_text_email = models.EmailField(_('cell text email address'),
-                         blank=True)
+            blank=True
+            )
 
     # objects = UserManager() is required to have it treated as default manager
     objects = UserManager()
@@ -53,5 +56,6 @@ class BluuUser(AbstractUser):
         if not ret:
             ret = '---'
         return ret
+
 
 

@@ -5,10 +5,10 @@ from django.contrib.contenttypes.models import ContentType
 user_type = ContentType.objects.get(app_label="accounts",
                                         model="bluuuser")
 
-company_type = ContentType.objects.get(app_label="accounts",
+company_type = ContentType.objects.get(app_label="companies",
                                         model="company")
-site_type = ContentType.objects.get(app_label="accounts",
-                                        model="site")
+site_type = ContentType.objects.get(app_label="bluusites",
+                                        model="bluusite")
 
 
 # permissions
@@ -42,15 +42,15 @@ perm_manage_company_access = Permission.objects.get(content_type=company_type,
 
 
 perm_add_site = Permission.objects.get(content_type=site_type,
-                        codename=u"add_site")
+                        codename=u"add_bluusite")
 perm_change_site = Permission.objects.get(content_type=site_type,
-                        codename=u"change_site")
+                        codename=u"change_bluusite")
 perm_delete_site = Permission.objects.get(content_type=site_type,
-                        codename=u"delete_site")
+                        codename=u"delete_bluusite")
 perm_browse_site = Permission.objects.get(content_type=site_type,
-                                                  codename=u"browse_sites")
+                                                  codename=u"browse_bluusites")
 perm_manage_site = Permission.objects.get(content_type=site_type,
-                                                  codename=u"manage_site")
+                                                  codename=u"manage_bluusite")
 
 
 
@@ -78,8 +78,28 @@ def run():
         perm_view_company,
         perm_browse_companies,
         perm_manage_company_access,
+        perm_add_site,
+        perm_change_site,
+        perm_delete_site,
+        perm_browse_site,
         perm_manage_site]
 
+    # create Company Employee role
+    company_employee_group = Group.objects.get_or_create(name=u'Company Employee')[0]
+
+    # assign permissions to Dealer
+    company_employee_group.permissions.clear()
+
+    company_employee_group.permissions = [
+        perm_browse_companies,
+        perm_view_company,
+        perm_browse_site,
+        perm_add_site,
+        perm_change_site,
+        perm_delete_site,
+        perm_manage_site,
+    ]
+    
     # create Dealer role
     dealer_group = Group.objects.get_or_create(name=u'Dealer')[0]
 
@@ -87,10 +107,22 @@ def run():
     dealer_group.permissions.clear()
 
     dealer_group.permissions = [
-        perm_add_user,
+        perm_change_company,
+    ]
+
+    # create Technician role
+    technician_group = Group.objects.get_or_create(name=u'Technician')[0]
+
+    # assign permissions to Dealer
+    technician_group.permissions.clear()
+
+    technician_group.permissions = [
         perm_change_user,
         perm_delete_user,
-        perm_browse_user]
+        perm_browse_user
+    ]
+
+
 
     # create Master User role
     masteruser_group = Group.objects.get_or_create(name=u'Master User')[0]

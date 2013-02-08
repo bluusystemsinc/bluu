@@ -147,6 +147,7 @@ INSTALLED_APPS = [
     'companies',
     'bluusites',
     'utils',
+    'grontextual',
 
 ]
 
@@ -156,6 +157,7 @@ AUTH_USER_MODEL = 'accounts.BluuUser'
 
 AUTHENTICATION_BACKENDS = (
                            'django.contrib.auth.backends.ModelBackend',
+                           'grontextual.backends.UserObjectGroupBackend',
                            #'accounts.auth_backends.EmailAuthBackend',
                            'guardian.backends.ObjectPermissionBackend',
                            )
