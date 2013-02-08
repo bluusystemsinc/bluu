@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from rest_framework.urlpatterns import format_suffix_patterns
 from .api_views import SiteList, SiteAccessList, SiteAccessGroups
 
