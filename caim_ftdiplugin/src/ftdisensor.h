@@ -19,7 +19,8 @@ public:
 
 public slots:
     virtual bool plug();
-    virtual void serialize(QTextStream *stream);
+    virtual void serialize(QByteArray* buffer);
+    virtual void serialize(QTextStream* stream);
 
 private:
 #ifdef CAIM_FTDISENSOR_USE_FILE

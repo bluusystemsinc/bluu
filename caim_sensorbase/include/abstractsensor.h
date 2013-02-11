@@ -17,6 +17,7 @@ public slots:
     // This function will serialize the data in json format to send to
     // the server
     virtual void serialize(QTextStream *stream) = 0;
+    virtual void serialize(QByteArray* stream) = 0;
 
 protected:
     AbstractSensor(QObject *parent = 0) : QObject(parent) {}
