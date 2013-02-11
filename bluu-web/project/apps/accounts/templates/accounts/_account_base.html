@@ -1,0 +1,19 @@
+{% extends "_cu_base.html" %}
+
+{% load i18n theme_tags guardian_tags %}
+
+{% block sidebar %}
+    <div class="box">
+      <h4 class="box-heading">
+            {{ object.get_name }}
+      </h4>
+      <ul class="nav nav-list">
+          {% comment %}{% if perms.accounts.browse_bluuusers %}<li class="{% active request "^/accounts/users/\d+/$" %}"><a href="{% url 'bluuuser_list' user.username %}">{% trans "User list" %}</a></li>{% endif %}{% endcomment %}
+        {% if object %}
+            {% if perms.accounts.delete_bluuusers %}<li><a href="{% url 'bluuuser_delete' object.username %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Remove user' %}</a></li>{% endif %}
+        {% endif %}
+      </ul>
+    </div>
+{% endblock%}
+
+

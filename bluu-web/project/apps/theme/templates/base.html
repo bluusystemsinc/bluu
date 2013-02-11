@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta name="csrf-token" content="{{ csrf_token }}">
 
     <!-- Le styles -->
     <style>
@@ -74,10 +75,10 @@
             <ul class="nav">
                 <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home icon-white"></i> {% trans "Home Page" %}</a></li>
                 {% if user.is_authenticated %}
-                    <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company-list' %}"><i class="icon-user"></i> {% trans "Companies" %}</a></li>
-                    <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site-list' %}"><i class="icon-user"></i> {% trans "Sites" %}</a></li>
-                    {% if perms.browse_bluuusers %}
-                    <li class="{% active request "^/accounts/users/$" %}"><a href="#"><i class="icon-user"></i> {% trans "Users" %}</a></li>
+                    <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company_list' %}"><i class="icon-user"></i> {% trans "Companies" %}</a></li>
+                    <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site_list' %}"><i class="icon-user"></i> {% trans "Sites" %}</a></li>
+                    {% if perms.accounts.browse_bluuusers %}
+                    <li class="{% active request "^/accounts/users/$" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
                     {% endif %}
                 {% endif %}
             </ul>
@@ -136,10 +137,10 @@
     <script src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
     {% compress js %}
     <script src="{{ STATIC_URL }}theme/components/bootstrap.css/js/bootstrap.min.js"></script>
-    <script src="{{ STATIC_URL }}theme/components/angular-complete/angular.js"></script>
-    <script src="{{ STATIC_URL }}theme/components/angular-complete/angular-resource.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/angular/angular.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/angular/angular-resource.min.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui.min.js"></script>
-    <script src="{{ STATIC_URL }}theme/components/angular-grid/ng-grid-1.6.2.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/angular-grid/ng-grid-1.6.3.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-grid/plugins/ng-grid-flexible-height.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/app.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/services.js"></script>

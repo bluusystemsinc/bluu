@@ -3,103 +3,29 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django import forms
 from django.forms import ModelForm
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.db.models.base import ObjectDoesNotExist
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+
 from registration.forms import RegistrationFormTermsOfService
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-from crispy_forms.layout import Layout, HTML, Fieldset, Div
+from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
-from django.contrib import messages
-from django.contrib.auth.forms import PasswordChangeForm #SetPasswordForm
-from django.shortcuts import redirect, render_to_response, get_object_or_404
 
-#from accounts.models import UserProfile
-#from mieszkanie.layout import BootstrappedSubmit
 from django.contrib.auth.forms import AuthenticationForm
-from accounts.models import Company, Site, BluuUser
+from accounts.models import BluuUser
 
 rev = lambda s: reverse(s)
 
-# force emails to be uniqe
-# User._meta.get_field_by_name('email')[0]._unique = True
-
-
-class CompanyForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-        self.helper.layout = Layout(
-            Div(
-                    'name',
-                    'street',
-                    'city',
-                    'state',
-                    'zip_code',
-                    'country',
-                    'phone',
-                    'email',
-                    'contact_name',
-            ),
-            FormActions(
-                Submit('submit', _('Submit'), css_class="btn-primary")
-            )
-        )
-        super(CompanyForm, self).__init__(*args, **kwargs)
-    
-    class Meta:
-        model = Company
-        fields = ('name', 'street', 'city', 'state', 'zip_code', 'country',
-                  'phone', 'email', 'contact_name')
-
-
-class SiteForm(ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
-        # user with 'manage_site' permission can assign site to any company
-        if not self.user.has_perm('accounts.manage_site'):
-            self.fields['company'].queryset = self.user.companies.all()
-
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-        self.helper.layout = Layout(
-            Div(
-                    'company',
-                    'first_name',
-                    'middle_initial',
-                    'last_name',
-                    'city',
-                    'state',
-                    'zip_code',
-                    'country',
-                    'phone',
-                    'email',
-            ),
-            FormActions(
-                Submit('submit', _('Submit'), css_class="btn-primary")
-            )
-        )
-        super(SiteForm, self).__init__(*args, **kwargs)
-
-    class Meta:
-        model = Site
-        fields = ('company', 'first_name', 'middle_initial', 'last_name', 
-                  'city', 'state', 'zip_code', 'country', 'phone', 'email')
-
 
 class BluuUserForm(ModelForm):
-    username = forms.RegexField(regex=r'^\w+$',
-            max_length=30,
-            label=_('Username'),
-            required=True,
-            help_text=_('30 characters or fewer. Alphanumeric '
-                        'characters only (letters, digits and underscores).'),
-            error_message=_('This value must contain only letters, '
-                            'numbers and underscores.'))
+    username = forms.RegexField(label=_("Username"), max_length=30,
+        regex=r'^[\w.@+-]+$',
+        help_text=_("Required. 30 characters or fewer. Letters, digits and "
+                      "@/./+/-/_ only."),
+        error_messages={
+            'invalid': _("This value may contain only letters, numbers and "
+                         "@/./+/-/_ characters.")})
+
     email = forms.EmailField(required=False, label=_('Email'))
     first_name = forms.CharField(required=True, label=_('First name'))
     last_name = forms.CharField(required=True, label=_('Last name'))
@@ -108,24 +34,44 @@ class BluuUserForm(ModelForm):
                                 required=False)
     password2 = forms.CharField(label=_("Password confirmation"),
                                 widget=forms.PasswordInput,
+                                help_text=_("Enter the same password as above, for verification."),
                                 required=False)
 
-    def __init__(self, user, contract, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = layout.Layout(
+            layout.Div(
+                    'username',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'password1',
+                    'password2',
+                    'cell',
+                    'cell_text_email',
+                    'is_active',
+            ),
+            FormActions(
+                layout.Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
         super(BluuUserForm, self).__init__(*args, **kwargs)
-        self.user = user
-        self.contract = contract
 
         if self.instance.pk:
             self.fields['password2'].help_text =\
             ("Leave both password fields blank if you don't want to change it")
+        else:
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
 
         self.fields.keyOrder = ['username',
             'first_name', 'last_name', 'email',
             'password1', 'password2', 'cell', 'cell_text_email', 'is_active'
         ]
 
-        if self.user.has_perm('accounts.manage_group_admins'):
-            self.fields.keyOrder.append('groups')
+        #if self.user.has_perm('accounts.manage_group_admins'):
+        #    self.fields.keyOrder.append('groups')
 
     class Meta:
         model = BluuUser
@@ -135,10 +81,9 @@ class BluuUserForm(ModelForm):
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
-        if password1 and password2:
-            if password1 != password2:
-                raise forms.ValidationError(
-                            ugettext("The two password fields didn't match."))
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(
+                ugettext("Passwords don't match"))
         return password2
 
     def save(self, commit=True):
@@ -146,23 +91,19 @@ class BluuUserForm(ModelForm):
 
         # if user doesn't have manage_group_admins permission then
         # he can only add (edit) standard users
-        # (neither TestCenter Admins nor Group Admins) to his entity
-        if user.pk and \
-                not self.user.has_perm('accounts.manage_dealers'):
-            user.groups.clear()
+        #if user.pk and \
+        #        not self.user.has_perm('accounts.manage_dealers'):
+        #    user.groups.clear()
 
         password = self.cleaned_data["password1"]
         if password:
             user.set_password(password)
 
         # Prepare a 'save_m2m' method for the form,
-        old_save_m2m = self.save_m2m
-
-        def save_m2m():
-            old_save_m2m()
-            user.contract.add(self.contract)
-
-        self.save_m2m = save_m2m
+        #old_save_m2m = self.save_m2m
+        #def save_m2m():
+        #    old_save_m2m()
+        #self.save_m2m = save_m2m
 
         if commit:
             user.save()
@@ -191,8 +132,8 @@ class RegistrationForm(RegistrationFormTermsOfService):
         self.helper.form_action = 'registration_register'
         self.helper.form_style = 'inline'
         self.helper.form_tag = False
-        self.helper.layout = Layout(
-                Fieldset(_('Register to be able to change your photo'),
+        self.helper.layout = layout.Layout(
+                layout.Fieldset(_('Register to be able to change your photo'),
                     'first_name',
                     'last_name',
                     'email',
@@ -207,9 +148,9 @@ class RegistrationForm(RegistrationFormTermsOfService):
     def clean_email(self):
         email = self.cleaned_data["email"]
         try:
-            user = User.objects.get(email=email)
+            user = BluuUser.objects.get(email=email)
             raise forms.ValidationError(_("This email address already exists."))
-        except User.DoesNotExist:
+        except BluuUser.DoesNotExist:
             return email
 
 class ProfileForm(ModelForm):
@@ -229,11 +170,11 @@ class ProfileForm(ModelForm):
         self.helper.form_id = 'id-ProfileForm'
         self.helper.form_style = 'inline'
         self.helper.form_tag = False
-        self.helper.layout = Layout(
-                Fieldset(_('Profile'),
+        self.helper.layout = layout.Layout(
+                layout.Fieldset(_('Profile'),
                     *uni_fields
                     ),
-                ButtonHolder(BootstrappedSubmit('submit', _('Submit')))
+                layout.ButtonHolder(layout.Submit('submit', _('Submit')))
         )
 
     #class Meta:
@@ -271,12 +212,12 @@ class AccountForm(forms.ModelForm):
         self.helper.form_id = 'id-AccountForm'
         self.helper.form_style = 'inline'
         self.helper.form_tag = False
-        self.helper.layout = Layout(
-                Fieldset(_(u'Your data'),
+        self.helper.layout = layout.Layout(
+                layout.Fieldset(_(u'Your data'),
                     'first_name',
                     'last_name',),
-                Fieldset(_(u'Password'),
-                    HTML("""{% load i18n %}
+                layout.Fieldset(_(u'Password'),
+                    layout.HTML("""{% load i18n %}
                     <p class="info">{% trans "If you don't want to change your password leave these fields empty." %}</p>
                     """),
                     'old_password',
@@ -285,7 +226,7 @@ class AccountForm(forms.ModelForm):
         )
 
     class Meta:
-        model = User
+        model = BluuUser
         fields = ('first_name', 'last_name', 'old_password', 'new_password1',
                   'new_password2')
 

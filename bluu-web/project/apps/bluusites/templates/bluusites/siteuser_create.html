@@ -1,0 +1,24 @@
+{% extends "bluusites/_site_base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+{% trans 'Add site' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'site_users' site.pk %}">{% trans "User list" %}</a> &gt; {% trans "Add user" %}
+{% endblock %}
+
+{% block main %}
+<h3 class="form-label">
+    {% trans "Add user" %}
+</h3>
+
+<form action="" method="POST">{% csrf_token %}
+<table class="manage-form">
+    {{ form.as_table }}
+    <tr><td><input type="submit" value="{% trans 'Add' %}" /></td></tr>
+</table>
+</form>
+{% endblock %}

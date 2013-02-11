@@ -1,6 +1,11 @@
 'use strict';
 
 /* Controllers */
+var VALID_CLASS = 'ng-valid',
+    INVALID_CLASS = 'ng-invalid',
+    PRISTINE_CLASS = 'ng-pristine',
+    DIRTY_CLASS = 'ng-dirty';
+
 
 function CompanyAccessController(CompanyAccess, $configService, $scope) {
    /*$scope.myData = [{name: "Moroni", age: 50},
@@ -96,22 +101,23 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
     $scope.company_access = new CompanyAccess();
     //$scope.company_access_groups = new CompanyAccessGroups();
 
-    CompanyAccessGroups.query({'companyId':COMPANY_ID}, function(data){
-        $scope.groups = data;
-    });
+    //CompanyAccessGroups.query({'companyId':COMPANY_ID}, function(data){
+    //    $scope.group = data;
+    //});
 
     $scope.save = function () {
-        console.debug($scope.company_access);
         $scope.invitationData.push({email: $scope.company_access.email, invitation: 'pending'});
 
         if (!$scope.$$phase) {
             $scope.$apply();
         }
 
-        /*CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
+        CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
             function (res){
-                if (res.ok === 1) { console.log('success');}}
-        );*/
+                if (res.ok === 1) { console.log('success');}
+                access_datatable.fnDraw();
+            }
+        );
     };
 
     $scope.invitationColumnDefs = [{ field: 'email', displayName: 'E-mail'},
@@ -134,7 +140,7 @@ CompanyInvitationController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
                                       '$configService', '$scope'];
 
 
-function CompanySitesController(CompanySites, $configService, $scope) {
+function CompanySitesController(Site, $configService, $scope) {
     $scope.myData = [];
     $scope.filterOptions = {
         filterText: "",
@@ -159,14 +165,14 @@ function CompanySitesController(CompanySites, $configService, $scope) {
             var data;
             if (searchText) {
                 var ft = searchText.toLowerCase();
-                CompanySites.query({'company': COMPANY_ID}, function(data){
+                Site.query({'companyId': COMPANY_ID}, function(data){
                     data.filter(function(item) {
                         return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
                     });
                     $scope.setPagingData(data,page,pageSize);
                 });
             } else {
-                CompanySites.query({'company':COMPANY_ID}, function(data){
+                Site.query({'companyId':COMPANY_ID}, function(data){
                     $scope.setPagingData(data,page,pageSize);
                 });
             }
@@ -185,23 +191,58 @@ function CompanySitesController(CompanySites, $configService, $scope) {
 
     $scope.columnDefs = [{ field: 'first_name', displayName: 'First Name'},
                   { field: 'last_name', displayName: 'Last Name'},
-                  { field: 'company.name', displayName: 'Company'},
+                  { field: 'city', displayName: 'City'},
+                  { field: 'street', displayName: 'Street'},
                   { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Delete</a></div>'}
                   ];
 	
     $scope.CompanySitesGridOptions = {
         data: 'myData',
         displaySelectionCheckbox: false,
-        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
-        //enablePaging: false,
-        //pagingOptions: $scope.pagingOptions,
+        //plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
+        enablePaging: true,
+        pagingOptions: $scope.pagingOptions,
         //filterOptions: $scope.filterOptions,
         columnDefs: 'columnDefs',
-        footerVisible: false
+        footerVisible: true,
+        canSelectRows: false
+    };
+    $scope.site = new Site();
+
+    $scope.save = function(){
+        $scope.site.$save({'companyId':COMPANY_ID}, function(res){
+            $scope.myData.push(res);
+            $scope.site = new Site();
+            $scope.newsite.$setPristine();
+            $('#sites-tab a[href="#sites"]').tab('show');
+        }, function(res){
+            if (res.status === 400){
+                var field;
+                for(field in res.data){
+                    console.log(res.data[field]);
+                    $scope.newsite.$setDirty();
+                    $scope.newsite[field].$setValidity(false);
+                    $scope.newsite[field].$dirty = true;
+                    var element_string = 'form[name="newsite"] [name="' + field + '"]';
+                    var $element = angular.element(element_string);
+                    $element.removeClass(PRISTINE_CLASS);
+                    $element.addClass(DIRTY_CLASS);
+                }
+            }
+        });
     };
 }
-CompanySitesController.$inject = ['CompanySites', '$configService',
-                                   '$scope'];
+CompanySitesController.$inject = ['Site', '$configService', '$scope'];
+
+function CompanySiteCreateController(Site, $configService, $scope) {
+    //$scope.site = new Site();
+
+    //$scope.saver = function(){
+    //    console.log('saving');
+    //    $scope.site.$save({'companyId':COMPANY_ID}, function(res){console.log('done');});
+    //};
+} 
+CompanySiteCreateController.$inject = ['Site', '$configService', '$scope'];
 
 
 function SiteAccessController(SiteAccess, $configService, $scope) {

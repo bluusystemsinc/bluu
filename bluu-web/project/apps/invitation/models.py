@@ -6,7 +6,6 @@ from django.conf import settings
 from django.utils.http import int_to_base36
 from django.utils.hashcompat import sha_constructor
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
@@ -58,9 +57,9 @@ class InvitationKey(models.Model):
     key = models.CharField(_('invitation key'), max_length=40)
     date_invited = models.DateTimeField(_('date invited'), 
                                         default=datetime.datetime.now)
-    from_user = models.ForeignKey(User, 
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, 
                                   related_name='invitations_sent')
-    registrant = models.ForeignKey(User, null=True, blank=True, 
+    registrant = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, 
                                   related_name='invitations_used')
     
     objects = InvitationKeyManager()
@@ -118,7 +117,7 @@ class InvitationKey(models.Model):
 
         
 class InvitationUser(models.Model):
-    inviter = models.ForeignKey(User, unique=True)
+    inviter = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
     invitations_remaining = models.IntegerField()
 
     def __unicode__(self):
@@ -132,5 +131,5 @@ def user_post_save(sender, instance, created, **kwargs):
         invitation_user.inviter = instance
         invitation_user.save()
 
-models.signals.post_save.connect(user_post_save, sender=User)
+models.signals.post_save.connect(user_post_save, sender=settings.AUTH_USER_MODEL)
 

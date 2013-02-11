@@ -1,0 +1,21 @@
+{% extends "accounts/_account_base.html" %}
+
+{% load i18n crispy_forms_tags %}
+
+{% block title %}
+{% trans 'User Details' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'bluuuser_list' %}">{% trans "User list" %}</a> &gt; {% trans "User Details" %}
+{% endblock %}
+
+{% block page-title %}
+    {% trans "User details" %}
+{% endblock %}
+
+{% block main %}
+<form class="form-horizontal" action="." method="post">{% csrf_token %}
+    {% crispy form form.helper %}
+</form>
+{% endblock %}

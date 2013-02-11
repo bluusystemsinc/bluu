@@ -1,0 +1,131 @@
+{% extends "companies/_company_access_base.html" %}
+
+{% load i18n crispy_forms_tags grontextual_tags %}
+
+{% block title %}
+{% trans 'Company Access Management' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Access Management" %}
+{% endblock %}
+
+{% block page-title %}
+    {% trans "Access Management" %}
+{% endblock %}
+
+{% block main %}
+{{ block.super }}
+
+{% get_uog_perms request.user for company as "company_perms" %}
+<div class="tab-content">
+    <div class="tab-pane active" id="users">
+        {% comment %}<div class="gridStyle" ng-grid="AccessGridOptions"></div>{% endcomment %}
+
+        <div ng-controller="CompanyInvitationController">
+            <p>{% trans "Invite user" %}</p>
+            <form class="form-inline">
+                {#% crispy invitation_form invitation_form.helper %#}
+                {% comment %}<input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />{% endcomment %}
+                {{ invitation_form.email }}
+                {{ invitation_form.group }}
+                {% comment %}<select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>{% endcomment %}
+                <button type="submit" class="btn" ng-click="save()">{% trans "Add" %}</button>
+            </form>
+        </div>
+
+        <table id="access_list_table" class="infotable datatable">
+            <thead>
+                <tr>
+                    <th>{% trans 'No.' %}</th>
+                    <th>{% trans 'E-mail' %}</th>
+                    <th>{% trans 'Access' %}</th>
+                    <th>{% trans 'Actions' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block css %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}theme/components/datatables/media/css/jquery.dataTables.css" />
+    {{ block.super }}
+{% endblock %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    <script charset="utf-8" type="text/javascript">
+    var COMPANY_ID = {{ company.id }};
+    var access_datatable = '';
+    //var COMPANY_ID = {{ company.id }};
+    $(document).ready(function() {
+        access_datatable = $('#access_list_table').dataTable( {
+         "oLanguage": {
+            "sProcessing":   "{% trans 'Processing...' %}",
+            "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
+            "sZeroRecords":  "{% trans 'No matching records found' %}",
+            "sInfo":         "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+            "sInfoEmpty":    "{% trans 'Showing 0 to 0 of 0 entries' %}",
+            "sInfoFiltered": "{% trans '(filtered from _MAX_ total entries)' %}",
+            "sInfoPostFix":  "",
+            "sSearch":       "{% trans 'Search:' %}",
+            "sUrl":          "",
+            "oPaginate": {
+                "sFirst":    "{% trans 'First' %}",
+                "sPrevious": "{% trans 'Previous' %}",
+                "sNext":     "{% trans 'Next' %}",
+                "sLast":     "{% trans 'Last' %}"
+            }
+         },
+         "sDom":'lfriptip',
+         "bServerSide": true,
+         "bProcessing": true,
+         "sAjaxSource": "{% url 'companies:api_company_access_json' company.pk %}",
+         "aaSorting": [[1, 'asc']],
+         "aoColumns": [
+                {
+                  "mData": 'no',
+                  "bSearchable": false, 
+                  "bSortable": false
+                },
+                { "mData": 'email'},
+                {
+                   "mData": 'groups',
+                   "mRender": function(data, type, full){
+                        ret = ''
+                        for (var i=0; i < data.length; i++){ 
+                            if (i != 0)
+                                ret += ' ';
+                            ret += data[i].name;
+                        }
+                        return ret
+                   }
+                
+                },
+                {
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                    {
+                        $(nTd).css('text-align', 'center');
+                    },
+                    "mData": null,
+                    "mRender": function( data, type, full) {
+                        return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
+                    },
+                    "bSearchable": false, 
+                    "bSortable": false
+                }
+            ]
+    });
+});
+</script>
+{% endblock %}
+

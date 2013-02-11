@@ -105,6 +105,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     'django.core.context_processors.tz',
     "django.core.context_processors.request",
+    "django.core.context_processors.csrf",
     "django.contrib.messages.context_processors.messages",
 )
 
@@ -139,9 +140,15 @@ INSTALLED_APPS = [
     'mailer',
     'compressor',
     'crispy_forms',
-    'accounts',
     'rest_framework',
+    'braces',
     'guardian',
+    'accounts',
+    'companies',
+    'bluusites',
+    'utils',
+    'grontextual',
+
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"
@@ -150,6 +157,7 @@ AUTH_USER_MODEL = 'accounts.BluuUser'
 
 AUTHENTICATION_BACKENDS = (
                            'django.contrib.auth.backends.ModelBackend',
+                           'grontextual.backends.UserObjectGroupBackend',
                            #'accounts.auth_backends.EmailAuthBackend',
                            'guardian.backends.ObjectPermissionBackend',
                            )
@@ -207,6 +215,8 @@ REST_FRAMEWORK = {
 SOUTH_MIGRATION_MODULES = {
     'guardian': 'ignore',
 }
+
+APPEND_SLASH = False
 
 try:
     from settings_local import *

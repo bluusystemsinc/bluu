@@ -2,7 +2,8 @@
 @import "compass/css3/box-sizing";
 
 .gridStyle {
-    height: 1400px;
+    //height: 1400px;
+    height: 400px;
 }
 
 .ngFooterPanel{
@@ -23,6 +24,13 @@
     }
 }
 
+form input.ng-invalid.ng-dirty {
+    background-color: #FA787E;
+}
+form input.ng-valid.ng-dirty {
+    background-color: #78FA89;
+}
+
 .navbar {
     a.brand{
         padding: 5px 10px;
@@ -34,6 +42,10 @@
 
 .box{
     margin: 10px;
+}
+
+.box-heading{
+    margin: 20px 15px;
 }
 
 footer{

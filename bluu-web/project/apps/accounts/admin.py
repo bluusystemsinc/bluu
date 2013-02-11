@@ -1,19 +1,20 @@
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
-from accounts.models import Site, Company, BluuUser
-from django.contrib.auth import get_user_model
-from django.utils.translation import ugettext_lazy as _, ugettext
-
 from django import forms
+from django.utils.translation import ugettext_lazy as _
+from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from .models import BluuUser
 
 
 class BluuUserChangeForm(UserChangeForm):
+
     class Meta:
         model = get_user_model()
 
+
 class BluuUserCreationForm(UserCreationForm):
+
     class Meta:
         model = get_user_model()
 
@@ -36,6 +37,4 @@ class BluuUserAdmin(UserAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
         )
 
-admin.site.register(Site)
-admin.site.register(Company)
 admin.site.register(BluuUser, BluuUserAdmin)

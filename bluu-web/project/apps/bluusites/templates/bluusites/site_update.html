@@ -1,0 +1,21 @@
+{% extends "bluusites/_site_base.html" %}
+
+{% load i18n crispy_forms_tags %}
+
+{% block title %}
+{% trans "Site Details" %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'site_list' %}">{% trans "Site list" %}</a> &gt; {% trans "Edit site" %}
+{% endblock %}
+
+{% block page-title %}
+    {% trans "Site Details" %}
+{% endblock %}
+
+{% block main %}
+<form class="form-horizontal" action="." method="post">{% csrf_token %}
+    {% crispy form form.helper %}
+</form>
+{% endblock %}
