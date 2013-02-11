@@ -48,3 +48,13 @@ void FtdiSensor::serialize(QTextStream *stream)
     qDebug() << m_device->readAll();
    //  out<<m_device->readAll();
 }
+
+void FtdiSensor::serialize(QByteArray* buffer)
+{
+    qDebug()<<__PRETTY_FUNCTION__;
+
+    if(NULL != buffer)
+    {
+        *buffer = m_device->readAll();
+    }
+}

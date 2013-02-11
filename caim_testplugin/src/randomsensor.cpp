@@ -10,7 +10,7 @@ extern "C" AbstractSensorList instances()
 {
     AbstractSensorList list;
 
-//    list.append(new RandomSensor);
+    list.append(new RandomSensor);
     return list;
 }
 

@@ -11,6 +11,8 @@
 
 #include <debug.h>
 #include <abstractsensor.h>
+// #include "webrequest.h"
+#include "datamanager.h"
 
 SensorManager::SensorManager(QObject *parent) :
     QObject(parent)
@@ -115,10 +117,27 @@ void SensorManager::readData()
     QTextStream stream(&data, QIODevice::WriteOnly);
     AbstractSensor *sensor = dynamic_cast<AbstractSensor*>(sender());
 
+    if(NULL != sensor)
+    {
+        sensor->serialize(&data);
+        CBluuDataManager::Instance()->processData(&data);
+    }
+
+    /*
     sensor->serialize(&stream);
     stream.flush();
     qDebug()<<__PRETTY_FUNCTION__<<sensor->metaObject()->className()<<data<<
               QThread::currentThread();
+              */
+
+    /*
+    QUrl        url("127.0.0.1:5000");
+    WebRequest*     request = new WebRequest(qobject_cast<QObject*>(this), "127.0.0.1");
+    QVariantMap     map;
+
+    map.insert("1", "2");
+    request->sendDataToServer(map);
+    */
 }
 
 void SensorManager::sensorUnplugged()
