@@ -17,17 +17,15 @@ class CompaniesTestCase(WebTest):
         self.company2 = G(Company, name="C2")
 
         self.user1 = G(BluuUser, username='test1')
-        
         self.user2 = G(BluuUser, username='test2',
                        groups=[Group.objects.get(name='Bluu')])
-
         self.user3 = G(BluuUser, username='test3')
+
         assign('companies.browse_companies', self.user3)
         assign('companies.view_company', self.user3, self.company1)
 
-
     def testCompanyListDenyAccess(self):
-        """User with no companies.browse_companies permission can't access
+        """User with no `companies.browse_companies` permission can't access
         a company list.
         """
         self.app.get(reverse('company-list'), user='test1', status=302)

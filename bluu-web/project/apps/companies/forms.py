@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.conf import settings
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
-from django.contrib.auth.models import Group
-from django.contrib.auth import get_user_model
 
 from accounts.forms import BluuUserForm
 from .models import Company, CompanyAccess
@@ -70,7 +72,7 @@ class CompanyInvitationForm(forms.ModelForm):
             )
         )
         super(CompanyInvitationForm, self).__init__(*args, **kwargs)
-        self.fields['group'].choices = [('', '---')] + [(group.pk, group.name) for group in Group.objects.filter(name__in=["Dealer", "Technician"])]
+        self.fields['group'].choices = [('', '---')] + [(group.pk, group.name) for group in Group.objects.filter(name__in=settings.COMPANY_GROUPS)]
         self.fields['group'].label = ''
         self.fields['group'].widget.attrs['ng-model'] = 'company_access.group'
         self.fields['email'].label = ''
