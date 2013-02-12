@@ -15,8 +15,10 @@ DEPENDPATH += . \
 INCLUDEPATH += . qtservice/src ../caim_sensorbase/include
 INCLUDEPATH += ../utils
 INCLUDEPATH += /home/robal/libs/qjson/build/lib/Headers
+INCLUDEPATH += /home/robal/libs/jsonqt/lib
 
 LIBS += -L/home/robal/libs/qjson/build/lib -lqjson
+LIBS += -L/home/robal/libs/jsonqt/build/lib -lJsonQt
 
 # Input
 HEADERS += qtservice/src/qtservice.h \
@@ -26,7 +28,8 @@ HEADERS += qtservice/src/qtservice.h \
     ../utils/singleton.h \
     src/dataparser.h \
     src/datapacket.h \
-    src/datamanager.h
+    src/datamanager.h \
+    src/webrequest.h
 
 HEADERS += ../caim_sensorbase/include/abstractsensor.h
 
@@ -36,7 +39,8 @@ SOURCES += src/caim.cpp \
            src/datapacket.cpp \
            src/sensormanager.cpp \
            qtservice/src/qtservice.cpp \
-           ../utils/unixsignals.cpp
+           ../utils/unixsignals.cpp \
+    src/webrequest.cpp
 
 unix {
     HEADERS += qtservice/src/qtunixserversocket.h \

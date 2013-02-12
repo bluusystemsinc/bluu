@@ -4,6 +4,7 @@
 
 #include "sensormanager.h"
 #include "unixsignals.h"
+#include "webrequest.h"
 
 int main(int argc, char **argv)
 {
@@ -11,10 +12,15 @@ int main(int argc, char **argv)
     SensorManager sm;
 
     CBluuUnixSignals::Instance()->setupUnixSignalHandlers();
+
     app.setOrganizationName(ORGANIZATION_NAME);
     app.setOrganizationDomain(ORGANIZATION_DOMAIN);
     app.setApplicationName(APPLICATION_NAME);
     app.setApplicationVersion(QString("0.1.%1").arg(APPLICATION_VERSION));
+
+    QUrl    url("http://127.0.0.1:5000/");
+
+    CBluuWebRequest::Instance()->setUrl(url);
 
     qDebug()<<QString("Starting %1 %2 %3...").arg(app.organizationName())
               .arg(app.applicationName()).arg(app.applicationVersion());

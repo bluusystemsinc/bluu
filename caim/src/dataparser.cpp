@@ -146,7 +146,7 @@ bool DataParser::checkDevice()
  */
 void DataParser::checkStatus()
 {
-    packet.setStatus(data->at(2));
+    packet.setStatus(static_cast<quint8>(data->at(2)));
 }
 
 /**
