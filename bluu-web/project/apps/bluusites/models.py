@@ -9,7 +9,8 @@ from django.db.models.signals import post_save, pre_delete
 from django.contrib.auth.models import Group
 
 from utils.misc import remove_orphaned_obj_perms
-from companies.models import Company, Entity
+from utils.models import Entity
+from companies.models import Company
 
 
 class BluuSite(Entity):

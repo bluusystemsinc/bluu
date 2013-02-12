@@ -34,11 +34,6 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
             return super(CompanyListView, self).get_queryset()
         return get_objects_for_user(self.request.user, 'companies.view_company')
 
-    #@method_decorator(login_required)
-    #@method_decorator(permission_required('companies.browse_companies'))
-    #def dispatch(self, *args, **kwargs):
-    #    return super(CompanyListView, self).dispatch(*args, **kwargs)
-
 
 class CompanyCreateView(PermissionRequiredMixin, CreateView):
     model = Company
@@ -52,11 +47,6 @@ class CompanyCreateView(PermissionRequiredMixin, CreateView):
         messages.success(self.request, _('Company added'))
         return response
 
-    #@method_decorator(login_required)
-    #@method_decorator(permission_required('companies.add_company'))
-    #def dispatch(self, *args, **kwargs):
-    #    return super(CompanyCreateView, self).dispatch(*args, **kwargs)
-
 
 class CompanyUpdateView(GPermissionRequiredMixin, UpdateView):
     model = Company
@@ -68,12 +58,6 @@ class CompanyUpdateView(GPermissionRequiredMixin, UpdateView):
         response = super(CompanyUpdateView, self).form_valid(form)
         messages.success(self.request, _('Company changed'))
         return response
-
-    #@method_decorator(login_required)
-    #@method_decorator(permission_required_or_403('companies.change_company',
-    #        (Company, 'pk', 'pk'), accept_global_perms=True))
-    #def dispatch(self, *args, **kwargs):
-    #    return super(CompanyUpdateView, self).dispatch(*args, **kwargs)
 
 
 @permission_required_or_403('companies.delete_company')
@@ -123,48 +107,6 @@ class CompanyAccessListView(GPermissionRequiredMixin, TemplateView):
             'access_list': access_list,
             'invitation_form': invitation_form
         } 
-
-
-    #@method_decorator(login_required)
-    #@method_decorator(permission_required_or_403('companies.change_company',
-    #        (Company, 'pk', 'pk')))
-    #def dispatch(self, *args, **kwargs):
-    #    return super(CompanyAccessListView, self).\
-    #            dispatch(*args, **kwargs)
-
-
-class CompanyAccessCreateView(GPermissionRequiredMixin, DetailView):
-    model = Company
-    template_name = "companies/company_access_create.html"
-    pk_url_kwarg = 'company_pk'
-    permission_required = 'companies.change_company'
-
-    def get_context_data(self, **kwargs):
-        kwargs['form'] = BluuUserForm(self.request.user, None)
-        return super(CompanyAccessListView, self).get_context_data(**kwargs)
-
-    #def get_context_data(self, **kwargs):
-    #    kwargs['form'] = SiteForm()
-    #    return super(CompanySiteListView, self).get_context_data(**kwargs)
-
-    #@method_decorator(login_required)
-    #@method_decorator(permission_required_or_403('companies.change_company',
-    #        (Company, 'pk', 'pk')))
-    #def dispatch(self, *args, **kwargs):
-    #    return super(CompanyAccessManagementView, self).\
-    #            dispatch(*args, **kwargs)
-
-    #@method_decorator(login_required)
-    #@method_decorator(permission_required_or_403('companies.change_company',
-    #        (Company, 'pk', 'company_pk')))
-    #@method_decorator(permission_required('accounts.add_bluusite'))
-    def dispatch(self, *args, **kwargs):
-        try:
-            self.company = \
-                    Company.objects.get(pk=kwargs.get('company_pk', None))
-        except ObjectDoesNotExist:
-            pass
-        return super(CompanyAccessCreateView, self).dispatch(*args, **kwargs)
 
 
 class CompanySiteListView(GPermissionRequiredMixin, DetailView):

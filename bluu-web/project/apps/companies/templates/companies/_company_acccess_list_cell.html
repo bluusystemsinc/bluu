@@ -1,0 +1,11 @@
+<ul class="nav nav-pills">
+{% for group in groups %}
+    <li {% if group.pk %}class="active"{% endif %}>
+    {% if group.pk %}
+        {{group.name}}
+    {% else %}
+        <a href="#">{{group.name}}</a>
+    {% endif %}
+    </li>
+{% endfor 5}
+</ul>

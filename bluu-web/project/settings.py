@@ -218,6 +218,9 @@ SOUTH_MIGRATION_MODULES = {
 
 APPEND_SLASH = False
 
+# App specific settings
+COMPANY_GROUPS = ['Dealer', 'Technician']
+
 try:
     from settings_local import *
 except Exception, err:

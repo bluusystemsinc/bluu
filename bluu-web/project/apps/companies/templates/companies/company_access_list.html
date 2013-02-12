@@ -1,4 +1,4 @@
-{% extends "companies/_company_access_base.html" %}
+{% extends "companies/company_access_base.html" %}
 
 {% load i18n crispy_forms_tags grontextual_tags %}
 
@@ -99,16 +99,16 @@
                 },
                 { "mData": 'email'},
                 {
-                   "mData": 'groups',
-                   "mRender": function(data, type, full){
-                        ret = ''
+                   "mData": 'groups'
+                   /*"mRender": function(data, type, full){
+                        var ret = ''
                         for (var i=0; i < data.length; i++){ 
                             if (i != 0)
                                 ret += ' ';
                             ret += data[i].name;
                         }
                         return ret
-                   }
+                   }*/
                 
                 },
                 {

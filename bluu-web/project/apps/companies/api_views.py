@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.http import Http404
+from django.conf import settings
 from django.db.models import Q
+from django.template import Context, Template
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, get_object_or_404
@@ -221,8 +223,13 @@ class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CompanyAccessListJson(BaseDatatableView):
-    # define column names that will be used in sorting
-    # order is important and should be same as order of columns
+    """
+    Returns list of users having an access to specified company.
+    It's intended to work with Jquery datatable.
+    """
+
+    # Defines column names that will be used in sorting.
+    # Order is important and should be the same as order of columns
     # displayed by datatables. For non sortable columns use empty
     # value like ''
     order_columns = ['', 'email']
@@ -241,14 +248,11 @@ class CompanyAccessListJson(BaseDatatableView):
         self.initialize(*args, **kwargs)
 
         self.company = self.get_object(kwargs.get('company_pk'))
-        #qs = self.get_initial_queryset()
-        qs = CompanyAccess.objects.filter(company=self.company)
 
+        qs = CompanyAccess.objects.filter(company=self.company)
         # number of records before filtering
         total_records = qs.count()
-
         qs = self.filter_queryset(qs)
-
         # number of records after filtering
         total_display_records = qs.count()
 
@@ -266,6 +270,25 @@ class CompanyAccessListJson(BaseDatatableView):
 
         return ret
 
+    def _render_access_level(self, access, groups):
+        """
+        Renders cell data determining user's access level to a company.
+        Contains links that allow user to change access level. 
+        """
+        if access.invitation:
+            groups = [{"pk": access.group.pk, "name": access.group.name + ' (pending)'}]
+        else:
+            groups = []
+            for uog in UserObjectGroup.objects.get_for_object(access.user, self.company):
+                for group in settings.COMPANY_GROUPS:
+                    # if user already has this role
+                    if group.name == uog.group.name:
+                        groups.append({"name": uog.group.name})
+                    else:
+                        groups.append({"pk": uog.group.pk, "name": group})
+            t = Template('companies/_company_access_list-cell')
+            return t.render(context={'groups': groups})
+
     def prepare_results(self, qs):
         # prepare list with output column data
         # queryset is already paginated here
@@ -277,15 +300,13 @@ class CompanyAccessListJson(BaseDatatableView):
             no = 0
 
         for access in qs:
-            if access.invitation:
-                groups = [{"pk": access.group.pk, "name": access.group.name + ' (pending)'}]
-            else:
-                groups = [{"pk": uog.group.pk, "name": uog.group.name} for uog in UserObjectGroup.objects.get_for_object(access.user, self.company)]
+            rendered_groups = self._render_access_level(access, qs)
+
             json_data.append(
                 {
                     "no": no,
                     "email": access.get_email,
-                    "groups": groups,
+                    "groups": rendered_groups,
                     "invitation": access.invitation
                 }
             )
@@ -328,6 +349,9 @@ class CompanyAccessListJson(BaseDatatableView):
 
 
 class CompanyAccessList(generics.ListCreateAPIView):
+    """
+    Saves access data posted by client.
+    """
     permission_classes = (permissions.IsAuthenticated,)
     model = Company
 

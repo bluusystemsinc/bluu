@@ -120,7 +120,7 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
         );
     };
 
-    $scope.invitationColumnDefs = [{ field: 'email', displayName: 'E-mail'},
+    /*$scope.invitationColumnDefs = [{ field: 'email', displayName: 'E-mail'},
         { field: 'invitation', displayName: 'Status'},
         { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Resend</a></div>' }];
 
@@ -133,7 +133,7 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
        columnDefs: 'invitationColumnDefs',
        footerVisible: false
-    };
+    };*/
 
 }
 CompanyInvitationController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
