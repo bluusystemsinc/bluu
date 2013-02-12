@@ -1,0 +1,7 @@
+<ul class="inline-list">
+{% for group in groups %}
+<li class="clickable inline-box {% if group.pk %}box-on{% else %}box-off{% endif %}">
+    {{group.name}}
+</li>
+{% endfor %}
+</ul>

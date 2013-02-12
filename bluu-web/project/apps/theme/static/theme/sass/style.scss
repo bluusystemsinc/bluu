@@ -1,5 +1,6 @@
 @import "base";
 @import "compass/css3/box-sizing";
+@import "compass/css3/border-radius";
 
 .gridStyle {
     //height: 1400px;
@@ -54,3 +55,36 @@ footer{
     margin-top: 70px;
     padding: 70px 0;
 }
+
+
+/* Access Management */
+.inline-list {
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+}
+
+.inline-box{
+    float: left;
+    margin: 1px 5px 0 0;
+    padding: 2px 4px 1px
+}
+
+.clickable{
+    cursor: pointer;
+}
+
+.box-on{
+    color: #FFF;
+    background-color: #0088CC; 
+    border: 1px solid #0088CC; 
+    @include border-radius(4px, 4px);
+}
+
+.box-off{
+    color: #33BBFF;
+    background-color: none; 
+    border: 1px solid #33BBFF; 
+    @include border-radius(4px, 4px);
+}
+/* End Access Management */

@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import (login_required, permission_required)
+from django.template.loader import get_template
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -270,24 +271,34 @@ class CompanyAccessListJson(BaseDatatableView):
 
         return ret
 
-    def _render_access_level(self, access, groups):
+    def _render_access_level(self, access):
         """
         Renders cell data determining user's access level to a company.
         Contains links that allow user to change access level. 
         """
+        groups = []
+        assigned_groups = {}
         if access.invitation:
-            groups = [{"pk": access.group.pk, "name": access.group.name + ' (pending)'}]
+            assigned_groups[access.group.name] = {"name": access.group.name,
+                                               "pk": access.group.pk,
+                                               "assigned": True}
         else:
-            groups = []
+            # if user already has this role
             for uog in UserObjectGroup.objects.get_for_object(access.user, self.company):
-                for group in settings.COMPANY_GROUPS:
-                    # if user already has this role
-                    if group.name == uog.group.name:
-                        groups.append({"name": uog.group.name})
-                    else:
-                        groups.append({"pk": uog.group.pk, "name": group})
-            t = Template('companies/_company_access_list-cell')
-            return t.render(context={'groups': groups})
+                assigned_groups[uog.group.name] = {"name": uog.group.name,
+                                                   "pk": uog.group.pk,
+                                                   "assigned": True}
+
+        for company_group in settings.COMPANY_GROUPS:
+            if company_group not in assigned_groups.keys():
+                groups.append({"pk": None, "name": company_group, "assigned": False})
+            else:
+                groups.append(assigned_groups.get(company_group))
+
+        t = get_template('companies/_company_access_list_cell.html')
+        c = Context({'groups': groups})
+        ret = t.render(c)
+        return ret
 
     def prepare_results(self, qs):
         # prepare list with output column data
@@ -300,7 +311,7 @@ class CompanyAccessListJson(BaseDatatableView):
             no = 0
 
         for access in qs:
-            rendered_groups = self._render_access_level(access, qs)
+            rendered_groups = self._render_access_level(access)
 
             json_data.append(
                 {

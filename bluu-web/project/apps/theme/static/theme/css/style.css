@@ -1,57 +1,99 @@
-/* line 4, ../sass/style.scss */
+/* line 5, ../sass/style.scss */
 .gridStyle {
   height: 400px;
 }
 
-/* line 9, ../sass/style.scss */
+/* line 10, ../sass/style.scss */
 .ngFooterPanel {
   border: 0;
 }
 
-/* line 13, ../sass/style.scss */
+/* line 14, ../sass/style.scss */
 .ngGrid {
   background-color: transparent;
 }
 
-/* line 17, ../sass/style.scss */
+/* line 18, ../sass/style.scss */
 .ngRow {
   border: 0;
 }
 
-/* line 22, ../sass/style.scss */
+/* line 23, ../sass/style.scss */
 .ngCell:last-child {
   border-right: 0;
 }
 
-/* line 27, ../sass/style.scss */
+/* line 28, ../sass/style.scss */
 form input.ng-invalid.ng-dirty {
   background-color: #FA787E;
 }
 
-/* line 30, ../sass/style.scss */
+/* line 31, ../sass/style.scss */
 form input.ng-valid.ng-dirty {
   background-color: #78FA89;
 }
 
-/* line 35, ../sass/style.scss */
+/* line 36, ../sass/style.scss */
 .navbar a.brand {
   padding: 5px 10px;
 }
 
-/* line 43, ../sass/style.scss */
+/* line 44, ../sass/style.scss */
 .box {
   margin: 10px;
 }
 
-/* line 47, ../sass/style.scss */
+/* line 48, ../sass/style.scss */
 .box-heading {
   margin: 20px 15px;
 }
 
-/* line 51, ../sass/style.scss */
+/* line 52, ../sass/style.scss */
 footer {
   background-color: #F5F5F5;
   border-top: 1px solid #e5e5e5;
   margin-top: 70px;
   padding: 70px 0;
 }
+
+/* Access Management */
+/* line 61, ../sass/style.scss */
+.inline-list {
+  list-style: none outside none;
+  margin: 0;
+  padding: 0;
+}
+
+/* line 67, ../sass/style.scss */
+.inline-box {
+  float: left;
+  margin: 1px 5px 0 0;
+  padding: 2px 4px 1px;
+}
+
+/* line 73, ../sass/style.scss */
+.clickable {
+  cursor: pointer;
+}
+
+/* line 77, ../sass/style.scss */
+.box-on {
+  color: #FFF;
+  background-color: #0088CC;
+  border: 1px solid #0088cc;
+  -webkit-border-radius: 4px 4px;
+  -moz-border-radius: 4px / 4px;
+  border-radius: 4px / 4px;
+}
+
+/* line 84, ../sass/style.scss */
+.box-off {
+  color: #33BBFF;
+  background-color: none;
+  border: 1px solid #33bbff;
+  -webkit-border-radius: 4px 4px;
+  -moz-border-radius: 4px / 4px;
+  border-radius: 4px / 4px;
+}
+
+/* End Access Management */
