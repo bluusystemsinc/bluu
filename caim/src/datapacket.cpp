@@ -2,10 +2,10 @@
 #include "parser.h"
 #include "serializer.h"
 #include "debug.h"
+#include "datamanager.h"
 #include <QVariantList>
-#include <QVariantMap>
 
-static QMap<quint8, QString> devicesMap()
+static QMap<quint8, QString> devicesMapInit()
 {
     QMap<quint8, QString>   map;
 
@@ -27,7 +27,24 @@ static QMap<quint8, QString> devicesMap()
     return map;
 }
 
-static const QMap<quint8, QString> devices = devicesMap();
+static QMap<quint8, QString> statusMapInit()
+{
+    QMap<quint8, QString>   map;
+
+    map.insert(STATUS_ACTION, "action");
+    map.insert(STATUS_INPUT1, "input1");
+    map.insert(STATUS_INPUT2, "input2");
+    map.insert(STATUS_INPUT3, "input3");
+    map.insert(STATUS_INPUT4, "input4");
+    map.insert(STATUS_TAMPER, "tamper");
+    map.insert(STATUS_BATTERY, "battery");
+    map.insert(STATUS_SUPERVISORY, "supervisory");
+
+    return map;
+}
+
+static const QMap<quint8, QString>  devicesMap = devicesMapInit();
+static const QMap<quint8, QString>  statusMap = statusMapInit();
 
 /**
  * @brief DataPacket::DataPacket TDOO
@@ -37,6 +54,7 @@ DataPacket::DataPacket(QObject *parent) :
     QObject(parent)
 {
     log();
+    connect(this, SIGNAL(packedReadySignal(QByteArray)), CBluuDataManager::Instance(), SLOT(packedReadySlot(QByteArray)));
 }
 
 /**
@@ -54,7 +72,7 @@ void DataPacket::setSource(const char &src)
  * @brief DataPacket::setStatus TODO
  * @param stat
  */
-void DataPacket::setStatus(const char &stat)
+void DataPacket::setStatus(const quint8& stat)
 {
     log();
 
@@ -94,13 +112,51 @@ void DataPacket::generateJson()
     QVariantMap     map;
     QByteArray      out;
 
-    map.insert("device", devices.value(id));
+    map.insert("device", devicesMap.value(id));
     map.insert("serial", "123ab");
-    map.insert("data", "123");
-    map.insert("signal", "80");
-    // map.insert("action");
-    // map.insert("battery");
+    map.insert("data", 0);
+    map.insert("signal", 80);
+    map.insert("status", generateJsonStatus());
 
+    serializer.setIndentMode(QJson::IndentFull);
     out = serializer.serialize(map);
+    emit packedReadySignal(out);
     log() << out;
+}
+
+/**
+ * @brief DataPacket::generateJsonStatus TODO
+ * @param map
+ */
+QVariantMap DataPacket::generateJsonStatus()
+{
+    log();
+
+    QVariantMap     map;
+
+    jsonStatus(STATUS_ACTION, map);
+    jsonStatus(STATUS_INPUT1, map);
+    jsonStatus(STATUS_INPUT2, map);
+    jsonStatus(STATUS_INPUT3, map);
+    jsonStatus(STATUS_INPUT4, map);
+    jsonStatus(STATUS_TAMPER, map);
+    jsonStatus(STATUS_BATTERY, map);
+    jsonStatus(STATUS_SUPERVISORY, map);
+
+    return map;
+}
+
+/**
+ * @brief DataPacket::jSonStatus TODO
+ * @param bit
+ * @param map
+ */
+void DataPacket::jsonStatus(const quint8& bit, QVariantMap& map)
+{
+    // log();
+
+    if(0 != (bit & status))
+        map.insert(statusMap.value(bit), "on");
+    else
+        map.insert(statusMap.value(bit), QVariant::Invalid);
 }

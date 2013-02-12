@@ -6,6 +6,7 @@
 
 // magic number (packet start)
 #define MAGIC_NUMBER        0xAA
+#include <QVariantMap>
 
 // source type
 #define SOURCE_SENSOR       0x57
@@ -27,25 +28,40 @@
 #define DEV_KEY         0x0E
 #define DEV_PANIC       0x0F
 
+// status bytes
+#define STATUS_ACTION       0x80
+#define STATUS_INPUT1       0x40
+#define STATUS_INPUT2       0x20
+#define STATUS_INPUT3       0x10
+#define STATUS_INPUT4       0x08
+#define STATUS_TAMPER       0x04
+#define STATUS_BATTERY      0x02
+#define STATUS_SUPERVISORY  0x01
+
 class DataPacket : public QObject
 {
     Q_OBJECT
 
 protected:
     char            source;
-    char            status;
+    quint8          status;
     char            id;
     unsigned char   serial[3];
+
+protected:
+    void jsonStatus(const quint8& bit, QVariantMap& map);
 
 public:
     explicit DataPacket(QObject *parent = 0);
     void setSource(const char& src);
-    void setStatus(const char& stat);
+    void setStatus(const quint8& stat);
     void setSerial(const char ser[3]);
     void setId(const char& dev);
     void generateJson();
+    QVariantMap generateJsonStatus();
     
 signals:
+    void packedReadySignal(QByteArray json);
     
 public slots:
     

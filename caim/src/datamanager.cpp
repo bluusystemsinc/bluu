@@ -1,12 +1,21 @@
 #include "datamanager.h"
 #include "dataparser.h"
 #include "debug.h"
+#include "webrequest.h"
 
+/**
+ * @brief DataManager::DataManager TODO
+ * @param parent
+ */
 DataManager::DataManager(QObject *parent) :
     QObject(parent)
 {
 }
 
+/**
+ * @brief DataManager::processData TODO
+ * @param data
+ */
 void DataManager::processData(QByteArray* data)
 {
     log();
@@ -36,4 +45,12 @@ void DataManager::processData(QByteArray* data)
             log() << "Some data are missing";
         }
     }
+}
+
+/**
+ * @brief DataManager::packedReadySlot TODO
+ */
+void DataManager::packedReadySlot(QByteArray json)
+{
+    CBluuWebRequest::Instance()->sendDataToServer(json);
 }

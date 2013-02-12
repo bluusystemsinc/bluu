@@ -15,7 +15,7 @@ public:
 signals:
     
 public slots:
-    
+    void packedReadySlot(QByteArray json);
 };
 
 typedef CBluuSingleton<DataManager>     CBluuDataManager;
