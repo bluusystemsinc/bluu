@@ -43,20 +43,20 @@ class DataPacket : public QObject
     Q_OBJECT
 
 protected:
-    char            source;
-    quint8          status;
-    char            id;
-    unsigned char   serial[3];
+    quint8      source;
+    quint8      status;
+    quint8      id;
+    QByteArray  serial;
 
 protected:
     void jsonStatus(const quint8& bit, QVariantMap& map);
 
 public:
     explicit DataPacket(QObject *parent = 0);
-    void setSource(const char& src);
+    void setSource(const quint8& src);
     void setStatus(const quint8& stat);
-    void setSerial(const char ser[3]);
-    void setId(const char& dev);
+    void setSerial(const QByteArray& ser);
+    void setId(const quint8& dev);
     void generateJson();
     QVariantMap generateJsonStatus();
     
