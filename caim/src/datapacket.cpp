@@ -61,7 +61,7 @@ DataPacket::DataPacket(QObject *parent) :
  * @brief DataPacket::setSource TODO
  * @param src
  */
-void DataPacket::setSource(const char &src)
+void DataPacket::setSource(const quint8& src)
 {
     log();
 
@@ -79,13 +79,15 @@ void DataPacket::setStatus(const quint8& stat)
     status = stat;
 }
 
-void DataPacket::setSerial(const char ser[3])
+/**
+ * @brief DataPacket::setSerial
+ * @param ser
+ */
+void DataPacket::setSerial(const QByteArray& ser)
 {
     log();
 
-    serial[0] = ser[0];
-    serial[1] = ser[1];
-    serial[2] = ser[2];
+    serial = ser;
 }
 
 /**
@@ -93,7 +95,7 @@ void DataPacket::setSerial(const char ser[3])
  * @param dev
  * @return
  */
-void DataPacket::setId(const char& dev)
+void DataPacket::setId(const quint8& dev)
 {
     log();
 
@@ -113,7 +115,7 @@ void DataPacket::generateJson()
     QByteArray      out;
 
     map.insert("device", devicesMap.value(id));
-    map.insert("serial", "123ab");
+    map.insert("serial", serial);
     map.insert("data", 0);
     map.insert("signal", 80);
     map.insert("status", generateJsonStatus());

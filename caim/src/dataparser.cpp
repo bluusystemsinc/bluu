@@ -79,10 +79,7 @@ bool DataParser::checkCRC()
  */
 bool DataParser::checkMagic()
 {
-    char            x = data->at(0);
-    unsigned char   y = data->at(0);
-
-    return MAGIC_NUMBER == static_cast<unsigned char>(data->at(0)) ? true : false;
+    return MAGIC_NUMBER == static_cast<quint8>(data->at(0)) ? true : false;
 }
 
 /**
@@ -93,12 +90,12 @@ bool DataParser::checkSource()
 {
     bool    result = false;
 
-    switch(static_cast<unsigned char>(data->at(1)))
+    switch(static_cast<quint8>(data->at(1)))
     {
     case SOURCE_RECEIVER:
     case SOURCE_SENSOR:
         result = true;
-        packet.setSource(data->at(1));
+        packet.setSource(static_cast<quint8>(data->at(1)));
         break;
 
     default:
@@ -114,8 +111,8 @@ bool DataParser::checkSource()
  */
 bool DataParser::checkDevice()
 {
-    bool            result = false;
-    unsigned char   id = static_cast<unsigned char>(data->at(3)) >> 4;
+    bool     result = false;
+    quint8   id = static_cast<quint8>(data->at(3)) >> 4;
 
     switch(id)
     {
@@ -154,9 +151,25 @@ void DataParser::checkStatus()
  */
 void DataParser::checkSerial()
 {
-    char    serial[3];
+    QByteArray  out;
+    QByteArray  msn = QByteArray::number(data->at(3), 16);
+    QByteArray  mid = QByteArray::number(data->at(4), 16);
+    QByteArray  lsb = QByteArray::number(data->at(5), 16);
+    quint8      msnLen = 2 - msn.length();
+    quint8      midLen = 2 - mid.length();
+    quint8      lsbLen = 2 - lsb.length();
 
-    serial[0] = data->at(4);
-    serial[1] = data->at(5);
-    serial[2] = data->at(6);
+    for(int i = 0; i < msnLen; i++)
+        msn.prepend('0');
+
+    for(int i = 0; i < midLen; i++)
+        mid.prepend('0');
+
+    for(int i = 0; i < lsbLen; i++)
+        lsb.prepend('0');
+
+    out.append(msn);
+    out.append(mid);
+    out.append(lsb);
+    packet.setSerial(out);
 }
