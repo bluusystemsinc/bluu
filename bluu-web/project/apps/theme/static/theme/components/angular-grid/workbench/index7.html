@@ -18,6 +18,7 @@
 </head>
     <body ng-app="myApp" ng-controller="userController">
         <div style="width: 800px; height: 600px;"  ng-grid="gridOptions"></div>
-		<p>{{selections}}</p>
+		<button ng-click="getData()">get data</button>
+		<p>{{selections[0].Sku}}</p>
     </body>
 </html>

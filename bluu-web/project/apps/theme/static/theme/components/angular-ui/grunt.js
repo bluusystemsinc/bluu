@@ -4,7 +4,6 @@ var testacular = require('testacular');
 module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-recess');
-  grunt.loadNpmTasks('grunt-coffee');
 
   // Project configuration.
   grunt.initConfig({
@@ -16,12 +15,6 @@ module.exports = function (grunt) {
       '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
       ' * @link <%= pkg.homepage %>\n' +
       ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' + ' */'
-    },
-    coffee: {
-      build: {
-        src: ['common/*.coffee', 'modules/**/*.coffee'],
-        extension: ".coffee.js"
-      }
     },
     concat: {
       build: {
@@ -63,13 +56,13 @@ module.exports = function (grunt) {
       files: ['grunt.js', 'common/**/*.js', 'modules/**/*.js']
     },
     watch: {
-      files: ['modules/**/*.coffee', 'modules/**/*.js', 'common/**/*.js', 'templates/**/*.js'],
-      tasks: 'coffee build test'
+      files: ['modules/**/*.js', 'common/**/*.js', 'templates/**/*.js'],
+      tasks: 'build test'
     }
   });
 
   // Default task.
-  grunt.registerTask('default', 'coffee build test');
+  grunt.registerTask('default', 'build test');
 
   grunt.registerTask('build', 'build all or some of the angular-ui modules', function () {
 
@@ -86,8 +79,6 @@ module.exports = function (grunt) {
         lessBuildFiles = lessBuildFiles.concat(moduleless);
       });
 
-      //Set config with our new file lists
-      grunt.config('builddir', 'build/custom');
       grunt.config('concat.build.src', jsBuildFiles);
       grunt.config('recess.build.src', lessBuildFiles);
 
@@ -97,6 +88,11 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run('concat min recess:build recess:min');
+  });
+
+  grunt.registerTask('dist', 'change dist location', function() {
+    var dir = this.args[0];
+    if (dir) { grunt.config('builddir', dir); }
   });
 
   grunt.registerTask('server', 'start testacular server', function () {
@@ -109,7 +105,7 @@ module.exports = function (grunt) {
     var done = this.async();
     grunt.utils.spawn({
       cmd: process.platform === 'win32' ? 'testacular.cmd' : 'testacular',
-      args: process.env.TRAVIS ? ['start', 'test/test-config.js', '--single-run', '--no-auto-watch', '--reporter=dots', '--browsers=Firefox'] : ['run']
+      args: process.env.TRAVIS ? ['start', 'test/test-config.js', '--single-run', '--no-auto-watch', '--reporters=dots', '--browsers=Firefox'] : ['run']
     }, function (error, result, code) {
       if (error) {
         grunt.warn("Make sure the testacular server is online: run `grunt server`.\n" +

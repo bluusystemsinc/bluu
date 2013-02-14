@@ -222,7 +222,6 @@ class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CompanySerializer
 
 
-
 class CompanyAccessListJson(BaseDatatableView):
     """
     Returns list of users having an access to specified company.
@@ -283,22 +282,24 @@ class CompanyAccessListJson(BaseDatatableView):
                                                "pk": access.group.pk,
                                                "assigned": True}
         else:
-            # if user already has this role
+            # if user already has this group
             for uog in UserObjectGroup.objects.get_for_object(access.user, self.company):
                 assigned_groups[uog.group.name] = {"name": uog.group.name,
                                                    "pk": uog.group.pk,
                                                    "assigned": True}
 
         for company_group in settings.COMPANY_GROUPS:
-            if company_group not in assigned_groups.keys():
-                groups.append({"pk": None, "name": company_group, "assigned": False})
+            group = Group.objects.get(name=company_group)
+            if group.name not in assigned_groups.keys():
+                groups.append({"pk": group.pk, "name": group.name, "assigned": False})
             else:
                 groups.append(assigned_groups.get(company_group))
 
         t = get_template('companies/_company_access_list_cell.html')
-        c = Context({'groups': groups})
-        ret = t.render(c)
-        return ret
+        c = Context({
+            'access': access,
+            'groups': groups})
+        return t.render(c)
 
     def prepare_results(self, qs):
         # prepare list with output column data
@@ -413,8 +414,6 @@ class CompanyAccessList(generics.ListCreateAPIView):
                 access.save()
                 form.save_m2m()
 
-                # assign the group to the user in the context of company
-                UserObjectGroup.objects.assign(access.group, user, company)
             except BluuUser.DoesNotExist:
                 # send invitation
                 access = form.save(commit=False)
@@ -429,6 +428,16 @@ class CompanyAccessList(generics.ListCreateAPIView):
 
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class CompanyAccessView(generics.UpdateAPIView):
+    model = CompanyAccess
+
+    #def put(self, request, company_pk, pk, format=None):
+    #    return super(CompanyAccessView, self).put(request, company_pk, pk, format)
+
+    def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return super(CompanyAccessView, self).update(request, *args, **kwargs)
 
 class UserGroups:
     def __init__(self, user, groups):

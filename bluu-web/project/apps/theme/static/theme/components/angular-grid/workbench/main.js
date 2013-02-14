@@ -51,13 +51,34 @@ function userController($scope) {
         self.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
     }, true);
     self.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-    $scope.myDefs = [{ field: 'name', displayName: 'Very Long Name Title', sortable: false, headerClass: 'foo' },
-        { field: 'allowance', aggLabelFilter: 'currency', cellTemplate: 'partials/cellTemplate.html' },
-        { field: 'birthday', cellFilter: 'date', resizable: false },
-        { field: 'paid', cellFilter: 'checkmark' }];
+    $scope.myDefs = [{ field: 'name', displayName: 'Very Long Name Title', sortable: false, headerClass: 'foo', headerCellTemplate: 'partials/filterHeaderTemplate.html' },
+        { field: 'allowance', aggLabelFilter: 'currency', enableFocusedCellEdit: true, headerCellTemplate: 'partials/filterHeaderTemplate.html' },
+        { field: 'birthday', cellFilter: 'date', resizable: false, headerCellTemplate: 'partials/filterHeaderTemplate.html' },
+        { field: 'paid', cellFilter: 'checkmark', enableFocusedCellEdit: true, headerCellTemplate: 'partials/filterHeaderTemplate.html' }];
+    var myplugin = {
+        init: function(scope, grid) {
+            myplugin.scope = scope;
+            myplugin.grid = grid;
+            $scope.$watch(function () {
+                var searchQuery = "";
+                angular.forEach(myplugin.scope.visibleColumns(), function (col, i) {
+                    if (col.filterText) {
+                        searchQuery += col.field + ": " + col.filterText + "; ";
+                    }
+                });
+                return searchQuery;
+            }, function (searchQuery) {
+                myplugin.scope.$parent.filterText = searchQuery;
+                myplugin.grid.searchProvider.evalFilter();
+            });
+        },
+        scope: undefined,
+        grid: undefined,
+    };
+
     $scope.myDefs2 = [{ field: 'Sku', displayName: 'My Sku' },
         { field: 'Vendor', displayName: 'Supplier' },
-        { field: 'SeasonCode', displayName: 'My SeasonCode', cellTemplate: '<input style="width:100%;height:100%;" class="ui-widget input" type="text" ng-readonly="!row.selected" ng-model="row.entity[col.field]"/>' },
+        { field: 'SeasonCode', displayName: 'My SeasonCode', cellTemplate: '<input style="width:100%;height:100%;" class="ui-widget input" type="text" ng-readonly="!row.selected" ng-model="COL_FIELD"/>' },
         { field: 'Mfg_Id', displayName: 'Manufacturer ID' },
         { field: 'UPC', displayName: 'Bar Code' }];
     self.selectionchanging = function (a, b) {
@@ -65,14 +86,19 @@ function userController($scope) {
     };
     $scope.gridOptions = {
         data: 'myData',
-        selectedItems: $scope.mySelections2,
+        selectedItems: $scope.mySelections,
+        headerRowHeight: '60',
         beforeSelectionChange: self.selectionchanging,
         pagingOptions: $scope.pagingOptions,
-        enablePaging: true,
+		enableCellSelection: false,
+		enablePaging: true,
+        enableVirtualization: false,
         canSelectRows: true,
+		multiSelect: false,
         enableRowReordering: true,
-        showGroupPanel: true,
-        columnDefs: 'myDefs'
+        showGroupPanel: false,
+        columnDefs: 'myDefs',
+        plugins: [myplugin]
     };
     $scope.myData2 = [{ 'Sku': 'C-2820164', 'Vendor': 'NEWB', 'SeasonCode': null, 'Mfg_Id': '573-9880954', 'UPC': '822860449228' },
                       { 'Sku': 'J-8555462', 'Vendor': 'NIKE', 'SeasonCode': '', 'Mfg_Id': '780-8855467', 'UPC': '043208523549' },
@@ -88,7 +114,7 @@ function userController($scope) {
         data: 'myData2',
         selectedItems: $scope.mySelections2,
         beforeSelectionChange: self.selectionchanging,
-        multiSelect: false,
+        multiSelect: true,
 		canSelectRows: true,
         enableRowReordering: true,
         showGroupPanel: true,
@@ -120,10 +146,8 @@ function userController($scope) {
 	$scope.modifyData = function(){
 		$scope.myData2[0].Vendor = "HELLO";
 	};
-	
-	
-	
-    
+
+
 	$scope.myData3 = [{ 'Sku': 'C-2820164', 'Vendor': {'name':'NIKE'}, 'SeasonCode': null, 'Mfg_Id': '573-9880954', 'UPC': '822860449228' },
 				  { 'Sku': 'J-8555462', 'Vendor': {'name':'NIKE'}, 'SeasonCode': '', 'Mfg_Id': '780-8855467', 'UPC': '043208523549' },
 				  { 'Sku': 'K-5312708', 'Vendor': {'name':'NIKE'}, 'SeasonCode': '1293', 'Mfg_Id': '355-6906843', 'UPC': '229487568922' },
@@ -152,4 +176,8 @@ function userController($scope) {
 	$scope.$on('filterChanged', function(evt, text){
 		$scope.filteringText = text;
 	});
+    $scope.setSelection = function() {
+        $scope.gridOptions2.selectItem(0, true);
+        $scope.gridOptions2.selectRow(3, true);
+    };
 };

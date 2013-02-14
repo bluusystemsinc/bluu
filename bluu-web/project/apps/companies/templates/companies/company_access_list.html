@@ -34,6 +34,7 @@
             </form>
         </div>
 
+        <div ng-controller="CompanyAccessController">
         <table id="access_list_table" class="infotable datatable">
             <thead>
                 <tr>
@@ -49,6 +50,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -63,69 +65,81 @@
 {% block javascript %}
     {{ block.super }}
     <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    {% include "utils/_datatable_trans.html" %}
     <script charset="utf-8" type="text/javascript">
     var COMPANY_ID = {{ company.id }};
-    var access_datatable = '';
-    //var COMPANY_ID = {{ company.id }};
-    $(document).ready(function() {
-        access_datatable = $('#access_list_table').dataTable( {
-         "oLanguage": {
-            "sProcessing":   "{% trans 'Processing...' %}",
-            "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
-            "sZeroRecords":  "{% trans 'No matching records found' %}",
-            "sInfo":         "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
-            "sInfoEmpty":    "{% trans 'Showing 0 to 0 of 0 entries' %}",
-            "sInfoFiltered": "{% trans '(filtered from _MAX_ total entries)' %}",
-            "sInfoPostFix":  "",
-            "sSearch":       "{% trans 'Search:' %}",
-            "sUrl":          "",
-            "oPaginate": {
-                "sFirst":    "{% trans 'First' %}",
-                "sPrevious": "{% trans 'Previous' %}",
-                "sNext":     "{% trans 'Next' %}",
-                "sLast":     "{% trans 'Last' %}"
-            }
-         },
-         "sDom":'lfriptip',
-         "bServerSide": true,
-         "bProcessing": true,
-         "sAjaxSource": "{% url 'companies:api_company_access_json' company.pk %}",
-         "aaSorting": [[1, 'asc']],
-         "aoColumns": [
-                {
-                  "mData": 'no',
-                  "bSearchable": false, 
-                  "bSortable": false
-                },
-                { "mData": 'email'},
-                {
-                   "mData": 'groups'
-                   /*"mRender": function(data, type, full){
-                        var ret = ''
-                        for (var i=0; i < data.length; i++){ 
-                            if (i != 0)
-                                ret += ' ';
-                            ret += data[i].name;
+    var DATATABLE_URL = "{% url 'companies:api_company_access_list_json' company.pk %}";
+    {% comment %}
+/*    $(document).ready(function() {
+
+        var controller = app.controller('CompanyAccessController', function (CompanyAccess, $compile, $configService, $scope) {
+
+            $scope.set = function (company_id, user_id, access) {
+                var access = new CompanyAccess({'company_id': company_id,
+                                            'user_id': user_id,
+                                            'access': access});
+                access.$set_access({'companyId':COMPANY_ID}, function(data){
+                    console.log(data);
+                });
+            };
+
+            access_datatable = $('#access_list_table').dataTable( {
+                 "oLanguage": {
+                    "sProcessing":   "{% trans 'Processing...' %}",
+                    "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
+                    "sZeroRecords":  "{% trans 'No matching records found' %}",
+                    "sInfo":         "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+                    "sInfoEmpty":    "{% trans 'Showing 0 to 0 of 0 entries' %}",
+                    "sInfoFiltered": "{% trans '(filtered from _MAX_ total entries)' %}",
+                    "sInfoPostFix":  "",
+                    "sSearch":       "{% trans 'Search:' %}",
+                    "sUrl":          "",
+                    "oPaginate": {
+                        "sFirst":    "{% trans 'First' %}",
+                        "sPrevious": "{% trans 'Previous' %}",
+                        "sNext":     "{% trans 'Next' %}",
+                        "sLast":     "{% trans 'Last' %}"
+                    }
+                 },
+                 "sDom":'lfriptip',
+                 "bServerSide": true,
+                 "bProcessing": true,
+                 "sAjaxSource": "{% url 'companies:api_company_access_json' company.pk %}",
+                 "aaSorting": [[1, 'asc']],
+                 "aoColumns": [
+                        {
+                          "mData": 'no',
+                          "bSearchable": false, 
+                          "bSortable": false
+                        },
+                        { "mData": 'email'},
+                        {
+                           "mData": 'groups',
+                            "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                            {
+                                var element = $compile(nTd)($scope);
+                                nTd = element;
+                                $(nTd).css('text-align', 'center');
+                            },
+                        },
+                        {
+                            "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                            {
+                                $(nTd).css('text-align', 'center');
+                            },
+                            "mData": null,
+                            "mRender": function( data, type, full) {
+                                return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
+                            },
+                            "bSearchable": false, 
+                            "bSortable": false
                         }
-                        return ret
-                   }*/
-                
-                },
-                {
-                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
-                    {
-                        $(nTd).css('text-align', 'center');
-                    },
-                    "mData": null,
-                    "mRender": function( data, type, full) {
-                        return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
-                    },
-                    "bSearchable": false, 
-                    "bSortable": false
-                }
-            ]
-    });
-});
+                    ]
+            });
+        });
+        controller.$inject = ['CompanyAccess', '$compile', '$configService', '$scope'];
+});*/
+    {% endcomment %}
 </script>
 {% endblock %}
 

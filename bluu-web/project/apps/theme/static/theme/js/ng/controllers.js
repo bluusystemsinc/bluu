@@ -7,7 +7,7 @@ var VALID_CLASS = 'ng-valid',
     DIRTY_CLASS = 'ng-dirty';
 
 
-function CompanyAccessController(CompanyAccess, $configService, $scope) {
+function CompanyAccessListController(CompanyAccess, $configService, $scope) {
    /*$scope.myData = [{name: "Moroni", age: 50},
                  {name: "Tiancum", age: 43},
                  {name: "Jacob", age: 27},
@@ -92,7 +92,7 @@ function CompanyAccessController(CompanyAccess, $configService, $scope) {
         footerVisible: false
     };
 }
-CompanyAccessController.$inject = ['CompanyAccess', '$configService',
+CompanyAccessListController.$inject = ['CompanyAccess', '$configService',
                                    '$scope'];
 
 
@@ -350,8 +350,59 @@ function SiteInvitationController(SiteAccess, SiteAccessGroups,
        columnDefs: 'invitationColumnDefs',
        footerVisible: false
     };
-
-}
+};
 SiteInvitationController.$inject = ['SiteAccess', 'SiteAccessGroups',
                                       '$configService', '$scope'];
+
+
+function CompanyAccessController(CompanyAccess, $compile, $configService, $scope) {
+
+            $scope.set = function (id, group) {
+                var access = new CompanyAccess({'id': id,
+                                                'group': group});
+                access.$set_access({'companyId':COMPANY_ID}, function(data){
+                    console.log(data);
+                    access_datatable.fnDraw();
+                });
+            };
+
+            var access_datatable = $('#access_list_table').dataTable( {
+                 "oLanguage": DATATABLE_TRANS,
+                 "sDom":'lfriptip',
+                 "bServerSide": true,
+                 "bProcessing": true,
+                 "sAjaxSource": DATATABLE_URL,
+                 "aaSorting": [[1, 'asc']],
+                 "aoColumns": [
+                        {
+                          "mData": 'no',
+                          "bSearchable": false, 
+                          "bSortable": false
+                        },
+                        { "mData": 'email'},
+                        {
+                           "mData": 'groups',
+                            "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                            {
+                                var element = $compile(nTd)($scope);
+                                nTd = element;
+                                $(nTd).css('text-align', 'center');
+                            },
+                        },
+                        {
+                            "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                            {
+                                $(nTd).css('text-align', 'center');
+                            },
+                            "mData": null,
+                            "mRender": function( data, type, full) {
+                                return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
+                            },
+                            "bSearchable": false, 
+                            "bSortable": false
+                        }
+                    ]
+            });
+    };
+ CompanyAccessController.$inject = ['CompanyAccess', '$compile', '$configService', '$scope'];
 

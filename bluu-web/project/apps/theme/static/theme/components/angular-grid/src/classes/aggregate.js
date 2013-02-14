@@ -4,10 +4,12 @@
 /// <reference path="../namespace.js" />
 /// <reference path="../navigation.js" />
 /// <reference path="../utils.js" />
-ng.Aggregate = function(aggEntity, rowFactory) {
+ng.Aggregate = function (aggEntity, rowFactory, config) {
     var self = this;
-    self.index = 0;
-    self.offsetTop = 0;
+    self.rowIndex = 0;
+    self.offsetTop = function () {
+        return self.rowIndex * config.rowHeight;
+    };
     self.entity = aggEntity;
     self.label = aggEntity.gLabel;
     self.field = aggEntity.gField;
@@ -38,7 +40,6 @@ ng.Aggregate = function(aggEntity, rowFactory) {
         angular.forEach(self.children, function(child) {
             child[NG_HIDDEN] = self.collapsed;
         });
-        rowFactory.rowCache = [];
         var foundMyself = false;
         angular.forEach(rowFactory.aggCache, function(agg, i) {
             if (foundMyself) {

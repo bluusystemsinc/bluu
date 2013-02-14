@@ -1,6 +1,5 @@
 {
     "core": [ "jquery" ],
-    "external": {
-        "mask": []
-    }
+    "internal": [],
+    "external": []
 }
