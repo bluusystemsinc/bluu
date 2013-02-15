@@ -3,15 +3,16 @@
 {% load i18n theme_tags guardian_tags %}
 
 {% block sidebar %}
-{% get_obj_perms request.user for site as "site_perms" %}
+{% get_obj_perms request.user for bluusite as "site_perms" %}
     <div class="box">
       <h4 class="box-heading">
-            {{ site.first_name }} {{ site.last_name }}
+            {{ bluusite.first_name }} {{ bluusite.last_name }}
       </h4>
       <ul class="nav nav-list">
-        {% if "change_site" in site_perms %}<li class="{% active request "^/accounts/sites/\d+/$" %}"><a href="{% url 'site_edit' site.pk %}">{% trans "Site Details" %}</a></li>{% endif %}
-        {% if "change_site" in site_perms %}<li class="{% active request "^/accounts/sites/\d+/access" %}"><a href="{% url 'site_access' site.pk %}">{% trans "Access management" %}</a></li>{% endif %}
-        {% if "delete_site" in site_perms %}<li><a href="{% url 'site_delete' site.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove site' %}</a></li>{% endif %}
+        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' bluusite.pk %}">{% trans "Site Details" %}</a></li>{% endif %}
+        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/access" %}"><a href="{% url 'site_access' bluusite.pk %}">{% trans "Access management" %}</a></li>{% endif %}
+        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/sensors" %}"><a href="{% url 'site_sensors' bluusite.pk %}">{% trans "Sensors management" %}</a></li>{% endif %}
+        {% if perms.bluusites.delete_bluusite or "delete_bluusite" in site_perms %}<li><a href="{% url 'site_delete' bluusite.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove site' %}</a></li>{% endif %}
       </ul>
     </div>
-{% endblock%}
+{% endblock sidebar %}

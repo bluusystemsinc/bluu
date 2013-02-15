@@ -1,14 +1,14 @@
 from django.conf.urls import *
 from rest_framework.urlpatterns import format_suffix_patterns
-from .api_views import CompanyList, CompanyDetail,\
-        CompanyAccessList, CompanyAccessListJson, CompanyAccessGroups,\
-        CompanySiteListJson, CompanyAccessView
+from .api_views import (CompanyAccessList, CompanyAccessListJson,
+        CompanyAccessGroups,
+        CompanySiteListJson, CompanyAccessView)
 
 
 urlpatterns = format_suffix_patterns(patterns('',
-    url(r'^$', CompanyList.as_view(), name='api-company-list'),
-    url(r'^(?P<pk>[0-9]+)[/]?$', CompanyDetail.as_view(),
-        name='api-company-details'),
+    #url(r'^$', CompanyList.as_view(), name='api-company-list'),
+    #url(r'^(?P<pk>[0-9]+)[/]?$', CompanyDetail.as_view(),
+    #    name='api-company-details'),
     url(r'^(?P<company_pk>[0-9]+)/access\.json[/]?$', CompanyAccessListJson.as_view(),
         name='api_company_access_list_json'),
     url(r'^(?P<company_pk>[0-9]+)/access/(?P<pk>[0-9]+)[/]?$', CompanyAccessView.as_view(),

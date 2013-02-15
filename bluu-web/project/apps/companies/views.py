@@ -2,8 +2,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
-from django.views.generic import UpdateView, CreateView, DetailView,\
-                                 DeleteView, ListView, TemplateView
+from django.views.generic import (UpdateView, CreateView, DetailView,
+                                  ListView, TemplateView)
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -92,20 +92,10 @@ class CompanyAccessListView(GPermissionRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         company = self.get_object()
-        access_list = []
-        for access in CompanyAccess.objects.filter(company=company):
-            groups = [uog.group for uog in UserObjectGroup.objects.get_for_object(access.user, company)]
-            access_list.append(
-                {
-                    "user": access.user,
-                    "groups": groups
-                }
-            )
         invitation_form = CompanyInvitationForm()
         return {
             'params': kwargs,
             'company': company,
-            'access_list': access_list,
             'invitation_form': invitation_form
         } 
 

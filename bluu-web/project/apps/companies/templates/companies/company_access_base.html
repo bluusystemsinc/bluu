@@ -4,6 +4,5 @@
 {% block main %}
 <ul id="access-tab" class="nav nav-tabs">
     <li class="{% active request "^/companies/\d+/access/$" %}"><a href="{% url 'company_access_list' company.id %}">{% trans "Access" %}</a></li>
-    {% comment %}<li class="{% active request "^/companies/\d+/access/add/$" %}"><a href="{% url 'company_access_add' company.id %}">{% trans "Add Access" %}</a></li> {% endcomment %}
 </ul>
 {% endblock %}

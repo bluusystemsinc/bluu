@@ -9,6 +9,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import (login_required, permission_required)
 from django.template.loader import get_template
+from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -46,8 +48,6 @@ class CompanySiteListJson(BaseDatatableView):
             queryset = BluuSite.objects.all()
         else:
             queryset = BluuSite.objects.filter(company=self.company)
-            #queryset = get_objects_for_user(self.request.user,
-            #                                'bluusites.view_bluusite')
  
         return queryset
 
@@ -74,7 +74,8 @@ class CompanySiteListJson(BaseDatatableView):
                     "no": no,
                     "first_name": item.first_name,
                     "last_name": item.last_name,
-                    "city": item.city
+                    "city": item.city,
+                    "actions": '<a href="{0}">{1}</a>'.format(reverse('site_edit', args=(item.pk,)), _('Manage'))
                 }
             )
             no += 1
@@ -93,133 +94,31 @@ class CompanySiteListJson(BaseDatatableView):
         return super(CompanySiteListJson, self).dispatch(*args, **kwargs)
 
 
-#class CompanySiteList(generics.ListCreateAPIView):
+#class CompanyFilter(django_filters.FilterSet):
+#    name = django_filters.CharFilter(lookup_type='icontains')
+#    class Meta:
+#        model = Company
+#        fields = ['name']
+#
+#
+#class CompanyList(generics.ListCreateAPIView):
 #    permission_classes = (permissions.IsAuthenticated,)
-#    model = BluuSite
-#    serializer_class = SiteSerializer
-#    paginate_by = 10
-#    paginate_by_param = 'iDisplayLength'
-#    pagination_serializer_class = SitePaginationSerializer
-#    filter_class = SiteFilter
-#    filter_fields = ('first_name', 'last_name', 'city')
-#
-#    def get_serializer_context(self):
-#        context = super(CompanySiteList, self).get_serializer_context()
-#        queryset = None
-#        if self.request.user.has_perm('accounts.view_site'):
-#            queryset = super(CompanySiteList, self).get_queryset()
-#        else:
-#            queryset = get_objects_for_user(self.request.user,\
-#                                            'accounts.view_site')
-# 
-#        context['extra'] = {'iTotalRecords': queryset.count()}
-#        return context
-#
-#    def _filter_queryset(self, qs):
-#        q = self.request.QUERY_PARAMS.get('sSearch', None)
-#        if q is not None:
-#            return qs.filter(Q(first_name__icontains=q) |\
-#                             Q(last_name__icontains=q))
-#        return qs
-#    
-#    def _sort_queryset(self, qs):
-#        """ Get parameters from the request and prepare order by clause
-#        """
-#        request = self.request
-#        # Number of columns that are used in sorting
-#        try:
-#            i_sorting_cols = int(request.REQUEST.get('iSortingCols', 0))
-#        except ValueError:
-#            i_sorting_cols = 0
-#
-#        order = []
-#        order_columns = self.filter_fields
-#        for i in range(i_sorting_cols):
-#            # sorting column
-#            try:
-#                i_sort_col = int(request.REQUEST.get('iSortCol_%s' % i))
-#            except ValueError:
-#                i_sort_col = 0
-#            # sorting order
-#            s_sort_dir = request.REQUEST.get('sSortDir_%s' % i)
-#
-#            sdir = '-' if s_sort_dir == 'desc' else ''
-#
-#            sortcol = order_columns[i_sort_col]
-#            if isinstance(sortcol, list):
-#                for sc in sortcol:
-#                    order.append('%s%s' % (sdir, sc))
-#            else:
-#                order.append('%s%s' % (sdir, sortcol))
-#        if order:
-#            return qs.order_by(*order)
-#        return qs
+#    model = Company
+#    serializer_class = CompanySerializer
+#    filter_class = CompanyFilter
+#    filter_fields = ('name',)
 #
 #    def get_queryset(self):
 #        user = self.request.user
-#        queryset = None
-#        if user.has_perm('accounts.view_site'):
-#            queryset = super(CompanySiteList, self).get_queryset()
-#        else:
-#            queryset = get_objects_for_user(user, 'accounts.view_site')
-#        
-#        queryset = self._filter_queryset(queryset)
-#        queryset = self._sort_queryset(queryset)
-#        
-#        return queryset
+#        if user.has_perm('accounts.view_company'):
+#            return super(CompanyList, self).get_queryset()
+#        return get_objects_for_user(user, 'companies.view_company')
 #
-#    def pre_save(self, obj):
-#        # pk and/or slug attributes are implicit in the URL.
-#        company_pk = self.kwargs.get('company', None)
-#        if company_pk:
-#            company = Company.objects.get(pk=company_pk)
-#            setattr(obj, 'company', company)
 #
-#        if hasattr(obj, 'full_clean'):
-#            obj.full_clean()
-#
-#    def create(self, request, *args, **kwargs):
-#        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-#
-#        if serializer.is_valid():
-#            self.pre_save(serializer.object)
-#            self.object = serializer.save()
-#            headers = self.get_success_headers(serializer.data)
-#            return Response(serializer.data, status=status.HTTP_201_CREATED,
-#                            headers=headers)
-#
-#        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#    @method_decorator(csrf_exempt)
-#    def dispatch(self, *args, **kwargs):
-#        return super(CompanySiteList, self).dispatch(*args, **kwargs)
-
-
-class CompanyFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_type='icontains')
-    class Meta:
-        model = Company
-        fields = ['name']
-
-
-class CompanyList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    model = Company
-    serializer_class = CompanySerializer
-    filter_class = CompanyFilter
-    filter_fields = ('name',)
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.has_perm('accounts.view_company'):
-            return super(CompanyList, self).get_queryset()
-        return get_objects_for_user(user, 'accounts.view_company')
-
-
-class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    model = Company
-    serializer_class = CompanySerializer
+#class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
+#    permission_classes = (permissions.IsAuthenticated,)
+#    model = Company
+#    serializer_class = CompanySerializer
 
 
 class CompanyAccessListJson(BaseDatatableView):
@@ -331,40 +230,6 @@ class CompanyAccessListJson(BaseDatatableView):
         return json_data
 
 
-#    def post(self, request, company_pk, format=None):
-#        self.company = self.get_object(company_pk)
-#        form = CompanyInvitationForm(request.POST)
-#        
-#        if form.is_valid():
-#            try:
-#                user = BluuUser.objects.get(email=request.DATA['email'])
-#                # user exists, so grant him an access to company
-#
-#                #group = request.DATA['group']
-#                #group = Group.objects.get(pk=group)
-#
-#                access = form.save(commit=False)
-#                access.user = user
-#                access.save()
-#                form.save_m2m()
-#
-#                #CompanyAccess.objects.create(company=company, user=user)
-#                # assign the group to the user in the context of company
-#                UserObjectGroup.objects.assign(group, user, company)
-#            except BluuUser.DoesNotExist:
-#                # send invitation
-#                access = form.save(commit=False)
-#                access.invitation = True
-#                access.save()
-#                form.save_m2m()
-#
-#            return Response({'email': request.DATA['email'],
-#                             'group': request.DATA['group']},
-#                            status=status.HTTP_201_CREATED)
-#
-#        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class CompanyAccessList(generics.ListCreateAPIView):
     """
     Saves access data posted by client.
@@ -378,18 +243,6 @@ class CompanyAccessList(generics.ListCreateAPIView):
         except Company.DoesNotExist:
             raise Http404
 
-#    def get(self, request, pk, format=None):
-#        company = self.get_object(pk)
-#        groups = get_groups_with_perms(company)
-#        users = BluuUser.objects.filter(groups__in=groups)
-#        #users = get_users_with_perms(company)
-#        ret = []
-#        for user in users:
-#            user_groups = set(groups) & set(user.groups.all())
-#            ret.append(UserGroups(user, user_groups))
-#
-#        sobj = CompanyAccessSerializer(ret)
-#        return Response(sobj.data)
 
     def post(self, request, pk, format=None):
         company = self.get_object(pk)

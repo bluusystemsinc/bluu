@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from django.views.generic import UpdateView, CreateView, DetailView,\
-                                 DeleteView, ListView
+                                 DeleteView, ListView, TemplateView
 from django.utils.translation import ugettext as _
 
 from django.utils.decorators import method_decorator
@@ -17,18 +17,11 @@ from .models import BluuSite
 from .forms import SiteForm
 
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_objects_for_user
+from grontextual.shortcuts import get_objects_for_user
 
 
-class SiteListView(ListView):
-    model = BluuSite
+class SiteListView(TemplateView):
     template_name = "bluusites/site_list.html"
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.has_perm('bluusites.view_bluusite'):
-            return super(SiteListView, self).get_queryset()
-        return get_objects_for_user(self.request.user, 'bluusites.view_bluusite')
 
     @method_decorator(login_required)
     @method_decorator(permission_required('bluusites.browse_bluusites'))

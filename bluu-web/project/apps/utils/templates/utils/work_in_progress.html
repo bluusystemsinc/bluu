@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n theme_tags %}
+
+{% block content %}
+<div class="admin-layout">
+  <center>
+    <p>{% trans "Work in progress. Please come back soon." %}</p>
+    <img src="{{ STATIC_URL }}utils/images/work_in_progress.png" />
+  </center>
+</div>
+{% endblock %}

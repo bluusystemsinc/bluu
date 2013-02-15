@@ -33,7 +33,7 @@
     </thead>
     <tbody>
         <tr>
-            <td colspan="4" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+            <td colspan="5" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
         </tr>
     </tbody>
 </table>
@@ -83,10 +83,10 @@
                     {
                         $(nTd).css('text-align', 'center');
                     },
-                    "mData": null,
-                    "mRender": function( data, type, full) {
-                        return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
-                    },
+                    "mData": 'actions',
+                    //"mRender": function( data, type, full) {
+                    //    return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
+                    //},
                     "bSearchable": false, 
                     "bSortable": false
                 }

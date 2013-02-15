@@ -3,8 +3,6 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import (Group, AbstractUser, UserManager)
 from django.utils.translation import ugettext_lazy as _
-#from companies.models import Company
-#from sites.models import Site
 
 
 class AppBluuUserManager(models.Manager):
@@ -56,6 +54,27 @@ class BluuUser(AbstractUser):
         if not ret:
             ret = '---'
         return ret
+
+    def get_companies(self):
+        from companies.models import Company
+        from grontextual.shortcuts import get_objects_for_user
+        if self.has_perm('companies.view_company'):
+            return Company.objects.all()
+        return get_objects_for_user(self, 'companies.view_company')
+
+    def get_sites(self):
+        from bluusites.models import BluuSite
+        from grontextual.shortcuts import get_objects_for_user
+        if self.has_perm('bluusites.view_bluusite'):
+            return BluuSite.objects.all()
+        companies = self.get_companies()
+        qs = BluuSite.objects.none()
+        for company in companies:
+            qs = qs | BluuSite.objects.filter(company=company)
+        qs = qs | get_objects_for_user(self, 'bluusites.view_bluusite')
+        return qs
+
+
 
 
 
