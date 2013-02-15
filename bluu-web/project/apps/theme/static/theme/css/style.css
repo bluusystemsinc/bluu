@@ -1,54 +1,54 @@
-/* line 5, ../sass/style.scss */
+/* line 8, ../sass/style.scss */
 .gridStyle {
   height: 400px;
 }
 
-/* line 10, ../sass/style.scss */
+/* line 13, ../sass/style.scss */
 .ngFooterPanel {
   border: 0;
 }
 
-/* line 14, ../sass/style.scss */
+/* line 17, ../sass/style.scss */
 .ngGrid {
   background-color: transparent;
 }
 
-/* line 18, ../sass/style.scss */
+/* line 21, ../sass/style.scss */
 .ngRow {
   border: 0;
 }
 
-/* line 23, ../sass/style.scss */
+/* line 26, ../sass/style.scss */
 .ngCell:last-child {
   border-right: 0;
 }
 
-/* line 28, ../sass/style.scss */
+/* line 31, ../sass/style.scss */
 form input.ng-invalid.ng-dirty {
   background-color: #FA787E;
 }
 
-/* line 31, ../sass/style.scss */
+/* line 34, ../sass/style.scss */
 form input.ng-valid.ng-dirty {
   background-color: #78FA89;
 }
 
-/* line 36, ../sass/style.scss */
+/* line 39, ../sass/style.scss */
 .navbar a.brand {
   padding: 5px 10px;
 }
 
-/* line 44, ../sass/style.scss */
+/* line 47, ../sass/style.scss */
 .box {
   margin: 10px;
 }
 
-/* line 48, ../sass/style.scss */
+/* line 51, ../sass/style.scss */
 .box-heading {
   margin: 20px 15px;
 }
 
-/* line 52, ../sass/style.scss */
+/* line 55, ../sass/style.scss */
 footer {
   background-color: #F5F5F5;
   border-top: 1px solid #e5e5e5;
@@ -56,27 +56,35 @@ footer {
   padding: 70px 0;
 }
 
+/* highlight remove icon */
+/* line 64, ../sass/style.scss */
+.datatable td:hover > a > [class^="icon-"],
+.datatable td:hover > a > [class*=" icon-"] {
+  background-image: url(../components/sass-twitter-bootstrap/docs/assets/img/glyphicons-halflings-white.png);
+}
+
+/* end highlight remove icon */
 /* Access Management */
-/* line 61, ../sass/style.scss */
+/* line 70, ../sass/style.scss */
 .inline-list {
   list-style: none outside none;
   margin: 0;
   padding: 0;
 }
 
-/* line 67, ../sass/style.scss */
+/* line 76, ../sass/style.scss */
 .inline-box {
   float: left;
   margin: 1px 5px 0 0;
   padding: 2px 4px 1px;
 }
 
-/* line 73, ../sass/style.scss */
+/* line 82, ../sass/style.scss */
 .clickable {
   cursor: pointer;
 }
 
-/* line 77, ../sass/style.scss */
+/* line 86, ../sass/style.scss */
 .box-on {
   color: #FFF;
   background-color: #0088CC;
@@ -86,7 +94,7 @@ footer {
   border-radius: 4px / 4px;
 }
 
-/* line 84, ../sass/style.scss */
+/* line 93, ../sass/style.scss */
 .box-off {
   color: #33BBFF;
   background-color: none;
@@ -97,3 +105,74 @@ footer {
 }
 
 /* End Access Management */
+/* twitter bootstrap for datatables */
+/* line 103, ../sass/style.scss */
+div.dataTables_length label {
+  float: left;
+  text-align: left;
+}
+
+/* line 108, ../sass/style.scss */
+div.dataTables_length select {
+  width: 75px;
+}
+
+/* line 112, ../sass/style.scss */
+div.dataTables_filter label {
+  float: right;
+}
+
+/* line 116, ../sass/style.scss */
+div.dataTables_info {
+  padding-top: 8px;
+}
+
+/* line 120, ../sass/style.scss */
+div.dataTables_paginate {
+  float: right;
+  margin: 0;
+}
+
+/* line 125, ../sass/style.scss */
+table.table {
+  clear: both;
+  margin-bottom: 6px !important;
+  max-width: none !important;
+}
+
+/* line 135, ../sass/style.scss */
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {
+  cursor: pointer;
+  *cursor: hand;
+}
+
+/* line 140, ../sass/style.scss */
+table.table thead .sorting {
+  background: url(../components/datatables/media/images/sort_both.png) no-repeat center right;
+}
+
+/* line 141, ../sass/style.scss */
+table.table thead .sorting_asc {
+  background: url(../components/datatables/media/images/sort_asc.png) no-repeat center right;
+}
+
+/* line 142, ../sass/style.scss */
+table.table thead .sorting_desc {
+  background: url(../components/datatables/media/images/sort_desc.png) no-repeat center right;
+}
+
+/* line 144, ../sass/style.scss */
+table.table thead .sorting_asc_disabled {
+  background: url(../components/datatables/media/images/sort_asc_disabled.png) no-repeat center right;
+}
+
+/* line 145, ../sass/style.scss */
+table.table thead .sorting_desc_disabled {
+  background: url(../components/datatables/media/images/sort_desc_disabled.png) no-repeat center right;
+}
+
+/* end twitter bootstrap for datatables */

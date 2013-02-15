@@ -99,11 +99,7 @@ CompanyAccessListController.$inject = ['CompanyAccess', '$configService',
 function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
                                      $configService, $scope) {
     $scope.company_access = new CompanyAccess();
-    //$scope.company_access_groups = new CompanyAccessGroups();
-
-    //CompanyAccessGroups.query({'companyId':COMPANY_ID}, function(data){
-    //    $scope.group = data;
-    //});
+    $scope.invitationData = [];
 
     $scope.save = function () {
         $scope.invitationData.push({email: $scope.company_access.email, invitation: 'pending'});
@@ -112,207 +108,16 @@ function CompanyInvitationController(CompanyAccess, CompanyAccessGroups,
             $scope.$apply();
         }
 
-        CompanyAccess.save({'companyId':COMPANY_ID}, $scope.company_access,
-            function (res){
-                if (res.ok === 1) { console.log('success');}
-                access_datatable.fnDraw();
+        $scope.company_access.$save({'companyId': COMPANY_ID},
+            function (res) {
+                $scope.access_datatable.fnDraw();
             }
-        );
+            );
     };
-
-    /*$scope.invitationColumnDefs = [{ field: 'email', displayName: 'E-mail'},
-        { field: 'invitation', displayName: 'Status'},
-        { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Resend</a></div>' }];
-
-    $scope.invitationData = [
-       {email: 'ian.nowitzki@example.com', invitation: 'pending'},
-       {email: 'roberto.gonzales@example.com', invitation: 'pending'}
-    ];
-    $scope.InvitationGridOptions = { data : 'invitationData',
-       displaySelectionCheckbox: false,
-       plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
-       columnDefs: 'invitationColumnDefs',
-       footerVisible: false
-    };*/
 
 }
 CompanyInvitationController.$inject = ['CompanyAccess', 'CompanyAccessGroups',
                                       '$configService', '$scope'];
-
-
-function CompanySitesController(Site, $configService, $scope) {
-    $scope.myData = [];
-    $scope.filterOptions = {
-        filterText: "",
-        useExternalFilter: false
-    };
-    $scope.pagingOptions = {
-        pageSizes: [250, 500, 1000],
-        pageSize: 250,
-        totalServerItems: 0,
-        currentPage: 1
-    };	
-    $scope.setPagingData = function(data, page, pageSize){	
-        var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
-        $scope.myData = pagedData;
-        $scope.pagingOptions.totalServerItems = data.length;
-        if (!$scope.$$phase) {
-            $scope.$apply();
-        }
-    };
-    $scope.getPagedDataAsync = function (pageSize, page, searchText) {
-        setTimeout(function () {
-            var data;
-            if (searchText) {
-                var ft = searchText.toLowerCase();
-                Site.query({'companyId': COMPANY_ID}, function(data){
-                    data.filter(function(item) {
-                        return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
-                    });
-                    $scope.setPagingData(data,page,pageSize);
-                });
-            } else {
-                Site.query({'companyId':COMPANY_ID}, function(data){
-                    $scope.setPagingData(data,page,pageSize);
-                });
-            }
-        }, 100);
-    };
-	
-    $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-	
-    $scope.$watch('pagingOptions', function () {
-        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-    }, true);
-    $scope.$watch('filterOptions', function () {
-        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-    }, true);   
-
-
-    $scope.columnDefs = [{ field: 'first_name', displayName: 'First Name'},
-                  { field: 'last_name', displayName: 'Last Name'},
-                  { field: 'city', displayName: 'City'},
-                  { field: 'street', displayName: 'Street'},
-                  { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Delete</a></div>'}
-                  ];
-	
-    $scope.CompanySitesGridOptions = {
-        data: 'myData',
-        displaySelectionCheckbox: false,
-        //plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
-        enablePaging: true,
-        pagingOptions: $scope.pagingOptions,
-        //filterOptions: $scope.filterOptions,
-        columnDefs: 'columnDefs',
-        footerVisible: true,
-        canSelectRows: false
-    };
-    $scope.site = new Site();
-
-    $scope.save = function(){
-        $scope.site.$save({'companyId':COMPANY_ID}, function(res){
-            $scope.myData.push(res);
-            $scope.site = new Site();
-            $scope.newsite.$setPristine();
-            $('#sites-tab a[href="#sites"]').tab('show');
-        }, function(res){
-            if (res.status === 400){
-                var field;
-                for(field in res.data){
-                    console.log(res.data[field]);
-                    $scope.newsite.$setDirty();
-                    $scope.newsite[field].$setValidity(false);
-                    $scope.newsite[field].$dirty = true;
-                    var element_string = 'form[name="newsite"] [name="' + field + '"]';
-                    var $element = angular.element(element_string);
-                    $element.removeClass(PRISTINE_CLASS);
-                    $element.addClass(DIRTY_CLASS);
-                }
-            }
-        });
-    };
-}
-CompanySitesController.$inject = ['Site', '$configService', '$scope'];
-
-function CompanySiteCreateController(Site, $configService, $scope) {
-    //$scope.site = new Site();
-
-    //$scope.saver = function(){
-    //    console.log('saving');
-    //    $scope.site.$save({'companyId':COMPANY_ID}, function(res){console.log('done');});
-    //};
-} 
-CompanySiteCreateController.$inject = ['Site', '$configService', '$scope'];
-
-
-function SiteAccessController(SiteAccess, $configService, $scope) {
-    $scope.myData = [];
-    $scope.filterOptions = {
-        filterText: "",
-        useExternalFilter: false
-    };
-    $scope.pagingOptions = {
-        pageSizes: [250, 500, 1000],
-        pageSize: 250,
-        totalServerItems: 0,
-        currentPage: 1
-    };	
-    $scope.setPagingData = function(data, page, pageSize){	
-        var pagedData = data.slice((page - 1) * pageSize, page * pageSize);
-        $scope.myData = pagedData;
-        $scope.pagingOptions.totalServerItems = data.length;
-        if (!$scope.$$phase) {
-            $scope.$apply();
-        }
-    };
-    $scope.getPagedDataAsync = function (pageSize, page, searchText) {
-        setTimeout(function () {
-            var data;
-            if (searchText) {
-                var ft = searchText.toLowerCase();
-                SiteAccess.query({'siteId': SITE_ID}, function(data){
-                    data.filter(function(item) {
-                        return JSON.stringify(item).toLowerCase().indexOf(ft) != -1;
-                    });
-                    $scope.setPagingData(data,page,pageSize);
-                });
-            } else {
-                SiteAccess.query({'siteId':SITE_ID}, function(data){
-                    $scope.setPagingData(data,page,pageSize);
-                });
-            }
-        }, 100);
-    };
-	
-    $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage);
-	
-    $scope.$watch('pagingOptions', function () {
-        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-    }, true);
-    $scope.$watch('filterOptions', function () {
-        $scope.getPagedDataAsync($scope.pagingOptions.pageSize, $scope.pagingOptions.currentPage, $scope.filterOptions.filterText);
-    }, true);   
-
-
-    $scope.columnDefs = [{ field: 'user.username', displayName: 'Username'},
-                  { field: 'user.first_name', displayName: 'First Name'},
-                  { field: 'user.last_name', displayName: 'Last Name'},
-                  { field: 'groups[0]', displayName: 'Access'},
-                  { field: 'action', displayName: 'Action', cellTemplate: '<div class="ngCellText colt2"><a href="#">Delete</a></div>'}
-                  ];
-	
-    $scope.AccessGridOptions = {
-        data: 'myData',
-        displaySelectionCheckbox: false,
-        plugins: [new ngGridFlexibleHeightPlugin($configService.getGridHeight())],
-        //enablePaging: false,
-        //pagingOptions: $scope.pagingOptions,
-        //filterOptions: $scope.filterOptions,
-        columnDefs: 'columnDefs',
-        footerVisible: false
-    };
-}
-SiteAccessController.$inject = ['SiteAccess', '$configService', '$scope'];
 
 
 function SiteInvitationController(SiteAccess, SiteAccessGroups,
@@ -357,52 +162,90 @@ SiteInvitationController.$inject = ['SiteAccess', 'SiteAccessGroups',
 
 function CompanyAccessController(CompanyAccess, $compile, $configService, $scope) {
 
-            $scope.set = function (id, group) {
-                var access = new CompanyAccess({'id': id,
-                                                'group': group});
-                access.$set_access({'companyId':COMPANY_ID}, function(data){
-                    console.log(data);
-                    access_datatable.fnDraw();
-                });
-            };
+      $scope.company_access = new CompanyAccess();
+      //$scope.invitationData = [];
 
-            var access_datatable = $('#access_list_table').dataTable( {
-                 "oLanguage": DATATABLE_TRANS,
-                 "sDom":'lfriptip',
-                 "bServerSide": true,
-                 "bProcessing": true,
-                 "sAjaxSource": DATATABLE_URL,
-                 "aaSorting": [[1, 'asc']],
-                 "aoColumns": [
-                        {
-                          "mData": 'no',
-                          "bSearchable": false, 
-                          "bSortable": false
-                        },
-                        { "mData": 'email'},
-                        {
-                           "mData": 'groups',
-                            "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
-                            {
-                                var element = $compile(nTd)($scope);
-                                nTd = element;
-                                $(nTd).css('text-align', 'center');
-                            },
-                        },
-                        {
-                            "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
-                            {
-                                $(nTd).css('text-align', 'center');
-                            },
-                            "mData": null,
-                            "mRender": function( data, type, full) {
-                                return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
-                            },
-                            "bSearchable": false, 
-                            "bSortable": false
-                        }
-                    ]
-            });
-    };
+      $scope.save = function () {
+          //$scope.invitationData.push({email: $scope.company_access.email, invitation: 'pending'});
+
+          /*if (!$scope.$$phase) {
+              $scope.$apply();
+          }*/
+
+          $scope.company_access.$save({'companyId': COMPANY_ID},
+              function (res) {
+                  $scope.company_access = new CompanyAccess();
+                  $scope.addForm.$setPristine();
+                  $scope.access_datatable.fnDraw();
+              }
+              );
+      };
+
+
+      $scope.set = function (id, group) {
+          var access = new CompanyAccess({'id': id,
+                                          'group': group});
+          access.$set_access({'companyId':COMPANY_ID}, function(data){
+              console.log(data);
+              $scope.access_datatable.fnDraw();
+          });
+      };
+
+      $scope.remove = function (id){
+         CompanyAccess.delete({'companyId':COMPANY_ID, 'id': id}, {},
+                                function(data){
+                                    console.log(data);
+                                    $scope.access_datatable.fnDraw();
+                                }); 
+      }
+      
+      var rowCompiler = function (nRow, aData, iDataIndex){
+          var linker = $compile(nRow);
+          nRow = linker($scope);
+      };
+
+      $scope.access_datatable = $('#access_list_table').dataTable( {
+           "oLanguage": DATATABLE_TRANS,
+          "sDom": "<'row-fluid'r>t<'row-fluid'<'span6'i><'span6'p>>",
+           "bServerSide": true,
+           //"bProcessing": true,
+           "bPaginate": false,
+           "bFilter": false,
+           "sAjaxSource": DATATABLE_URL,
+           "aaSorting": [[0, 'asc']],
+           "fnCreatedRow": rowCompiler,
+           "aoColumns": [
+                  { "mData": 'access.email'},
+                  {
+                     "mData": 'groups',
+                      "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                      {
+                          $(nTd).css('text-align', 'center');
+                      },
+                    "sWidth": "145px",
+                    "bSearchable": false, 
+                    "bSortable": false
+                  },
+                  {
+                      "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                      {
+                          $(nTd).css('text-align', 'center');
+                      },
+                      "mData": 'access',
+                      "mRender": function( data, type, full) {
+                          return '<a ng-click="remove(' + data.id + ')" href="#"><i class="icon-remove"></i></a>';
+                      },
+                      "sWidth": "10%",
+                      "bSearchable": false, 
+                      "bSortable": false
+                  }
+              ]
+      });
+
+      $.extend( $.fn.dataTableExt.oStdClasses, {
+          "sWrapper": "dataTables_wrapper form-inline"
+      } );
+
+  };
  CompanyAccessController.$inject = ['CompanyAccess', '$compile', '$configService', '$scope'];
 

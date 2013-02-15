@@ -11,7 +11,8 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_objects_for_user
+#from guardian.shortcuts import get_objects_for_user
+from grontextual.shortcuts import get_objects_for_user
 from braces.views import LoginRequiredMixin
 from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 from braces.views import PermissionRequiredMixin

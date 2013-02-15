@@ -232,7 +232,7 @@ class CompanyAccessListJson(BaseDatatableView):
     # Order is important and should be the same as order of columns
     # displayed by datatables. For non sortable columns use empty
     # value like ''
-    order_columns = ['', 'email']
+    order_columns = ['email']
 
     def get_object(self, pk):
         return get_object_or_404(Company, pk=pk)
@@ -319,7 +319,12 @@ class CompanyAccessListJson(BaseDatatableView):
                     "no": no,
                     "email": access.get_email,
                     "groups": rendered_groups,
-                    "invitation": access.invitation
+                    "invitation": access.invitation,
+                    "access": {
+                            "id": access.pk,
+                            "email": access.get_email,
+                            "invitation": access.invitation,
+                        }
                 }
             )
             no += 1
@@ -429,7 +434,7 @@ class CompanyAccessList(generics.ListCreateAPIView):
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CompanyAccessView(generics.UpdateAPIView):
+class CompanyAccessView(generics.RetrieveUpdateDestroyAPIView):
     model = CompanyAccess
 
     #def put(self, request, company_pk, pk, format=None):
@@ -438,6 +443,7 @@ class CompanyAccessView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return super(CompanyAccessView, self).update(request, *args, **kwargs)
+
 
 class UserGroups:
     def __init__(self, user, groups):

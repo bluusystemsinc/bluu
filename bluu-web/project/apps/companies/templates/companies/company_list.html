@@ -5,45 +5,6 @@
 {% block title %}
 {% trans 'Company list' %} |
 {% endblock %}
-
-{% block css %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}theme/components/datatables/media/css/jquery.dataTables.css" />
-    {{ block.super }}
-{% endblock %}
-
-{% block javascript %}
-    {{ block.super }}
-<script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
-<script charset="utf-8" type="text/javascript">
-    $(document).ready(function() {
-        $('#entity_list_table').dataTable( {
-            "oLanguage": {
-            "sProcessing":   "{% trans 'Processing...' %}",
-            "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
-            "sZeroRecords":  "{% trans 'No matching records found' %}",
-            "sInfo":         "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
-            "sInfoEmpty":    "{% trans 'Showing 0 to 0 of 0 entries' %}",
-            "sInfoFiltered": "{% trans '(filtered from _MAX_ total entries)' %}",
-            "sInfoPostFix":  "",
-            "sSearch":       "{% trans 'Search:' %}",
-            "sUrl":          "",
-            "oPaginate": {
-                "sFirst":    "{% trans 'First' %}",
-                "sPrevious": "{% trans 'Previous' %}",
-                "sNext":     "{% trans 'Next' %}",
-                "sLast":     "{% trans 'Last' %}"
-            }
-         },
-         "sDom":'lfriptip',
-         "aoColumnDefs": [
-                { "bSortable": false, "aTargets": [2] }
-            ]
-    });
-});
-
-</script>
-{% endblock %}
-
 {% block content %}
     <div class="page-header content-wrapper">
         <h1 class="form-label">{% trans "Company list" %}</h1>
@@ -56,7 +17,7 @@
     {% endif %}
 
     {% if object_list %}
-    <table id="entity_list_table" class="infotable datatable">
+    <table id="entity_list_table" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>{% trans "No." %}</th>
@@ -82,3 +43,38 @@
         {% trans 'There are no companies to display' %}
     {% endif %}
 {% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+<script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+<script charset="utf-8" type="text/javascript">
+    $(document).ready(function() {
+        $('#entity_list_table').dataTable( {
+            "oLanguage": {
+            "sProcessing":   "{% trans 'Processing...' %}",
+            "sLengthMenu":   "{% trans 'Show _MENU_ entries' %}",
+            "sZeroRecords":  "{% trans 'No matching records found' %}",
+            "sInfo":         "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+            "sInfoEmpty":    "{% trans 'Showing 0 to 0 of 0 entries' %}",
+            "sInfoFiltered": "{% trans '(filtered from _MAX_ total entries)' %}",
+            "sInfoPostFix":  "",
+            "sSearch":       "{% trans 'Search:' %}",
+            "sUrl":          "",
+            "oPaginate": {
+                "sFirst":    "{% trans 'First' %}",
+                "sPrevious": "{% trans 'Previous' %}",
+                "sNext":     "{% trans 'Next' %}",
+                "sLast":     "{% trans 'Last' %}"
+            }
+         },
+         "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+         "aoColumnDefs": [
+                { "bSortable": false, "aTargets": [2] }
+            ]
+    });
+});
+
+</script>
+{% endblock %}
+
+

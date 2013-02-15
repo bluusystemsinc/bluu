@@ -7,9 +7,9 @@ angular.module('Bluu.services', ['ngResource']).
         return $resource('/api/companies/:companyId/', {companyId: '@id'});
     }).
     factory('CompanyAccess', function ($resource) {
-        return $resource('/api/companies/:companyId/access/:accessId/',
+        return $resource('/api/companies/:companyId/access/:id/',
             {
-                accessId: '@id'
+                id: '@id'
             },
             {
                 set_access: {method: 'PUT'}

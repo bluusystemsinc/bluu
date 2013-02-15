@@ -70,10 +70,13 @@ def _revoke_access_for_company_user(sender, instance, *args, **kwargs):
     Assign minimal permissions grouped in Company Employee group to a user.
     """
     if instance and instance.user:
-        ca = CompanyAccess.objects.get(id=instance.pk)
-        UserObjectGroup.objects.remove_access(group=ca.group,
-                                          user=instance.user, 
-                                          obj=instance.company)
+        try:
+            ca = CompanyAccess.objects.get(id=instance.pk)
+            UserObjectGroup.objects.remove_access(group=ca.group,
+                                              user=instance.user, 
+                                              obj=instance.company)
+        except CompanyAccess.DoesNotExist:
+            pass
                                           
 @receiver(post_save, sender=CompanyAccess)
 def _set_access_for_company_user(sender, instance, *args, **kwargs):

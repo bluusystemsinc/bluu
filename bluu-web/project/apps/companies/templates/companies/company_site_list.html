@@ -21,7 +21,7 @@
 {{ block.super }}
 {% get_obj_perms request.user for company as "company_perms" %}
 
-<table id="site_list_table" class="infotable datatable">
+<table id="site_list_table" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
     <thead>
         <tr>
             <th>{% trans 'No.' %}</th>
@@ -38,13 +38,6 @@
     </tbody>
 </table>
 {% endblock %}
-
-
-{% block css %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}theme/components/datatables/media/css/jquery.dataTables.css" />
-    {{ block.super }}
-{% endblock %}
-
 
 {% block javascript %}
     {{ block.super }}
@@ -70,10 +63,11 @@
                 "sLast":     "{% trans 'Last' %}"
             }
          },
-         "sDom":'lfriptip',
+         //"sDom":'lfriptip',
+         "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
          "bServerSide": true,
-         "bProcessing": true,
-         "sAjaxSource": "{% url 'companies:api-company-site-list-json' company.pk %}",
+         "bProcessing": false,
+         "sAjaxSource": "{% url 'companies:api_company_site_list_json' company.pk %}",
          "aaSorting": [[2, 'asc']],
          "aoColumns": [
                 {
@@ -98,6 +92,9 @@
                 }
             ]
     });
+    $.extend( $.fn.dataTableExt.oStdClasses, {
+      "sWrapper": "dataTables_wrapper form-inline"
+    } );
 });
 </script>
 {% endblock %}

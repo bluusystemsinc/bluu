@@ -11,7 +11,7 @@ from guardian.models import UserObjectPermission, GroupObjectPermission
 from guardian.utils import get_identity
 from guardian.models import Permission, User, Group
 
-
+from .models import UserObjectGroup
 
 def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=False):
     """
@@ -123,6 +123,17 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
             .filter(permission__codename__in=codenames)\
             .values_list('object_pk', 'permission__codename')
         data += list(groups_obj_perms)
+
+    # Here we search for groups assigned to a user
+    # that have specific permissions
+    uogroup_kwargs = {'user': user}
+    uogroups_obj_perms = UserObjectGroup.objects\
+        .filter(**uogroup_kwargs)\
+        .filter(group__permissions__content_type=ctype,\
+                group__permissions__codename__in=codenames)\
+        .values_list('object_pk', 'group__permissions__codename')
+    data += list(uogroups_obj_perms)
+
     keyfunc = lambda t: t[0] # sorting/grouping by pk (first in result tuple)
     data = sorted(data, key=keyfunc)
     pk_list = []

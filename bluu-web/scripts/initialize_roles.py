@@ -87,12 +87,11 @@ def run():
     # create Company Employee role
     company_employee_group = Group.objects.get_or_create(name=u'Company Employee')[0]
 
-    # assign permissions to Dealer
+    # assign permissions to Company Employee
     company_employee_group.permissions.clear()
 
     company_employee_group.permissions = [
         perm_browse_companies,
-        perm_view_company,
         perm_browse_site,
         perm_add_site,
         perm_change_site,
@@ -108,6 +107,7 @@ def run():
 
     dealer_group.permissions = [
         perm_change_company,
+        perm_view_company
     ]
 
     # create Technician role
@@ -119,7 +119,8 @@ def run():
     technician_group.permissions = [
         perm_change_user,
         perm_delete_user,
-        perm_browse_user
+        perm_browse_user,
+        perm_view_company
     ]
 
 
