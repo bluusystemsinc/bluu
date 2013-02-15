@@ -73,7 +73,7 @@
           </a>
           <div class="nav-collapse">
             <ul class="nav">
-                <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Home Page" %}</a></li>
+                <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Dashboard" %}</a></li>
                 {% if user.is_authenticated %}
                     <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
                     <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
@@ -140,6 +140,7 @@
     <script src="{{ STATIC_URL }}theme/components/angular/angular.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular/angular-resource.min.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui.min.js"></script>
+    <script src="{{ STATIC_URL }}theme/js/ui-bootstrap-0.1.0.min.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-grid/ng-grid-1.8.0.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-grid/plugins/ng-grid-flexible-height.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/app.js"></script>

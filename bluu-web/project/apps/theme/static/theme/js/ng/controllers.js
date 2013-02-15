@@ -160,7 +160,7 @@ SiteInvitationController.$inject = ['SiteAccess', 'SiteAccessGroups',
                                       '$configService', '$scope'];
 
 
-function CompanyAccessController(CompanyAccess, $compile, $configService, $scope) {
+function CompanyAccessController(CompanyAccess, $dialog, $compile, $configService, $scope) {
 
       $scope.company_access = new CompanyAccess();
       //$scope.invitationData = [];
@@ -192,11 +192,17 @@ function CompanyAccessController(CompanyAccess, $compile, $configService, $scope
       };
 
       $scope.remove = function (id){
-         CompanyAccess.delete({'companyId':COMPANY_ID, 'id': id}, {},
+        var msgbox = $dialog.messageBox('Delete Item', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+        msgbox.open().then(function(result){
+            if(result === 'yes') {
+                CompanyAccess.delete({'companyId':COMPANY_ID, 'id': id}, {},
                                 function(data){
                                     console.log(data);
                                     $scope.access_datatable.fnDraw();
                                 }); 
+            }
+        });
+         
       }
       
       var rowCompiler = function (nRow, aData, iDataIndex){
@@ -235,7 +241,7 @@ function CompanyAccessController(CompanyAccess, $compile, $configService, $scope
                       "mRender": function( data, type, full) {
                           return '<a ng-click="remove(' + data.id + ')" href="#"><i class="icon-remove"></i></a>';
                       },
-                      "sWidth": "10%",
+                      "sWidth": "100px",
                       "bSearchable": false, 
                       "bSortable": false
                   }
@@ -247,5 +253,5 @@ function CompanyAccessController(CompanyAccess, $compile, $configService, $scope
       } );
 
   };
- CompanyAccessController.$inject = ['CompanyAccess', '$compile', '$configService', '$scope'];
+ CompanyAccessController.$inject = ['CompanyAccess', '$dialog', '$compile', '$configService', '$scope'];
 
