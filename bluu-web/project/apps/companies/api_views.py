@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
+import math
+
 from django.http import Http404
 from django.conf import settings
 from django.db.models import Q
-from django.template import Context, Template
+from django.template import Context
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import (login_required, permission_required)
 from django.template.loader import get_template
+from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -21,7 +25,6 @@ import django_filters
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
 from accounts.models import BluuUser
-from bluusites.api_views import SiteFilter
 from bluusites.models import BluuSite
 from bluusites.serializers import SiteSerializer, SitePaginationSerializer
 from grontextual.models import UserObjectGroup
@@ -46,8 +49,6 @@ class CompanySiteListJson(BaseDatatableView):
             queryset = BluuSite.objects.all()
         else:
             queryset = BluuSite.objects.filter(company=self.company)
-            #queryset = get_objects_for_user(self.request.user,
-            #                                'bluusites.view_bluusite')
  
         return queryset
 
@@ -74,7 +75,8 @@ class CompanySiteListJson(BaseDatatableView):
                     "no": no,
                     "first_name": item.first_name,
                     "last_name": item.last_name,
-                    "city": item.city
+                    "city": item.city,
+                    "actions": '<a href="{0}">{1}</a>'.format(reverse('site_edit', args=(item.pk,)), _('Manage'))
                 }
             )
             no += 1
@@ -93,134 +95,91 @@ class CompanySiteListJson(BaseDatatableView):
         return super(CompanySiteListJson, self).dispatch(*args, **kwargs)
 
 
-#class CompanySiteList(generics.ListCreateAPIView):
+#class CompanyFilter(django_filters.FilterSet):
+#    name = django_filters.CharFilter(lookup_type='icontains')
+#    class Meta:
+#        model = Company
+#        fields = ['name']
+#
+#
+#class CompanyList(generics.ListCreateAPIView):
 #    permission_classes = (permissions.IsAuthenticated,)
-#    model = BluuSite
-#    serializer_class = SiteSerializer
-#    paginate_by = 10
-#    paginate_by_param = 'iDisplayLength'
-#    pagination_serializer_class = SitePaginationSerializer
-#    filter_class = SiteFilter
-#    filter_fields = ('first_name', 'last_name', 'city')
-#
-#    def get_serializer_context(self):
-#        context = super(CompanySiteList, self).get_serializer_context()
-#        queryset = None
-#        if self.request.user.has_perm('accounts.view_site'):
-#            queryset = super(CompanySiteList, self).get_queryset()
-#        else:
-#            queryset = get_objects_for_user(self.request.user,\
-#                                            'accounts.view_site')
-# 
-#        context['extra'] = {'iTotalRecords': queryset.count()}
-#        return context
-#
-#    def _filter_queryset(self, qs):
-#        q = self.request.QUERY_PARAMS.get('sSearch', None)
-#        if q is not None:
-#            return qs.filter(Q(first_name__icontains=q) |\
-#                             Q(last_name__icontains=q))
-#        return qs
-#    
-#    def _sort_queryset(self, qs):
-#        """ Get parameters from the request and prepare order by clause
-#        """
-#        request = self.request
-#        # Number of columns that are used in sorting
-#        try:
-#            i_sorting_cols = int(request.REQUEST.get('iSortingCols', 0))
-#        except ValueError:
-#            i_sorting_cols = 0
-#
-#        order = []
-#        order_columns = self.filter_fields
-#        for i in range(i_sorting_cols):
-#            # sorting column
-#            try:
-#                i_sort_col = int(request.REQUEST.get('iSortCol_%s' % i))
-#            except ValueError:
-#                i_sort_col = 0
-#            # sorting order
-#            s_sort_dir = request.REQUEST.get('sSortDir_%s' % i)
-#
-#            sdir = '-' if s_sort_dir == 'desc' else ''
-#
-#            sortcol = order_columns[i_sort_col]
-#            if isinstance(sortcol, list):
-#                for sc in sortcol:
-#                    order.append('%s%s' % (sdir, sc))
-#            else:
-#                order.append('%s%s' % (sdir, sortcol))
-#        if order:
-#            return qs.order_by(*order)
-#        return qs
+#    model = Company
+#    serializer_class = CompanySerializer
+#    filter_class = CompanyFilter
+#    filter_fields = ('name',)
 #
 #    def get_queryset(self):
 #        user = self.request.user
-#        queryset = None
-#        if user.has_perm('accounts.view_site'):
-#            queryset = super(CompanySiteList, self).get_queryset()
-#        else:
-#            queryset = get_objects_for_user(user, 'accounts.view_site')
-#        
-#        queryset = self._filter_queryset(queryset)
-#        queryset = self._sort_queryset(queryset)
-#        
-#        return queryset
+#        if user.has_perm('accounts.view_company'):
+#            return super(CompanyList, self).get_queryset()
+#        return get_objects_for_user(user, 'companies.view_company')
 #
-#    def pre_save(self, obj):
-#        # pk and/or slug attributes are implicit in the URL.
-#        company_pk = self.kwargs.get('company', None)
-#        if company_pk:
-#            company = Company.objects.get(pk=company_pk)
-#            setattr(obj, 'company', company)
 #
-#        if hasattr(obj, 'full_clean'):
-#            obj.full_clean()
-#
-#    def create(self, request, *args, **kwargs):
-#        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-#
-#        if serializer.is_valid():
-#            self.pre_save(serializer.object)
-#            self.object = serializer.save()
-#            headers = self.get_success_headers(serializer.data)
-#            return Response(serializer.data, status=status.HTTP_201_CREATED,
-#                            headers=headers)
-#
-#        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#    @method_decorator(csrf_exempt)
-#    def dispatch(self, *args, **kwargs):
-#        return super(CompanySiteList, self).dispatch(*args, **kwargs)
+#class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
+#    permission_classes = (permissions.IsAuthenticated,)
+#    model = Company
+#    serializer_class = CompanySerializer
 
 
-class CompanyFilter(django_filters.FilterSet):
-    name = django_filters.CharFilter(lookup_type='icontains')
-    class Meta:
-        model = Company
-        fields = ['name']
+class CompanyAccessListCreateView(generics.ListCreateAPIView):
+    model = CompanyAccess
+    paginate_by = 20
+    paginate_by_param = 'iDisplayLength'
+  
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        self.object_list = self.filter_queryset(queryset)
+
+        # Default is to allow empty querysets.  This can be altered by setting
+        # `.allow_empty = False`, to raise 404 errors on empty querysets.
+        allow_empty = self.get_allow_empty()
+        if not allow_empty and not self.object_list:
+            class_name = self.__class__.__name__
+            error_msg = self.empty_error % {'class_name': class_name}
+            raise Http404(error_msg)
+        # Pagination size is set by the `.paginate_by` attribute,
+        # which may be `None` to disable pagination.
+        page_size = self.get_paginate_by(self.object_list)
+        if page_size:
+            packed = self.paginate_queryset(self.object_list, page_size)
+            paginator, page, queryset, is_paginated = packed
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+        
+        data = {
+                'sEcho': request.GET.get('sEcho', 1),
+                'iTotalRecords': serializer.data['count'],
+                'iTotalDisplayRecords': serializer.data['count'],
+                'aaData': serializer.data['results']
+                
+        }
+        print data
+        return Response(data)
 
 
-class CompanyList(generics.ListCreateAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    model = Company
-    serializer_class = CompanySerializer
-    filter_class = CompanyFilter
-    filter_fields = ('name',)
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        request.GET = request.GET.copy()
+        page_size = request.GET.get('iDisplayLength', 10)
+        object_number = request.GET.get('iDisplayStart', 1)
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.has_perm('accounts.view_company'):
-            return super(CompanyList, self).get_queryset()
-        return get_objects_for_user(user, 'accounts.view_company')
+        if (page_size == '-1'):
+            page_size = request.GET['iDisplayLength'] = 10
 
+        try:
+            object_number = float(object_number)
+        except ValueError:
+            object_number = 1
+        try:
+            page_size = float(page_size)
+        except ValueError:
+            page_size = 10
 
-class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    model = Company
-    serializer_class = CompanySerializer
-
+        page = int(math.ceil(object_number / page_size))
+        request.GET['page'] = page
+        return super(CompanyAccessListCreateView, self).dispatch(request, *args, **kwargs)
 
 
 class CompanyAccessListJson(BaseDatatableView):
@@ -233,7 +192,7 @@ class CompanyAccessListJson(BaseDatatableView):
     # Order is important and should be the same as order of columns
     # displayed by datatables. For non sortable columns use empty
     # value like ''
-    order_columns = ['', 'email']
+    order_columns = ['email']
 
     def get_object(self, pk):
         return get_object_or_404(Company, pk=pk)
@@ -263,7 +222,7 @@ class CompanyAccessListJson(BaseDatatableView):
         # prepare output data
         aaData = self.prepare_results(qs)
 
-        ret = {'sEcho': int(request.REQUEST.get('sEcho', 0)),
+        ret = {'sEcho': int(request.GET.get('sEcho', 0)),
                'iTotalRecords': total_records,
                'iTotalDisplayRecords': total_display_records,
                'aaData': aaData
@@ -283,22 +242,24 @@ class CompanyAccessListJson(BaseDatatableView):
                                                "pk": access.group.pk,
                                                "assigned": True}
         else:
-            # if user already has this role
+            # if user already has this group
             for uog in UserObjectGroup.objects.get_for_object(access.user, self.company):
                 assigned_groups[uog.group.name] = {"name": uog.group.name,
                                                    "pk": uog.group.pk,
                                                    "assigned": True}
 
         for company_group in settings.COMPANY_GROUPS:
-            if company_group not in assigned_groups.keys():
-                groups.append({"pk": None, "name": company_group, "assigned": False})
+            group = Group.objects.get(name=company_group)
+            if group.name not in assigned_groups.keys():
+                groups.append({"pk": group.pk, "name": group.name, "assigned": False})
             else:
                 groups.append(assigned_groups.get(company_group))
 
         t = get_template('companies/_company_access_list_cell.html')
-        c = Context({'groups': groups})
-        ret = t.render(c)
-        return ret
+        c = Context({
+            'access': access,
+            'groups': groups})
+        return t.render(c)
 
     def prepare_results(self, qs):
         # prepare list with output column data
@@ -318,75 +279,34 @@ class CompanyAccessListJson(BaseDatatableView):
                     "no": no,
                     "email": access.get_email,
                     "groups": rendered_groups,
-                    "invitation": access.invitation
+                    "invitation": access.invitation,
+                    "access": {
+                            "id": access.pk,
+                            "email": access.get_email,
+                            "invitation": access.invitation,
+                        }
                 }
             )
             no += 1
         return json_data
 
 
-#    def post(self, request, company_pk, format=None):
-#        self.company = self.get_object(company_pk)
-#        form = CompanyInvitationForm(request.POST)
-#        
-#        if form.is_valid():
-#            try:
-#                user = BluuUser.objects.get(email=request.DATA['email'])
-#                # user exists, so grant him an access to company
-#
-#                #group = request.DATA['group']
-#                #group = Group.objects.get(pk=group)
-#
-#                access = form.save(commit=False)
-#                access.user = user
-#                access.save()
-#                form.save_m2m()
-#
-#                #CompanyAccess.objects.create(company=company, user=user)
-#                # assign the group to the user in the context of company
-#                UserObjectGroup.objects.assign(group, user, company)
-#            except BluuUser.DoesNotExist:
-#                # send invitation
-#                access = form.save(commit=False)
-#                access.invitation = True
-#                access.save()
-#                form.save_m2m()
-#
-#            return Response({'email': request.DATA['email'],
-#                             'group': request.DATA['group']},
-#                            status=status.HTTP_201_CREATED)
-#
-#        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CompanyAccessList(generics.ListCreateAPIView):
+class CompanyAccessCreateView(generics.CreateAPIView):
     """
-    Saves access data posted by client.
+    Create access for user to company
     """
     permission_classes = (permissions.IsAuthenticated,)
     model = Company
 
-    def get_object(self, pk):
+    def get_company(self, pk):
         try:
             return Company.objects.get(pk=pk)
         except Company.DoesNotExist:
             raise Http404
 
-#    def get(self, request, pk, format=None):
-#        company = self.get_object(pk)
-#        groups = get_groups_with_perms(company)
-#        users = BluuUser.objects.filter(groups__in=groups)
-#        #users = get_users_with_perms(company)
-#        ret = []
-#        for user in users:
-#            user_groups = set(groups) & set(user.groups.all())
-#            ret.append(UserGroups(user, user_groups))
-#
-#        sobj = CompanyAccessSerializer(ret)
-#        return Response(sobj.data)
 
     def post(self, request, pk, format=None):
-        company = self.get_object(pk)
+        company = self.get_company(pk)
         email = request.DATA['email']
         try:
             user = BluuUser.objects.get(email=email)
@@ -413,8 +333,6 @@ class CompanyAccessList(generics.ListCreateAPIView):
                 access.save()
                 form.save_m2m()
 
-                # assign the group to the user in the context of company
-                UserObjectGroup.objects.assign(access.group, user, company)
             except BluuUser.DoesNotExist:
                 # send invitation
                 access = form.save(commit=False)
@@ -430,24 +348,13 @@ class CompanyAccessList(generics.ListCreateAPIView):
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserGroups:
-    def __init__(self, user, groups):
-        self.user = user
-        self.groups = groups
+class CompanyAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Change existing access level
+    """
+    model = CompanyAccess
 
-
-class CompanyAccessGroups(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_object(self, pk):
-        try:
-            return Company.objects.get(pk=pk)
-        except Company.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        company = self.get_object(pk)
-        groups = get_groups_with_perms(company)
-        sobj = CompanyAccessGroupsSerializer(groups)
-        return Response(sobj.data)
+    def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return super(CompanyAccessUpdateView, self).update(request, *args, **kwargs)
 

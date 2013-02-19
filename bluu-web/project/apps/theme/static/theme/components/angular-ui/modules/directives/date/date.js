@@ -2,6 +2,7 @@
 /*
  jQuery UI Datepicker plugin wrapper
 
+ @note If ≤ IE8 make sure you have a polyfill for Date.toISOString()
  @param [ui-date] {object} Options to pass to $.fn.datepicker() merged onto ui.config
  */
 
@@ -30,6 +31,7 @@ angular.module('ui.directives')
               var date = element.datepicker("getDate");
               element.datepicker("setDate", element.val());
               controller.$setViewValue(date);
+              element.blur();
             });
           };
           if (opts.onSelect) {
@@ -37,7 +39,9 @@ angular.module('ui.directives')
             var userHandler = opts.onSelect;
             opts.onSelect = function (value, picker) {
               updateModel();
-              return userHandler(value, picker);
+              scope.$apply(function() {
+                userHandler(value, picker);
+              });
             };
           } else {
             // No onSelect already specified so just update the model
@@ -59,8 +63,10 @@ angular.module('ui.directives')
         element.datepicker('destroy');
         // Create the new datepicker widget
         element.datepicker(opts);
-        // Force a render to override whatever is in the input text box
-        controller.$render();
+        if ( controller ) {
+          // Force a render to override whatever is in the input text box
+          controller.$render();
+        }
       };
       // Watch for changes to the directives options
       scope.$watch(getOptions, initDateWidget, true);
@@ -69,11 +75,24 @@ angular.module('ui.directives')
 }
 ])
 
-.directive('uiDateFormat', [function() {
+.directive('uiDateFormat', ['ui.config', function(uiConfig) {
   var directive = {
     require:'ngModel',
     link: function(scope, element, attrs, modelCtrl) {
-      if ( attrs.uiDateFormat === '' ) {
+      var dateFormat = attrs.uiDateFormat || uiConfig.dateFormat;
+      if ( dateFormat ) {
+        // Use the datepicker with the attribute value as the dateFormat string to convert to and from a string
+        modelCtrl.$formatters.push(function(value) {
+          if (angular.isString(value) ) {
+            return $.datepicker.parseDate(dateFormat, value);
+          }
+        });
+        modelCtrl.$parsers.push(function(value){
+          if (value) {
+            return $.datepicker.formatDate(dateFormat, value);
+          }
+        });
+      } else {
         // Default to ISO formatting
         modelCtrl.$formatters.push(function(value) {
           if (angular.isString(value) ) {
@@ -83,19 +102,6 @@ angular.module('ui.directives')
         modelCtrl.$parsers.push(function(value){
           if (value) {
             return value.toISOString();
-          }
-        });
-      } else {
-        var format = attrs.uiDateFormat;
-        // Use the datepicker with the attribute value as the format string to convert to and from a string
-        modelCtrl.$formatters.push(function(value) {
-          if (angular.isString(value) ) {
-            return $.datepicker.parseDate(format, value);
-          }
-        });
-        modelCtrl.$parsers.push(function(value){
-          if (value) {
-            return $.datepicker.formatDate(format, value);
           }
         });
       }

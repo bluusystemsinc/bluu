@@ -6,16 +6,17 @@ This directive allows you to add a date-picker to your form elements.
 
 - JQuery
 - JQueryUI
+- [Date.toISOString()](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Date/toISOString) (requires [polyfill](https://github.com/kriskowal/es5-shim/) for &le;IE8)
 
 # Usage
 
-Load the script file: date.js in your application:
+Load the script file in your application:
 
-    <script type="text/javascript" src="modules/directives/date/src/date.js"></script>
+    <script type="text/javascript" src="angular-ui.js"></script>
 
 Add the date module as a dependency to your application module:
 
-    var myAppModule = angular.module('MyApp', ['ui.directives.date'])
+    var myAppModule = angular.module('MyApp', ['ui.directives'])
 
 Apply the directive to your form elements:
 

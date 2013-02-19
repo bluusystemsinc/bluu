@@ -1,4 +1,4 @@
-describe('uiMask', function () {
+xdescribe('uiMask', function () {
 
   var inputHtml = "<input ui-mask=\"'(9)9'\" ng-model='x'>";
   var $compile, $rootScope, element;
@@ -34,5 +34,14 @@ describe('uiMask', function () {
 
   describe('model binding on ui change', function () {
     //TODO: was having har time writing those tests, will open a separate issue for those
+  });
+
+  describe('should fail', function() {
+    it('errors on missing quotes', function() {
+      $rootScope.x = 42;
+      var errorInputHtml = "<input ui-mask=\"(9)9\" ng-model='x'>";
+      element = $compile(errorInputHtml)($rootScope);
+      expect($rootScope.$digest).toThrow('The Mask widget is not correctly set up');
+    });
   });
 });

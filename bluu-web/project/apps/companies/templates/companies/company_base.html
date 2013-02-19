@@ -11,8 +11,13 @@
     {% if perms.companies.change_company or "change_company" in company_perms %}<li class="{% active request "^/companies/\d+/edit/$" %}"><a href="{% url 'company_edit' company.id %}">{% trans "Company details" %}</a></li>{% endif %}
     {% if perms.companies.change_company or "change_company" in company_perms %}<li class="{% active request "^/companies/\d+/access/$" %}"><a href="{% url 'company_access_list' company.id %}">{% trans "Access management" %}</a></li>{% endif %}
     {% if perms.bluusites.browse_bluusites %}<li class="{% active request "^/companies/\d+/sites/" %}"><a href="{% url 'company_site_list' company.id %}">{% trans "Sites management" %}</a></li>{% endif %}
-    <li class="divider"></li>
-    {% if perms.companies.delete_company or "delete_company" in company_perms %}<li><a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove company' %}</a></li>{% endif %}
+    
+    {% if perms.companies.delete_company or "delete_company" in company_perms %}
+        <li class="divider"></li>
+        <li>
+            <a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove company' %}</a>
+        </li>
+    {% endif %}
   </ul>
 </div>
 {% endblock%}

@@ -9,6 +9,7 @@
     self.isGroupedBy = false;
     self.minWidth = !colDef.minWidth ? 50 : colDef.minWidth;
     self.maxWidth = !colDef.maxWidth ? 9000 : colDef.maxWidth;
+	self.enableFocusedCellEdit = colDef.enableFocusedCellEdit;
     self.headerRowHeight = config.headerRowHeight;
     self.displayName = colDef.displayName || colDef.field;
     self.index = config.index;
@@ -30,13 +31,24 @@
     self.sortDirection = undefined;
     self.sortingAlgorithm = colDef.sortFn;
     self.headerClass = colDef.headerClass;
-    self.headerCellTemplate = colDef.headerCellTemplate || ng.defaultHeaderCellTemplate();
     self.cursor = self.sortable ? 'pointer' : 'default';
-    self.cellTemplate = colDef.cellTemplate || ng.defaultCellTemplate().replace(CUSTOM_FILTERS, self.cellFilter ? "|" + self.cellFilter : "");
+    self.headerCellTemplate = colDef.headerCellTemplate || ng.headerCellTemplate();
+    self.cellTemplate = colDef.cellTemplate || ng.cellTemplate().replace(CUSTOM_FILTERS, self.cellFilter ? "|" + self.cellFilter : "");
+	if(self.enableFocusedCellEdit) {
+	    self.focusedCellEditTemplate = ng.focusedCellEditTemplate();
+		self.editableCellTemplate = colDef.editableCellTemplate || ng.editableCellTemplate();
+	}
     if (colDef.cellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
         self.cellTemplate = $.ajax({
             type: "GET",
             url: colDef.cellTemplate,
+            async: false
+        }).responseText;
+    }
+	if (self.enableFocusedCellEdit && colDef.editableCellTemplate && !TEMPLATE_REGEXP.test(colDef.cellTemplate)) {
+        self.editableCellTemplate = $.ajax({
+            type: "GET",
+            url: colDef.editableCellTemplate,
             async: false
         }).responseText;
     }
@@ -104,9 +116,9 @@
         domUtilityService.BuildStyles($scope, grid);
         return false;
     };
-    self.gripOnMouseUp = function() {
-        $(document).off('mousemove');
-        $(document).off('mouseup');
+    self.gripOnMouseUp = function (event) {
+        $(document).off('mousemove', self.onMouseMove);
+        $(document).off('mouseup', self.gripOnMouseUp);
         event.target.parentElement.style.cursor = 'default';
         domUtilityService.digest($scope);
         return false;

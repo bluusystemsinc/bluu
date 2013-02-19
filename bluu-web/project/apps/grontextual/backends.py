@@ -8,7 +8,8 @@ def get_uog_permissions(user_obj, obj=None):
     ctype = ContentType.objects.get_for_model(obj)
     groups = UserObjectGroup.objects.filter(
                         content_type=ctype,
-                        user=user_obj)
+                        user=user_obj,
+                        object_pk=obj.pk)
     perms = set()
     for group in groups:
         perms.update(set(['%s.%s' % (p.content_type.app_label, p.codename)\

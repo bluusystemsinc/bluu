@@ -220,6 +220,7 @@ APPEND_SLASH = False
 
 # App specific settings
 COMPANY_GROUPS = ['Dealer', 'Technician']
+SITE_GROUPS = ['Master User', 'User']
 
 try:
     from settings_local import *

@@ -44,6 +44,7 @@ class UserObjectGroupManager(models.Manager):
         groups = self.filter(
             content_type = ctype,
             user = user,
+            object_pk = obj.pk
         )
         return groups
 

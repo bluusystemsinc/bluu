@@ -2,8 +2,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
-from django.views.generic import UpdateView, CreateView, DetailView,\
-                                 DeleteView, ListView, TemplateView
+from django.views.generic import (UpdateView, CreateView, DetailView,
+                                  ListView, TemplateView)
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -11,7 +11,8 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_objects_for_user
+#from guardian.shortcuts import get_objects_for_user
+from grontextual.shortcuts import get_objects_for_user
 from braces.views import LoginRequiredMixin
 from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 from braces.views import PermissionRequiredMixin
@@ -91,20 +92,10 @@ class CompanyAccessListView(GPermissionRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         company = self.get_object()
-        access_list = []
-        for access in CompanyAccess.objects.filter(company=company):
-            groups = [uog.group for uog in UserObjectGroup.objects.get_for_object(access.user, company)]
-            access_list.append(
-                {
-                    "user": access.user,
-                    "groups": groups
-                }
-            )
         invitation_form = CompanyInvitationForm()
         return {
             'params': kwargs,
             'company': company,
-            'access_list': access_list,
             'invitation_form': invitation_form
         } 
 
@@ -125,44 +116,43 @@ class CompanySiteListView(GPermissionRequiredMixin, DetailView):
         return super(CompanySiteListView, self).dispatch(*args, **kwargs)
 
 
-class CompanySiteCreateView(CreateView):
-    model = BluuSite
-    template_name = "companies/company_site_create.html"
-    form_class = SiteForm
-    pk_url_kwarg = 'company_pk'
-    #permission_required = 'companies.change_company'
-
-    #def get_form_kwargs(self, **kwargs):
-        #kwargs = super(CompanySiteCreateView, self).get_form_kwargs(**kwargs)
-        #kwargs['user'] = self.request.user
-        #return kwargs
-
-    def get_success_url(self):
-        return reverse('company_site_list', args=[self.company.pk]) 
-
-    def get_context_data(self, **kwargs):
-        context = super(CompanySiteCreateView, self).get_context_data(**kwargs)
-        context['company'] = self.company
-        return context 
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.company = self.company
-        self.object.save()
-        form.save_m2m()
-
-        messages.success(self.request, _('Site added'))
-        return HttpResponseRedirect(self.get_success_url())
-
-    @method_decorator(login_required)
-    @method_decorator(permission_required_or_403('companies.change_company',
-            (Company, 'pk', 'company_pk')))
-    @method_decorator(permission_required('bluusites.add_bluusite'))
-    def dispatch(self, *args, **kwargs):
-        try:
-            self.company = \
-                    Company.objects.get(pk=kwargs.get('company_pk', None))
-        except ObjectDoesNotExist:
-            pass
-        return super(CompanySiteCreateView, self).dispatch(*args, **kwargs)
-
+#class CompanySiteCreateView(CreateView):
+#    model = BluuSite
+#    template_name = "companies/company_site_create.html"
+#    form_class = SiteForm
+#    pk_url_kwarg = 'company_pk'
+#    #permission_required = 'companies.change_company'
+#
+#    #def get_form_kwargs(self, **kwargs):
+#        #kwargs = super(CompanySiteCreateView, self).get_form_kwargs(**kwargs)
+#        #kwargs['user'] = self.request.user
+#        #return kwargs
+#
+#    def get_success_url(self):
+#        return reverse('company_site_list', args=[self.company.pk]) 
+#
+#    def get_context_data(self, **kwargs):
+#        context = super(CompanySiteCreateView, self).get_context_data(**kwargs)
+#        context['company'] = self.company
+#        return context 
+#
+#    def form_valid(self, form):
+#        self.object = form.save(commit=False)
+#        self.object.company = self.company
+#        self.object.save()
+#        form.save_m2m()
+#
+#        messages.success(self.request, _('Site added'))
+#        return HttpResponseRedirect(self.get_success_url())
+#
+#    @method_decorator(login_required)
+#    @method_decorator(permission_required_or_403('companies.change_company',
+#            (Company, 'pk', 'company_pk')))
+#    @method_decorator(permission_required('bluusites.add_bluusite'))
+#    def dispatch(self, *args, **kwargs):
+#        try:
+#            self.company = \
+#                    Company.objects.get(pk=kwargs.get('company_pk', None))
+#        except ObjectDoesNotExist:
+#            pass
+#        return super(CompanySiteCreateView, self).dispatch(*args, **kwargs)

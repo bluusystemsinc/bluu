@@ -3,11 +3,13 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_save, pre_delete
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
+from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
 
@@ -46,31 +48,48 @@ class CompanyAccess(models.Model):
     # been invited to
     invitation = models.BooleanField(_('invitation', default=False))
     email = models.EmailField(_('e-mail'), blank=True, null=True)
-    group = models.ForeignKey(Group, blank=True, null=True)
+    group = models.ForeignKey(Group)
 
     def __unicode__(self):
         return u'%s | %s | %s' % (
             unicode(self.company),
             unicode(getattr(self, 'user', '---')),
             unicode(getattr(self, 'email', '---')))
-
-
-
+    
     @property
     def get_email(self):
         if self.user is not None:
             return self.user.email
         return self.email
 
-@receiver(post_save, sender=CompanyAccess)
-def _assign_groups_to_company_user(sender, instance, *args, **kwargs):
+
+@receiver(pre_save, sender=CompanyAccess)
+def _revoke_access_for_company_user(sender, instance, *args, **kwargs):
     """
-    Each user assigned to company should have some minimal permissions grouped
-    in Company Employee group.
+    Before access level is changed remove current accesses from authentication
+    backend - UserObjectGroup.
+    """
+    if instance and instance.user:
+        try:
+            ca = CompanyAccess.objects.get(id=instance.pk)
+            UserObjectGroup.objects.remove_access(group=ca.group,
+                                              user=instance.user, 
+                                              obj=instance.company)
+        except CompanyAccess.DoesNotExist:
+            pass
+                                          
+@receiver(post_save, sender=CompanyAccess)
+def _set_access_for_company_user(sender, instance, *args, **kwargs):
+    """
+    Assign user to a group in the context of company.
+    Assign minimal permissions grouped in Company Employee group to a user.
     """
     if instance and instance.user:
         company_employee_group = Group.objects.get(name='Company Employee')
         instance.user.groups.add(company_employee_group)
+        UserObjectGroup.objects.assign(group=instance.group, 
+                                       user=instance.user, 
+                                       obj=instance.company)
 
 @receiver(pre_delete, sender=CompanyAccess)
 def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
@@ -82,7 +101,8 @@ def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
         if not CompanyAccess.objects.filter(user=instance.user):
             company_employee_group = Group.objects.get(name='Company Employee')
             instance.user.groups.remove(company_employee_group)
- 
+        UserObjectGroup.objects.remove_access(instance.group, instance.user, 
+                                          instance.company)
 
 #@receiver(post_save, sender=Company)
 #def _create_groups_for_company(sender, instance, *args, **kwargs):

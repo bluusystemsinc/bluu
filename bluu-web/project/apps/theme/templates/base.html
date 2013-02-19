@@ -15,8 +15,9 @@
       }
     </style>
     {% compress css %}
-    <link href="{{ STATIC_URL }}theme/components/bootstrap.css/css/bootstrap.css" rel="stylesheet">
-    <link href="{{ STATIC_URL }}theme/components/bootstrap.css/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}theme/components/sass-twitter-bootstrap/docs/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}theme/components/sass-twitter-bootstrap/docs/assets/css/bootstrap-responsive.css" rel="stylesheet">
+    {% comment %}<link href="{{ STATIC_URL }}theme/css/bootstrap.css" rel="stylesheet">{% endcomment %}
     <link href="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui.min.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}theme/components/angular-grid/ng-grid.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}theme/css/style.css" rel="stylesheet">
@@ -34,7 +35,6 @@
     </script>
     <script src="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui-ieshiv.js"></script>
     <![endif]-->
-
 
     {% block head-javascript %}{% endblock %}
 
@@ -73,10 +73,10 @@
           </a>
           <div class="nav-collapse">
             <ul class="nav">
-                <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home icon-white"></i> {% trans "Home Page" %}</a></li>
+                <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Dashboard" %}</a></li>
                 {% if user.is_authenticated %}
-                    <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company_list' %}"><i class="icon-user"></i> {% trans "Companies" %}</a></li>
-                    <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site_list' %}"><i class="icon-user"></i> {% trans "Sites" %}</a></li>
+                    <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
+                    <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
                     {% if perms.accounts.browse_bluuusers %}
                     <li class="{% active request "^/accounts/users/$" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
                     {% endif %}
@@ -85,7 +85,7 @@
             <ul class="nav pull-right">
               {% if user.is_authenticated %}
               <li class="dropdown" id="auth-menu">
-              <a class="dropdown-toggle" data-toggle="dropdown" href="#auth-menu"><i class="icon-user icon-white"></i> {{ user.email }}<b class="caret"></b></a>
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#auth-menu"><i class="icon-user"></i> {{ user.get_name }}<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   <li><a href="{% url 'account_edit' %}"><i class="icon-user"></i> {% trans "Account" %}</a></li>
                   <li class="divider"></li>
@@ -136,11 +136,12 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
     {% compress js %}
-    <script src="{{ STATIC_URL }}theme/components/bootstrap.css/js/bootstrap.min.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/sass-twitter-bootstrap/docs/assets/js/bootstrap.min.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular/angular.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular/angular-resource.min.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-ui/build/angular-ui.min.js"></script>
-    <script src="{{ STATIC_URL }}theme/components/angular-grid/ng-grid-1.6.3.js"></script>
+    <script src="{{ STATIC_URL }}theme/js/ui-bootstrap-0.1.0.min.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/angular-grid/ng-grid-1.8.0.js"></script>
     <script src="{{ STATIC_URL }}theme/components/angular-grid/plugins/ng-grid-flexible-height.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/app.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/services.js"></script>
@@ -148,12 +149,12 @@
     <script src="{{ STATIC_URL }}theme/js/ng/filters.js"></script>
     <script src="{{ STATIC_URL }}theme/js/ng/directives.js"></script>
     {% endcompress %}
+    {% block javascript %}{% endblock %}
     <script type="text/javascript">
         var STATIC_URL = '{{ STATIC_URL }}';
+        //$(document).ready(function() {
+        //    angular.bootstrap(document, ['Bluu']);
+        //});
     </script>
-
-
-
-    {% block javascript %}{% endblock %}
 </body>
 </html>

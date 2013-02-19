@@ -9,12 +9,14 @@
 
     self.evalFilter = function () {
         if (searchConditions.length === 0) {
-            grid.filteredData = grid.sortedData;
+            grid.filteredRows = grid.rowCache;
         } else {
-            grid.filteredData = grid.sortedData.filter(function (item) {
+            grid.filteredRows = grid.rowCache.filter(function (row) {
+                var item = row.entity;
                 for (var i = 0, len = searchConditions.length; i < len; i++) {
                     var condition = searchConditions[i];
                     //Search entire row
+                    var result;
                     if (!condition.column) {
                         for (var prop in item) {
                             if (item.hasOwnProperty(prop)) {
@@ -22,14 +24,13 @@
                                 if (!c) continue;
                                 var f = (c && c.cellFilter) ? $filter(c.cellFilter) : null;
                                 var pVal = item[prop];
-								if(pVal != null){ 								
-									var result;
-									if(typeof f == 'function'){
+								if(pVal != null){
+								    if(typeof f == 'function'){
 										var filterRes = f(typeof pVal === 'object' ? evalObject(pVal, c.field) : pVal).toString();
 										result = condition.regex.test(filterRes);
 									} else {
-										result = condition.regex.test(typeof pVal === 'object' ? evalObject(pVal, c.field).toString() : pVal.toString())
-									}
+										result = condition.regex.test(typeof pVal === 'object' ? evalObject(pVal, c.field).toString() : pVal.toString());
+								    }
 									if (pVal &&  result) {
 										return true;
 									}
@@ -46,13 +47,12 @@
                     var filter = col.cellFilter ? $filter(col.cellFilter) : null;
                     var value = item[condition.column] || item[col.field.split('.')[0]];                  
 					if(value == null) return false;
-					var result;
-					if(typeof filter == 'function'){
+                    if(typeof filter == 'function'){
 						var filterResults = filter(typeof value === 'object' ? evalObject(value, col.field) : value).toString();
 						result = condition.regex.test(filterResults);
 					} else {
-						result = condition.regex.test(typeof value === 'object' ? evalObject(value, col.field).toString() : value.toString())
-					}
+						result = condition.regex.test(typeof value === 'object' ? evalObject(value, col.field).toString() : value.toString());
+                    }
 					if (!value || !result) {
 						return false;
 					}				
@@ -60,7 +60,10 @@
                 return true;
             });
         }
-        grid.rowFactory.filteredDataChanged();
+        angular.forEach(grid.filteredRows, function (row, i) {
+            row.rowIndex = i;
+        });
+        grid.rowFactory.filteredRowsChanged();
     };
 
     //Traversing through the object to find the value that we want. If fail, then return the original object.
@@ -90,12 +93,12 @@
     var buildSearchConditions = function (a) {
         //reset.
         searchConditions = [];
-        var qStr = '';
+        var qStr;
         if (!(qStr = $.trim(a))) {
             return;
         }
         var columnFilters = qStr.split(";");
-        $.each(columnFilters, function (i, filter) {
+        angular.forEach(columnFilters, function (filter) {
             var args = filter.split(':');
             if (args.length > 1) {
                 var columnName = $.trim(args[0]);
@@ -123,7 +126,7 @@
 	});
 	$scope.$watch('filterText', function(a){
 		if(!self.extFilter){
-			$scope.$emit('filterChanged', a);
+			$scope.$emit('ngGridEventFilter', a);
             buildSearchConditions(a);
             self.evalFilter();
         }
@@ -131,8 +134,10 @@
     if (!self.extFilter) {
         $scope.$watch('columns', function (a) {
             angular.forEach(a, function (col) {
-                self.fieldMap[col.field.split('.')[0]] = col;
-                self.fieldMap[col.displayName.toLowerCase().replace(/\s+/g, '')] = col;
+				if(col.field)
+					self.fieldMap[col.field.split('.')[0]] = col;
+				if(col.displayName)
+					self.fieldMap[col.displayName.toLowerCase().replace(/\s+/g, '')] = col;
             });
         });
     }

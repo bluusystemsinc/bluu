@@ -26,4 +26,3 @@ class UserObjectGroup(models.Model):
             unicode(self.content_object),
             unicode(getattr(self, 'user', '---')),
             unicode(getattr(self, 'group', '---')))
-

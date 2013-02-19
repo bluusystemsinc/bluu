@@ -1,0 +1,92 @@
+{% extends "bluusites/site_base.html" %}
+
+{% load i18n crispy_forms_tags grontextual_tags %}
+
+{% block title %}
+{% trans 'Site Access Management' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'site_list' %}">{% trans "Site list" %}</a> &gt; {% trans "Site Access Management" %}
+{% endblock %}
+
+{% block page-title %}
+    {% trans "Site Access Management" %}
+{% endblock %}
+
+
+{% block main %}
+{{ block.super }}
+
+<div class="tab-content">
+    <div class="tab-pane active" id="users">
+        {% comment %}<div class="gridStyle" ng-grid="AccessGridOptions"></div>{% endcomment %}
+
+        <div ng-controller="SiteAccessController">
+        <div>
+            <p>{% trans "Invite user" %}</p>
+            <form name="addForm" class="form-inline">
+                {#% crispy invitation_form invitation_form.helper %#}
+                {% comment %}<input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />{% endcomment %}
+                {{ invitation_form.email }}
+                {{ invitation_form.group }}
+                {% comment %}<select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>{% endcomment %}
+                <button type="submit" class="btn" ng-disabled="form.$invalid" ng-click="save()">{% trans "Add" %}</button>
+            </form>
+        </div>
+
+        <div>
+
+        <table id="access_list_table" width="100%" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>{% trans 'E-mail' %}</th>
+                    <th>{% trans 'Access' %}</th>
+                    <th>{% trans 'Actions' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+                </tr>
+            </tbody>
+        </table>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}
+
+
+{% block css %}
+    {{ block.super }}
+{% endblock css %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    {% include "utils/_datatable_trans.html" %}
+    <script charset="utf-8" type="text/javascript">
+    var SITE_ID = {{ bluusite.id }};
+    var DATATABLE_URL = "{% url 'sites:api_site_access_list_json' bluusite.pk %}";
+</script>
+{% endblock %}
+
+{% comment %}
+{% block main.old %}
+<div ng-controller="SiteAccessController">
+    <div class="gridStyle" ng-grid="AccessGridOptions"></div>
+
+    {% if "change_site" in site_perms %}
+    <div ng-controller="SiteInvitationController">
+        <h2>{% trans "Invite user" %}</h2>
+            <form class="form-inline">
+                <input type="text" name="email" ng-model="site_access.email" placeholder="e-mail" />
+                <select ng-model="site_access.groups" ng-options="group.name for group in groups"></select>
+                <button type="submit" class="btn" ng-click="save()">{% trans "Add" %}</button>
+            </form>
+        <div class="gridStyle" ng-grid="InvitationGridOptions"></div>
+    </div>
+</div>
+{% endblock %}
+{% endcomment %}
