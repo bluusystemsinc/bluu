@@ -124,7 +124,6 @@ def run():
     ]
 
 
-
     # create Master User role
     masteruser_group = Group.objects.get_or_create(name=u'Master User')[0]
 
@@ -132,7 +131,15 @@ def run():
     masteruser_group.permissions.clear()
 
     masteruser_group.permissions = [
-        perm_add_user,
-        perm_change_user,
-        perm_delete_user,
-        perm_browse_user]
+        perm_browse_site,
+        perm_manage_site,
+        perm_change_site]
+
+    masteruser_group = Group.objects.get_or_create(name=u'User')[0]
+
+    # assign permissions to User
+    masteruser_group.permissions.clear()
+
+    masteruser_group.permissions = [
+        perm_browse_site
+        ]

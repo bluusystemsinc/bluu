@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.http import Http404
 from django import forms
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
-from .models import BluuSite
+
+from .models import BluuSite, BluuSiteAccess
 
 class SiteForm(forms.ModelForm):
 
@@ -94,3 +98,53 @@ class SiteForm(forms.ModelForm):
         if commit:
             self.save_m2m()
         return instance
+
+
+class SiteInvitationForm(forms.ModelForm):
+
+    class Meta:
+        model = BluuSiteAccess
+        fields = ('email', 'group')
+
+    def __init__(self, *args, **kwargs):
+        self.site = kwargs.pop('site', None)
+        self.request = kwargs.pop('request', None)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = layout.Layout(
+            layout.Div(
+                    layout.Field('email', placeholder='e-mail'),
+                    layout.Field('group')
+            ),
+            FormActions(
+                layout.Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
+        super(SiteInvitationForm, self).__init__(*args, **kwargs)
+        self.fields['group'].choices = [('', '---')] + [(group.pk, group.name) for group in Group.objects.filter(name__in=settings.SITE_GROUPS)]
+        self.fields['group'].label = ''
+        self.fields['group'].widget.attrs['ng-model'] = 'site_access.group'
+        self.fields['email'].label = ''
+        self.fields['email'].widget.attrs['ng-model'] = 'site_access.email'
+        self.fields['email'].widget.attrs['placeholder'] = 'e-mail'
+
+    def clean(self):
+        cleaned_data = super(SiteInvitationForm, self).clean()
+        email = cleaned_data.get("email")
+        group = cleaned_data.get("group")
+        try:
+            user = get_user_model().objects.get(email=email)
+        except get_user_model().DoesNotExist:
+            user = None
+
+        if not self.instance.pk:
+            if user and \
+                BluuSiteAccess.objects.filter(site=self.site, user=user).exists():
+                raise forms.ValidationError(_('User with the same e-mail has already been granted access.'))
+            elif email and \
+                    BluuSiteAccess.objects.filter(site=self.site, email=email).exists():
+                raise forms.ValidationError(_('User with the same e-mail has already been granted access.'))
+        # Always return the full collection of cleaned data.
+        return cleaned_data
+
+

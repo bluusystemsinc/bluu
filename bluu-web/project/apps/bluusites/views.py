@@ -1,23 +1,23 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
+from django.core.urlresolvers import reverse_lazy
 from django.views.generic import UpdateView, CreateView, DetailView,\
                                  DeleteView, ListView, TemplateView
+from django.contrib.auth.decorators import permission_required
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
-
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
-from accounts.forms import BluuUserForm
+from guardian.decorators import permission_required_or_403
+from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 
-from django.contrib.auth.decorators import permission_required
-from django.utils.decorators import method_decorator
-from django.core.urlresolvers import reverse_lazy
+from grontextual.shortcuts import get_objects_for_user
+from accounts.forms import BluuUserForm
 from accounts.models import BluuUser
+from .forms import SiteInvitationForm
 from .models import BluuSite
 from .forms import SiteForm
-
-from guardian.decorators import permission_required_or_403
-from grontextual.shortcuts import get_objects_for_user
 
 
 class SiteListView(TemplateView):
@@ -72,17 +72,23 @@ class SiteUpdateView(UpdateView):
         return super(SiteUpdateView, self).dispatch(*args, **kwargs)
 
 
-class SiteAccessManagementView(DetailView):
-    model = BluuSite
-    template_name = "bluusites/site_access.html"
+class SiteAccessListView(GPermissionRequiredMixin, TemplateView):
+    permission_required = 'bluusites.change_bluusite'
+    template_name = "bluusites/site_access_list.html"
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required_or_403('bluusites.change_bluusite',
-            (BluuSite, 'pk', 'pk')))
-    def dispatch(self, *args, **kwargs):
-        return super(SiteAccessManagementView, self).\
-                dispatch(*args, **kwargs)
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get('pk', None)
+        return get_object_or_404(BluuSite, pk=pk)
 
+    def get_context_data(self, **kwargs):
+        bluusite = self.get_object()
+        invitation_form = SiteInvitationForm()
+        return {
+            'params': kwargs,
+            'bluusite': bluusite,
+            'invitation_form': invitation_form
+        }
+ 
 
 @permission_required('bluusites.delete_bluusite')
 def site_delete(request, pk):

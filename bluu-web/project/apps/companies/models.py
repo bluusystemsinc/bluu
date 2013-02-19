@@ -66,8 +66,8 @@ class CompanyAccess(models.Model):
 @receiver(pre_save, sender=CompanyAccess)
 def _revoke_access_for_company_user(sender, instance, *args, **kwargs):
     """
-    Assign user to a group in the context of company.
-    Assign minimal permissions grouped in Company Employee group to a user.
+    Before access level is changed remove current accesses from authentication
+    backend - UserObjectGroup.
     """
     if instance and instance.user:
         try:
@@ -85,8 +85,6 @@ def _set_access_for_company_user(sender, instance, *args, **kwargs):
     Assign minimal permissions grouped in Company Employee group to a user.
     """
     if instance and instance.user:
-        #print instance.group
-        #import pdb;pdb.set_trace()
         company_employee_group = Group.objects.get(name='Company Employee')
         instance.user.groups.add(company_employee_group)
         UserObjectGroup.objects.assign(group=instance.group, 

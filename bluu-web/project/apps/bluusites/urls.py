@@ -11,7 +11,7 @@ urlpatterns = patterns('',
     #url(r'^(?P<pk>\d+)/access/$',\
     #        views.SiteAccessManagementView.as_view(), name='site_access'),
     url(r'^(?P<pk>\d+)/access/$',\
-            WorkInProgressView.as_view(), name='site_access'),
+            views.SiteAccessListView.as_view(), name='site_access'),
     url(r'^(?P<pk>\d+)/sensors/$',\
             WorkInProgressView.as_view(), name='site_sensors'),
     url(r'^(?P<pk>\d+)/delete/$', views.site_delete, name='site_delete'),

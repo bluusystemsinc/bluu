@@ -5,9 +5,10 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import Group
 
+from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
 from companies.models import Company
@@ -23,7 +24,7 @@ class BluuSite(Entity):
                         blank=True,
                         null=True,
                         verbose_name=_('users'),
-                        through='SiteAccess')
+                        through='BluuSiteAccess')
 
     class Meta:
         verbose_name = _("Site")
@@ -42,34 +43,51 @@ class BluuSite(Entity):
         return ('site_edit', [str(self.id)])
 
 
-class SiteAccess(models.Model):
+class BluuSiteAccess(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     site = models.ForeignKey(BluuSite)
+    invitation = models.BooleanField(_('invitation', default=False))
+    email = models.EmailField(_('e-mail'), blank=True, null=True)
+    group = models.ForeignKey(Group)
+
+    def __unicode__(self):
+        return u'%s | %s | %s' % (
+            unicode(self.site),
+            unicode(getattr(self, 'user', '---')),
+            unicode(getattr(self, 'email', '---')))
+    
+    @property
+    def get_email(self):
+        if self.user is not None:
+            return self.user.email
+        return self.email
 
 
-@receiver(post_save, sender=BluuSite)
-def _create_groups_for_site(sender, instance, *args, **kwargs):
-    from guardian.shortcuts import assign
-    from guardian.shortcuts import get_groups_with_perms
-    master = Group.objects.get_or_create(name='%s (%d): Master User' % \
-            (instance.last_name, instance.pk))[0] 
-    user = Group.objects.get_or_create(name='%s (%d): User' % \
-            (instance.last_name, instance.pk))[0] 
+@receiver(pre_save, sender=BluuSiteAccess)
+def _revoke_access_for_site_user(sender, instance, *args, **kwargs):
+    """
+    Before access level is changed remove current accesses from authentication
+    backend - UserObjectGroup.
+    """
+    if instance.pk and instance.user:
+        try:
+            access = BluuSiteAccess.objects.get(id=instance.pk)
+            UserObjectGroup.objects.remove_access(group=access.group,
+                                              user=instance.user, 
+                                              obj=instance.site)
+        except BluuSiteAccess.DoesNotExist:
+            pass
+        
 
-    company_groups = get_groups_with_perms(instance.company)
-    for group in company_groups:
-        assign('browse_bluusites', group, instance)
-        assign('view_bluusite', group, instance)
-        assign('change_bluusite', group, instance)
-
-    # Master assignments
-    assign('browse_bluusites', master, instance)
-    assign('view_bluusite', master, instance)
-    assign('change_bluusite', master, instance)
-
-    #Technician assignments
-    assign('browse_bluusites', user, instance)
-    assign('view_bluusite', user, instance)
+@receiver(post_save, sender=BluuSiteAccess)
+def _set_access_for_site_user(sender, instance, *args, **kwargs):
+    """
+    Assign user to a group in the context of site.
+    """
+    if instance.pk and instance.user:
+        UserObjectGroup.objects.assign(group=instance.group, 
+                                       user=instance.user, 
+                                       obj=instance.site)
 
 
 pre_delete.connect(remove_orphaned_obj_perms, sender=BluuSite)

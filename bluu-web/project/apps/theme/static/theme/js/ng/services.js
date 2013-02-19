@@ -16,20 +16,18 @@ angular.module('Bluu.services', ['ngResource']).
             }
             );
     }).
-    factory('CompanyAccessGroups', function ($resource) {
-        return $resource('/api/companies/:companyId/access/groups/');
-    }).
     factory('Site', function ($resource) {
         return $resource('/api/companies/:companyId/sites/:siteId/', {siteId: '@id'});
     }).
     factory('SiteAccess', function ($resource) {
-        return $resource('/api/sites/:siteId/access/');
-    }).
-    factory('SiteAccessGroups', function ($resource) {
-        return $resource('/api/sites/:siteId/access/groups/',
-            {}, {
-                query: { method: 'GET', isArray: true }
-            });
+        return $resource('/api/sites/:siteId/access/:id/',
+            {
+                id: '@id'
+            },
+            {
+                set_access: {method: 'PUT'}
+            }
+            );
     }).
     factory('$configService', function () {
         var hgtOpts = {minHeight: 120};

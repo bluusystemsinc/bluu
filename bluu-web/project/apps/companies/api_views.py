@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import math
+
 from django.http import Http404
 from django.conf import settings
 from django.db.models import Q
-from django.template import Context, Template
+from django.template import Context
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, get_object_or_404
@@ -23,7 +25,6 @@ import django_filters
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
 from accounts.models import BluuUser
-from bluusites.api_views import SiteFilter
 from bluusites.models import BluuSite
 from bluusites.serializers import SiteSerializer, SitePaginationSerializer
 from grontextual.models import UserObjectGroup
@@ -121,6 +122,66 @@ class CompanySiteListJson(BaseDatatableView):
 #    serializer_class = CompanySerializer
 
 
+class CompanyAccessListCreateView(generics.ListCreateAPIView):
+    model = CompanyAccess
+    paginate_by = 20
+    paginate_by_param = 'iDisplayLength'
+  
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        self.object_list = self.filter_queryset(queryset)
+
+        # Default is to allow empty querysets.  This can be altered by setting
+        # `.allow_empty = False`, to raise 404 errors on empty querysets.
+        allow_empty = self.get_allow_empty()
+        if not allow_empty and not self.object_list:
+            class_name = self.__class__.__name__
+            error_msg = self.empty_error % {'class_name': class_name}
+            raise Http404(error_msg)
+        # Pagination size is set by the `.paginate_by` attribute,
+        # which may be `None` to disable pagination.
+        page_size = self.get_paginate_by(self.object_list)
+        if page_size:
+            packed = self.paginate_queryset(self.object_list, page_size)
+            paginator, page, queryset, is_paginated = packed
+            serializer = self.get_pagination_serializer(page)
+        else:
+            serializer = self.get_serializer(self.object_list, many=True)
+        
+        data = {
+                'sEcho': request.GET.get('sEcho', 1),
+                'iTotalRecords': serializer.data['count'],
+                'iTotalDisplayRecords': serializer.data['count'],
+                'aaData': serializer.data['results']
+                
+        }
+        print data
+        return Response(data)
+
+
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        request.GET = request.GET.copy()
+        page_size = request.GET.get('iDisplayLength', 10)
+        object_number = request.GET.get('iDisplayStart', 1)
+
+        if (page_size == '-1'):
+            page_size = request.GET['iDisplayLength'] = 10
+
+        try:
+            object_number = float(object_number)
+        except ValueError:
+            object_number = 1
+        try:
+            page_size = float(page_size)
+        except ValueError:
+            page_size = 10
+
+        page = int(math.ceil(object_number / page_size))
+        request.GET['page'] = page
+        return super(CompanyAccessListCreateView, self).dispatch(request, *args, **kwargs)
+
+
 class CompanyAccessListJson(BaseDatatableView):
     """
     Returns list of users having an access to specified company.
@@ -161,7 +222,7 @@ class CompanyAccessListJson(BaseDatatableView):
         # prepare output data
         aaData = self.prepare_results(qs)
 
-        ret = {'sEcho': int(request.REQUEST.get('sEcho', 0)),
+        ret = {'sEcho': int(request.GET.get('sEcho', 0)),
                'iTotalRecords': total_records,
                'iTotalDisplayRecords': total_display_records,
                'aaData': aaData
@@ -230,14 +291,14 @@ class CompanyAccessListJson(BaseDatatableView):
         return json_data
 
 
-class CompanyAccessList(generics.ListCreateAPIView):
+class CompanyAccessCreateView(generics.CreateAPIView):
     """
-    Saves access data posted by client.
+    Create access for user to company
     """
     permission_classes = (permissions.IsAuthenticated,)
     model = Company
 
-    def get_object(self, pk):
+    def get_company(self, pk):
         try:
             return Company.objects.get(pk=pk)
         except Company.DoesNotExist:
@@ -245,7 +306,7 @@ class CompanyAccessList(generics.ListCreateAPIView):
 
 
     def post(self, request, pk, format=None):
-        company = self.get_object(pk)
+        company = self.get_company(pk)
         email = request.DATA['email']
         try:
             user = BluuUser.objects.get(email=email)
@@ -287,35 +348,13 @@ class CompanyAccessList(generics.ListCreateAPIView):
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CompanyAccessView(generics.RetrieveUpdateDestroyAPIView):
+class CompanyAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Change existing access level
+    """
     model = CompanyAccess
-
-    #def put(self, request, company_pk, pk, format=None):
-    #    return super(CompanyAccessView, self).put(request, company_pk, pk, format)
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
-        return super(CompanyAccessView, self).update(request, *args, **kwargs)
-
-
-class UserGroups:
-    def __init__(self, user, groups):
-        self.user = user
-        self.groups = groups
-
-
-class CompanyAccessGroups(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_object(self, pk):
-        try:
-            return Company.objects.get(pk=pk)
-        except Company.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        company = self.get_object(pk)
-        groups = get_groups_with_perms(company)
-        sobj = CompanyAccessGroupsSerializer(groups)
-        return Response(sobj.data)
+        return super(CompanyAccessUpdateView, self).update(request, *args, **kwargs)
 
