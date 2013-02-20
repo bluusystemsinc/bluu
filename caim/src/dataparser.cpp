@@ -152,9 +152,9 @@ void DataParser::checkStatus()
 void DataParser::checkSerial()
 {
     QByteArray  out;
-    QByteArray  msn = QByteArray::number(data->at(3), 16);
-    QByteArray  mid = QByteArray::number(data->at(4), 16);
-    QByteArray  lsb = QByteArray::number(data->at(5), 16);
+    QByteArray  msn = QByteArray::number(static_cast<quint8>(data->at(3)), 16);
+    QByteArray  mid = QByteArray::number(static_cast<quint8>(data->at(4)), 16);
+    QByteArray  lsb = QByteArray::number(static_cast<quint8>(data->at(5)), 16);
     quint8      msnLen = 2 - msn.length();
     quint8      midLen = 2 - mid.length();
     quint8      lsbLen = 2 - lsb.length();
