@@ -36,8 +36,11 @@ class ObjectPermissionsNode(template.Node):
         obj = self.obj.resolve(context)
 
         check = ObjectPermissionChecker(for_whom)
+        print 'obj: ', obj
         perms = check.get_perms(obj)
+        print perms
         perms += [ap.split('.')[1] for ap in list(get_uog_permissions(self.user, obj))]
+        print perms
         
 
         context[self.context_var] = perms

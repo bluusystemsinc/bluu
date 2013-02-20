@@ -4,7 +4,8 @@
 
 {% block title %}
 {% trans 'Company list' %} |
-{% endblock %}
+{% endblock title%}
+
 {% block content %}
     <div class="page-header content-wrapper">
         <h1 class="form-label">{% trans "Company list" %}</h1>
@@ -42,7 +43,7 @@
     {% else %}
         {% trans 'There are no companies to display' %}
     {% endif %}
-{% endblock %}
+{% endblock content %}
 
 {% block javascript %}
     {{ block.super }}

@@ -1,13 +1,13 @@
 {% extends "companies/company_access_base.html" %}
 
-{% load i18n crispy_forms_tags grontextual_tags %}
+{% load i18n crispy_forms_tags grontextual_tags theme_tags %}
 
 {% block title %}
 {% trans 'Company Access Management' %} |
 {% endblock title %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Access Management" %}
+    {% companies_breadcrumb %}<a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Access Management" %}
 {% endblock breadcrumbs %}
 
 {% block page-title %}
@@ -17,8 +17,8 @@
 {% block main %}
 {{ block.super }}
 
-{% if perms.companies.browse_companyaccesses or "browse_companyaccesses" in company_perms %}
 {% get_uog_perms request.user for company as "company_perms" %}
+{% if perms.companies.browse_companyaccesses or "browse_companyaccesses" in company_perms %}
 <div class="tab-content">
     <div class="tab-pane active" id="users">
         <div ng-controller="CompanyAccessController">

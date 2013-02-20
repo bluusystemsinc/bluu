@@ -1,9 +1,9 @@
 {% extends "cu_base.html" %}
 
-{% load i18n theme_tags guardian_tags %}
+{% load i18n theme_tags grontextual_tags %}
 
 {% block sidebar %}
-{% get_obj_perms request.user for bluusite as "site_perms" %}
+{% get_uog_perms request.user for bluusite as "site_perms" %}
     <div class="box">
       <h4 class="box-heading">
             {{ bluusite.first_name }} {{ bluusite.last_name }}

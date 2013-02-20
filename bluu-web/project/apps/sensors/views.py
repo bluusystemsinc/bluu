@@ -71,3 +71,4 @@ class SensorUpdateView(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(SensorUpdateView, self).dispatch(*args, **kwargs)
 
+

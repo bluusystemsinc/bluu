@@ -1,7 +1,12 @@
 import datetime
 import re
+
 from django import template
 from django.template import Library
+
+from grontextual.models import UserObjectGroup
+from grontextual.shortcuts import get_objects_for_user
+
 register = Library()
 
 @register.simple_tag
@@ -16,6 +21,43 @@ def active(request, pattern):
     if re.search(pattern, request.path):
         return 'active'
     return ''
+
+@register.inclusion_tag('_main_menu.html', takes_context=True)
+def main_menu(context):
+    request = context['request']
+    user = request.user
+    menu_dict = {'main_menu':{}}
+
+    if user.is_authenticated():
+        # user is assigned to only one company
+        companies = get_objects_for_user(user, 'companies.view_company')
+        if companies.count() == 1:
+            menu_dict['main_menu']['company'] = companies[0]
+
+        # user is assigned to only one site 
+        sites = get_objects_for_user(user, 'bluusites.view_bluusite')
+        if sites.count() == 1:
+            menu_dict['main_menu']['site'] = sites[0]
+
+    context.update(menu_dict)
+    return context
+
+@register.inclusion_tag('_company_breadcrumb.html', takes_context=True)
+def companies_breadcrumb(context):
+    request = context['request']
+    user = request.user
+    
+    bread_dict = {}
+    single = False
+    # if user is assigned to only one company
+    companies = get_objects_for_user(user, 'companies.view_company')
+    if companies.count() == 1:
+        single = True
+    bread_dict['single'] = single
+
+    return bread_dict
+
+
 
 
 """

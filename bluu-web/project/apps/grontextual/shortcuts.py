@@ -126,7 +126,8 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
 
     # Here we search for groups assigned to a user
     # that have specific permissions
-    uogroup_kwargs = {'user': user}
+    uogroup_kwargs = {'user': user,
+                      'content_type': ctype}
     uogroups_obj_perms = UserObjectGroup.objects\
         .filter(**uogroup_kwargs)\
         .filter(group__permissions__content_type=ctype,\

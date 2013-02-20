@@ -1,16 +1,14 @@
 {% extends "companies/company_site_base.html" %}
 
-{% load i18n crispy_forms_tags guardian_tags %}
+{% load i18n crispy_forms_tags guardian_tags theme_tags %}
 
 {% block title %}
 {% trans 'Add site to company' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt;
-    <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt;
-            <a href="{% url 'company_site_list' company.id %}">{% trans "Company site list" %}</a> &gt;
-                {% trans "New site" %}
+{% companies_breadcrumb %}<a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; <a href="{% url 'company_site_list' company.id %}">{% trans "Company site list" %}</a> &gt;
+{% trans "New site" %}
 {% endblock %}
 
 

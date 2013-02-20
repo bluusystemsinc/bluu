@@ -1,0 +1,35 @@
+{% load i18n guardian_tags theme_tags compress %}
+<ul class="nav">
+    <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Dashboard" %}</a></li>
+    {% if user.is_authenticated %}
+        {% if main_menu.company %}
+            <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.company.pk %}"><i class="icon-th-large"></i> {% trans "Company" %}</a></li>
+        {% else %}
+          {% if perms.companies.browse_companies %}
+            <li class="{% active request "^/companies/" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
+          {% endif %}
+        {% endif %}
+
+        {% if perms.bluusites.browse_bluusites %}
+        <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
+        {% endif %}
+        {% if perms.accounts.browse_bluuusers %}
+        <li class="{% active request "^/accounts/users/" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
+        {% endif %}
+    {% endif %}
+</ul>
+<ul class="nav pull-right">
+  {% if user.is_authenticated %}
+  <li class="dropdown" id="auth-menu">
+  <a class="dropdown-toggle" data-toggle="dropdown" href="#auth-menu"><i class="icon-user"></i> {{ user.get_name }}<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      <li><a href="{% url 'account_edit' %}"><i class="icon-user"></i> {% trans "Account" %}</a></li>
+      <li class="divider"></li>
+      <li><a href="{% url 'auth_logout' %}"><i class="icon-off"></i> {% trans "Sign out" %}</a></li>
+      </ul>
+  </li>
+  {% else %}
+    <li class="{% active request "^/accounts/login/$" %}"><a href="{% url 'auth_login' %}">{% trans "Sign in" %}</a></li>
+    {% comment %}<li class="{% active request "^/accounts/register/$" %}"><a href="{% url 'registration_register' %}">{% trans "Register" %}</a></li>{% endcomment %}
+  {% endif %}
+</ul>

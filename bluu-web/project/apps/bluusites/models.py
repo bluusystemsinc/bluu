@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
-from companies.models import Company
+#from companies.models import Company
 
 
 class BluuSite(Entity):
@@ -19,7 +19,7 @@ class BluuSite(Entity):
     last_name = models.CharField(_('last name'), max_length=30)
     middle_initial = models.CharField(_('middle initial'), max_length=2, 
                         blank=True)
-    company = models.ForeignKey(Company, verbose_name=_('company'))
+    company = models.ForeignKey("companies.Company", verbose_name=_('company'))
     users = models.ManyToManyField(settings.AUTH_USER_MODEL,
                         blank=True,
                         null=True,
@@ -35,7 +35,10 @@ class BluuSite(Entity):
         )
 
     def __unicode__(self):
-        return str(self.pk)
+        return u'%s | %s | %s' % (
+            unicode(self.pk),
+            unicode(getattr(self, 'first_name', '---')),
+            unicode(getattr(self, 'last_name', '---')))
 
     @models.permalink
     def get_absolute_url(self):
@@ -95,43 +98,6 @@ def _set_access_for_site_user(sender, instance, *args, **kwargs):
         UserObjectGroup.objects.assign(group=instance.group, 
                                        user=instance.user, 
                                        obj=instance.site)
-
-
-@receiver(pre_save, sender=BluuSite)
-def _remove_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
-    """
-    On site reassignment (company change)
-    remove perms
-    """
-    old_site = BluuSite.objects.get(pk=instance.pk)
-    if old_site.company != instance.company:
-        """
-        if company changed then remove access for users from old company
-        """
-        for uog in UserObjectGroup.objects.filter(obj=old_site.company):
-            print uog.group
-            UserObjectGroup.objects.remove_access(group=uog.group,
-                                                  user=uog.user,
-                                                  obj=old_site)
-        
-   
-
-@receiver(post_save, sender=BluuSite)
-def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
-    """
-    Assign user to a group in the context of company.
-    Assign user to a group in the context of sites belonging to company.
-    Assign minimal permissions grouped in Company Employee group to a user.
-    """
-    company = instance.company 
-    #if company changed then remove access for users from old company:
-    for uog in UserObjectGroup.objects.filter(obj=company):
-        print uog.group
-        UserObjectGroup.objects.assign(group=uog.group,
-                                       user=uog.user,
-                                       obj=instance)
-
-
 
 
 pre_delete.connect(remove_orphaned_obj_perms, sender=BluuSite)

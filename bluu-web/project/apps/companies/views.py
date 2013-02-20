@@ -10,17 +10,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from guardian.decorators import permission_required
-#from guardian.shortcuts import get_objects_for_user
-from grontextual.shortcuts import get_objects_for_user
-from braces.views import LoginRequiredMixin
 from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
-from braces.views import PermissionRequiredMixin
+from braces.views import (LoginRequiredMixin, PermissionRequiredMixin)
 
+from grontextual.shortcuts import get_objects_for_user
 from grontextual.models import UserObjectGroup
 from accounts.forms import BluuUserForm
 from bluusites.models import BluuSite
 from bluusites.forms import SiteForm
-from .models import Company, CompanyAccess
+from .models import Company
 from .forms import CompanyForm, CompanyInvitationForm
 
 
@@ -35,17 +33,22 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
         return get_objects_for_user(self.request.user, 'companies.view_company')
 
 
-class CompanyCreateView(GPermissionRequiredMixin, CreateView):
+class CompanyCreateView(CreateView):
     model = Company
     template_name = "companies/company_create.html"
     form_class = CompanyForm
-    permission_required = 'companies.add_company'
 
     def form_valid(self, form):
         response = super(CompanyCreateView, self).form_valid(form)
         #_create_groups_for_company(self.object)
         messages.success(self.request, _('Company added'))
         return response
+
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('companies.add_company'))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyCreateView, self).dispatch(*args, **kwargs)
 
 
 class CompanyUpdateView(GPermissionRequiredMixin, UpdateView):

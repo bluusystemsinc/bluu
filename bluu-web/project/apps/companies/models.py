@@ -12,6 +12,7 @@ from django.conf import settings
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
+from bluusites.models import BluuSite
 
 
 class Company(Entity):
@@ -56,12 +57,6 @@ class CompanyAccess(models.Model):
             unicode(getattr(self, 'user', '---')),
             unicode(getattr(self, 'email', '---')))
     
-    @property
-    def get_email(self):
-        if self.user is not None:
-            return self.user.email
-        return self.email
-
     class Meta:
         verbose_name = _("company access")
         verbose_name_plural = _("company accesses")
@@ -69,6 +64,12 @@ class CompanyAccess(models.Model):
             ("browse_companyaccesses", "Can browse company accesses"),
             ("view_companyaccess", "Can view company access"),
         )
+
+    @property
+    def get_email(self):
+        if self.user is not None:
+            return self.user.email
+        return self.email
 
 
 @receiver(pre_save, sender=CompanyAccess)
@@ -90,7 +91,8 @@ def _revoke_access_for_company_user(sender, instance, *args, **kwargs):
                                                       obj=site)
         except CompanyAccess.DoesNotExist:
             pass
-                                          
+
+
 @receiver(post_save, sender=CompanyAccess)
 def _set_access_for_company_user(sender, instance, *args, **kwargs):
     """
@@ -109,6 +111,7 @@ def _set_access_for_company_user(sender, instance, *args, **kwargs):
                                            user=instance.user, 
                                            obj=site)
 
+
 @receiver(pre_delete, sender=CompanyAccess)
 def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
     """
@@ -123,24 +126,44 @@ def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
                                           instance.company)
 
 
-#@receiver(post_save, sender=Company)
-#def _create_groups_for_company(sender, instance, *args, **kwargs):
-#    from guardian.shortcuts import assign
-#    dealer = Group.objects.get_or_create(name='%s: Dealer' % instance.name)[0] 
-#    technician = Group.objects.get_or_create(\
-#            name='%s: Technician' % instance.name)[0] 
-#
-#    # Dealer assignments
-#    assign('companies.browse_companies', dealer)
-#    assign('bluusites.browse_bluusites', dealer)
-#    assign('view_company', dealer, instance)
-#    assign('change_company', dealer, instance)
-#    assign('manage_company_access', dealer, instance)
-#
-#    #Technician assignments
-#    assign('companies.browse_companies', technician)
-#    assign('bluusites.browse_bluusites', technician)
-#    assign('view_company', technician, instance)
+@receiver(pre_save, sender=BluuSite)
+def _remove_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
+    """
+    When site is reassigned (assigned to other company) then
+    remove perms.
+    """
+    if instance.pk:
+        old_site = BluuSite.objects.get(pk=instance.pk)
+        if old_site.company != instance.company:
+            """
+            If company is going to be changed then remove access to the site
+            for all users from old company
+            """
+            ctype = ContentType.objects.get_for_model(Company)
+            for uog in UserObjectGroup.objects.filter(object_pk=old_site.company.pk,
+                    content_type=ctype):
+                UserObjectGroup.objects.remove_access(group=uog.group,
+                                                      user=uog.user,
+                                                      obj=old_site)
+
+
+@receiver(post_save, sender=BluuSite)
+def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
+    """
+    Assign user to a group in the context of company.
+    Assign user to a group in the context of sites belonging to company.
+    Assign minimal permissions grouped in Company Employee group to a user.
+    """
+    ctype = ContentType.objects.get_for_model(Company)
+    company = instance.company 
+    # Assign users the same permissions to a site 
+    # as they have for company the site is
+    # assigned to
+    for uog in UserObjectGroup.objects.filter(object_pk=company.pk,
+                                              content_type=ctype):
+        UserObjectGroup.objects.assign(group=uog.group,
+                                       user=uog.user,
+                                       obj=instance)
 
 
 pre_delete.connect(remove_orphaned_obj_perms, sender=Company)

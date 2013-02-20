@@ -44,13 +44,8 @@ class CompanySiteListJson(BaseDatatableView):
     def get_initial_queryset(self):
         # return queryset used as base for futher sorting/filtering
         # these are simply objects displayed in datatable
-        queryset = None
-        if self.request.user.has_perm('bluusites.view_bluusite'):
-            queryset = BluuSite.objects.all()
-        else:
-            queryset = BluuSite.objects.filter(company=self.company)
- 
-        return queryset
+        queryset = self.request.user.get_sites()
+        return queryset.filter(company=self.company)
 
     def filter_queryset(self, qs):
         q = self.request.GET.get('sSearch', None)
@@ -301,8 +296,6 @@ class CompanyAccessListJson(BaseDatatableView):
         return super(CompanyAccessListJson, self).dispatch(*args, **kwargs)
 
 
-
-
 class CompanyAccessCreateView(generics.CreateAPIView):
     """
     Create access for user to company
@@ -315,7 +308,6 @@ class CompanyAccessCreateView(generics.CreateAPIView):
             return Company.objects.get(pk=pk)
         except Company.DoesNotExist:
             raise Http404
-
 
     def post(self, request, company_pk, format=None):
         company = self.get_company(company_pk)

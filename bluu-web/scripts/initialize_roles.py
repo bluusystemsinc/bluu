@@ -183,10 +183,10 @@ def run():
     company_employee_group.permissions = [
         perm_browse_companies,
         perm_browse_sites,
-        perm_view_site,
         perm_add_site,
-        perm_change_site,
-        perm_delete_site,
+        #perm_view_site,
+        #perm_change_site,
+        #perm_delete_site,
     ]
 
     # create Master User role
