@@ -3,13 +3,12 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import UpdateView, CreateView, DetailView,\
                                  DeleteView, ListView, TemplateView
-from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
-from guardian.decorators import permission_required_or_403
+from guardian.decorators import permission_required
 from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 
 from grontextual.shortcuts import get_objects_for_user
@@ -24,7 +23,8 @@ class SiteListView(TemplateView):
     template_name = "bluusites/site_list.html"
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('bluusites.browse_bluusites'))
+    @method_decorator(permission_required('bluusites.browse_bluusites', 
+                                          accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(SiteListView, self).dispatch(*args, **kwargs)
 
@@ -41,7 +41,6 @@ class SiteCreateView(CreateView):
 
     def form_valid(self, form):
         response = super(SiteCreateView, self).form_valid(form)
-        #_create_groups_for_bluusite(self.object)
         messages.success(self.request, _('Site added'))
         return response
 
@@ -67,13 +66,13 @@ class SiteUpdateView(UpdateView):
         return response
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('bluusites.change_bluusite'))
+    @method_decorator(permission_required('bluusites.change_bluusite',
+                                          (BluuSite, 'pk', 'pk')))
     def dispatch(self, *args, **kwargs):
         return super(SiteUpdateView, self).dispatch(*args, **kwargs)
 
 
-class SiteAccessListView(GPermissionRequiredMixin, TemplateView):
-    permission_required = 'bluusites.change_bluusite'
+class SiteAccessListView(TemplateView):
     template_name = "bluusites/site_access_list.html"
 
     def get_object(self, queryset=None):
@@ -88,9 +87,17 @@ class SiteAccessListView(GPermissionRequiredMixin, TemplateView):
             'bluusite': bluusite,
             'invitation_form': invitation_form
         }
- 
 
-@permission_required('bluusites.delete_bluusite')
+    @method_decorator(permission_required('bluusites.change_bluusite',
+                                (BluuSite, 'pk', 'pk')))
+    @method_decorator(permission_required('bluusites.browse_bluusiteaccesses',
+                                          (BluuSite, 'pk', 'pk'),
+                                          accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(SiteAccessListView, self).dispatch(*args, **kwargs)
+
+
+@permission_required('bluusites.delete_bluusite', (BluuSite, 'pk', 'pk'))
 def site_delete(request, pk):
     obj = get_object_or_404(BluuSite, pk=pk)
     obj.delete()
@@ -98,15 +105,15 @@ def site_delete(request, pk):
     return redirect('site_list')
 
 
-class SiteDeleteView(DeleteView):
-    model = BluuSite
-    template_name = "bluusites/site_delete.html"
-
-    @method_decorator(login_required)
-    @method_decorator(permission_required('bluusites.delete_bluusite'))
-    def dispatch(self, *args, **kwargs):
-        return super(SiteDeleteView, self).dispatch(*args, **kwargs)
-
+#class SiteDeleteView(DeleteView):
+#    model = BluuSite
+#    template_name = "bluusites/site_delete.html"
+#
+#    @method_decorator(login_required)
+#    @method_decorator(permission_required('bluusites.delete_bluusite'))
+#    def dispatch(self, *args, **kwargs):
+#        return super(SiteDeleteView, self).dispatch(*args, **kwargs)
+#
 
 class SiteUserListView(ListView):
     model = BluuUser

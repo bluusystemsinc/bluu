@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import (login_required, permission_required)
+from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
@@ -20,7 +20,7 @@ from rest_framework import status
 from rest_framework import permissions
 from rest_framework import generics
 from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
-from guardian.decorators import permission_required_or_403
+from guardian.decorators import permission_required, permission_required_or_403
 import django_filters
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
@@ -82,10 +82,10 @@ class CompanySiteListJson(BaseDatatableView):
             no += 1
         return json_data
 
-    @method_decorator(login_required)
     @method_decorator(permission_required_or_403('companies.change_company',
-            (Company, 'pk', 'company_pk')))
-    @method_decorator(permission_required('bluusites.browse_bluusites'))
+                                                 (Company, 'pk', 'company_pk')))
+    @method_decorator(permission_required_or_403('bluusites.browse_bluusites',
+                                          accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         try:
             self.company = \
@@ -155,11 +155,14 @@ class CompanyAccessListCreateView(generics.ListCreateAPIView):
                 'aaData': serializer.data['results']
                 
         }
-        print data
         return Response(data)
 
 
     @csrf_exempt
+    @method_decorator(permission_required_or_403('companies.change_company',
+                                                 (Company, 'pk', 'company_pk')))
+    @method_decorator(permission_required_or_403('companies.browse_companyaccessess',
+                                                 accept_global_perms=True))
     def dispatch(self, request, *args, **kwargs):
         request.GET = request.GET.copy()
         page_size = request.GET.get('iDisplayLength', 10)
@@ -290,6 +293,15 @@ class CompanyAccessListJson(BaseDatatableView):
             no += 1
         return json_data
 
+    @method_decorator(permission_required_or_403('companies.change_company',
+                                                 (Company, 'pk', 'company_pk')))
+    @method_decorator(permission_required_or_403('companies.browse_companyaccesses',
+                                                 (Company, 'pk', 'company_pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyAccessListJson, self).dispatch(*args, **kwargs)
+
+
+
 
 class CompanyAccessCreateView(generics.CreateAPIView):
     """
@@ -305,8 +317,8 @@ class CompanyAccessCreateView(generics.CreateAPIView):
             raise Http404
 
 
-    def post(self, request, pk, format=None):
-        company = self.get_company(pk)
+    def post(self, request, company_pk, format=None):
+        company = self.get_company(company_pk)
         email = request.DATA['email']
         try:
             user = BluuUser.objects.get(email=email)
@@ -347,6 +359,13 @@ class CompanyAccessCreateView(generics.CreateAPIView):
 
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+    @method_decorator(permission_required_or_403('companies.change_company',
+                                                 (Company, 'pk', 'company_pk')))
+    @method_decorator(permission_required_or_403('companies.add_companyaccess',
+                                                 (Company, 'pk', 'company_pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyAccessCreateView, self).dispatch(*args, **kwargs)
+
 
 class CompanyAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -357,4 +376,12 @@ class CompanyAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return super(CompanyAccessUpdateView, self).update(request, *args, **kwargs)
+
+    @method_decorator(permission_required_or_403('companies.change_company',
+                                                 (Company, 'pk', 'company_pk')))
+    @method_decorator(permission_required_or_403('companies.change_companyaccess',
+                                                 (Company, 'pk', 'company_pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyAccessUpdateView, self).dispatch(*args, **kwargs)
+
 

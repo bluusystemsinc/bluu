@@ -76,8 +76,8 @@ class BluuSiteListJson(BaseDatatableView):
             no += 1
         return json_data
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('bluusites.browse_bluusites'))
+    @method_decorator(permission_required_or_403('bluusites.browse_bluusites',
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteListJson, self).dispatch(*args, **kwargs)
 
@@ -190,6 +190,13 @@ class BluuSiteAccessListJson(BaseDatatableView):
             no += 1
         return json_data
 
+    @method_decorator(permission_required_or_403('bluusites.change_bluusite',
+                                                 (BluuSite, 'pk', 'pk')))
+    @method_decorator(permission_required_or_403('bluusites.browse_bluusiteaccesses',
+                                                 (BluuSite, 'pk', 'pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(BluuSiteAccessListJson, self).dispatch(*args, **kwargs)
+
 
 class BluuSiteAccessCreateView(generics.CreateAPIView):
     """
@@ -239,7 +246,6 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
                 access.site = site
                 access.invitation = True
 
-                import pdb;pdb.set_trace()
                 access.save()
                 form.save_m2m()
 
@@ -248,6 +254,13 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
                             status=status.HTTP_201_CREATED)
 
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+    @method_decorator(permission_required_or_403('bluusites.change_bluusite',
+                                                 (BluuSite, 'pk', 'pk')))
+    @method_decorator(permission_required_or_403('bluusites.add_bluusiteaccess',
+                                                 (BluuSite, 'pk', 'pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(BluuSiteAccessCreateView, self).dispatch(*args, **kwargs)
 
 
 class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
@@ -259,6 +272,13 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return super(BluuSiteAccessUpdateView, self).update(request, *args, **kwargs)
+
+    @method_decorator(permission_required_or_403('bluusites.change_bluusite',
+                                                 (BluuSite, 'pk', 'site_pk')))
+    @method_decorator(permission_required_or_403('bluusites.change_bluusiteaccess',
+                                                 (BluuSite, 'pk', 'site_pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(BluuSiteAccessUpdateView, self).dispatch(*args, **kwargs)
 
 
 

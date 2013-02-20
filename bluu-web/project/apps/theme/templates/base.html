@@ -75,10 +75,14 @@
             <ul class="nav">
                 <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Dashboard" %}</a></li>
                 {% if user.is_authenticated %}
-                    <li class="{% active request "^/accounts/companies/$" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
-                    <li class="{% active request "^/accounts/sites/$" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
+                    {% if perms.companies.browse_companies %}
+                    <li class="{% active request "^/companies/" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
+                    {% endif %}
+                    {% if perms.bluusites.browse_bluusites %}
+                    <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
+                    {% endif %}
                     {% if perms.accounts.browse_bluuusers %}
-                    <li class="{% active request "^/accounts/users/$" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
+                    <li class="{% active request "^/accounts/users/" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
                     {% endif %}
                 {% endif %}
             </ul>

@@ -62,19 +62,32 @@ class CompanyAccess(models.Model):
             return self.user.email
         return self.email
 
+    class Meta:
+        verbose_name = _("company access")
+        verbose_name_plural = _("company accesses")
+        permissions = (
+            ("browse_companyaccesses", "Can browse company accesses"),
+            ("view_companyaccess", "Can view company access"),
+        )
+
 
 @receiver(pre_save, sender=CompanyAccess)
 def _revoke_access_for_company_user(sender, instance, *args, **kwargs):
     """
     Before access level is changed remove current accesses from authentication
     backend - UserObjectGroup.
+    Access is removed in context of company and its sites.
     """
-    if instance and instance.user:
+    if instance.pk and instance.user:
         try:
             ca = CompanyAccess.objects.get(id=instance.pk)
             UserObjectGroup.objects.remove_access(group=ca.group,
                                               user=instance.user, 
                                               obj=instance.company)
+            for site in instance.company.bluusite_set.all():
+                UserObjectGroup.objects.remove_access(group=ca.group,
+                                                      user=instance.user, 
+                                                      obj=site)
         except CompanyAccess.DoesNotExist:
             pass
                                           
@@ -82,14 +95,19 @@ def _revoke_access_for_company_user(sender, instance, *args, **kwargs):
 def _set_access_for_company_user(sender, instance, *args, **kwargs):
     """
     Assign user to a group in the context of company.
+    Assign user to a group in the context of sites belonging to company.
     Assign minimal permissions grouped in Company Employee group to a user.
     """
-    if instance and instance.user:
+    if instance.pk and instance.user:
         company_employee_group = Group.objects.get(name='Company Employee')
         instance.user.groups.add(company_employee_group)
         UserObjectGroup.objects.assign(group=instance.group, 
                                        user=instance.user, 
                                        obj=instance.company)
+        for site in instance.company.bluusite_set.all():
+            UserObjectGroup.objects.assign(group=instance.group,
+                                           user=instance.user, 
+                                           obj=site)
 
 @receiver(pre_delete, sender=CompanyAccess)
 def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
@@ -97,12 +115,13 @@ def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
     If user is no longer in any company then remove him from Company Employee 
     group.
     """
-    if instance and instance.user:
+    if instance.pk and instance.user:
         if not CompanyAccess.objects.filter(user=instance.user):
             company_employee_group = Group.objects.get(name='Company Employee')
             instance.user.groups.remove(company_employee_group)
         UserObjectGroup.objects.remove_access(instance.group, instance.user, 
                                           instance.company)
+
 
 #@receiver(post_save, sender=Company)
 #def _create_groups_for_company(sender, instance, *args, **kwargs):

@@ -7,10 +7,9 @@ from django.views.generic import (UpdateView, CreateView, DetailView,
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 
-from guardian.decorators import permission_required_or_403
+from guardian.decorators import permission_required
 #from guardian.shortcuts import get_objects_for_user
 from grontextual.shortcuts import get_objects_for_user
 from braces.views import LoginRequiredMixin
@@ -36,7 +35,7 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
         return get_objects_for_user(self.request.user, 'companies.view_company')
 
 
-class CompanyCreateView(PermissionRequiredMixin, CreateView):
+class CompanyCreateView(GPermissionRequiredMixin, CreateView):
     model = Company
     template_name = "companies/company_create.html"
     form_class = CompanyForm
@@ -61,7 +60,7 @@ class CompanyUpdateView(GPermissionRequiredMixin, UpdateView):
         return response
 
 
-@permission_required_or_403('companies.delete_company')
+@permission_required('companies.delete_company', (Company, 'pk', 'company_pk'))
 def company_delete(request, pk):
     obj = get_object_or_404(Company, pk=pk)
     obj.delete()
@@ -81,10 +80,9 @@ class CompanyDeleteView(GPermissionRequiredMixin, DeleteView):
     #    return super(CompanyDeleteView, self).dispatch(*args, **kwargs)
 """
 
-class CompanyAccessListView(GPermissionRequiredMixin, TemplateView):
+class CompanyAccessListView(TemplateView):
     template_name = "companies/company_access_list.html"
     pk_url_kwarg = 'company_pk'
-    permission_required = 'companies.change_company'
 
     def get_object(self, queryset=None):
         pk = self.kwargs.get(self.pk_url_kwarg, None)
@@ -99,19 +97,27 @@ class CompanyAccessListView(GPermissionRequiredMixin, TemplateView):
             'invitation_form': invitation_form
         } 
 
+    @method_decorator(permission_required('companies.change_company',
+                                (Company, 'pk', 'company_pk')))
+    @method_decorator(permission_required('companies.browse_companyaccesses',
+                                (Company, 'pk', 'company_pk')))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyAccessListView, self).dispatch(*args, **kwargs)
 
-class CompanySiteListView(GPermissionRequiredMixin, DetailView):
+
+class CompanySiteListView(DetailView):
     model = Company
     template_name = "companies/company_site_list.html"
     pk_url_kwarg = 'company_pk'
-    permission_required = 'companies.change_company'
 
     def get_context_data(self, **kwargs):
         kwargs['form'] = SiteForm()
         return super(CompanySiteListView, self).get_context_data(**kwargs)
 
-    #@method_decorator(login_required)
-    #@method_decorator(permission_required('bluusites.browse_bluusites'))
+    @method_decorator(permission_required('companies.change_company',
+                                          (Company, 'pk', 'company_pk')))
+    @method_decorator(permission_required('bluusites.browse_bluusites',
+                                          accept_global_perms=True ))
     def dispatch(self, *args, **kwargs):
         return super(CompanySiteListView, self).dispatch(*args, **kwargs)
 

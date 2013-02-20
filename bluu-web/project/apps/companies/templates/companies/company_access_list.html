@@ -4,63 +4,61 @@
 
 {% block title %}
 {% trans 'Company Access Management' %} |
-{% endblock %}
+{% endblock title %}
 
 {% block breadcrumbs %}
     <a href="{% url 'company_list' %}">{% trans "Company list" %}</a> &gt; <a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; {% trans "Access Management" %}
-{% endblock %}
+{% endblock breadcrumbs %}
 
 {% block page-title %}
     {% trans "Access Management" %}
-{% endblock %}
+{% endblock page-title %}
 
 {% block main %}
 {{ block.super }}
 
+{% if perms.companies.browse_companyaccesses or "browse_companyaccesses" in company_perms %}
 {% get_uog_perms request.user for company as "company_perms" %}
 <div class="tab-content">
     <div class="tab-pane active" id="users">
-        {% comment %}<div class="gridStyle" ng-grid="AccessGridOptions"></div>{% endcomment %}
-
         <div ng-controller="CompanyAccessController">
-        <div>
-            <p>{% trans "Invite user" %}</p>
-            <form name="addForm" class="form-inline">
-                {#% crispy invitation_form invitation_form.helper %#}
-                {% comment %}<input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />{% endcomment %}
-                {{ invitation_form.email }}
-                {{ invitation_form.group }}
-                {% comment %}<select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>{% endcomment %}
-                <button type="submit" class="btn" ng-disabled="form.$invalid" ng-click="save()">{% trans "Add" %}</button>
-            </form>
-        </div>
+            {% if perms.companies.add_companyaccess or "add_companyaccess" in company_perms %}
+            <div>
+                <p>{% trans "Invite user" %}</p>
+                <form name="addForm" class="form-inline">
+                    {#% crispy invitation_form invitation_form.helper %#}
+                    {% comment %}<input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />{% endcomment %}
+                    {{ invitation_form.email }}
+                    {{ invitation_form.group }}
+                    {% comment %}<select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>{% endcomment %}
+                    <button type="submit" class="btn" ng-disabled="form.$invalid" ng-click="save()">{% trans "Add" %}</button>
+                </form>
+            </div>
+            {% endif %}
 
-        <div>
-
-        <table id="access_list_table" width="100%" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th>{% trans 'E-mail' %}</th>
-                    <th>{% trans 'Access' %}</th>
-                    <th>{% trans 'Actions' %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="4" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
-                </tr>
-            </tbody>
-        </table>
-        </div>
+            <div>
+                <table id="access_list_table" width="100%" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'E-mail' %}</th>
+                            <th>{% trans 'Access' %}</th>
+                            <th>{% trans 'Actions' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-
-{% block css %}
-    {{ block.super }}
-{% endblock %}
+{% else %}
+    <p>{% trans "You don't have enough permissions to see the access list" %}
+{% endif %}
+{% endblock main %}
 
 
 {% block javascript %}
@@ -68,8 +66,8 @@
     <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
     {% include "utils/_datatable_trans.html" %}
     <script charset="utf-8" type="text/javascript">
-    var COMPANY_ID = {{ company.id }};
-    var DATATABLE_URL = "{% url 'companies:api_company_access_list_json' company.pk %}";
-</script>
+        var COMPANY_ID = {{ company.id }};
+        var DATATABLE_URL = "{% url 'companies:api_company_access_list_json' company.pk %}";
+    </script>
 {% endblock %}
 

@@ -14,7 +14,7 @@ urlpatterns = format_suffix_patterns(patterns('',
 
     url(r'^(?P<company_pk>[0-9]+)/generic_access/$', CompanyAccessListCreateView.as_view(),
         name='api_company_generic_access_list_json'),
-    url(r'^(?P<pk>[0-9]+)/access[/]?$', CompanyAccessCreateView.as_view(),
+    url(r'^(?P<company_pk>[0-9]+)/access[/]?$', CompanyAccessCreateView.as_view(),
         name='api_company_access'),
     url(r'^(?P<company_pk>[0-9]+)/access/(?P<pk>[0-9]+)[/]?$', CompanyAccessUpdateView.as_view(),
         name='api_company_access_json'),
