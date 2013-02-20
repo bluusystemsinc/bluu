@@ -32,6 +32,13 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
             return super(CompanyListView, self).get_queryset()
         return get_objects_for_user(self.request.user, 'companies.view_company')
 
+    def dispatch(self, *args, **kwargs):
+        companies = self.request.user.get_companies()
+        if companies.count() == 1:
+            return redirect('company_edit', pk=companies[0].pk)
+
+        return super(CompanyListView, self).dispatch(*args, **kwargs)
+
 
 class CompanyCreateView(CreateView):
     model = Company
@@ -44,26 +51,33 @@ class CompanyCreateView(CreateView):
         messages.success(self.request, _('Company added'))
         return response
 
-
     @method_decorator(login_required)
     @method_decorator(permission_required('companies.add_company'))
     def dispatch(self, *args, **kwargs):
         return super(CompanyCreateView, self).dispatch(*args, **kwargs)
 
 
-class CompanyUpdateView(GPermissionRequiredMixin, UpdateView):
+class CompanyUpdateView(UpdateView):
     model = Company
     template_name = "companies/company_update.html"
     form_class = CompanyForm
-    permission_required = 'companies.change_company'
 
     def form_valid(self, form):
         response = super(CompanyUpdateView, self).form_valid(form)
         messages.success(self.request, _('Company changed'))
         return response
 
+    @method_decorator(login_required)
+    @method_decorator(permission_required('companies.change_company',
+                                          (Company, 'pk', 'pk'),
+                                           accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyUpdateView, self).dispatch(*args, **kwargs)
 
-@permission_required('companies.delete_company', (Company, 'pk', 'company_pk'))
+
+
+@permission_required('companies.delete_company', (Company, 'pk', 'company_pk'),
+                     accept_global_perms=True)
 def company_delete(request, pk):
     obj = get_object_or_404(Company, pk=pk)
     obj.delete()
@@ -101,9 +115,11 @@ class CompanyAccessListView(TemplateView):
         } 
 
     @method_decorator(permission_required('companies.change_company',
-                                (Company, 'pk', 'company_pk')))
+                                (Company, 'pk', 'company_pk'),
+                                accept_global_perms=True))
     @method_decorator(permission_required('companies.browse_companyaccesses',
-                                (Company, 'pk', 'company_pk')))
+                                (Company, 'pk', 'company_pk'),
+                                accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(CompanyAccessListView, self).dispatch(*args, **kwargs)
 
@@ -118,7 +134,8 @@ class CompanySiteListView(DetailView):
         return super(CompanySiteListView, self).get_context_data(**kwargs)
 
     @method_decorator(permission_required('companies.change_company',
-                                          (Company, 'pk', 'company_pk')))
+                                           (Company, 'pk', 'company_pk'),
+                                           accept_global_perms=True))
     @method_decorator(permission_required('bluusites.browse_bluusites',
                                           accept_global_perms=True ))
     def dispatch(self, *args, **kwargs):

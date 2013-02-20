@@ -11,7 +11,7 @@
       <ul class="nav nav-list">
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' bluusite.pk %}">{% trans "Site Details" %}</a></li>{% endif %}
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/access" %}"><a href="{% url 'site_access' bluusite.pk %}">{% trans "Access management" %}</a></li>{% endif %}
-        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/sensors" %}"><a href="{% url 'site_sensors' bluusite.pk %}">{% trans "Sensors management" %}</a></li>{% endif %}
+        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices' bluusite.pk %}">{% trans "Device management" %}</a></li>{% endif %}
         {% if perms.bluusites.delete_bluusite or "delete_bluusite" in site_perms %}<li><a href="{% url 'site_delete' bluusite.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Remove site' %}</a></li>{% endif %}
       </ul>
     </div>

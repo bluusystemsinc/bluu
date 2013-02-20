@@ -40,7 +40,6 @@ class UserObjectGroupBackend(ModelBackend):
                 user_obj._uog_perm_cache[key] = \
                         get_uog_permissions(user_obj, obj)
 
-        print "return: ", user_obj._uog_perm_cache[key]
         return user_obj._uog_perm_cache[key]
 
     def get_local_cache_key(self, obj):

@@ -108,7 +108,12 @@ class BluuUserCreateView(PermissionRequiredMixin, CreateView):
     #    return super(BluuUserCreateView, self).dispatch(*args, **kwargs)
 
 
-class BluuUserUpdateView(GPermissionRequiredMixin, UpdateView):
+class BluuUserUpdateView(PermissionRequiredMixin, UpdateView):
+    """
+    Edit Bluuuser
+    We have to use braces.PermissionRequiredMixin here, because we
+    check global permission to change_bluuuser.
+    """
     model = BluuUser
     template_name = "accounts/user_update.html"
     form_class = BluuUserForm

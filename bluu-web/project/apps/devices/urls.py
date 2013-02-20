@@ -4,7 +4,7 @@ from utils.views import WorkInProgressView
 
 
 urlpatterns = patterns('',
-    url(r'^(?P<pk>\d+)/sensors/$',\
-            WorkInProgressView.as_view(), name='site_sensors'),
+    url(r'^(?P<pk>\d+)/devices/$',\
+            WorkInProgressView.as_view(), name='site_devices'),
 )
 

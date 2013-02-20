@@ -191,9 +191,11 @@ class BluuSiteAccessListJson(BaseDatatableView):
         return json_data
 
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
-                                                 (BluuSite, 'pk', 'pk')))
+                                                 (BluuSite, 'pk', 'pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('bluusites.browse_bluusiteaccesses',
-                                                 (BluuSite, 'pk', 'pk')))
+                                                 (BluuSite, 'pk', 'pk'),
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteAccessListJson, self).dispatch(*args, **kwargs)
 
@@ -256,9 +258,11 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
-                                                 (BluuSite, 'pk', 'pk')))
+                                                 (BluuSite, 'pk', 'pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('bluusites.add_bluusiteaccess',
-                                                 (BluuSite, 'pk', 'pk')))
+                                                 (BluuSite, 'pk', 'pk'),
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteAccessCreateView, self).dispatch(*args, **kwargs)
 
@@ -274,9 +278,11 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
         return super(BluuSiteAccessUpdateView, self).update(request, *args, **kwargs)
 
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
-                                                 (BluuSite, 'pk', 'site_pk')))
+                                                 (BluuSite, 'pk', 'site_pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('bluusites.change_bluusiteaccess',
-                                                 (BluuSite, 'pk', 'site_pk')))
+                                                 (BluuSite, 'pk', 'site_pk'),
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteAccessUpdateView, self).dispatch(*args, **kwargs)
 

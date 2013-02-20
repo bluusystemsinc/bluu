@@ -26,6 +26,10 @@ class SiteListView(TemplateView):
     @method_decorator(permission_required('bluusites.browse_bluusites', 
                                           accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
+        sites = self.request.user.get_sites()
+        if sites.count() == 1:
+            return redirect('site_edit', pk=sites[0].pk)
+
         return super(SiteListView, self).dispatch(*args, **kwargs)
 
 
@@ -67,7 +71,8 @@ class SiteUpdateView(UpdateView):
 
     @method_decorator(login_required)
     @method_decorator(permission_required('bluusites.change_bluusite',
-                                          (BluuSite, 'pk', 'pk')))
+                                          (BluuSite, 'pk', 'pk'),
+                                          accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(SiteUpdateView, self).dispatch(*args, **kwargs)
 
@@ -89,7 +94,8 @@ class SiteAccessListView(TemplateView):
         }
 
     @method_decorator(permission_required('bluusites.change_bluusite',
-                                (BluuSite, 'pk', 'pk')))
+                                (BluuSite, 'pk', 'pk'),
+                                accept_global_perms=True))
     @method_decorator(permission_required('bluusites.browse_bluusiteaccesses',
                                           (BluuSite, 'pk', 'pk'),
                                           accept_global_perms=True))

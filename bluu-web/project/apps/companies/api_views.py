@@ -78,9 +78,10 @@ class CompanySiteListJson(BaseDatatableView):
         return json_data
 
     @method_decorator(permission_required_or_403('companies.change_company',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('bluusites.browse_bluusites',
-                                          accept_global_perms=True))
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         try:
             self.company = \
@@ -155,7 +156,8 @@ class CompanyAccessListCreateView(generics.ListCreateAPIView):
 
     @csrf_exempt
     @method_decorator(permission_required_or_403('companies.change_company',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('companies.browse_companyaccessess',
                                                  accept_global_perms=True))
     def dispatch(self, request, *args, **kwargs):
@@ -289,9 +291,11 @@ class CompanyAccessListJson(BaseDatatableView):
         return json_data
 
     @method_decorator(permission_required_or_403('companies.change_company',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('companies.browse_companyaccesses',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(CompanyAccessListJson, self).dispatch(*args, **kwargs)
 
@@ -352,9 +356,11 @@ class CompanyAccessCreateView(generics.CreateAPIView):
         return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     @method_decorator(permission_required_or_403('companies.change_company',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('companies.add_companyaccess',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(CompanyAccessCreateView, self).dispatch(*args, **kwargs)
 
@@ -370,9 +376,11 @@ class CompanyAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
         return super(CompanyAccessUpdateView, self).update(request, *args, **kwargs)
 
     @method_decorator(permission_required_or_403('companies.change_company',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     @method_decorator(permission_required_or_403('companies.change_companyaccess',
-                                                 (Company, 'pk', 'company_pk')))
+                                                 (Company, 'pk', 'company_pk'),
+                                                 accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(CompanyAccessUpdateView, self).dispatch(*args, **kwargs)
 

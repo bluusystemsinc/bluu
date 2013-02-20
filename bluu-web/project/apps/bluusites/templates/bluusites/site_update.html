@@ -1,13 +1,13 @@
 {% extends "bluusites/site_base.html" %}
 
-{% load i18n crispy_forms_tags %}
+{% load i18n crispy_forms_tags theme_tags %}
 
 {% block title %}
 {% trans "Site Details" %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'site_list' %}">{% trans "Site list" %}</a> &gt; {% trans "Edit site" %}
+    {% bluusites_breadcrumb %}{{ bluusite.get_name }} 
 {% endblock %}
 
 {% block page-title %}

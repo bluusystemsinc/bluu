@@ -68,14 +68,4 @@ class BluuUser(AbstractUser):
         if self.has_perm('bluusites.view_bluusite'):
             return BluuSite.objects.all()
         return get_objects_for_user(self, 'bluusites.view_bluusite')
-        #companies = self.get_companies()
-        #qs = BluuSite.objects.none()
-        #for company in companies:
-        #    qs = qs | BluuSite.objects.filter(company=company)
-        #qs = qs | get_objects_for_user(self, 'bluusites.view_bluusite')
-        #return qs
-
-
-
-
 

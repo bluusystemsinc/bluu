@@ -71,10 +71,11 @@ class SiteForm(forms.ModelForm):
         if self.user is not None:
             companies = self.user.get_companies()
             company_count = companies.count()
-            if company_count == 1:
+            if company_count <= 1:
                 # If there is only one company assigned to a user then there is
                 # no need to force him to select this company in the form.
-                self.company = companies[0]
+                if not self.instance.pk and company_count == 1:
+                    self.company = companies[0]
                 # remove company from crispy forms layout
                 self.helper.layout[0].pop(0)
                 # remove company from fields

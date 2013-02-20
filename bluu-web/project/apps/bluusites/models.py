@@ -44,6 +44,10 @@ class BluuSite(Entity):
     def get_absolute_url(self):
         return ('site_edit', [str(self.id)])
 
+    @property
+    def get_name(self):
+        return "{0} {1}".format(self.first_name, self.last_name)
+
 
 class BluuSiteAccess(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)

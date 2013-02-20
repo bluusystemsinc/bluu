@@ -31,16 +31,21 @@ def main_menu(context):
     if user.is_authenticated():
         # user is assigned to only one company
         companies = get_objects_for_user(user, 'companies.view_company')
-        if companies.count() == 1:
+        ccount = companies.count()
+        menu_dict['main_menu']['company_count'] = ccount
+        if ccount == 1:
             menu_dict['main_menu']['company'] = companies[0]
 
         # user is assigned to only one site 
         sites = get_objects_for_user(user, 'bluusites.view_bluusite')
-        if sites.count() == 1:
-            menu_dict['main_menu']['site'] = sites[0]
+        scount = sites.count()
+        menu_dict['main_menu']['bluusite_count'] = scount
+        if scount == 1:
+            menu_dict['main_menu']['bluusite'] = sites[0]
 
     context.update(menu_dict)
     return context
+
 
 @register.inclusion_tag('_company_breadcrumb.html', takes_context=True)
 def companies_breadcrumb(context):
@@ -50,13 +55,26 @@ def companies_breadcrumb(context):
     bread_dict = {}
     single = False
     # if user is assigned to only one company
-    companies = get_objects_for_user(user, 'companies.view_company')
-    if companies.count() == 1:
+    if user.get_companies().count() == 1:
         single = True
     bread_dict['single'] = single
 
     return bread_dict
 
+
+@register.inclusion_tag('_bluusite_breadcrumb.html', takes_context=True)
+def bluusites_breadcrumb(context):
+    request = context['request']
+    user = request.user
+    
+    bread_dict = {}
+    single = False
+    # if user is assigned to only one site
+    if user.get_sites().count() == 1:
+        single = True
+    bread_dict['single'] = single
+
+    return bread_dict
 
 
 

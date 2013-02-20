@@ -1,13 +1,13 @@
 {% extends "bluusites/site_base.html" %}
 
-{% load i18n crispy_forms_tags grontextual_tags %}
+{% load i18n crispy_forms_tags grontextual_tags theme_tags %}
 
 {% block title %}
 {% trans 'Site Access Management' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-    <a href="{% url 'site_list' %}">{% trans "Site list" %}</a> &gt; {% trans "Site Access Management" %}
+{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; {% trans "Access management" %}
 {% endblock %}
 
 {% block page-title %}

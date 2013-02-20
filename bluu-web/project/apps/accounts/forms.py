@@ -45,6 +45,7 @@ class BluuUserForm(ModelForm):
                     'username',
                     'first_name',
                     'last_name',
+                    'groups',
                     'email',
                     'password1',
                     'password2',
@@ -66,7 +67,7 @@ class BluuUserForm(ModelForm):
             self.fields['password2'].required = True
 
         self.fields.keyOrder = ['username',
-            'first_name', 'last_name', 'email',
+            'first_name', 'last_name', 'groups', 'email',
             'password1', 'password2', 'cell', 'cell_text_email', 'is_active'
         ]
 
@@ -75,7 +76,7 @@ class BluuUserForm(ModelForm):
 
     class Meta:
         model = BluuUser
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active',
+        fields = ('username', 'first_name', 'last_name', 'groups', 'email', 'is_active',
                   'groups', 'cell', 'cell_text_email')
 
     def clean_password2(self):
