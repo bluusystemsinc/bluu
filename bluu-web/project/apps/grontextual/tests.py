@@ -29,7 +29,7 @@ class GrontextualTestCase(WebTest):
         UserObjectGroup.objects.assign(Group.objects.get(name='Bluu'), self.user3, self.company1)
 
         company_type = ContentType.objects.get(app_label="companies",
-                                        model="company")
+                                               model="company")
         perm = Permission.objects.get(content_type=company_type, codename='browse_companies')
         perm2 = Permission.objects.get(content_type=company_type, codename='view_company')
         self.user3.user_permissions.add(perm, perm2)

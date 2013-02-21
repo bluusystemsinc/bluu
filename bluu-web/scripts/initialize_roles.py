@@ -230,3 +230,17 @@ def run():
         perm_browse_sites,
     ]
 
+    """
+    BaseUser role is intended to be used globally. Each user should be assigned
+    this role by default
+    """
+    baseuser_group = Group.objects.get_or_create(name=u'Base User')[0]
+
+    # assign permissions to User
+    baseuser_group.permissions.clear()
+
+    baseuser_group.permissions = [
+        perm_change_user,
+        perm_browse_sites,
+    ]
+

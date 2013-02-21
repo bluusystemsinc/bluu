@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
+from django.dispatch import receiver
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import (Group, AbstractUser, UserManager)
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,6 +34,18 @@ class BluuUser(AbstractUser):
             ("browse_bluuusers", "Can browse users"),
             ("manage_dealers", "Can manage dealers"),
         )
+
+    def save(self, *args, **kwargs):
+        """
+        Override save to make sure that every BluuUser is assigned Base User 
+        group.
+        """
+        super(BluuUser, self).save(*args, **kwargs) # Call the "real" save() method.
+        try:
+            base_user_group = Group.objects.get(name='Base User')
+            self.groups.add(base_user_group)
+        except Group.DoesNotExist:
+            pass
 
     @models.permalink
     def get_absolute_url(self):
@@ -69,3 +83,11 @@ class BluuUser(AbstractUser):
             return BluuSite.objects.all()
         return get_objects_for_user(self, 'bluusites.view_bluusite')
 
+
+@receiver(post_save, sender=BluuUser)
+def _set_default_groups(sender, instance, *args, **kwargs):
+    """
+    Assign user to a groups.
+    """
+    base_user_group = Group.objects.get(name='Base User')
+    instance.groups.add(base_user_group)

@@ -5,13 +5,14 @@ from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.core.urlresolvers import reverse
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import Group
 
 from registration.forms import RegistrationFormTermsOfService
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
 
-from django.contrib.auth.forms import AuthenticationForm
 from accounts.models import BluuUser
 
 rev = lambda s: reverse(s)
@@ -58,6 +59,9 @@ class BluuUserForm(ModelForm):
             )
         )
         super(BluuUserForm, self).__init__(*args, **kwargs)
+
+        self.fields['groups'].choices = [(group.pk, group.name) for group in \
+                     Group.objects.filter(name__in=['Bluu', 'Base User'])]
 
         if self.instance.pk:
             self.fields['password2'].help_text =\
