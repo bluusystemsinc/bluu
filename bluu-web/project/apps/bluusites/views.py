@@ -27,7 +27,8 @@ class SiteListView(TemplateView):
                                           accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         sites = self.request.user.get_sites()
-        if sites.count() == 1:
+        if not self.request.user.has_perm("bluusites.view_bluusite")\
+                and sites.count() == 1:
             return redirect('site_edit', pk=sites[0].pk)
 
         return super(SiteListView, self).dispatch(*args, **kwargs)

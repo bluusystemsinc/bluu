@@ -34,7 +34,8 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
 
     def dispatch(self, *args, **kwargs):
         companies = self.request.user.get_companies()
-        if companies.count() == 1:
+        if not self.request.user.has_perm("companies.view_company")\
+                and (companies.count() == 1):
             return redirect('company_edit', pk=companies[0].pk)
 
         return super(CompanyListView, self).dispatch(*args, **kwargs)
