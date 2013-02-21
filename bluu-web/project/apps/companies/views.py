@@ -33,10 +33,11 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
         return get_objects_for_user(self.request.user, 'companies.view_company')
 
     def dispatch(self, *args, **kwargs):
-        companies = self.request.user.get_companies()
-        if not self.request.user.has_perm("companies.view_company")\
-                and (companies.count() == 1):
-            return redirect('company_edit', pk=companies[0].pk)
+        companies = self.request.user.can_see_companies(\
+                perm='companies.change_company')
+        company = companies.get('company', None)
+        if company is not None:
+            return redirect('company_edit', pk=company.pk)
 
         return super(CompanyListView, self).dispatch(*args, **kwargs)
 

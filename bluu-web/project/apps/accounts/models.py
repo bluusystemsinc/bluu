@@ -69,20 +69,64 @@ class BluuUser(AbstractUser):
             ret = '---'
         return ret
 
-    def get_companies(self):
+    def get_companies(self, perm='companies.view_company'):
         from companies.models import Company
         from grontextual.shortcuts import get_objects_for_user
-        if self.has_perm('companies.view_company'):
+        if self.has_perm(perm):
             return Company.objects.all()
         return get_objects_for_user(self, 'companies.view_company')
 
-    def get_sites(self):
+    def can_see_companies(self, perm='companies.view_company'):
+        companies = self.get_companies(perm)
+        ccount = companies.count()
+        if (self.has_perm('companies.browse_companies') and \
+            self.has_perm('companies.add_company')) or \
+           (ccount > 1):
+            return {'companies': True, 'company': None}
+        elif (ccount == 1) and \
+            self.has_perm(perm, companies[0]):
+            return {'companies': False, 'company': companies[0]}
+        return {'companies': False, 'company': None}
+
+    def get_sites(self, perm='bluusites.view_bluusite'):
         from bluusites.models import BluuSite
         from grontextual.shortcuts import get_objects_for_user
-        if self.has_perm('bluusites.view_bluusite'):
+        if self.has_perm(perm):
             return BluuSite.objects.all()
         return get_objects_for_user(self, 'bluusites.view_bluusite')
 
+    def _can_add_sites(self):
+        """
+        If there is a company or companies a user has permission to
+        add bluusites to them then return true.
+        """
+        if self.get_sites(perm='bluusites.add_bluusite').count() > 0:
+            return True
+        return False
+
+    def can_see_sites(self, perm='bluusites.view_bluusite'):
+        sites = self.get_sites(perm=perm)
+        scount = sites.count()
+        if (self.has_perm('bluusites.browse_bluusites') and \
+            self.has_perm('bluusites.add_bluusite')) or \
+            (self.has_perm('bluusites.browse_bluusites') and \
+            self._can_add_sites(self)) or \
+           (scount > 1): 
+            """
+            If user is Bluu then show sites
+            If user is Dealer or Technician then show sites
+            If user is assigned to more than one site then show sites
+            """
+            return {'bluusites': True, 'bluusite': None}
+        elif (scount == 1) and \
+                self.has_perm(perm, sites[0]):
+            """
+            If user isn't Bluu or Dealer or Technician and is assigned
+            to only one site then show this one site
+            """
+            return {'bluusites': False, 'bluusite': sites[0]}
+        else:
+            return {'bluusites': False, 'bluusite': None}
 
 @receiver(post_save, sender=BluuUser)
 def _set_default_groups(sender, instance, *args, **kwargs):

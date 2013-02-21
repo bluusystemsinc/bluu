@@ -26,10 +26,10 @@ class SiteListView(TemplateView):
     @method_decorator(permission_required('bluusites.browse_bluusites', 
                                           accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
-        sites = self.request.user.get_sites()
-        if not self.request.user.has_perm("bluusites.view_bluusite")\
-                and sites.count() == 1:
-            return redirect('site_edit', pk=sites[0].pk)
+        sites = self.request.user.can_see_sites(perm='bluusite.change_bluusite')
+        site = sites.get('bluusite', None)
+        if site is not None:
+            return redirect('site_edit', pk=site.pk)
 
         return super(SiteListView, self).dispatch(*args, **kwargs)
 
