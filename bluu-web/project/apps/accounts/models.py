@@ -110,7 +110,7 @@ class BluuUser(AbstractUser):
         if (self.has_perm('bluusites.browse_bluusites') and \
             self.has_perm('bluusites.add_bluusite')) or \
             (self.has_perm('bluusites.browse_bluusites') and \
-            self._can_add_sites(self)) or \
+            self._can_add_sites()) or \
            (scount > 1): 
             """
             If user is Bluu then show sites
