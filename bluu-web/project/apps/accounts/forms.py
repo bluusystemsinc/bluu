@@ -61,7 +61,7 @@ class BluuUserForm(ModelForm):
         super(BluuUserForm, self).__init__(*args, **kwargs)
 
         self.fields['groups'].choices = [(group.pk, group.name) for group in \
-                     Group.objects.filter(name__in=['Bluu', 'Base User'])]
+                     Group.objects.filter(name__in=['Bluu', 'Base User', 'Company Employee'])]
 
         if self.instance.pk:
             self.fields['password2'].help_text =\

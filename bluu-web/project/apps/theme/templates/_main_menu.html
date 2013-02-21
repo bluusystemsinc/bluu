@@ -6,38 +6,21 @@
         <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Home Page" %}</a></li>
     {% endif %}
     {% if user.is_authenticated %}
-
         {% if main_menu.company %}
-            {% get_uog_perms request.user for main_menu.company as "company_perms" %}
-            {% if perms.companies.change_company or "change_company" in company_perms %}
-                <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.company.pk %}"><i class="icon-th-large"></i> {% trans "Company" %}</a></li>
-            {% endif %}
-        {% elif perms.companies.view_company or main_menu.company_count > 1 %}
-          {% if perms.companies.browse_companies %}
+            <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.company.pk %}"><i class="icon-th-large"></i> {% trans "Company" %}</a></li>
+        {% elif main_menu.companies %}
             <li class="{% active request "^/companies/" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
-          {% endif %}
         {% else %}
-          {% if perms.companies.browse_companies %}
-            <li><a href="#"><i class="icon-th-large"></i> {% trans "No companies assigned" %}</a></li>
-          {% endif %}
+        {% comment %}<li><a href="#"><i class="icon-th-large"></i> {% trans "No companies assigned" %}</a></li>{% endcomment %}
         {% endif %}
 
         {% if main_menu.bluusite %}
-            {% get_uog_perms request.user for main_menu.bluusite as "site_perms" %}
-            {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
-                <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' main_menu.bluusite.pk %}">{% trans "Site management" %}</a></li>
-            {% endif %}
-            {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
-                <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices' main_menu.bluusite.pk %}">{% trans "Device management" %}</a></li>
-            {% endif %}
-        {% elif perms.bluusites.view_bluusite or main_menu.bluusite_count > 1 %}
-            {% if perms.bluusites.browse_bluusites %}
-                <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
-            {% endif %}
+            <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' main_menu.bluusite.pk %}">{% trans "Site management" %}</a></li>
+            <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices' main_menu.bluusite.pk %}">{% trans "Device management" %}</a></li>
+        {% elif main_menu.bluusites %}
+            <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
         {% else %}
-          {% if perms.bluusites.browse_bluusites %}
-            <li><a href="#"><i class="icon-eye-open"></i> {% trans "No sites assigned" %}</a></li>
-          {% endif %}
+        {% comment %}<li><a href="#"><i class="icon-eye-open"></i> {% trans "No sites assigned" %}</a></li>{% endcomment %}
         {% endif %}
         {% if perms.accounts.browse_bluuusers %}
             <li class="{% active request "^/accounts/users/" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>

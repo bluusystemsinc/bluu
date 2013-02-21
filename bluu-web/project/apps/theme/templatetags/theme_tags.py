@@ -22,6 +22,17 @@ def active(request, pattern):
         return 'active'
     return ''
 
+
+def can_add_sites(user):
+    """
+    If there is a company or companies a user has permission to
+    add bluusites to them then return true.
+    """
+    if get_objects_for_user(user, 'bluusites.add_bluusite').count() > 0:
+        return True
+    return False
+
+
 @register.inclusion_tag('_main_menu.html', takes_context=True)
 def main_menu(context):
     request = context['request']
@@ -29,19 +40,60 @@ def main_menu(context):
     menu_dict = {'main_menu':{}}
 
     if user.is_authenticated():
-        # user is assigned to only one company
         companies = get_objects_for_user(user, 'companies.view_company')
         ccount = companies.count()
-        menu_dict['main_menu']['company_count'] = ccount
-        if not user.has_perm('companies.add_company') and ccount == 1:
-            menu_dict['main_menu']['company'] = companies[0]
 
-        # user is assigned to only one site 
+        if (user.has_perm('companies.browse_companies') and \
+            user.has_perm('companies.add_company')) or \
+           (ccount > 1):
+            """
+            If user is Bluu then show companies.
+            If user is Dealer or Technician then show companies if more than 1 
+            assigned.
+            """
+            menu_dict['main_menu']['companies'] = True
+            menu_dict['main_menu']['company'] = None
+        elif (ccount == 1) and \
+                user.has_perm('companies.change_company', companies[0]):
+            """
+            If user isn't Bluu and has only one company assigned then
+            show only this one company.
+            """
+            menu_dict['main_menu']['companies'] = False
+            menu_dict['main_menu']['company'] = companies[0]
+        else:
+            """
+            If user isn't Bluu and has no companies assigned then don't 
+            show any companies.
+            """
+            menu_dict['main_menu']['companies'] = False
+            menu_dict['main_menu']['company'] = None
+
         sites = get_objects_for_user(user, 'bluusites.view_bluusite')
         scount = sites.count()
-        menu_dict['main_menu']['bluusite_count'] = scount
-        if not user.has_perm('bluusites.add_bluusite') and scount == 1:
+        if (user.has_perm('bluusites.browse_bluusites') and \
+            user.has_perm('bluusites.add_bluusite')) or \
+            (user.has_perm('bluusites.browse_bluusites') and \
+            can_add_sites(user)) or \
+           (scount > 1): 
+            """
+            If user is Bluu then show sites
+            If user is Dealer or Technician then show sites
+            If user is assigned to more than one site then show sites
+            """
+            menu_dict['main_menu']['bluusites'] = True
+            menu_dict['main_menu']['bluusite'] = None
+        elif (scount == 1) and \
+                user.has_perm('bluusites.change_bluusite', sites[0]):
+            """
+            If user isn't Bluu or Dealer or Technician and is assigned
+            to only one site then show this one site
+            """
+            menu_dict['main_menu']['bluusites'] = False
             menu_dict['main_menu']['bluusite'] = sites[0]
+        else:
+            menu_dict['main_menu']['bluusites'] = False
+            menu_dict['main_menu']['bluusite'] = None
 
     context.update(menu_dict)
     return context
