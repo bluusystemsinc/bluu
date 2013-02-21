@@ -74,7 +74,7 @@ class BluuUser(AbstractUser):
         from grontextual.shortcuts import get_objects_for_user
         if self.has_perm(perm):
             return Company.objects.all()
-        return get_objects_for_user(self, 'companies.view_company')
+        return get_objects_for_user(self, perm)
 
     def can_see_companies(self, perm='companies.view_company'):
         companies = self.get_companies(perm)
@@ -93,7 +93,7 @@ class BluuUser(AbstractUser):
         from grontextual.shortcuts import get_objects_for_user
         if self.has_perm(perm):
             return BluuSite.objects.all()
-        return get_objects_for_user(self, 'bluusites.view_bluusite')
+        return get_objects_for_user(self, perm)
 
     def _can_add_sites(self):
         """
