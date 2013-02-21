@@ -33,14 +33,14 @@ def main_menu(context):
         companies = get_objects_for_user(user, 'companies.view_company')
         ccount = companies.count()
         menu_dict['main_menu']['company_count'] = ccount
-        if ccount == 1:
+        if not user.has_perm('companies.view_company') and ccount == 1:
             menu_dict['main_menu']['company'] = companies[0]
 
         # user is assigned to only one site 
         sites = get_objects_for_user(user, 'bluusites.view_bluusite')
         scount = sites.count()
         menu_dict['main_menu']['bluusite_count'] = scount
-        if scount == 1:
+        if not user.has_perm('bluusites.view_bluusite') and scount == 1:
             menu_dict['main_menu']['bluusite'] = sites[0]
 
     context.update(menu_dict)
