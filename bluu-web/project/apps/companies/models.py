@@ -53,6 +53,9 @@ class Company(Entity):
         #except:
         #    pass
 
+    def _get_code(self, name, number):
+        return '%s%04d' % (name[:2].upper(), number)
+
     def generate_code(self):
         """
         Generates unique company code in a form AA1234
@@ -70,10 +73,10 @@ class Company(Entity):
         else:
             new_code = 1
 
-        code = '%s%04d' % (self.name[:2].upper(), new_code)
+        code = self._get_code(self.name, new_code)
         while Company.objects.filter(code=code).exists():
             new_code = new_code + 1
-            code = '%s%04d' % (self.name[:2].upper(), new_code)
+            code = self._get_code(self.name, new_code)
         return code
 
 

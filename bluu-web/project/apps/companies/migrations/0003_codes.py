@@ -14,7 +14,7 @@ class Migration(DataMigration):
             if existing_codes.count() > 0:
                 new_code = int(existing_codes[0].code[2:]) + 1
             else:
-                new_code = 0
+                new_code = 1
             name = company.name or ''
             code = '%s%04d' % (name[:2].upper(), new_code)
             

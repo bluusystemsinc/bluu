@@ -5,7 +5,7 @@
 {% get_uog_perms request.user for company as "company_perms" %}
 <div class="box">
   <h4 class="box-heading">
-    {{ company.name }}
+      {{ company.name }} [{{ company.code }}]
   </h4>
   <ul class="nav nav-list">
     {% if perms.companies.change_company or "change_company" in company_perms %}<li class="{% active request "^/companies/\d+/edit/$" %}"><a href="{% url 'company_edit' company.id %}">{% trans "Company details" %}</a></li>{% endif %}
