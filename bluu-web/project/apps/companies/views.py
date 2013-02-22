@@ -78,7 +78,7 @@ class CompanyUpdateView(UpdateView):
 
 
 
-@permission_required('companies.delete_company', (Company, 'pk', 'company_pk'),
+@permission_required('companies.delete_company', (Company, 'pk', 'pk'),
                      accept_global_perms=True)
 def company_delete(request, pk):
     obj = get_object_or_404(Company, pk=pk)

@@ -42,33 +42,38 @@ class Company(Entity):
     def get_absolute_url(self):
         return ('company_edit', [str(self.id)])
 
-    def save(self, force_insert=False, force_update=False):
+    def save(self, *args, **kwargs):
         if self.code == "":
             code = self.generate_code()
-            while Company.objects.filter(code=code).exist():
+            while Company.objects.filter(code=code).exists():
                 code = self.generate_code()
             self.code = code
         #try:
-        super(Company, self).save(force_insert, force_update)
+        super(Company, self).save(*args, **kwargs)
         #except:
         #    pass
 
     def generate_code(self):
+        """
+        Generates unique company code in a form AA1234
+        """
         # reverse order by autoincrement field
         # latest object has highest id
-        existing_codes = Company.objects.all().order_by('-id')
+        existing_codes = Company.objects.all().\
+                filter(code__isnull=False).order_by('-id')
+
         if existing_codes.count() > 0:
-            new_code = int(existing_codes[0].code[1:]) + 1
+            last_code = existing_codes[0].code[2:]
+            if last_code == '' or last_code is None:
+                last_code = 0
+            new_code = int(last_code) + 1
         else:
-            new_code = 0
+            new_code = 1
 
         code = '%s%04d' % (self.name[:2].upper(), new_code)
-        
-        while Company.objects.filter(code=code).exist():
+        while Company.objects.filter(code=code).exists():
             new_code = new_code + 1
             code = '%s%04d' % (self.name[:2].upper(), new_code)
-             
-        print code
         return code
 
 

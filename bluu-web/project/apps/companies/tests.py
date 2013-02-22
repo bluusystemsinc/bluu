@@ -26,8 +26,8 @@ class CompaniesTestCase(WebTest):
 
 
     def testCompanyCodeGenerated(self):
-        company = Company.objects.get_or_create(name="nazwa")
-        self.assertEqual(company.code, 'NA0000')
+        company, created = Company.objects.get_or_create(name="nazwa")
+        self.assertEqual(company.code, u'NA0001')
 
     def testCompanyListDenyAccess(self):
         """User with no `companies.browse_companies` permission can't access
@@ -53,35 +53,37 @@ class CompaniesTestCase(WebTest):
         """User with a per object permission companies.view_company
         can see only assigned companies.
         """
-        res = self.app.get(reverse('company-list'), user='test3')
+        res = self.app.get(reverse('company_list'), user='test3')
         assert "C1" in res
         assert "C2" not in res
 
     def testCompanyUpdateOnlyAssignedCompany(self):
         """User can update only companies that are assigned to him."""
-        self.app.get(reverse('company-edit', args=[self.company1.pk]),
+        self.app.get(reverse('company_edit', args=[self.company1.pk]),
                 user='test2', status=200)
-        self.app.get(reverse('company-edit', args=[self.company1.pk]),
-                user='test1', status=403)
+        res = self.app.get(reverse('company_edit', args=[self.company1.pk]),
+                user='test1', status=302).follow()
+        assert "Sign in" in res
 
     def testCompanyDeleteOnlyAssignedCompany(self):
         """User can delete only companies that are assigned to him."""
-        res = self.app.get(reverse('company-delete', args=[self.company1.pk]),
+        res = self.app.get(reverse('company_delete', args=[self.company1.pk]),
                 user='test2').follow()
         assert "Company deleted" in res
 
     def testCompanyDontDeleteUnassignedCompany(self):
         """User can't delete companies that aren't assigned to him."""
-        res = self.app.get(reverse('company-delete', args=[self.company1.pk]),
-                user='test1', status=403)
+        res = self.app.get(reverse('company_delete', kwargs={'pk': self.company1.pk}),
+                user='test1', status=302).follow()
+        assert "Sign in" in res
 
     def testAccessCreateCompany(self):
         """User assigned companies.add_company can create new companies.
         User test1 isn't assigned companies.add_company.
         User test2 is assigned companies.add_company.
         """
-        self.app.get(reverse('company-add'), user='test1', status=302)
-        res = self.app.get(reverse('company-add'), user='test2', status=200)
+        self.app.get(reverse('company_add'), user='test1', status=302)
+        res = self.app.get(reverse('company_add'), user='test2', status=200)
         form = res.form
         form['name'] = 'Company1'
         form['street'] = 'street'
@@ -95,8 +97,4 @@ class CompaniesTestCase(WebTest):
         form_res = form.submit().follow()
 
         assert "Company added" in form_res
-        self.assertTrue(Group.objects.filter(name='Company1: Dealer').exists())
-        self.assertTrue(Group.objects.filter(name='Company1: Technician').exists())
         
-
-
