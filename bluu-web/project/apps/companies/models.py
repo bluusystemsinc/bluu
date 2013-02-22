@@ -16,6 +16,7 @@ from bluusites.models import BluuSite
 
 
 class Company(Entity):
+    code = models.CharField(_('code'), max_length=6, unique=True)
     name = models.CharField(_('name'), max_length=255)
     contact_name = models.CharField(_('contact name'), max_length=255,
                          blank=True)
@@ -41,7 +42,36 @@ class Company(Entity):
     def get_absolute_url(self):
         return ('company_edit', [str(self.id)])
 
+    def save(self, force_insert=False, force_update=False):
+        if self.code == "":
+            code = self.generate_code()
+            while Company.objects.filter(code=code).exist():
+                code = self.generate_code()
+            self.code = code
+        #try:
+        super(Company, self).save(force_insert, force_update)
+        #except:
+        #    pass
+
+    def generate_code(self):
+        # reverse order by autoincrement field
+        # latest object has highest id
+        existing_codes = Company.objects.all().order_by('-id')
+        if existing_codes.count() > 0:
+            new_code = int(existing_codes[0].code[1:]) + 1
+        else:
+            new_code = 0
+
+        code = '%s%04d' % (self.name[:2].upper(), new_code)
         
+        while Company.objects.filter(code=code).exist():
+            new_code = new_code + 1
+            code = '%s%04d' % (self.name[:2].upper(), new_code)
+             
+        print code
+        return code
+
+
 class CompanyAccess(models.Model):
     company = models.ForeignKey(Company)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)

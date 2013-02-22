@@ -8,27 +8,77 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import Group
 
+from model_utils.models import TimeStampedModel
+
+from bluusites.models import BluuSite
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
-from utils.models import Entity
-from companies.models import Company
 
 
-class Sensor(Entity):
-    sample = models.CharField(_('sample'), max_length=30)
+class Device(TimeStampedModel):
+    RECEIVER = 'receiver'
+    DW1 = 'dw1'
+    DW2 = 'dw2'
+    DW3 = 'dw3'
+    SHOCK = 'shock'
+    TILT = 'tilt'
+    FLOOD = 'flood'
+    CO = 'co'
+    SMOKE = 'smoke'
+    PIR ='pir'
+    GLASS = 'glass'
+    TAKEOVER = 'takeover'
+    KEY = 'key'
+    PANIC = 'panic'
+    DEVICE_CHOICES = (
+        (RECEIVER, _('receiver')),
+        (DW1, _('dw1')),
+        (DW2, _('dw2')),
+        (DW3, _('dw3')),
+        (SHOCK, _('shock')),
+        (TILT, _('tilt')),
+        (FLOOD, _('flood')),
+        (CO, _('co')),
+        (SMOKE, _('smoke')),
+        (PIR, _('pir')),
+        (GLASS, _('glass')),
+        (TAKEOVER, _('takeover')),
+        (KEY, _('key')),
+        (PANIC, _('panic'))
+    )
+
+    serial = models.CharField(_('serial'), max_length=6)
+    device = models.CharField(_('device'), max_length=8)
+    bluusite = models.ForeignKey(BluuSite)
+
     class Meta:
-        verbose_name = _("Sensor")
-        verbose_name_plural = _("Sensors")
+        verbose_name = _("device")
+        verbose_name_plural = _("devices")
         permissions = (
-            ("browse_sensors", "Can browse sensors"),
-            ("view_sensor", "Can view sensor"),
-            ("manage_sensor", "Can manage sensor"),
+            ("browse_devices", "Can browse devices"),
+            ("view_devices", "Can view device"),
         )
 
     def __unicode__(self):
-        return str(self.pk)
+        return str(self.device)
 
     @models.permalink
     def get_absolute_url(self):
-        return ('sensor_edit', [str(self.id)])
+        return ('device_edit', [str(self.id)])
 
+
+class Status(models.Model):
+    created = models.DateTimeField(_('created'),
+                                   editable=False,
+                                   auto_now_add=True)
+    device = models.ForeignKey(Device)
+    data = models.IntegerField(_('data'))
+    signal = models.IntegerField(_('signal'))
+    action = models.NullBooleanField(_('action'))
+    battery = models.NullBooleanField(_('battery'))
+    input1 = models.NullBooleanField(_('input1'))
+    input2 = models.NullBooleanField(_('input2'))
+    input3 = models.NullBooleanField(_('input3'))
+    input4 = models.NullBooleanField(_('input4'))
+    supervisory = models.NullBooleanField(_('supervisory'))
+    tamper = models.NullBooleanField(_('tamper'))

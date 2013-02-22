@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from .countries import CountryField
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^utils\.countries\.CountryField"])
+
 
 class Entity(models.Model):
     street = models.CharField(_('street'), max_length=50, blank=True)

@@ -128,10 +128,15 @@ class BluuUser(AbstractUser):
         else:
             return {'bluusites': False, 'bluusite': None}
 
+
 @receiver(post_save, sender=BluuUser)
 def _set_default_groups(sender, instance, *args, **kwargs):
     """
     Assign user to a groups.
     """
-    base_user_group = Group.objects.get(name='Base User')
-    instance.groups.add(base_user_group)
+    for group_name in settings.DEFAULT_GROUPS:
+        try:
+            default_group = Group.objects.get(name=group_name)
+            instance.groups.add(default_group)
+        except Group.DoesNotExist:
+            pass

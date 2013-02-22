@@ -23,7 +23,7 @@ from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 from braces.views import PermissionRequiredMixin
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
-from .forms import ProfileForm, AccountForm, BluuUserForm
+from .forms import AccountForm, BluuUserForm
 from .models import BluuUser
 
 

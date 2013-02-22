@@ -24,23 +24,28 @@ class CompaniesTestCase(WebTest):
         assign('companies.browse_companies', self.user3)
         assign('companies.view_company', self.user3, self.company1)
 
+
+    def testCompanyCodeGenerated(self):
+        company = Company.objects.get_or_create(name="nazwa")
+        self.assertEqual(company.code, 'NA0000')
+
     def testCompanyListDenyAccess(self):
         """User with no `companies.browse_companies` permission can't access
         a company list.
         """
-        self.app.get(reverse('company-list'), user='test1', status=302)
+        self.app.get(reverse('company_list'), user='test1', status=302)
 
     def testCompanyListApproveAccess(self):
         """User with companies.browse_companies permission can access 
         a company list.
         """
-        self.app.get(reverse('company-list'), user='test2', status=200)
+        self.app.get(reverse('company_list'), user='test2', status=200)
 
     def testCompanyListGlobalPermissionAllowsUserToSeeAllCompanies(self):
         """User with a global permission companies.view_company
         can see all companies.
         """
-        res = self.app.get(reverse('company-list'), user='test2')
+        res = self.app.get(reverse('company_list'), user='test2')
         assert "C1" in res
         assert "C2" in res
 

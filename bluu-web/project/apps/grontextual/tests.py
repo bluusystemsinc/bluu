@@ -20,10 +20,9 @@ class GrontextualTestCase(WebTest):
         self.company2 = G(Company, name="C2")
 
         self.user1 = G(get_user_model(), username='test1')
-        
-        self.user2 = G(get_user_model(), username='test2',
+        self.user2 = G(get_user_model(),
+                       username='test2',
                        groups=[Group.objects.get(name='Bluu')])
-
         self.user3 = G(get_user_model(), username='test3')
         
         UserObjectGroup.objects.assign(Group.objects.get(name='Bluu'), self.user3, self.company1)
