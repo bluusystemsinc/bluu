@@ -56,7 +56,7 @@ class Device(TimeStampedModel):
         verbose_name_plural = _("devices")
         permissions = (
             ("browse_devices", "Can browse devices"),
-            ("view_devices", "Can view device"),
+            ("view_device", "Can view device"),
         )
 
     def __unicode__(self):
