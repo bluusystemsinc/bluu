@@ -107,7 +107,7 @@ class DeviceListJson(BaseDatatableView):
         (BluuSite, 'pk', 'site_pk'),
         accept_global_perms=True))
     @method_decorator(permission_required_or_403(
-        'devices.browse_devices',
+        'bluusites.browse_devices',
         (BluuSite, 'pk', 'site_pk'),
         accept_global_perms=True))
     def dispatch(self, *args, **kwargs):

@@ -36,6 +36,7 @@ class BluuSite(Entity):
         permissions = (
             ("browse_bluusites", "Can browse sites"),
             ("view_bluusite", "Can view site"),
+            ("browse_devices", "Can browse devices"),
         )
 
     def __unicode__(self):

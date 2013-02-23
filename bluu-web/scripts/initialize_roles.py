@@ -66,7 +66,7 @@ perm_change_bluusiteaccess = Permission.objects.get(content_type=siteaccess_type
 perm_delete_bluusiteaccess = Permission.objects.get(content_type=siteaccess_type,
                         codename=u"delete_bluusiteaccess")
 
-perm_browse_devices = Permission.objects.get(content_type=device_type,
+perm_browse_devices = Permission.objects.get(content_type=site_type,
                                                   codename=u"browse_devices")
 perm_view_device = Permission.objects.get(content_type=device_type,
                                                   codename=u"view_device")

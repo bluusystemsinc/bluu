@@ -39,7 +39,7 @@ class DeviceListView(TemplateView):
                         (BluuSite, 'pk', 'site_pk'),
                         accept_global_perms=True))
     @method_decorator(permission_required(
-                        'devices.browse_devices',
+                        'bluusites.browse_devices',
                         (BluuSite, 'pk', 'site_pk'),
                         accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
