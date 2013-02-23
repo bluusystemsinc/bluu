@@ -11,15 +11,15 @@ from crispy_forms.layout import Submit
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
 
-from .models import Sensor
+from .models import Device
 
-class SensorForm(forms.ModelForm):
+class DeviceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
     class Meta:
-        model = Sensor
+        model = Device
 
 

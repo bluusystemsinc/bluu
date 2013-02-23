@@ -17,14 +17,18 @@ from utils.models import Entity
 class BluuSite(Entity):
     first_name = models.CharField(_('first name'), max_length=30)
     last_name = models.CharField(_('last name'), max_length=30)
-    middle_initial = models.CharField(_('middle initial'), max_length=2, 
-                        blank=True)
-    company = models.ForeignKey("companies.Company", verbose_name=_('company'))
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                        blank=True,
-                        null=True,
-                        verbose_name=_('users'),
-                        through='BluuSiteAccess')
+    middle_initial = models.CharField(
+                _('middle initial'), max_length=2, 
+                blank=True)
+    company = models.ForeignKey(
+                "companies.Company", verbose_name=_('company'),
+                on_delete=models.PROTECT)
+    users = models.ManyToManyField(
+                settings.AUTH_USER_MODEL,
+                blank=True,
+                null=True,
+                verbose_name=_('users'),
+                through='BluuSiteAccess')
 
     class Meta:
         verbose_name = _("Site")

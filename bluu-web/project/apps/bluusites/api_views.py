@@ -28,6 +28,7 @@ from accounts.models import BluuUser
 from companies.models import Company
 from companies.serializers import CompanyAccessSerializer,\
         CompanyAccessGroupsSerializer
+from devices.models import Device
 
 from .models import BluuSite, BluuSiteAccess
 from .serializers import SiteSerializer
@@ -64,13 +65,18 @@ class BluuSiteListJson(BaseDatatableView):
             no = 0
 
         for item in qs:
+            actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
+                    reverse('site_edit', args=(item.pk,)), _('Manage'),
+                    reverse('site_delete', args=(item.pk,)), 
+                    _('Are you sure you want delete this site?'),
+                    _('Delete'))
             json_data.append(
                 {
                     "no": no,
                     "first_name": item.first_name,
                     "last_name": item.last_name,
                     "city": item.city,
-                    "actions": '<a href="{0}">{1}</a>'.format(reverse('site_edit', args=(item.pk,)), _('Manage'))
+                    "actions": actions
                 }
             )
             no += 1
@@ -285,56 +291,4 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
                                                  accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteAccessUpdateView, self).dispatch(*args, **kwargs)
-
-
-
-
-
-
-
-
-
-
-
-
-
-class Test:
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_object(self, pk):
-        try:
-            return BluuSite.objects.get(pk=pk)
-        except BluuSite.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        site = self.get_object(pk)
-        groups = get_groups_with_perms(site)
-        users = BluuUser.objects.filter(groups__in=groups)
-        #users = get_users_with_perms(company)
-        ret = []
-        for user in users:
-            user_groups = set(groups) & set(user.groups.all())
-            ret.append(UserGroups(user, user_groups))
-
-        sobj = CompanyAccessSerializer(ret)
-        return Response(sobj.data)
-
-    def post(self, request, pk, format=None):
-        company = self.get_object(pk)
-        data = JSONParser().parse(request)
-        print 'recived data: ', data
-        #TODO:
-        # 1. check if user with email exists
-        # 2. in doesn't then
-        #   2.1 store new user's email and assigned perms
-        #   2.2 sent invitation to the user
-        #   2.3 after user is registered search accesses looking by email
-        #   2.4 assign found permissions to the user
-        # 3. set user permissions
-        #   3.1 assign permissions to the user
-        #   3.2 send invitation to the user
-
-            #return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

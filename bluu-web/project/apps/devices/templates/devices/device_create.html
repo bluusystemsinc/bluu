@@ -1,0 +1,28 @@
+{% extends "companies/company_site_base.html" %}
+
+{% load i18n crispy_forms_tags guardian_tags theme_tags %}
+
+{% block title %}
+{% trans 'Add site to company' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+{% companies_breadcrumb %}<a href="{% url 'company_edit' company.id %}">{{ company.name }}</a> &gt; <a href="{% url 'company_site_list' company.id %}">{% trans "Company site list" %}</a> &gt;
+{% trans "New site" %}
+{% endblock %}
+
+
+{% block page-title %}
+   {% trans "Add site" %}
+{% endblock %}
+
+{% block main %}
+{{ block.super }}
+<div class="tab-content">
+    <div class="tab-pane active" id="add-site">
+        <form name="newsite" class="form-horizontal" action="." method="post">{% csrf_token %}
+            {% crispy form form.helper %}
+        </form>
+    </div>
+</div>
+{% endblock %}

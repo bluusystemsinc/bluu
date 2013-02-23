@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import ProtectedError
 
 from guardian.decorators import permission_required
 from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
@@ -82,8 +83,14 @@ class CompanyUpdateView(UpdateView):
                      accept_global_perms=True)
 def company_delete(request, pk):
     obj = get_object_or_404(Company, pk=pk)
-    obj.delete()
-    messages.success(request, _('Company deleted'))
+    try:
+        obj.delete()
+        messages.success(request, _('Company deleted'))
+    except ProtectedError:
+        messages.error(
+               request,
+               _('Company cannot be deleted until there are dependent sites. '))
+
     return redirect('company_list')
 
 """

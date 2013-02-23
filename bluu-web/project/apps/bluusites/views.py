@@ -227,5 +227,3 @@ def site_user_delete(request, pk, site_id):
     messages.success(request, _('Bluuuser deleted'))
     return redirect('site_users', pk=site.pk)
 
-
-

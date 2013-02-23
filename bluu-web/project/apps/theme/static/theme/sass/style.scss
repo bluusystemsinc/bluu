@@ -5,6 +5,10 @@
 $twitter-media: "../components/sass-twitter-bootstrap/docs/assets";
 $datatables-media: "../components/datatables/media";
 
+.dataTables_wrapper .table td.center{
+    text-align: center;
+}
+
 .gridStyle {
     //height: 1400px;
     height: 400px;

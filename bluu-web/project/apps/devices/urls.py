@@ -1,10 +1,13 @@
 from django.conf.urls import patterns, url
 from . import views
 from utils.views import WorkInProgressView
+from .views import DeviceListView
 
 
 urlpatterns = patterns('',
-    url(r'^(?P<pk>\d+)/devices/$',\
-            WorkInProgressView.as_view(), name='site_devices'),
+    url(
+        r'^(?P<site_pk>\d+)/devices/$',
+        DeviceListView.as_view(),
+        name='device_list'),
 )
 

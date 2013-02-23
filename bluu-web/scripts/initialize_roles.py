@@ -12,6 +12,8 @@ site_type = ContentType.objects.get(app_label="bluusites",
                                         model="bluusite")
 siteaccess_type = ContentType.objects.get(app_label="bluusites",
                                         model="bluusiteaccess")
+device_type = ContentType.objects.get(app_label="devices",
+                                        model="device")
 
 
 # permissions
@@ -64,6 +66,18 @@ perm_change_bluusiteaccess = Permission.objects.get(content_type=siteaccess_type
 perm_delete_bluusiteaccess = Permission.objects.get(content_type=siteaccess_type,
                         codename=u"delete_bluusiteaccess")
 
+perm_browse_devices = Permission.objects.get(content_type=device_type,
+                                                  codename=u"browse_devices")
+perm_view_device = Permission.objects.get(content_type=device_type,
+                                                  codename=u"view_device")
+perm_add_device = Permission.objects.get(content_type=device_type,
+                        codename=u"add_device")
+perm_change_device = Permission.objects.get(content_type=device_type,
+                        codename=u"change_device")
+perm_delete_device = Permission.objects.get(content_type=device_type,
+                        codename=u"delete_device")
+
+
 def run():
     """We're going to have TestCenter Admin and Group Admin roles.
     TestCenter Admin is allowed to do anything, while Group Admin can only
@@ -103,6 +117,12 @@ def run():
         perm_add_bluusiteaccess,
         perm_change_bluusiteaccess,
         perm_delete_bluusiteaccess,
+
+        perm_browse_devices,
+        perm_view_device,
+        perm_add_device,
+        perm_change_device,
+        perm_delete_device,
     ]
 
     # create Dealer role
@@ -139,6 +159,12 @@ def run():
         perm_add_bluusiteaccess,
         perm_change_bluusiteaccess,
         perm_delete_bluusiteaccess,
+
+        perm_browse_devices,
+        perm_view_device,
+        perm_add_device,
+        perm_change_device,
+        perm_delete_device,
     ]
 
     # create Technician role
@@ -169,6 +195,12 @@ def run():
         perm_add_bluusiteaccess,
         perm_change_bluusiteaccess,
         perm_delete_bluusiteaccess,
+
+        perm_browse_devices,
+        perm_view_device,
+        perm_add_device,
+        perm_change_device,
+        perm_delete_device,
     ]
 
     # create Company Employee role

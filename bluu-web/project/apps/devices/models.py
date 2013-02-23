@@ -48,7 +48,7 @@ class Device(TimeStampedModel):
     )
 
     serial = models.CharField(_('serial'), max_length=6)
-    device = models.CharField(_('device'), max_length=8)
+    device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     bluusite = models.ForeignKey(BluuSite)
 
     class Meta:
@@ -60,7 +60,7 @@ class Device(TimeStampedModel):
         )
 
     def __unicode__(self):
-        return str(self.device)
+        return "{0} | {1}".format(self.serial, self.get_device_type_display())
 
     @models.permalink
     def get_absolute_url(self):

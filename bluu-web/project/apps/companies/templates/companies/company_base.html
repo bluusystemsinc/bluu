@@ -19,7 +19,7 @@
     {% if perms.companies.delete_company or "delete_company" in company_perms %}
         <li class="divider"></li>
         <li>
-            <a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Remove company' %}</a>
+            <a href="{% url 'company_delete' company.id %}" onclick="return confirm('{% trans "Are you sure you want delete this company?" %}')">{% trans 'Delete company' %}</a>
         </li>
     {% endif %}
   </ul>

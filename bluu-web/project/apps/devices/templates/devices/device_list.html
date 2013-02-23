@@ -1,0 +1,81 @@
+{% extends "bluusites/site_base.html" %}
+{% load i18n crispy_forms_tags guardian_tags theme_tags %}
+
+{% block title %}
+    {% trans 'Devices Management' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; {% trans "Devices management" %}
+{% endblock %}
+
+
+{% block page-title %}
+    {% trans "Devices Management" %}
+{% endblock %}
+
+
+{% block main %}
+{{ block.super }}
+{% get_obj_perms request.user for bluusite as "bluusite_perms" %}
+
+<table id="site_list_table" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>{% trans 'No.' %}</th>
+            <th>{% trans 'Serial' %}</th>
+            <th>{% trans 'Type' %}</th>
+            <th>{% trans 'Actions' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="5" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+        </tr>
+    </tbody>
+</table>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    {% include "utils/_datatable_trans.html" %}
+    <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    <script charset="utf-8" type="text/javascript">
+    //var COMPANY_ID = {{ company.id }};
+    $(document).ready(function() {
+        $('#site_list_table').dataTable( {
+         "oLanguage": DATATABLE_TRANS,
+         "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+         "bServerSide": true,
+         "bProcessing": false,
+         "sAjaxSource": "{% url 'sites:api_device_list_json' bluusite.pk %}",
+         "aaSorting": [[1, 'asc']],
+         "aoColumns": [
+                {
+                  "mData": 'no',
+                  "bSearchable": false, 
+                  "bSortable": false
+                },
+                { "mData": 'serial'},
+                { "mData": 'device_type'},
+                {
+                    "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
+                    {
+                        $(nTd).css('text-align', 'center');
+                    },
+                    "mData": 'actions',
+                    //"mRender": function( data, type, full) {
+                    //    return '<a href="#" onclick="alert(\'Not implemented yet, but we are working on it.\');return false;">{% trans "Edit" %}</a>';
+                    //},
+                    "bSearchable": false, 
+                    "bSortable": false
+                }
+            ]
+    });
+    $.extend( $.fn.dataTableExt.oStdClasses, {
+      "sWrapper": "dataTables_wrapper form-inline"
+    } );
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,12 @@
+{% extends "cu_base.html" %}
+{% load i18n theme_tags guardian_tags %}
+
+{% block main %}
+{% if perms.bluusites.add_bluusite %}
+    <ul class="nav nav-pills nav-stacked">
+        <li>
+            <a href="{% url 'site_add' %}">{% trans "Add Site" %}</a>
+        </li>
+    </ul>
+{% endif %}
+{% endblock %}
