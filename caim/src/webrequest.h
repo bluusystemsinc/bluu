@@ -28,6 +28,7 @@ struct Cache {
 class WebRequest : public QObject
 {
     Q_OBJECT
+
 public:
     enum State {stateNormal, stateNetworkDown, stateRestoring};
     explicit WebRequest();
@@ -39,16 +40,17 @@ public:
 //    QString convertToJson(QVariantMap &fields);
 
 signals:
-    void logMessage(int, QString message);
+    void debugMessageMessage(int, QString message);
+    void networkReplySignal(QNetworkReply* reply);
 
 public slots:
-//    void send(Log::LogLevel logLevel, QVariantMap &fields);
-//    void send(int logLevel, const QString &message, const QString &subject, const QString &category);
+//    void send(debugMessage::debugMessageLevel debugMessageLevel, QVariantMap &fields);
+//    void send(int debugMessageLevel, const QString &message, const QString &subject, const QString &category);
 //    void sendHeartbeat(QVariantMap &fields);
 //    void replyFinished(QNetworkReply *);
 //    void restoreState();
     void sendDataToServer(const QVariantMap &info);
-    void sendDataToServer(const QByteArray& msg);
+    void sendDataToServer(QString msg);
     void finishedSlot(QNetworkReply* reply);
     
 private:

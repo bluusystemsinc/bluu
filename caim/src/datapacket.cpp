@@ -4,6 +4,8 @@
 #include "debug.h"
 #include "datamanager.h"
 #include <QVariantList>
+#include <QFile>
+#include <QDateTime>
 
 static QMap<quint8, QString> devicesMapInit()
 {
@@ -53,7 +55,7 @@ static const QMap<quint8, QString>  statusMap = statusMapInit();
 DataPacket::DataPacket(QObject *parent) :
     QObject(parent)
 {
-    log();
+    debugMessage();
     connect(this, SIGNAL(packedReadySignal(QByteArray)), CBluuDataManager::Instance(), SLOT(packedReadySlot(QByteArray)));
 }
 
@@ -63,7 +65,7 @@ DataPacket::DataPacket(QObject *parent) :
  */
 void DataPacket::setSource(const quint8& src)
 {
-    log();
+    debugMessage();
 
     source = src;
 }
@@ -74,7 +76,7 @@ void DataPacket::setSource(const quint8& src)
  */
 void DataPacket::setStatus(const quint8& stat)
 {
-    log();
+    debugMessage();
 
     status = stat;
 }
@@ -85,7 +87,7 @@ void DataPacket::setStatus(const quint8& stat)
  */
 void DataPacket::setSerial(const QByteArray& ser)
 {
-    log();
+    debugMessage();
 
     serial = ser;
 }
@@ -97,7 +99,7 @@ void DataPacket::setSerial(const QByteArray& ser)
  */
 void DataPacket::setId(const quint8& dev)
 {
-    log();
+    debugMessage();
 
     id = dev;
 }
@@ -107,23 +109,35 @@ void DataPacket::setId(const quint8& dev)
  */
 void DataPacket::generateJson()
 {
-    log();
+    debugMessage();
+
+    QFile           file("json.txt");
+
+    file.open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text);
+
+    QTextStream     stream(&file);
 
     QJson::Parser       parser;
     QJson::Serializer   serializer;
     QVariantMap     map;
     QByteArray      out;
 
-    map.insert("device", devicesMap.value(id));
+    map.insert("timestamp", QDateTime::currentDateTime ().toString("yyyy-MM-dd hh:mm:ss"));
+    // map.insert("device", devicesMap.value(id));
     map.insert("serial", serial);
     map.insert("data", 0);
     map.insert("signal", 80);
-    map.insert("status", generateJsonStatus());
+    // map.insert("status", generateJsonStatus());
+    map.unite(generateJsonStatus());
 
     serializer.setIndentMode(QJson::IndentFull);
     out = serializer.serialize(map);
+
+    stream << out << "\n";
+    file.close();
+
     emit packedReadySignal(out);
-    log() << out;
+    debugMessage() << out;
 }
 
 /**
@@ -132,7 +146,7 @@ void DataPacket::generateJson()
  */
 QVariantMap DataPacket::generateJsonStatus()
 {
-    log();
+    debugMessage();
 
     QVariantMap     map;
 
@@ -155,10 +169,10 @@ QVariantMap DataPacket::generateJsonStatus()
  */
 void DataPacket::jsonStatus(const quint8& bit, QVariantMap& map)
 {
-    // log();
+    // debugMessage();
 
     if(0 != (bit & status))
-        map.insert(statusMap.value(bit), "on");
+        map.insert(statusMap.value(bit), true);
     else
-        map.insert(statusMap.value(bit), QVariant::Invalid);
+        map.insert(statusMap.value(bit), false);
 }

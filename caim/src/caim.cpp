@@ -5,6 +5,8 @@
 #include "sensormanager.h"
 #include "unixsignals.h"
 #include "webrequest.h"
+#include "datamanager.h"
+#include "databasemanager.h"
 
 int main(int argc, char **argv)
 {
@@ -12,6 +14,9 @@ int main(int argc, char **argv)
     SensorManager sm;
 
     CBluuUnixSignals::Instance()->setupUnixSignalHandlers();
+    CBluuDataManager::Instance();
+    CBluuDatabaseManager::Instance()->openDB();
+    CBluuDatabaseManager::Instance()->createTable();
 
     app.setOrganizationName(ORGANIZATION_NAME);
     app.setOrganizationDomain(ORGANIZATION_DOMAIN);
@@ -31,4 +36,5 @@ int main(int argc, char **argv)
 
     return app.exec();
 }
+
 
