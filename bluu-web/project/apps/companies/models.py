@@ -4,13 +4,17 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import post_save, pre_save, pre_delete
+from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
+import logging
+logger = logging.getLogger('bluu')
+
+from registration import signals
 from invitations.models import InvitationKey
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
@@ -115,57 +119,57 @@ class CompanyAccess(models.Model):
 
 
 @receiver(pre_save, sender=CompanyAccess)
-def _revoke_access_for_company_user(sender, instance, *args, **kwargs):
+def _remove_access_for_company_user(sender, instance, *args, **kwargs):
     """
     Before access level is changed remove current accesses from authentication
     backend - UserObjectGroup.
     Access is removed in context of company and its sites.
     """
     if instance.pk and instance.user:
-        try:
-            ca = CompanyAccess.objects.get(id=instance.pk)
-            UserObjectGroup.objects.remove_access(group=ca.group,
-                                              user=instance.user, 
-                                              obj=instance.company)
-            for site in instance.company.bluusite_set.all():
-                UserObjectGroup.objects.remove_access(group=ca.group,
-                                                      user=instance.user, 
-                                                      obj=site)
-        except CompanyAccess.DoesNotExist:
-            pass
+        instance.user.remove_all_accesses(obj=instance.company)
+        for site in instance.company.bluusite_set.all():
+            instance.user.remove_all_accesses(obj=site)
 
 
 @receiver(post_save, sender=CompanyAccess)
-def _set_access_for_company_user(sender, instance, *args, **kwargs):
+def _assign_access_for_company_user(sender, instance, *args, **kwargs):
     """
+    Assign permissions grouped in DEFAULT_COMPANY_GROUPS group to a user.
     Assign user to a group in the context of company.
     Assign user to a group in the context of sites belonging to company.
-    Assign minimal permissions grouped in Company Employee group to a user.
     """
     if instance.pk and instance.user:
-        company_employee_group = Group.objects.get(name='Company Employee')
-        instance.user.groups.add(company_employee_group)
-        UserObjectGroup.objects.assign(group=instance.group, 
-                                       user=instance.user, 
-                                       obj=instance.company)
+
+        # assign a user to a company
+        instance.user.assign(group=instance.group, obj=instance.company)
+
+        # assign a user to a company's sites
         for site in instance.company.bluusite_set.all():
-            UserObjectGroup.objects.assign(group=instance.group,
-                                           user=instance.user, 
-                                           obj=site)
+            instance.user.assign(group=instance.group, obj=site)
+
+        # assign default company groups
+        for group_name in settings.DEFAULT_COMPANY_GROUPS:
+            try:
+                default_group = Group.objects.get(name=group_name)
+                instance.user.groups.add(default_group)
+            except Group.DoesNotExist:
+                logger.warning('Cannot assign a user to non existing group {0}"\
+                        "defined in settings.DEFAULT_COMPANY_GROUPS'\
+                        .format(group_name))
 
 
-@receiver(pre_delete, sender=CompanyAccess)
+@receiver(post_delete, sender=CompanyAccess)
 def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
     """
-    If user is no longer in any company then remove him from Company Employee 
-    group.
+    If user is no longer in any company then remove him from default company 
+    groups.
     """
     if instance.pk and instance.user:
-        if not CompanyAccess.objects.filter(user=instance.user):
-            company_employee_group = Group.objects.get(name='Company Employee')
-            instance.user.groups.remove(company_employee_group)
-        UserObjectGroup.objects.remove_access(instance.group, instance.user, 
-                                          instance.company)
+        if not CompanyAccess.objects.filter(user=instance.user).exists():
+            for group_name in settings.DEFAULT_COMPANY_GROUPS:
+                default_group = Group.objects.get(name=group_name)
+                instance.user.groups.remove(default_group)
+        instance.user.remove_access(instance.group, instance.company)
 
 
 @receiver(pre_save, sender=BluuSite)
@@ -206,6 +210,16 @@ def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs)
         UserObjectGroup.objects.assign(group=uog.group,
                                        user=uog.user,
                                        obj=instance)
+
+
+@receiver(signals.user_registered)
+def _assign_access_for_newly_registered_user(sender, user, request, *args, **kwargs):
+    """
+    Sets user object on on access objects with user email (invitations)
+    """
+    for access in CompanyAccess.objects.filter(email=user.email):
+        access.user = user
+        access.save()
 
 
 pre_delete.connect(remove_orphaned_obj_perms, sender=Company)

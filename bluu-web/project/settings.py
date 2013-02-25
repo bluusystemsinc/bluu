@@ -44,9 +44,10 @@ USE_I18N = True
 # calendars according to the current locale
 USE_L10N = True
 
+ROOT_DIRECTORY = os.path.dirname(__file__)
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(os.path.dirname(__file__), 'media')
+MEDIA_ROOT = os.path.join(ROOT_DIRECTORY, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -57,7 +58,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(os.path.dirname(__file__), 'static')
+STATIC_ROOT = os.path.join(ROOT_DIRECTORY, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -178,6 +179,8 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 # Default groups - groups that are assigned to each user
 DEFAULT_GROUPS = ['Base User']
+# Default company groups - groups that are assigned to each user that belongs to any company
+DEFAULT_COMPANY_GROUPS = ['Company Employee']
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -187,10 +190,30 @@ DEFAULT_GROUPS = ['Base User']
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+            'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'bluu_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(ROOT_DIRECTORY, 'logs', 'bluu.log'),
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 100,  # 100 mb
         }
     },
     'loggers': {
@@ -199,6 +222,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'bluu': {
+            'level': 'INFO',
+            'handlers': ['bluu_file', 'console'],
+            'propagate': False
+        }
     }
 }
 

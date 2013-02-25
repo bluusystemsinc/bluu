@@ -6,6 +6,7 @@ from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import (Group, AbstractUser, UserManager)
 from django.utils.translation import ugettext_lazy as _
 
+from grontextual.models import UserObjectGroup
 
 class AppBluuUserManager(models.Manager):
     def get_query_set(self):
@@ -128,9 +129,36 @@ class BluuUser(AbstractUser):
         else:
             return {'bluusites': False, 'bluusite': None}
 
+    def assign(self, obj, group):
+        UserObjectGroup.objects.assign(group=group, 
+                                       user=self, 
+                                       obj=obj)
+
+    def remove_access(self, obj, group):
+        UserObjectGroup.objects.remove_access(group=group, 
+                                       user=self, 
+                                       obj=obj)
+
+    def remove_all_accesses(self, obj):
+        UserObjectGroup.objects.remove_all_accesses(user=self, 
+                                                    obj=obj)
+
+
 
 @receiver(post_save, sender=BluuUser)
 def _set_default_groups(sender, instance, *args, **kwargs):
+    """
+    Assign user to a groups.
+    """
+    for group_name in settings.DEFAULT_GROUPS:
+        try:
+            default_group = Group.objects.get(name=group_name)
+            instance.groups.add(default_group)
+        except Group.DoesNotExist:
+            pass
+
+@receiver(post_save, sender=BluuUser)
+def _set_accesses(sender, instance, created, *args, **kwargs):
     """
     Assign user to a groups.
     """

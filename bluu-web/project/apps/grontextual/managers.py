@@ -36,6 +36,20 @@ class UserObjectGroupManager(models.Manager):
             content_type=ContentType.objects.get_for_model(obj))\
             .delete()
 
+    def remove_all_accesses(self, user, obj):
+        """
+        Removes all groups for an instance ``obj`` and given ``user``.
+        """
+        if getattr(obj, 'pk', None) is None:
+            raise ObjectNotPersisted("Object %s needs to be persisted first"
+                % obj)
+        self.filter(
+            user=user,
+            object_pk=obj.pk,
+            content_type=ContentType.objects.get_for_model(obj))\
+            .delete()
+
+
     def get_for_object(self, user, obj):
         if getattr(obj, 'pk', None) is None:
             raise ObjectNotPersisted("Object %s needs to be persisted first"

@@ -181,16 +181,7 @@ class RegistrationForm(ModelForm):
         return password2
 
     def save(self, commit=True):
-        groups = set(self.cleaned_data['groups'])
-        for group_name in settings.DEFAULT_GROUPS:
-            try:
-                default_group = Group.objects.get(name=group_name)
-                groups.add(default_group)
-            except Group.DoesNotExist:
-                pass
-        self.cleaned_data['groups'] = list(groups)
-
-        user = super(BluuUserForm, self).save(commit=False)
+        user = super(RegistrationForm, self).save(commit=False)
         password = self.cleaned_data["password1"]
         if password:
             user.set_password(password)

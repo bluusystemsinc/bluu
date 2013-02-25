@@ -24,10 +24,10 @@
     {% if invitation_key %}
         <div>
             <h3>{% trans "You've been invited to join Bluu" %}</h3>
-            <p>{% trans "Please fill in registration form" %}</p>
+            <p>{% trans "The email address that will be used is" %}: {{ email }}</p>
         </div>
     {% endif %}
-    <form class="form-horizontal" action="" method="post">{% csrf_token %}
+    <form class="form-horizontal" action="." method="post">{% csrf_token %}
         {% crispy form form.helper %}
     </form>
     {% endif %}

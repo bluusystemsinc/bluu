@@ -277,7 +277,7 @@ class CompanyAccessListJson(BaseDatatableView):
                     "id": access.pk,
                     "email": access.get_email,
                     "groups": rendered_groups,
-                    "invitation": access.invitation.filter(registrant__isnull=True).exists(),
+                    "invitation": access.invitations.filter(registrant__isnull=True).exists(),
                 }
             )
             no += 1

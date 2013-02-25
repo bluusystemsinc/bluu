@@ -9,10 +9,12 @@ from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes import generic
 
+from registration import signals
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
 from invitations.models import InvitationKey
+from accounts.models import BluuUser
 
 
 class BluuSite(Entity):
@@ -85,31 +87,31 @@ class BluuSiteAccess(models.Model):
 
 
 @receiver(pre_save, sender=BluuSiteAccess)
-def _revoke_access_for_site_user(sender, instance, *args, **kwargs):
+def _remove_access_for_site_user(sender, instance, *args, **kwargs):
     """
-    Before access level is changed remove current accesses from authentication
-    backend - UserObjectGroup.
+    Removes current accesses to a site.
     """
     if instance.pk and instance.user:
-        try:
-            access = BluuSiteAccess.objects.get(id=instance.pk)
-            UserObjectGroup.objects.remove_access(group=access.group,
-                                              user=instance.user, 
-                                              obj=instance.site)
-        except BluuSiteAccess.DoesNotExist:
-            pass
+        instance.user.remove_all_accesses(obj=instance.site)
         
 
 @receiver(post_save, sender=BluuSiteAccess)
-def _set_access_for_site_user(sender, instance, *args, **kwargs):
+def _assign_access_for_site_user(sender, instance, created, *args, **kwargs):
     """
-    Assign user to a group in the context of site.
+    Assigns user to a group in the context of a site.
     """
     if instance.pk and instance.user:
-        UserObjectGroup.objects.assign(group=instance.group, 
-                                       user=instance.user, 
-                                       obj=instance.site)
+        instance.user.assign(group=instance.group, obj=instance.site)
 
+
+@receiver(signals.user_registered)
+def _assign_access_for_newly_registered_user(sender, user, request, *args, **kwargs):
+    """
+    Sets user object on on access objects with user email (invitations)
+    """
+    for access in BluuSiteAccess.objects.filter(email=user.email):
+        access.user = user
+        access.save()
 
 pre_delete.connect(remove_orphaned_obj_perms, sender=BluuSite)
 

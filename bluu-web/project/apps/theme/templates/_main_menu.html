@@ -16,7 +16,7 @@
 
         {% if main_menu.bluusite %}
             <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' main_menu.bluusite.pk %}">{% trans "Site management" %}</a></li>
-            <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices' main_menu.bluusite.pk %}">{% trans "Device management" %}</a></li>
+            <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'devices:device_list' main_menu.bluusite.pk %}">{% trans "Device management" %}</a></li>
         {% elif main_menu.bluusites %}
             <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
         {% else %}
