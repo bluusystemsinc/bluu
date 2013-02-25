@@ -25,13 +25,10 @@ import django_filters
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
 from accounts.models import BluuUser
-from bluusites.models import BluuSite
-from bluusites.serializers import SiteSerializer, SitePaginationSerializer
 from grontextual.models import UserObjectGroup
+from invitations.models import InvitationKey
 from .forms import CompanyInvitationForm
 from .models import (Company, CompanyAccess)
-from .serializers import CompanySerializer,\
-        CompanyAccessSerializer, CompanyAccessGroupsSerializer
 
 
 class CompanySiteListJson(BaseDatatableView):
@@ -237,7 +234,7 @@ class CompanyAccessListJson(BaseDatatableView):
         """
         groups = []
         assigned_groups = {}
-        if access.invitation:
+        if access.invitations.filter(registrant__isnull=True).exists():
             assigned_groups[access.group.name] = {"name": access.group.name,
                                                "pk": access.group.pk,
                                                "assigned": True}
@@ -277,14 +274,10 @@ class CompanyAccessListJson(BaseDatatableView):
             json_data.append(
                 {
                     "no": no,
+                    "id": access.pk,
                     "email": access.get_email,
                     "groups": rendered_groups,
-                    "invitation": access.invitation,
-                    "access": {
-                            "id": access.pk,
-                            "email": access.get_email,
-                            "invitation": access.invitation,
-                        }
+                    "invitation": access.invitation.filter(registrant__isnull=True).exists(),
                 }
             )
             no += 1
@@ -331,23 +324,23 @@ class CompanyAccessCreateView(generics.CreateAPIView):
             form = CompanyInvitationForm(request.DATA, request=request, company=company)
         
         if form.is_valid():
+            access = form.save(commit=False)
+            access.company = company
             try:
                 user = BluuUser.objects.get(email=email)
                 # user exists, so grant him an access to company
-
-                access = form.save(commit=False)
-                access.company = company
                 access.user = user
                 access.save()
                 form.save_m2m()
-
             except BluuUser.DoesNotExist:
                 # send invitation
-                access = form.save(commit=False)
-                access.company = company
-                access.invitation = True
                 access.save()
                 form.save_m2m()
+                invitation = InvitationKey.objects.create_invitation(
+                        user=request.user,
+                        content_object=access
+                        )
+                invitation.send_to(access.email)
 
             return Response({'email': request.DATA['email'],
                              'group': request.DATA['group']},

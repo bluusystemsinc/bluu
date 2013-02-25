@@ -117,9 +117,9 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                      "mData": 'access',
+                      "mData": 'id',
                       "mRender": function( data, type, full) {
-                          return '<a ng-click="remove(' + data.id + ')" href="#"><i class="icon-remove"></i></a>';
+                          return '<a ng-click="remove(' + data + ')" href="#"><i class="icon-remove"></i></a>';
                       },
                       "sWidth": "100px",
                       "bSearchable": false, 
@@ -191,7 +191,7 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
            "aaSorting": [[0, 'asc']],
            "fnCreatedRow": rowCompiler,
            "aoColumns": [
-                  { "mData": 'access.email'},
+                  { "mData": 'email'},
                   {
                      "mData": 'groups',
                       "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
@@ -207,9 +207,9 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                      "mData": 'access',
+                      "mData": 'id',
                       "mRender": function( data, type, full) {
-                          return '<a ng-click="remove(' + data.id + ')" href="#"><i class="icon-remove"></i></a>';
+                          return '<a ng-click="remove(' + data + ')" href="#"><i class="icon-remove"></i></a>';
                       },
                       "sWidth": "100px",
                       "bSearchable": false, 

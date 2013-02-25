@@ -14,3 +14,7 @@ DATABASES = {
     }
 
 }
+
+EMAIL_ROOT = os.path.join(os.path.dirname(__file__), 'emails')
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = EMAIL_ROOT

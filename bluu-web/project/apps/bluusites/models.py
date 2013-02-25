@@ -7,11 +7,12 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes import generic
 
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
-#from companies.models import Company
+from invitations.models import InvitationKey
 
 
 class BluuSite(Entity):
@@ -57,9 +58,10 @@ class BluuSite(Entity):
 class BluuSiteAccess(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     site = models.ForeignKey(BluuSite)
-    invitation = models.BooleanField(_('invitation', default=False))
-    email = models.EmailField(_('e-mail'), blank=True, null=True)
     group = models.ForeignKey(Group)
+    email = models.EmailField(_('e-mail'), blank=True, null=True)
+    #invitation = models.BooleanField(_('invitation', default=False))
+    invitations = generic.GenericRelation(InvitationKey)
 
     class Meta:
         verbose_name = _("site access")

@@ -115,10 +115,98 @@ class BluuUserForm(ModelForm):
 class EmailAuthenticationForm(AuthenticationForm):
     username = forms.CharField(label=_("Username"))
 
+
+class RegistrationForm(ModelForm):
+    username = forms.RegexField(label=_("Username"), max_length=30,
+        regex=r'^[\w.@+-]+$',
+        help_text=_("Required. 30 characters or fewer. Letters, digits and "
+                      "@/./+/-/_ only."),
+        error_messages={
+            'invalid': _("This value may contain only letters, numbers and "
+                         "@/./+/-/_ characters.")})
+
+    email = forms.EmailField(required=False, label=_('Email'))
+    first_name = forms.CharField(required=True, label=_('First name'))
+    last_name = forms.CharField(required=True, label=_('Last name'))
+    password1 = forms.CharField(label=_("Password"),
+                                widget=forms.PasswordInput,
+                                required=False)
+    password2 = forms.CharField(label=_("Password confirmation"),
+                                widget=forms.PasswordInput,
+                                help_text=_("Enter the same password as above, for verification."),
+                                required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = layout.Layout(
+            layout.Div(
+                    'username',
+                    'first_name',
+                    'last_name',
+                    'password1',
+                    'password2',
+                    'cell',
+                    'cell_text_email',
+            ),
+            FormActions(
+                layout.Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            self.fields['password2'].help_text =\
+            ("Leave both password fields blank if you don't want to change it")
+        else:
+            self.fields['password1'].required = True
+            self.fields['password2'].required = True
+
+        self.fields.keyOrder = ['username',
+            'first_name', 'last_name', 
+            'password1', 'password2', 'cell', 'cell_text_email'
+        ]
+
+    class Meta:
+        model = BluuUser
+        fields = ('username', 'first_name', 'last_name', 
+                  'groups', 'cell', 'cell_text_email')
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(
+                ugettext("Passwords don't match"))
+        return password2
+
+    def save(self, commit=True):
+        groups = set(self.cleaned_data['groups'])
+        for group_name in settings.DEFAULT_GROUPS:
+            try:
+                default_group = Group.objects.get(name=group_name)
+                groups.add(default_group)
+            except Group.DoesNotExist:
+                pass
+        self.cleaned_data['groups'] = list(groups)
+
+        user = super(BluuUserForm, self).save(commit=False)
+        password = self.cleaned_data["password1"]
+        if password:
+            user.set_password(password)
+
+        if commit:
+            user.save()
+            self.save_m2m()
+        return user
+
+
+
+
 dummy_trans = _("If you don't want to change your password leave these fields empty.")
 
 attrs_dict = {'class': 'required'}
-class RegistrationForm(RegistrationFormTermsOfService):
+class RegistrationForm2(RegistrationFormTermsOfService):
     first_name = forms.CharField(label=_("First name"), max_length=30)
     last_name = forms.CharField(label=_("Last name"), max_length=30)
     tos = forms.BooleanField(widget=forms.CheckboxInput(attrs=attrs_dict),
@@ -128,22 +216,41 @@ class RegistrationForm(RegistrationFormTermsOfService):
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_id = 'id-RegistrationForm'
-        self.helper.form_method = 'post'
-        self.helper.form_action = 'registration_register'
-        self.helper.form_style = 'inline'
         self.helper.form_tag = False
         self.helper.layout = layout.Layout(
-                layout.Fieldset(_('Register to be able to change your photo'),
+            layout.Div(
+                    'username',
                     'first_name',
                     'last_name',
+                    'groups',
                     'email',
                     'password1',
                     'password2',
-                    'tos',
-                    ),
+                    'cell',
+                    'cell_text_email',
+                    'is_active',
+            ),
+            FormActions(
+                layout.Submit('submit', _('Submit'), css_class="btn-primary")
+            )
         )
-        self.fields.keyOrder = ('first_name', 'last_name', 'email', 'password1', 'password2', 'tos') # username is autogenerated so we remove it
+
+        #self.helper.form_id = 'id-RegistrationForm'
+        #self.helper.form_method = 'post'
+        #self.helper.form_action = 'registration_register'
+        #self.helper.form_style = 'inline'
+        #self.helper.form_tag = False
+        #self.helper.layout = layout.Layout(
+        #        layout.Fieldset(_('Register to be able to use Bluu'),
+        #            'first_name',
+        #            'last_name',
+        #            'email',
+        #            'password1',
+        #            'password2',
+        #            'tos',
+        #            ),
+        #)
+        #self.fields.keyOrder = ('first_name', 'last_name', 'email', 'password1', 'password2', 'tos') # username is autogenerated so we remove it
 
     def clean_email(self):
         email = self.cleaned_data["email"]

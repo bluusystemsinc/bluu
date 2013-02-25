@@ -1,14 +1,17 @@
 from __future__ import unicode_literals
+
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.conf import settings
 
+from invitations.models import InvitationKey
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
@@ -85,9 +88,10 @@ class CompanyAccess(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     # if a user is invited then we need to know his email address and group he's
     # been invited to
-    invitation = models.BooleanField(_('invitation', default=False))
+    #invitation = models.BooleanField(_('invitation', default=False))
     email = models.EmailField(_('e-mail'), blank=True, null=True)
     group = models.ForeignKey(Group)
+    invitations = generic.GenericRelation(InvitationKey)
 
     def __unicode__(self):
         return u'%s | %s | %s' % (

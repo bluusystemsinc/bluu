@@ -23,6 +23,7 @@ from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
 
 
+from invitations.models import InvitationKey
 from grontextual.models import UserObjectGroup
 from accounts.models import BluuUser
 from companies.models import Company
@@ -143,10 +144,10 @@ class BluuSiteAccessListJson(BaseDatatableView):
         """
         groups = []
         assigned_groups = {}
-        if access.invitation:
+        if access.invitations.filter(registrant__isnull=True).exists():
             assigned_groups[access.group.name] = {"name": access.group.name,
-                                               "pk": access.group.pk,
-                                               "assigned": True}
+                                                  "pk": access.group.pk,
+                                                  "assigned": True}
         else:
             # if user already has this group
             for uog in UserObjectGroup.objects.get_for_object(access.user, self.bluusite):
@@ -183,14 +184,10 @@ class BluuSiteAccessListJson(BaseDatatableView):
             json_data.append(
                 {
                     "no": no,
+                    "id": access.pk,
                     "email": access.get_email,
                     "groups": rendered_groups,
-                    "invitation": access.invitation,
-                    "access": {
-                            "id": access.pk,
-                            "email": access.get_email,
-                            "invitation": access.invitation,
-                        }
+                    "invitation": access.invitations.filter(registrant__isnull=True).exists(),
                 }
             )
             no += 1
@@ -233,29 +230,32 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
             elif email:
                 site_access = BluuSiteAccess.objects.get(email=email, site=site)
 
-            form = SiteInvitationForm(request.DATA, instance=site_access, request=request, site=site)
+            form = SiteInvitationForm(request.DATA,
+                                      instance=site_access,
+                                      request=request,
+                                      site=site)
         except BluuSiteAccess.DoesNotExist:
             form = SiteInvitationForm(request.DATA, request=request, site=site)
         
         if form.is_valid():
+            access = form.save(commit=False)
+            access.site = site
             try:
                 user = BluuUser.objects.get(email=email)
                 # user exists, so grant him an access to company
-
-                access = form.save(commit=False)
-                access.site = site
                 access.user = user
                 access.save()
                 form.save_m2m()
 
             except BluuUser.DoesNotExist:
                 # send invitation
-                access = form.save(commit=False)
-                access.site = site
-                access.invitation = True
-
                 access.save()
                 form.save_m2m()
+                invitation = InvitationKey.objects.create_invitation(
+                        user=request.user,
+                        content_object=access
+                        )
+                invitation.send_to(access.email)
 
             return Response({'email': request.DATA['email'],
                              'group': request.DATA['group']},

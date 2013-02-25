@@ -1,7 +1,8 @@
-
 # Django settings for project project.
 
 import os
+
+DEBUG = False
 
 ADMINS = (
     ('Admin', 'admin@example.com'),
@@ -149,7 +150,7 @@ INSTALLED_APPS = [
     'devices',
     'utils',
     'grontextual',
-
+    'invitations',
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"
@@ -163,13 +164,17 @@ AUTHENTICATION_BACKENDS = (
                            'guardian.backends.ObjectPermissionBackend',
                            )
 
-#django-registration settings
-ACCOUNT_ACTIVATION_DAYS = 3
+# django-registration settings
+ACCOUNT_ACTIVATION_DAYS = 14
 LOGIN_REDIRECT_URL = '/'
+
+# invitations settings
+ACCOUNT_INVITATION_DAYS = 14
+INVITE_MODE = True
 
 #django-crispy-forms settings
 CRISPY_TEMPLATE_PACK = 'bootstrap'
-#CRISPY_FAIL_SILENTLY = not DEBUG
+CRISPY_FAIL_SILENTLY = not DEBUG
 
 # Default groups - groups that are assigned to each user
 DEFAULT_GROUPS = ['Base User']

@@ -143,6 +143,20 @@ def bluuuser_delete(request, username):
     messages.success(request, _('User deleted'))
     return redirect('bluuuser_list')
 
+class AccountUpdateView(UpdateView):
+    """
+    Updates user account data
+    """
+    template_name='accounts/account_change_form.html'
+    form_class = AccountForm
+
+    def get_success_url(self):
+        messages.success(self.request, _('Account changed!'))
+        return reverse('account_edit')
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(get_user_model(), pk=self.request.user.pk)
+
 
 
 
@@ -186,17 +200,6 @@ def register(request, backend, success_url=None, form_class=None,
                               {'form': form},
                               context_instance=context)
 
-
-class AccountUpdateView(UpdateView):
-    template_name='accounts/account_change_form.html'
-    form_class = AccountForm
-
-    def get_success_url(self):
-        messages.success(self.request, _('Account changed!'))
-        return reverse('account_edit')
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(get_user_model(), pk=self.request.user.pk)
 
 
 class AccountDeleteView(DeleteView):

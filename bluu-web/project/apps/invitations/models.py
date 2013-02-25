@@ -1,16 +1,21 @@
 import os
 import random
 import datetime
+import hashlib
 from django.db import models
 from django.conf import settings
 from django.utils.http import int_to_base36
-from django.utils.hashcompat import sha_constructor
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+
 from registration.models import SHA1_RE
+
+sha_constructor = hashlib.sha1
 
 class InvitationKeyManager(models.Manager):
     def get_key(self, invitation_key):
@@ -36,16 +41,16 @@ class InvitationKeyManager(models.Manager):
         invitation_key = self.get_key(invitation_key)
         return invitation_key and invitation_key.is_usable()
 
-    def create_invitation(self, user):
+    def create_invitation(self, user, content_object):
         """
-        Create an ``InvitationKey`` and returns it.
+        Creates an ``InvitationKey`` and returns it.
         
         The key for the ``InvitationKey`` will be a SHA1 hash, generated 
         from a combination of the ``User``'s username and a random salt.
         """
         salt = sha_constructor(str(random.random())).hexdigest()[:5]
         key = sha_constructor("%s%s%s" % (datetime.datetime.now(), salt, user.username)).hexdigest()
-        return self.create(from_user=user, key=key)
+        return self.create(from_user=user, key=key, content_object=content_object)
 
     def delete_expired_keys(self):
         for key in self.all():
@@ -55,13 +60,20 @@ class InvitationKeyManager(models.Manager):
 
 class InvitationKey(models.Model):
     key = models.CharField(_('invitation key'), max_length=40)
-    date_invited = models.DateTimeField(_('date invited'), 
-                                        default=datetime.datetime.now)
-    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, 
-                                  related_name='invitations_sent')
-    registrant = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, 
-                                  related_name='invitations_used')
-    
+    date_invited = models.DateTimeField(
+            _('date invited'), 
+            default=datetime.datetime.now)
+    from_user = models.ForeignKey(
+            settings.AUTH_USER_MODEL, 
+            related_name='invitations_sent')
+    registrant = models.ForeignKey(
+            settings.AUTH_USER_MODEL, null=True, blank=True, 
+            related_name='invitations_used')
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+
     objects = InvitationKeyManager()
     
     def __unicode__(self):
@@ -98,38 +110,20 @@ class InvitationKey(models.Model):
         
     def send_to(self, email):
         """
-        Send an invitation email to ``email``.
+        Send an invitation email to ``self.email``.
         """
         current_site = Site.objects.get_current()
         
-        subject = render_to_string('invitation/invitation_email_subject.txt',
+        subject = render_to_string('invitations/invitation_email_subject.txt',
                                    { 'site': current_site, 
                                      'invitation_key': self })
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         
-        message = render_to_string('invitation/invitation_email.txt',
+        message = render_to_string('invitations/invitation_email.txt',
                                    { 'invitation_key': self,
                                      'expiration_days': settings.ACCOUNT_INVITATION_DAYS,
                                      'site': current_site })
         
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
-
-        
-class InvitationUser(models.Model):
-    inviter = models.ForeignKey(settings.AUTH_USER_MODEL, unique=True)
-    invitations_remaining = models.IntegerField()
-
-    def __unicode__(self):
-        return u"InvitationUser for %s" % self.inviter.username
-
-    
-def user_post_save(sender, instance, created, **kwargs):
-    """Create InvitationUser for user when User is created."""
-    if created:
-        invitation_user = InvitationUser()
-        invitation_user.inviter = instance
-        invitation_user.save()
-
-models.signals.post_save.connect(user_post_save, sender=settings.AUTH_USER_MODEL)
 
