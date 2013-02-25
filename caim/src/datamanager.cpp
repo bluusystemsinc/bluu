@@ -1,15 +1,30 @@
 #include "datamanager.h"
+#include "datamanagerthread.h"
 #include "dataparser.h"
 #include "debug.h"
 #include "webrequest.h"
+#include <QMutexLocker>
 
 /**
  * @brief DataManager::DataManager TODO
  * @param parent
  */
-DataManager::DataManager(QObject *parent) :
+DataManager::DataManager(QObject* parent) :
     QObject(parent)
 {
+    DataManagerThread*  thread = new DataManagerThread();
+
+    thread->start();
+
+    /*
+    QThread*    workerThread = new QThread(this);
+
+    packets.clear();
+    connect(workerThread, SIGNAL(started()), CBluuDataManagerWorker::Instance(), SLOT(workSlot()));
+    connect(workerThread, SIGNAL(finished()), CBluuDataManagerWorker::Instance(), SLOT(deleteLater()));
+    CBluuDataManagerWorker::Instance()->moveToThread(workerThread);
+    workerThread->start();
+    */
 }
 
 /**
@@ -18,7 +33,7 @@ DataManager::DataManager(QObject *parent) :
  */
 void DataManager::processData(QByteArray* data)
 {
-    log();
+    debugMessage();
 
     if(NULL != data)
     {
@@ -42,9 +57,27 @@ void DataManager::processData(QByteArray* data)
         }
         else
         {
-            log() << "Some data are missing";
+            debugMessage() << "Some data are missing";
         }
     }
+}
+
+/**
+ * @brief DataManager::getMutex
+ * @return
+ */
+QMutex *DataManager::getMutex()
+{
+    debugMessage();
+
+    return &mutex;
+}
+
+QStringList* DataManager::getPackets()
+{
+    debugMessage();
+
+    return &packets;
 }
 
 /**
@@ -52,5 +85,9 @@ void DataManager::processData(QByteArray* data)
  */
 void DataManager::packedReadySlot(QByteArray json)
 {
-    CBluuWebRequest::Instance()->sendDataToServer(json);
+    debugMessage();
+
+    QMutexLocker    locker(&mutex);
+
+    packets.append(json);
 }

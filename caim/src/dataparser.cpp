@@ -8,7 +8,7 @@
 DataParser::DataParser(QObject *parent) :
     QObject(parent)
 {
-    log();
+    debugMessage();
 
     data = NULL;
 }
@@ -19,7 +19,7 @@ DataParser::DataParser(QObject *parent) :
  */
 void DataParser::parseData(QByteArray* buffer)
 {
-    log();
+    debugMessage();
 
     if(NULL != buffer)
     {
@@ -39,27 +39,27 @@ void DataParser::parseData(QByteArray* buffer)
                     }
                     else
                     {
-                        log() << "Unknown device";
+                        debugMessage() << "Unknown device";
                     }
                 }
                 else
                 {
-                    log() << "Source device unknow";
+                    debugMessage() << "Source device unknow";
                 }
             }
             else
             {
-                log() << "Magic number is wrong";
+                debugMessage() << "Magic number is wrong";
             }
         }
         else
         {
-            log() << "CRC is wrong, cannot process data";
+            debugMessage() << "CRC is wrong, cannot process data";
         }
     }
     else
     {
-        log() << "Data buffer is empty";
+        debugMessage() << "Data buffer is empty";
     }
 }
 

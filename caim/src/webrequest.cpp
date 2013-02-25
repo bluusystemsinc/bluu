@@ -1,4 +1,5 @@
 #include "webrequest.h"
+#include "debug.h"
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include <QStringList>
@@ -21,7 +22,9 @@ WebRequest::WebRequest()
 {
     m_currentState = stateNormal;
 
-    manager = new QNetworkAccessManager(this);
+    manager = new QNetworkAccessManager();
+    // connect(manager, SIGNAL(finished(QNetworkReply*)), CBluuDataManagerWorker::Instance(), SLOT(networkReplySlot(QNetworkReply*)));
+
     QObject::connect(manager, SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
 }
 
@@ -32,7 +35,7 @@ WebRequest::WebRequest(QObject *parent) :
     m_currentState = stateNormal;
 
     manager = new QNetworkAccessManager(this);
-    QObject::connect(manager, SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
+    // QObject::connect(manager, SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
 
 }
 
@@ -43,7 +46,7 @@ WebRequest::WebRequest(QObject *parent, const QString url) :
     m_currentState = stateNormal;
 
     manager = new QNetworkAccessManager(this);
-    QObject::connect(manager,     SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
+    // QObject::connect(manager,     SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
 }
 
 WebRequest::~WebRequest()
@@ -72,6 +75,7 @@ void WebRequest::setUrl(const QUrl& u)
 
 void WebRequest::finishedSlot(QNetworkReply* reply)
 {
+    /*
     // Reading attributes of the reply
     // e.g. the HTTP status code
     QVariant statusCodeV =    reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
@@ -92,11 +96,16 @@ void WebRequest::finishedSlot(QNetworkReply* reply)
         qDebug() << "NOT OK!"<< reply->errorString() << reply->error() << endl;
         // handle errors here
     }
+    */
+
+    emit networkReplySignal(reply);
 }
 
 
 void WebRequest::sendDataToServer(const QVariantMap &info)
 {
+    debugMessage();
+
     QVariantList infoData;
     QNetworkRequest request;
     QUrl tmpUrl;
@@ -115,14 +124,16 @@ void WebRequest::sendDataToServer(const QVariantMap &info)
  * @brief WebRequest::sendDataToServer TODO
  * @param info
  */
-void WebRequest::sendDataToServer(const QByteArray& msg)
+void WebRequest::sendDataToServer(QString msg)
 {
+    debugMessage();
+
     QNetworkRequest request;
-    QUrl tmpUrl;
-    // request.setUrl(m_url);
+    QUrl        tmpUrl;
+    QByteArray  temp = msg.toUtf8();
 
     request.setUrl(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", "Basic" + QByteArray(QString("%1:%2").arg(USER).arg(PASSWORD).toAscii()).toBase64());
-    manager->post(request, msg);
+    manager->post(request, temp);
 }

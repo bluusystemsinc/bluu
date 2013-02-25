@@ -1,6 +1,6 @@
 include(../common.pri)
 
-QT = core network
+QT = core network sql
 
 DEFINES += 'APPLICATION_NAME=\'\"Caim\"\''
 VERSION = $$system(git rev-list HEAD | wc -l)
@@ -29,7 +29,11 @@ HEADERS += qtservice/src/qtservice.h \
     src/dataparser.h \
     src/datapacket.h \
     src/datamanager.h \
-    src/webrequest.h
+    src/webrequest.h \
+    src/datamanagerthread.h \
+    src/databasemanager.h \
+    ../caim_sensorbase/include/debug.h \
+    src/debugger.h
 
 HEADERS += ../caim_sensorbase/include/abstractsensor.h
 
@@ -40,7 +44,10 @@ SOURCES += src/caim.cpp \
            src/sensormanager.cpp \
            qtservice/src/qtservice.cpp \
            ../utils/unixsignals.cpp \
-    src/webrequest.cpp
+    src/webrequest.cpp \
+    src/datamanagerthread.cpp \
+    src/databasemanager.cpp \
+    src/debugger.cpp
 
 unix {
     HEADERS += qtservice/src/qtunixserversocket.h \
@@ -71,5 +78,4 @@ HEADERS += \
 SOURCES += \
     src/jsonrequest.cpp
 
-HEADERS += \
-    ../caim_sensorbase/include/debug.h
+HEADERS +=

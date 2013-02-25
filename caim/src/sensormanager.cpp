@@ -142,5 +142,5 @@ void SensorManager::readData()
 
 void SensorManager::sensorUnplugged()
 {
-    log()<<sender()->metaObject()->className()<<"unplugged";
+    debugMessage()<<sender()->metaObject()->className()<<"unplugged";
 }
