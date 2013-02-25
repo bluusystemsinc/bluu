@@ -33,7 +33,8 @@ HEADERS += qtservice/src/qtservice.h \
     src/datamanagerthread.h \
     src/databasemanager.h \
     ../caim_sensorbase/include/debug.h \
-    src/debugger.h
+    src/debugger.h \
+    src/datamanagerworkerthread.h
 
 HEADERS += ../caim_sensorbase/include/abstractsensor.h
 
@@ -47,7 +48,8 @@ SOURCES += src/caim.cpp \
     src/webrequest.cpp \
     src/datamanagerthread.cpp \
     src/databasemanager.cpp \
-    src/debugger.cpp
+    src/debugger.cpp \
+    src/datamanagerworkerthread.cpp
 
 unix {
     HEADERS += qtservice/src/qtunixserversocket.h \

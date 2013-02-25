@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSqlDatabase>
+#include <QNetworkReply>
 #include "singleton.h"
 
 class DatabaseManager : public QObject
@@ -20,9 +21,12 @@ public:
     bool createTable();
 
 signals:
+    void networkSendSignal(QString data);
     
 public slots:
     void databaseStorePacketSlot(QString* packet);
+    void databaseSendPacketSlot();
+    void networkReplySlot(QNetworkReply* reply);
 };
 
 typedef CBluuSingleton<DatabaseManager>     CBluuDatabaseManager;

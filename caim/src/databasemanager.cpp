@@ -1,7 +1,9 @@
 #include "databasemanager.h"
+#include "webrequest.h"
 #include <QDir>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QVariant>
 
 /**
  * @brief DatabaseManager::DatabaseManager
@@ -128,4 +130,71 @@ void DatabaseManager::databaseStorePacketSlot(QString* packet)
     }
     else
         throw 0;
+}
+
+/**
+ * @brief DatabaseManager::databaseSendPacketSlot
+ */
+void DatabaseManager::databaseSendPacketSlot()
+{
+    if(true == database.isOpen())
+    {
+        if(true == database.tables().contains("packet"))
+        {
+
+            QString     str = QString("select * from packet");
+            QSqlQuery   query(str);
+
+            if(true == query.exec())
+            {
+                while(true == query.next())
+                {
+                    /*
+                    quint64     id = query.value(0).toInt();
+                    QString     packet = query.value(1).toString();
+
+                    connect(this, SIGNAL(networkSendSignal(QString)), CBluuWebRequest::Instance(),
+                                  SLOT(sendDataToServer(QString)), Qt::BlockingQueuedConnection);
+                    emit networkSendSignal(packet);
+                    */
+                }
+            }
+        }
+        else
+            throw 0;
+    }
+    else
+        throw 0;
+}
+
+/**
+ * @brief DatabaseManager::networkReplySlot
+ * @param reply
+ */
+void DatabaseManager::networkReplySlot(QNetworkReply* reply)
+{
+    // disconnect(this, SIGNAL(networkSendSignal(QString)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(QString)));
+
+    if(QNetworkReply::NoError == reply->error())
+        {
+            // debugMessageThread("Packet send OK");
+            // result = true;
+            // emit sendSignal();
+        }
+        else
+        {
+            // debugMessageThread("Packed send FAIL, store in database");
+            // emit databaseStorePacketSignal(&*it);
+            // result = CBluuDatabaseManager::Instance()->writePacket(&*it);
+        }
+
+    /*
+        if(true == result)
+        {
+            QStringList*  packets = CBluuDataManager::Instance()->getPackets();
+            QMutexLocker    locker(CBluuDataManager::Instance()->getMutex());
+
+            packets->erase(it);
+        }
+        */
 }

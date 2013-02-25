@@ -123,11 +123,9 @@ void DataPacket::generateJson()
     QByteArray      out;
 
     map.insert("timestamp", QDateTime::currentDateTime ().toString("yyyy-MM-dd hh:mm:ss"));
-    // map.insert("device", devicesMap.value(id));
     map.insert("serial", serial);
     map.insert("data", 0);
     map.insert("signal", 80);
-    // map.insert("status", generateJsonStatus());
     map.unite(generateJsonStatus());
 
     serializer.setIndentMode(QJson::IndentFull);
