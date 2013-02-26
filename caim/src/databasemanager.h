@@ -18,7 +18,7 @@ public:
     bool openDB();
     bool deleteDB();
     bool writePacket(QString* packet);
-    bool createTable();
+    void createTable();
 
 signals:
     void networkSendSignal(QString data);

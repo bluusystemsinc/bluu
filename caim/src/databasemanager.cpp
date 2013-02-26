@@ -1,5 +1,6 @@
 #include "databasemanager.h"
 #include "webrequest.h"
+#include "databaseexception.h"
 #include <QDir>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -81,7 +82,7 @@ bool DatabaseManager::writePacket(QString* packet)
 /**
  * @brief DatabaseManager::createTable
  */
-bool DatabaseManager::createTable()
+void DatabaseManager::createTable()
 {
     if(true == database.isOpen())
     {
@@ -90,13 +91,11 @@ bool DatabaseManager::createTable()
             QSqlQuery   query("create table packet (id integer primary key, content varchar)");
 
             if(false == query.exec())
-                throw 0;
+                throw DatabaseException(DatabaseException::databaseTableException);
         }
     }
     else
-        throw 0;
-
-    return false;
+        throw DatabaseException(DatabaseException::databaseOpenException);
 }
 
 /**
@@ -117,19 +116,13 @@ void DatabaseManager::databaseStorePacketSlot(QString* packet)
             result = query.exec();
 
             if(false == result)
-            {
-                QSqlError   error = query.lastError();
-                QString     textDatabase = error.databaseText();
-                QString     textDriver = error.driverText();
-                QString     text = error.text();
-                throw 0;
-            }
+                throw DatabaseException(DatabaseException::databaseInsertException, query.lastError());
         }
         else
-            throw 0;
+            throw DatabaseException(DatabaseException::databaseTableException);
     }
     else
-        throw 0;
+        throw DatabaseException(DatabaseException::databaseOpenException);
 }
 
 /**
@@ -183,6 +176,7 @@ void DatabaseManager::networkReplySlot(QNetworkReply* reply)
         }
         else
         {
+            throw DatabaseException();
             // debugMessageThread("Packed send FAIL, store in database");
             // emit databaseStorePacketSignal(&*it);
             // result = CBluuDatabaseManager::Instance()->writePacket(&*it);
