@@ -12,7 +12,7 @@
     </div>
 
     {% if perms.companies.add_company %}
-    <ul class="nav nav-pills nav-stacked">
+    <ul class="nav nav-pills">
         <li><a href="{% url 'company_add' %}">{% trans "Add company" %}</a></li>
     </ul>
     {% endif %}

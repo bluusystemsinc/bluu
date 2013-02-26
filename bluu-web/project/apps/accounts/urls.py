@@ -31,7 +31,16 @@ urlpatterns = patterns('',
         r'^users/(?P<username>[\w.@+-]+)/delete/$',
         views.bluuuser_delete,
         name='bluuuser_delete'),
-
+    url(
+        regex=r'^users/(?P<username>[\w.@+-]+)/sites/$',
+        view=views.BluuUserSitesView.as_view(),
+        name='bluuuser_sites'
+    ),
+    url(
+        regex=r'^users/(?P<username>[\w.@+-]+)/companies/$',
+        view=views.BluuUserCompaniesView.as_view(),
+        name='bluuuser_companies'
+    ),
     url(r'^password/$',
         login_required(views.AccountUpdateView.as_view()),
         name='account_edit'),

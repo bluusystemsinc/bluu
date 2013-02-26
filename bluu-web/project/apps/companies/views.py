@@ -33,6 +33,7 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
             return super(CompanyListView, self).get_queryset()
         return get_objects_for_user(self.request.user, 'companies.view_company')
 
+    @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         companies = self.request.user.can_see_companies(\
                 perm='companies.change_company')
@@ -79,6 +80,7 @@ class CompanyUpdateView(UpdateView):
 
 
 
+@login_required
 @permission_required('companies.delete_company', (Company, 'pk', 'pk'),
                      accept_global_perms=True)
 def company_delete(request, pk):
@@ -123,6 +125,7 @@ class CompanyAccessListView(TemplateView):
             'invitation_form': invitation_form
         } 
 
+    @method_decorator(login_required)
     @method_decorator(permission_required('companies.change_company',
                                 (Company, 'pk', 'company_pk'),
                                 accept_global_perms=True))
@@ -142,6 +145,7 @@ class CompanySiteListView(DetailView):
         kwargs['form'] = SiteForm()
         return super(CompanySiteListView, self).get_context_data(**kwargs)
 
+    @method_decorator(login_required)
     @method_decorator(permission_required('companies.change_company',
                                            (Company, 'pk', 'company_pk'),
                                            accept_global_perms=True))

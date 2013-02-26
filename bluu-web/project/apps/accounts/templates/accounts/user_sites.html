@@ -1,0 +1,23 @@
+{% extends "accounts/account_base.html" %}
+
+{% load i18n crispy_forms_tags %}
+
+{% block title %}
+{% trans 'User Sites' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'bluuuser_list' %}">{% trans "User list" %}</a> &gt; {% trans "User Sites" %}
+{% endblock %}
+
+{% block page-title %}
+    {% trans "User sites" %}
+{% endblock %}
+
+{% block main %}
+<ul>
+{% for site in bluusites %}
+<li><a href="{{ site.get_absolute_url }}">{{ site.first_name }} {{ site.last_name }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

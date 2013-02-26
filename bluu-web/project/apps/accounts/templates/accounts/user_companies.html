@@ -1,0 +1,23 @@
+{% extends "accounts/account_base.html" %}
+
+{% load i18n crispy_forms_tags %}
+
+{% block title %}
+{% trans 'User Companies' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+    <a href="{% url 'bluuuser_list' %}">{% trans "User list" %}</a> &gt; {% trans "User companies" %}
+{% endblock %}
+
+{% block page-title %}
+    {% trans "User companies" %}
+{% endblock %}
+
+{% block main %}
+<ul>
+{% for company in companies %}
+<li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

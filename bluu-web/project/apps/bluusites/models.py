@@ -12,12 +12,15 @@ from django.contrib.contenttypes import generic
 from registration import signals
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
-from utils.models import Entity
 from invitations.models import InvitationKey
 from accounts.models import BluuUser
+from utils.countries import CountryField
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
 
-class BluuSite(Entity):
+
+class BluuSite(models.Model):
     first_name = models.CharField(_('first name'), max_length=30)
     last_name = models.CharField(_('last name'), max_length=30)
     middle_initial = models.CharField(
@@ -32,6 +35,12 @@ class BluuSite(Entity):
                 null=True,
                 verbose_name=_('users'),
                 through='BluuSiteAccess')
+    street = models.CharField(_('street'), max_length=50)
+    city = models.CharField(_('city'), max_length=50)
+    state = models.CharField(_('state'), max_length=50)
+    zip_code = models.CharField(_('zip code'), max_length=7)
+    country = CountryField(_('country'), default='US')
+    phone = models.CharField(_('phone'), max_length=10, blank=True)
 
     class Meta:
         verbose_name = _("Site")

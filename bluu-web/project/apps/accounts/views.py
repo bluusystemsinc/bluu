@@ -3,8 +3,8 @@ from string import letters
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from django.views.generic import UpdateView, CreateView,\
-                                 DeleteView, ListView
+from django.views.generic import (UpdateView, CreateView,
+                                 DeleteView, ListView, DetailView)
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from django.utils.decorators import method_decorator
@@ -143,6 +143,7 @@ def bluuuser_delete(request, username):
     messages.success(request, _('User deleted'))
     return redirect('bluuuser_list')
 
+
 class AccountUpdateView(UpdateView):
     """
     Updates user account data
@@ -158,9 +159,44 @@ class AccountUpdateView(UpdateView):
         return get_object_or_404(get_user_model(), pk=self.request.user.pk)
 
 
+class BluuUserSitesView(PermissionRequiredMixin, DetailView):
+    """
+    Shows sites assigned to user
+    We have to use braces.PermissionRequiredMixin here, because we
+    check global permission to change_bluuuser.
+    """
+    model = BluuUser
+    context_object_name = 'bluuuser'
+    template_name = "accounts/user_sites.html"
+    permission_required = 'accounts.change_bluuuser'
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
+
+    def get_context_data(self, **kwargs):
+        context = super(BluuUserSitesView, self).get_context_data(**kwargs)
+        user = self.get_object() 
+        context['bluusites'] = user.get_sites()
+        return context
 
 
+class BluuUserCompaniesView(PermissionRequiredMixin, DetailView):
+    """
+    Shows sites assigned to user
+    We have to use braces.PermissionRequiredMixin here, because we
+    check global permission to change_bluuuser.
+    """
+    model = BluuUser
+    context_object_name = 'bluuuser'
+    template_name = "accounts/user_companies.html"
+    permission_required = 'accounts.change_bluuuser'
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
 
+    def get_context_data(self, **kwargs):
+        context = super(BluuUserCompaniesView, self).get_context_data(**kwargs)
+        user = self.get_object() 
+        context['companies'] = user.get_companies()
+        return context
 
 
 
@@ -199,7 +235,6 @@ def register(request, backend, success_url=None, form_class=None,
     return render_to_response(template_name,
                               {'form': form},
                               context_instance=context)
-
 
 
 class AccountDeleteView(DeleteView):
