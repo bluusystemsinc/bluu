@@ -101,9 +101,18 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
            "aaSorting": [[0, 'asc']],
            "fnCreatedRow": rowCompiler,
            "aoColumns": [
-                  { "mData": 'email'},
                   {
-                     "mData": 'groups',
+                      "mData": 'access',
+                      "mRender": function( data, type, full) {
+                          var ret = data.email;
+                          if (data.invitation == true){
+                            ret += ' (pending)';
+                          }
+                          return ret;
+                      },
+                  },
+                  {
+                     "mData": 'access.groups',
                       "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
                       {
                           $(nTd).css('text-align', 'center');
@@ -117,7 +126,7 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                      "mData": 'id',
+                      "mData": 'access.id',
                       "mRender": function( data, type, full) {
                           return '<a ng-click="remove(' + data + ')" href="#"><i class="icon-remove"></i></a>';
                       },
@@ -191,9 +200,18 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
            "aaSorting": [[0, 'asc']],
            "fnCreatedRow": rowCompiler,
            "aoColumns": [
-                  { "mData": 'email'},
                   {
-                     "mData": 'groups',
+                      "mData": 'access',
+                      "mRender": function( data, type, full) {
+                          var ret = data.email;
+                          if (data.invitation == true){
+                            ret += ' (pending)';
+                          }
+                          return ret;
+                      },
+                  },
+                  {
+                     "mData": 'access.groups',
                       "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
                       {
                           $(nTd).css('text-align', 'center');
@@ -207,7 +225,7 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                      "mData": 'id',
+                      "mData": 'access.id',
                       "mRender": function( data, type, full) {
                           return '<a ng-click="remove(' + data + ')" href="#"><i class="icon-remove"></i></a>';
                       },

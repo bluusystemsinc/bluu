@@ -183,11 +183,13 @@ class BluuSiteAccessListJson(BaseDatatableView):
 
             json_data.append(
                 {
-                    "no": no,
-                    "id": access.pk,
-                    "email": access.get_email,
-                    "groups": rendered_groups,
-                    "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                    "access":{
+                        "no": no,
+                        "id": access.pk,
+                        "email": access.get_email,
+                        "groups": rendered_groups,
+                        "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                    }
                 }
             )
             no += 1
@@ -242,7 +244,7 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
             access.site = site
             try:
                 user = BluuUser.objects.get(email=email)
-                # user exists, so grant him an access to company
+                # user exists, so grant him an access to a company
                 access.user = user
                 access.save()
                 form.save_m2m()

@@ -273,11 +273,13 @@ class CompanyAccessListJson(BaseDatatableView):
 
             json_data.append(
                 {
-                    "no": no,
-                    "id": access.pk,
-                    "email": access.get_email,
-                    "groups": rendered_groups,
-                    "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                    "access": {
+                        "no": no,
+                        "id": access.pk,
+                        "email": access.get_email,
+                        "groups": rendered_groups,
+                        "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                    }
                 }
             )
             no += 1
