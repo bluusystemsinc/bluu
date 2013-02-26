@@ -1,4 +1,4 @@
-{% extends "bluusites/site_base.html" %}
+{% extends "devices/devices_base.html" %}
 {% load i18n crispy_forms_tags guardian_tags theme_tags %}
 
 {% block title %}
@@ -18,6 +18,15 @@
 {% block main %}
 {{ block.super }}
 {% get_obj_perms request.user for bluusite as "bluusite_perms" %}
+
+{% if perms.bluusites.add_device or "add_device" in bluusite_perms %}
+    <ul class="nav nav-pills">
+        <li>
+            <a href="{% url 'devices:device_add' bluusite.pk %}">{% trans "Add Device" %}</a>
+        </li>
+    </ul>
+{% endif %}
+
 
 <table id="site_list_table" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
     <thead>

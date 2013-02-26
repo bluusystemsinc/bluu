@@ -131,7 +131,6 @@ class BluuUser(AbstractUser):
                          'can_browse_devices': self.has_perm('browse_devices', sites[0])
                         }
                 }
-            print perm_dict
             return perm_dict
         else:
             return {'bluusites': False, 'bluusite': None}

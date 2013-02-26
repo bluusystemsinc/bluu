@@ -16,10 +16,23 @@ from .models import Device
 class DeviceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
         self.helper = FormHelper()
         self.helper.form_tag = False
+        self.helper.layout = layout.Layout(
+            layout.Div(
+                    layout.Field('serial'),
+                    layout.Field('device_type')
+            ),
+            FormActions(
+                layout.Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
+
+        super(DeviceForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = Device
+        fields = ('serial', 'device_type')
 
 

@@ -18,6 +18,7 @@ from accounts.models import BluuUser
 from bluusites.models import BluuSite
 
 from .forms import DeviceForm
+from .models import Device
 
 
 class DeviceListView(TemplateView):
@@ -44,4 +45,60 @@ class DeviceListView(TemplateView):
                         accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(DeviceListView, self).dispatch(*args, **kwargs)
+
+
+class DeviceCreateView(CreateView):
+    model = Device
+    template_name = "devices/device_create.html"
+    form_class = DeviceForm
+    pk_url_kwarg = 'site_pk'
+
+    def get_site(self):
+        pk = self.kwargs.get(self.pk_url_kwarg, None)
+        return get_object_or_404(BluuSite, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(DeviceCreateView, self).get_context_data(**kwargs)
+        print kwargs
+        kwargs.update({'bluusite': self.get_site()})
+        return kwargs
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(DeviceCreateView, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        response = super(DeviceCreateView, self).form_valid(form)
+        messages.success(self.request, _('Device added'))
+        return response
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('bluusites.add_device'))
+    def dispatch(self, *args, **kwargs):
+        return super(DeviceCreateView, self).dispatch(*args, **kwargs)
+
+
+class DeviceUpdateView(UpdateView):
+    model = Device
+    template_name = "devices/device_update.html"
+    form_class = DeviceForm
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(DeviceUpdateView, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        response = super(DeviceUpdateView, self).form_valid(form)
+        messages.success(self.request, _('Device changed'))
+        return response
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('bluusites.change_device',
+                                          (BluuSite, 'pk', 'pk'),
+                                          accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(DeviceUpdateView, self).dispatch(*args, **kwargs)
+
 

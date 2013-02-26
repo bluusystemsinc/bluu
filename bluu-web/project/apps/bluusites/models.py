@@ -40,6 +40,9 @@ class BluuSite(Entity):
             ("browse_bluusites", "Can browse sites"),
             ("view_bluusite", "Can view site"),
             ("browse_devices", "Can browse devices"),
+            ("add_device", "Can add device"),
+            ("change_device", "Can change device"),
+            ("delete_device", "Can delete device"),
         )
 
     def __unicode__(self):

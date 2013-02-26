@@ -70,11 +70,11 @@ perm_browse_devices = Permission.objects.get(content_type=site_type,
                                                   codename=u"browse_devices")
 perm_view_device = Permission.objects.get(content_type=device_type,
                                                   codename=u"view_device")
-perm_add_device = Permission.objects.get(content_type=device_type,
+perm_add_device = Permission.objects.get(content_type=site_type,
                         codename=u"add_device")
-perm_change_device = Permission.objects.get(content_type=device_type,
+perm_change_device = Permission.objects.get(content_type=site_type,
                         codename=u"change_device")
-perm_delete_device = Permission.objects.get(content_type=device_type,
+perm_delete_device = Permission.objects.get(content_type=site_type,
                         codename=u"delete_device")
 
 

@@ -110,42 +110,51 @@ footer {
 }
 
 /* End Access Management */
-/* twitter bootstrap for datatables */
+/* Devices Management */
 /* line 107, ../sass/style.scss */
+.nested-nav-list {
+  margin-bottom: 0;
+  padding-left: 15px;
+  padding-right: 0;
+}
+
+/* End Devices Management */
+/* twitter bootstrap for datatables */
+/* line 115, ../sass/style.scss */
 div.dataTables_length label {
   float: left;
   text-align: left;
 }
 
-/* line 112, ../sass/style.scss */
+/* line 120, ../sass/style.scss */
 div.dataTables_length select {
   width: 75px;
 }
 
-/* line 116, ../sass/style.scss */
+/* line 124, ../sass/style.scss */
 div.dataTables_filter label {
   float: right;
 }
 
-/* line 120, ../sass/style.scss */
+/* line 128, ../sass/style.scss */
 div.dataTables_info {
   padding-top: 8px;
 }
 
-/* line 124, ../sass/style.scss */
+/* line 132, ../sass/style.scss */
 div.dataTables_paginate {
   float: right;
   margin: 0;
 }
 
-/* line 129, ../sass/style.scss */
+/* line 137, ../sass/style.scss */
 table.table {
   clear: both;
   margin-bottom: 6px !important;
   max-width: none !important;
 }
 
-/* line 139, ../sass/style.scss */
+/* line 147, ../sass/style.scss */
 table.table thead .sorting,
 table.table thead .sorting_asc,
 table.table thead .sorting_desc,
@@ -155,27 +164,27 @@ table.table thead .sorting_desc_disabled {
   *cursor: hand;
 }
 
-/* line 144, ../sass/style.scss */
+/* line 152, ../sass/style.scss */
 table.table thead .sorting {
   background: url(../components/datatables/media/images/sort_both.png) no-repeat center right;
 }
 
-/* line 145, ../sass/style.scss */
+/* line 153, ../sass/style.scss */
 table.table thead .sorting_asc {
   background: url(../components/datatables/media/images/sort_asc.png) no-repeat center right;
 }
 
-/* line 146, ../sass/style.scss */
+/* line 154, ../sass/style.scss */
 table.table thead .sorting_desc {
   background: url(../components/datatables/media/images/sort_desc.png) no-repeat center right;
 }
 
-/* line 148, ../sass/style.scss */
+/* line 156, ../sass/style.scss */
 table.table thead .sorting_asc_disabled {
   background: url(../components/datatables/media/images/sort_asc_disabled.png) no-repeat center right;
 }
 
-/* line 149, ../sass/style.scss */
+/* line 157, ../sass/style.scss */
 table.table thead .sorting_desc_disabled {
   background: url(../components/datatables/media/images/sort_desc_disabled.png) no-repeat center right;
 }
