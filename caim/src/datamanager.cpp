@@ -1,9 +1,10 @@
 #include "datamanager.h"
 #include "datamanagerthread.h"
-#include "datamanagerworkerthread.h"
+#include "scheduler.h"
 #include "dataparser.h"
 #include "debug.h"
 #include "webrequest.h"
+#include "databasesendtask.h"
 #include <QMutexLocker>
 
 /**
@@ -14,10 +15,12 @@ DataManager::DataManager(QObject* parent) :
     QObject(parent)
 {
     DataManagerThread*  thread = new DataManagerThread();
-    DataManagerWorkerThread*    workerThread =new DataManagerWorkerThread();
+    Scheduler*    scheduler =new Scheduler();
+    DatabaseSendTask*   databaseSendTask = new DatabaseSendTask();
 
     thread->start();
-    workerThread->start();
+    scheduler->registerTask(databaseSendTask);
+    scheduler->start();
 
     /*
     QThread*    workerThread = new QThread(this);
