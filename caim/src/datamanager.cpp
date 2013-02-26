@@ -1,5 +1,6 @@
 #include "datamanager.h"
 #include "datamanagerthread.h"
+#include "datamanagerworkerthread.h"
 #include "dataparser.h"
 #include "debug.h"
 #include "webrequest.h"
@@ -13,8 +14,10 @@ DataManager::DataManager(QObject* parent) :
     QObject(parent)
 {
     DataManagerThread*  thread = new DataManagerThread();
+    DataManagerWorkerThread*    workerThread =new DataManagerWorkerThread();
 
     thread->start();
+    workerThread->start();
 
     /*
     QThread*    workerThread = new QThread(this);

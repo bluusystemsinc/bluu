@@ -45,9 +45,8 @@ void DataManagerThread::sendSlot()
         if(true == timerPackets->isActive())
             timerPackets->stop();
 
-        it = packets->begin();
-        // CBluuWebRequest::Instance()->sendDataToServer(*it);
-        emit networkSendSignal(*it);
+         it = packets->begin();
+         emit networkSendSignal(*it);
     }
     else
     {
@@ -56,6 +55,14 @@ void DataManagerThread::sendSlot()
         if(false == timerPackets->isActive())
             timerPackets->start(1000);
     }
+}
+
+/**
+ * @brief DataManagerThread::sendDatabaseSlot
+ */
+void DataManagerThread::sendDatabaseSlot()
+{
+    emit databaseSendPacketSignal();
 }
 
 /**
@@ -72,7 +79,7 @@ void DataManagerThread::networkReplySlot(QNetworkReply *reply)
     {
         debugMessageThread("Packet send OK");
         result = true;
-        emit sendSignal();
+        // emit sendSignal();
     }
     else
     {
@@ -81,12 +88,15 @@ void DataManagerThread::networkReplySlot(QNetworkReply *reply)
         // result = CBluuDatabaseManager::Instance()->writePacket(&*it);
     }
 
-    if(true == result)
+    // if(true == result)
     {
         QStringList*  packets = CBluuDataManager::Instance()->getPackets();
         QMutexLocker    locker(CBluuDataManager::Instance()->getMutex());
 
         packets->erase(it);
+
+        if(0 < packets->size())
+            emit sendSignal();
     }
 }
 
@@ -98,11 +108,14 @@ void DataManagerThread::run()
     debugMessageThread("");
 
     timerPackets = new QTimer();
+    timerDatabase = new QTimer();
     connect(timerPackets, SIGNAL(timeout()), this, SLOT(sendSlot()));
+    connect(timerDatabase, SIGNAL(timeout()), this, SLOT(sendDatabaseSlot()));
     connect(this, SIGNAL(sendSignal()), SLOT(sendSlot()));
     connect(CBluuWebRequest::Instance(), SIGNAL(networkReplySignal(QNetworkReply*)), this, SLOT(networkReplySlot(QNetworkReply*)));
     connect(this, SIGNAL(networkSendSignal(QString)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(QString)));
     connect(this, SIGNAL(databaseStorePacketSignal(QString*)), CBluuDatabaseManager::Instance(), SLOT(databaseStorePacketSlot(QString*)));
+    connect(this, SIGNAL(databaseSendPacketSignal()), CBluuDatabaseManager::Instance(), SLOT(databaseSendPacketSlot()));
     emit sendSignal();
     timerPackets->start(5000);
     exec();

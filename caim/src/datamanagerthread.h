@@ -18,7 +18,7 @@ private:
 
 protected:
     QTimer*     timerPackets;
-    QTimer*     timerNetwork;
+    QTimer*     timerDatabase;
 
 protected:
     virtual void run();
@@ -29,12 +29,14 @@ public:
 signals:
     void sendSignal();
     void databaseStorePacketSignal(QString* data);
+    void databaseSendPacketSignal();
     void networkSendSignal(QString data);
     void debugSignal(QString debugMessage);
     
 public slots:
     void timeOutSlot();
     void sendSlot();
+    void sendDatabaseSlot();
     void networkReplySlot(QNetworkReply* reply);
 };
 
