@@ -12,12 +12,9 @@ from django.contrib.contenttypes import generic
 from registration import signals
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
-from invitations.models import InvitationKey
-from accounts.models import BluuUser
 from utils.countries import CountryField
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^utils\.countries\.CountryField"])
-
 
 
 class BluuSite(models.Model):
@@ -75,7 +72,7 @@ class BluuSiteAccess(models.Model):
     group = models.ForeignKey(Group)
     email = models.EmailField(_('e-mail'), blank=True, null=True)
     #invitation = models.BooleanField(_('invitation', default=False))
-    invitations = generic.GenericRelation(InvitationKey)
+    invitations = generic.GenericRelation('invitations.InvitationKey')
 
     class Meta:
         verbose_name = _("site access")
