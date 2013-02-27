@@ -5,7 +5,7 @@ import os
 DEBUG = False
 
 ADMINS = (
-    ('Admin', 'admin@example.com'),
+    ('Admin', 'jwisniowski@milosolutions.com'),
 )
 
 MANAGERS = ADMINS

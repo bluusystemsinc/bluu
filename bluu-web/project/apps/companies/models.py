@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger('bluu')
 
 from registration import signals
-from invitations.models import InvitationKey
+#from invitations.models import InvitationKey
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
@@ -95,7 +95,7 @@ class CompanyAccess(models.Model):
     #invitation = models.BooleanField(_('invitation', default=False))
     email = models.EmailField(_('e-mail'), blank=True, null=True)
     group = models.ForeignKey(Group)
-    invitations = generic.GenericRelation(InvitationKey)
+    invitations = generic.GenericRelation('invitations.InvitationKey')
 
     def __unicode__(self):
         return u'%s | %s | %s' % (
