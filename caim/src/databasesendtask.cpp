@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "databasesendtask.h"
 
 /**
@@ -17,8 +18,60 @@ DatabaseSendTask::DatabaseSendTask()
  * @brief DatabaseSendTask::processTask
  * @param dateTime
  */
-void DatabaseSendTask::processTask(const QDateTime &dateTime)
+void DatabaseSendTask::processTask()
 {
+    valid = false;
+    busy = true;
+}
+
+/**
+ * @brief DatabaseSendTask::validateTask
+ * @param dateTime
+ * @return
+ */
+bool DatabaseSendTask::validateTask(const QDateTime& dateTime)
+{
+    Task::validateTask(dateTime);
+
+    if(false == busy)
+    {
+        if(false == initial)
+        {
+            if(5 <= previousDateTime.secsTo(dateTime))
+            {
+
+            }
+        }
+        else
+        {
+            initial = false;
+            valid = true;
+            previousDateTime = dateTime;
+        }
+    }
+
+    /*
+    if(false == busy)
+    {
+        QTime   currentTm = dateTime.time();
+        QTime   sendTm = sendTime.time();
+
+        if((currentTm.addSecs(-1) < sendTm) && (currentTm.addSecs(1) > sendTm))
+        {
+            valid = true;
+            debugMessageThread("Task validated");
+        }
+        else
+        {
+            valid = false;
+            debugMessageThread("Task invalidated");
+        }
+    }
+    else
+        valid = false;
+        */
+
+    return valid;
 }
 
 /**

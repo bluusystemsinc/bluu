@@ -20,18 +20,23 @@ public:
     };
 
 protected:
+    QDateTime   currentDateTime;
+    QDateTime   previousDateTime;
     ETaskType   type;
+    bool        valid;
+    bool        busy;
+    bool        initial;
 
 public:
     explicit Task(QObject *parent = 0);
-    virtual void processTask(const QDateTime& dateTime) = 0;
+    virtual bool validateTask(const QDateTime& dateTime);
     ETaskType getType();
     void setType(const ETaskType& t);
     
 signals:
     
 public slots:
-    
+    virtual void processTask() = 0;
 };
 
 #endif // TASK_H

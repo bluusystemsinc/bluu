@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "webrequest.h"
 #include "databasesendtask.h"
+#include "packetsendtask.h"
 #include <QMutexLocker>
 
 /**
@@ -14,12 +15,14 @@
 DataManager::DataManager(QObject* parent) :
     QObject(parent)
 {
-    DataManagerThread*  thread = new DataManagerThread();
-    Scheduler*    scheduler =new Scheduler();
+    // DataManagerThread*  thread = new DataManagerThread();
+    Scheduler*    scheduler = new Scheduler();
     DatabaseSendTask*   databaseSendTask = new DatabaseSendTask();
+    PacketSendTask*     packetSendTask = new PacketSendTask();
 
-    thread->start();
-    scheduler->registerTask(databaseSendTask);
+    // thread->start();
+    packetSendTask->moveToThread(scheduler);
+    scheduler->registerTask(packetSendTask);
     scheduler->start();
 
     /*

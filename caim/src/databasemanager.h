@@ -22,6 +22,7 @@ public:
 
 signals:
     void networkSendSignal(QString data);
+    void databasePacketStoredSignal();
     
 public slots:
     void databaseStorePacketSlot(QString* packet);

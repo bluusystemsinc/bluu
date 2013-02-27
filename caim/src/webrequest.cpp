@@ -124,13 +124,13 @@ void WebRequest::sendDataToServer(const QVariantMap &info)
  * @brief WebRequest::sendDataToServer TODO
  * @param info
  */
-void WebRequest::sendDataToServer(QString msg)
+void WebRequest::sendDataToServer(QString* msg)
 {
     debugMessage();
 
     QNetworkRequest request;
     QUrl        tmpUrl;
-    QByteArray  temp = msg.toUtf8();
+    QByteArray  temp = msg->toUtf8();
 
     request.setUrl(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");

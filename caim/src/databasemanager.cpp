@@ -117,6 +117,8 @@ void DatabaseManager::databaseStorePacketSlot(QString* packet)
 
             if(false == result)
                 throw DatabaseException(DatabaseException::databaseInsertException, query.lastError());
+            else
+                emit databasePacketStoredSignal();
         }
         else
             throw DatabaseException(DatabaseException::databaseTableException);

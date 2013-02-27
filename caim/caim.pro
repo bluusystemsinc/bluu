@@ -38,7 +38,8 @@ HEADERS += qtservice/src/qtservice.h \
     src/databaseexception.h \
     src/scheduler.h \
     src/task.h \
-    src/databasesendtask.h
+    src/databasesendtask.h \
+    src/packetsendtask.h
 
 HEADERS += ../caim_sensorbase/include/abstractsensor.h
 
@@ -57,7 +58,8 @@ SOURCES += src/caim.cpp \
     src/databaseexception.cpp \
     src/scheduler.cpp \
     src/task.cpp \
-    src/databasesendtask.cpp
+    src/databasesendtask.cpp \
+    src/packetsendtask.cpp
 
 unix {
     HEADERS += qtservice/src/qtunixserversocket.h \

@@ -50,7 +50,7 @@ public slots:
 //    void replyFinished(QNetworkReply *);
 //    void restoreState();
     void sendDataToServer(const QVariantMap &info);
-    void sendDataToServer(QString msg);
+    void sendDataToServer(QString* msg);
     void finishedSlot(QNetworkReply* reply);
     
 private:

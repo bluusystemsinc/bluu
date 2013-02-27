@@ -17,7 +17,7 @@ Scheduler::Scheduler(QObject* parent)
  * @brief Scheduler::registerTask
  * @param task
  */
-void Scheduler::registerTask(Task *task)
+void Scheduler::registerTask(Task* task)
 {
     tasks.append(task);
 }
@@ -27,27 +27,30 @@ void Scheduler::registerTask(Task *task)
  */
 void Scheduler::run()
 {
-    /*
-    // QDateTime   init = QDateTime::currentDateTime();
-    */
     QDateTime   checkpoint;
     QTime       midnight(0, 0, 0, 0);
+    QList<Task*>::iterator  it;
 
     checkpoint.setTime(midnight);  // initially check
 
+    for(it = tasks.begin(); it != tasks.end(); it++)
+    {
+        QThread*    thread = new QThread(parent());
+
+        (*it)->moveToThread(thread);
+        thread->start();
+    }
+
     while(1)
     {
+        QList<Task*>::iterator  it;
+
         QDateTime   current = QDateTime::currentDateTime();
-        QTime       time = current.time();
 
-        if(0 == time.second())
-            debugMessageThread("I'm here!");
-
-        /*
-        if((time.addSecs(-30) < midnight) && (time.addSecs(30) > midnight))
+        for(it = tasks.begin(); it != tasks.end(); it++)
         {
-            debugMessageThread("I'm here!");
+            if(true == (*it)->validateTask(current))
+                (*it)->processTask();
         }
-        */
     }
 }

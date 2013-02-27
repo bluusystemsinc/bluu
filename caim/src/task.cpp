@@ -8,6 +8,21 @@ Task::Task(QObject *parent)
     : QObject(parent)
 {
     type = taskUnknown;
+    valid = false;
+    busy = false;
+    initial = true;
+}
+
+/**
+ * @brief Task::validateTask
+ * @param dateTime
+ * @return
+ */
+bool Task::validateTask(const QDateTime& dateTime)
+{
+    currentDateTime = dateTime;
+
+    return false;
 }
 
 /**
