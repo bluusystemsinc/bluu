@@ -1,4 +1,5 @@
 import os
+import re
 import random
 import datetime
 import hashlib
@@ -13,7 +14,8 @@ from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
-from registration.models import SHA1_RE
+#from registration.models import SHA1_RE
+SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
 sha_constructor = hashlib.sha1
 
