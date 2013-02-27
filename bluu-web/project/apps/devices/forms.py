@@ -17,10 +17,13 @@ class DeviceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
+        self.bluusite = kwargs.pop('bluusite')
+
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = layout.Layout(
             layout.Div(
+                    layout.Field('name'),
                     layout.Field('serial'),
                     layout.Field('device_type')
             ),
@@ -33,6 +36,15 @@ class DeviceForm(forms.ModelForm):
 
     class Meta:
         model = Device
-        fields = ('serial', 'device_type')
+        fields = ('name', 'serial', 'device_type')
+
+    def save(self, commit=True):
+        instance = super(DeviceForm, self).save(commit=False)
+        if hasattr(self, 'bluusite') and self.bluusite is not None:
+            instance.bluusite = self.bluusite
+        instance.save()
+        if commit:
+            self.save_m2m()
+        return instance
 
 

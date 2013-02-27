@@ -47,6 +47,7 @@ class Device(TimeStampedModel):
         (PANIC, _('panic'))
     )
 
+    name = models.CharField(_('name'), max_length=255)
     serial = models.CharField(_('serial'), max_length=6)
     device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     bluusite = models.ForeignKey(BluuSite)
@@ -64,7 +65,7 @@ class Device(TimeStampedModel):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('device_edit', [str(self.id)])
+        return ('device_edit', [str(self.bluusite_id), str(self.id)])
 
 
 class Status(models.Model):

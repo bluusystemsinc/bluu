@@ -59,13 +59,13 @@ class DeviceCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         kwargs = super(DeviceCreateView, self).get_context_data(**kwargs)
-        print kwargs
         kwargs.update({'bluusite': self.get_site()})
         return kwargs
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(DeviceCreateView, self).get_form_kwargs(**kwargs)
         kwargs['user'] = self.request.user
+        kwargs['bluusite'] = self.get_site()
         return kwargs
 
     def form_valid(self, form):
