@@ -1,26 +1,19 @@
 from __future__ import unicode_literals
 
-from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import Group
-from django.contrib.auth import get_user_model
 from django.conf import settings
 
 import logging
 logger = logging.getLogger('bluu')
 
 from registration import signals
-#from invitations.models import InvitationKey
-from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
-from bluusites.models import BluuSite
-
 
 class Company(Entity):
     code = models.CharField(_('code'), max_length=6, unique=True)
@@ -170,46 +163,6 @@ def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
                 default_group = Group.objects.get(name=group_name)
                 instance.user.groups.remove(default_group)
         instance.user.remove_access(instance.group, instance.company)
-
-
-@receiver(pre_save, sender=BluuSite)
-def _remove_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
-    """
-    When site is reassigned (assigned to other company) then
-    remove perms.
-    """
-    if instance.pk:
-        old_site = BluuSite.objects.get(pk=instance.pk)
-        if old_site.company != instance.company:
-            """
-            If company is going to be changed then remove access to the site
-            for all users from old company
-            """
-            ctype = ContentType.objects.get_for_model(Company)
-            for uog in UserObjectGroup.objects.filter(object_pk=old_site.company.pk,
-                    content_type=ctype):
-                UserObjectGroup.objects.remove_access(group=uog.group,
-                                                      user=uog.user,
-                                                      obj=old_site)
-
-
-@receiver(post_save, sender=BluuSite)
-def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
-    """
-    Assign user to a group in the context of company.
-    Assign user to a group in the context of sites belonging to company.
-    Assign minimal permissions grouped in Company Employee group to a user.
-    """
-    ctype = ContentType.objects.get_for_model(Company)
-    company = instance.company 
-    # Assign users the same permissions to a site 
-    # as they have for company the site is
-    # assigned to
-    for uog in UserObjectGroup.objects.filter(object_pk=company.pk,
-                                              content_type=ctype):
-        UserObjectGroup.objects.assign(group=uog.group,
-                                       user=uog.user,
-                                       obj=instance)
 
 
 @receiver(signals.user_registered)

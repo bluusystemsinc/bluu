@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 
 from registration import signals
 from grontextual.models import UserObjectGroup
@@ -93,6 +94,48 @@ class BluuSiteAccess(models.Model):
         if self.user is not None:
             return self.user.email
         return self.email
+
+
+@receiver(pre_save, sender=BluuSite)
+def _remove_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
+    """
+    When site is reassigned (assigned to other company) then
+    remove perms.
+    """
+    if instance.pk:
+        old_site = BluuSite.objects.get(pk=instance.pk)
+        if old_site.company != instance.company:
+            """
+            If company is going to be changed then remove access to the site
+            for all users from old company
+            """
+            ctype = ContentType.objects.get(app_label="companies",
+                                            model="company")
+            for uog in UserObjectGroup.objects.filter(object_pk=old_site.company.pk,
+                    content_type=ctype):
+                UserObjectGroup.objects.remove_access(group=uog.group,
+                                                      user=uog.user,
+                                                      obj=old_site)
+
+
+@receiver(post_save, sender=BluuSite)
+def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
+    """
+    Assign user to a group in the context of company.
+    Assign user to a group in the context of sites belonging to company.
+    Assign minimal permissions grouped in Company Employee group to a user.
+    """
+    ctype = ContentType.objects.get(app_label="companies",
+                                    model="company")
+    company = instance.company 
+    # Assign users the same permissions to a site 
+    # as they have for company the site is
+    # assigned to
+    for uog in UserObjectGroup.objects.filter(object_pk=company.pk,
+                                              content_type=ctype):
+        UserObjectGroup.objects.assign(group=uog.group,
+                                       user=uog.user,
+                                       obj=instance)
 
 
 @receiver(pre_save, sender=BluuSiteAccess)
