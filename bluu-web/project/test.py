@@ -19,7 +19,7 @@ DATABASES = {
     }
 }
 
-COMPRESS_ENABLED=True
+COMPRESS_ENABLED = True
 
 ALLOWED_HOSTS=['test.web.bluusystems.com', '198.61.203.159']
 
