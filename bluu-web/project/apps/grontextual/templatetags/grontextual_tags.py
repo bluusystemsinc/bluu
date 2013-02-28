@@ -5,11 +5,13 @@
     {% load contextual_tags %}
 
 """
+from __future__ import unicode_literals
 from django import template
+from django.contrib.auth.models import Group, AnonymousUser
 
+from guardian.compat import get_user_model
 from guardian.exceptions import NotUserNorGroup
 from guardian.core import ObjectPermissionChecker
-from guardian.models import User, Group, AnonymousUser
 from grontextual.backends import get_uog_permissions
 register = template.Library()
 
@@ -21,11 +23,11 @@ class ObjectPermissionsNode(template.Node):
 
     def render(self, context):
         for_whom = self.for_whom.resolve(context)
-        if isinstance(for_whom, User):
+        if isinstance(for_whom, get_user_model()):
             self.user = for_whom
             self.group = None
         elif isinstance(for_whom, AnonymousUser):
-            self.user = User.get_anonymous()
+            self.user = get_user_model().get_anonymous()
             self.group = None
         elif isinstance(for_whom, Group):
             self.user = None

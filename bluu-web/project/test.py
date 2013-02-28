@@ -8,6 +8,8 @@ EMAIL_HOST_USER='noreply@bluusystems.com'
 EMAIL_HOST_PASSWORD='set this in local_settings.py'
 DEFAULT_FROM_EMAIL='noreply@bluusystems.com'
 
+COMPRESS_ENABLED = True
+
 ALLOWED_HOSTS=['test.web.bluusystems.com', '198.61.203.159']
 
 try:
