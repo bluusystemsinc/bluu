@@ -22,18 +22,10 @@ DataManager::DataManager(QObject* parent) :
 
     // thread->start();
     packetSendTask->moveToThread(scheduler);
+    databaseSendTask->moveToThread(scheduler);
     scheduler->registerTask(packetSendTask);
+    scheduler->registerTask(databaseSendTask);
     scheduler->start();
-
-    /*
-    QThread*    workerThread = new QThread(this);
-
-    packets.clear();
-    connect(workerThread, SIGNAL(started()), CBluuDataManagerWorker::Instance(), SLOT(workSlot()));
-    connect(workerThread, SIGNAL(finished()), CBluuDataManagerWorker::Instance(), SLOT(deleteLater()));
-    CBluuDataManagerWorker::Instance()->moveToThread(workerThread);
-    workerThread->start();
-    */
 }
 
 /**

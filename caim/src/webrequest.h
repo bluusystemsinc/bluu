@@ -38,10 +38,12 @@ public:
     void sendRequest();
     void setUrl(const QUrl& u);
 //    QString convertToJson(QVariantMap &fields);
+    QNetworkAccessManager* getManager();
 
 signals:
     void debugMessageMessage(int, QString message);
     void networkReplySignal(QNetworkReply* reply);
+    void networkReplyDatabaseSendSignal(QNetworkReply* reply);
 
 public slots:
 //    void send(debugMessage::debugMessageLevel debugMessageLevel, QVariantMap &fields);
@@ -68,6 +70,7 @@ private:
 //    int m_retryInterval;
     QTimer * stateTimer;
     QString m_url;
+    QObject*    whoSend;
     // QJson::Serializer s;
 };
 

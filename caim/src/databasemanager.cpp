@@ -5,6 +5,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
+#include <QDebug>
 
 /**
  * @brief DatabaseManager::DatabaseManager
@@ -13,6 +14,9 @@
 DatabaseManager::DatabaseManager(QObject *parent)
                : QObject(parent)
 {
+    connect(this, SIGNAL(sendSignal(QSqlQuery*)), SLOT(sendSlot(QSqlQuery*)));
+    connect(this, SIGNAL(networkSendSignal(QString*)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(QString*)));
+    connect(CBluuWebRequest::Instance(), SIGNAL(networkReplyDatabaseSendSignal(QNetworkReply*)), this, SLOT(networkReplySlot(QNetworkReply*)));
 }
 
 /**
@@ -80,6 +84,16 @@ bool DatabaseManager::writePacket(QString* packet)
 }
 
 /**
+ * @brief DatabaseManager::removePacket
+ * @param id
+ * @return
+ */
+bool DatabaseManager::removePacket(const quint64 &id)
+{
+    // TODO
+}
+
+/**
  * @brief DatabaseManager::createTable
  */
 void DatabaseManager::createTable()
@@ -130,29 +144,19 @@ void DatabaseManager::databaseStorePacketSlot(QString* packet)
 /**
  * @brief DatabaseManager::databaseSendPacketSlot
  */
-void DatabaseManager::databaseSendPacketSlot()
+void DatabaseManager::databaseSendPacketsSlot()
 {
     if(true == database.isOpen())
     {
         if(true == database.tables().contains("packet"))
         {
-
             QString     str = QString("select * from packet");
             QSqlQuery   query(str);
 
             if(true == query.exec())
             {
-                while(true == query.next())
-                {
-                    /*
-                    quint64     id = query.value(0).toInt();
-                    QString     packet = query.value(1).toString();
-
-                    connect(this, SIGNAL(networkSendSignal(QString)), CBluuWebRequest::Instance(),
-                                  SLOT(sendDataToServer(QString)), Qt::BlockingQueuedConnection);
-                    emit networkSendSignal(packet);
-                    */
-                }
+                qr = QSqlQuery(query);
+                emit sendSignal(&qr);
             }
         }
         else
@@ -168,29 +172,31 @@ void DatabaseManager::databaseSendPacketSlot()
  */
 void DatabaseManager::networkReplySlot(QNetworkReply* reply)
 {
-    // disconnect(this, SIGNAL(networkSendSignal(QString)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(QString)));
-
     if(QNetworkReply::NoError == reply->error())
+    {
+        quint64     id = qr.value(0).toInt();
+
+        removePacket(id);
+        emit sendSignal(&qr);
+    }
+}
+
+/**
+ * @brief DatabaseManager::sendSlot
+ * @param query
+ */
+void DatabaseManager::sendSlot(QSqlQuery* query)
+{
+    if(NULL != query)
+    {
+        if(true == query->next())
         {
-            // debugMessageThread("Packet send OK");
-            // result = true;
-            // emit sendSignal();
+            quint64     id = query->value(0).toInt();
+            QString     packet = query->value(1).toString();
+
+            emit networkSendSignal(&packet);
         }
         else
-        {
-            throw DatabaseException();
-            // debugMessageThread("Packed send FAIL, store in database");
-            // emit databaseStorePacketSignal(&*it);
-            // result = CBluuDatabaseManager::Instance()->writePacket(&*it);
-        }
-
-    /*
-        if(true == result)
-        {
-            QStringList*  packets = CBluuDataManager::Instance()->getPackets();
-            QMutexLocker    locker(CBluuDataManager::Instance()->getMutex());
-
-            packets->erase(it);
-        }
-        */
+            emit databaseSendPacketsSignal();
+    }
 }

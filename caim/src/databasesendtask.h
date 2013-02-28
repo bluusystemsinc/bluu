@@ -20,9 +20,11 @@ public:
 
 signals:
     void debugSignal(QString debugMessage);
+    void databaseSendPacketsSignal();
 
 public slots:
     virtual void processTask();
+    void databaseSendPacketsSlot();
 };
 
 #endif // DATABASESENDTASK_H

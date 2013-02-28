@@ -115,7 +115,7 @@ void DataManagerThread::run()
     connect(CBluuWebRequest::Instance(), SIGNAL(networkReplySignal(QNetworkReply*)), this, SLOT(networkReplySlot(QNetworkReply*)));
     connect(this, SIGNAL(networkSendSignal(QString)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(QString)));
     connect(this, SIGNAL(databaseStorePacketSignal(QString*)), CBluuDatabaseManager::Instance(), SLOT(databaseStorePacketSlot(QString*)));
-    connect(this, SIGNAL(databaseSendPacketSignal()), CBluuDatabaseManager::Instance(), SLOT(databaseSendPacketSlot()));
+    // connect(this, SIGNAL(databaseSendPacketSignal()), CBluuDatabaseManager::Instance(), SLOT(databaseSendPacketSlot()));
     emit sendSignal();
     timerPackets->start(5000);
     exec();

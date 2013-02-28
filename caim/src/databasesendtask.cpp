@@ -1,5 +1,9 @@
 #include "debug.h"
+#include "debugger.h"
 #include "databasesendtask.h"
+#include "databasemanager.h"
+
+#define HOURS_23 82800
 
 /**
  * @brief DatabaseSendTask::DatabaseSendTask
@@ -7,11 +11,11 @@
 DatabaseSendTask::DatabaseSendTask()
                 : Task()
 {
-    QTime       midnight(0, 0, 0, 0);
-
+    connect(this, SIGNAL(debugSignal(QString)), CBluuDebugger::Instance(), SLOT(debugSlot(QString)));
+    connect(this, SIGNAL(databaseSendPacketsSignal()), CBluuDatabaseManager::Instance(), SLOT(databaseSendPacketsSlot()));
+    connect(CBluuDatabaseManager::Instance(), SIGNAL(databaseSendPacketsSignal()), this, SLOT(databaseSendPacketsSlot()));
+    previousDateTime = currentDateTime = QDateTime::currentDateTime();
     type = taskRepeat;
-    sendTime = QDateTime::currentDateTime();
-    sendTime.setTime(midnight);
 }
 
 /**
@@ -22,6 +26,16 @@ void DatabaseSendTask::processTask()
 {
     valid = false;
     busy = true;
+    emit databaseSendPacketsSignal();
+}
+
+/**
+ * @brief DatabaseSendTask::databaseSendPacketsSlot
+ */
+void DatabaseSendTask::databaseSendPacketsSlot()
+{
+    busy = false;
+    valid = false;
 }
 
 /**
@@ -31,45 +45,22 @@ void DatabaseSendTask::processTask()
  */
 bool DatabaseSendTask::validateTask(const QDateTime& dateTime)
 {
-    Task::validateTask(dateTime);
+    valid = false;
 
     if(false == busy)
     {
-        if(false == initial)
-        {
-            if(5 <= previousDateTime.secsTo(dateTime))
-            {
+        QTime       midnight(0, 0, 0, 0);
 
+        if(dateTime.time() == midnight)
+        {
+            if(HOURS_23 <= previousDateTime.secsTo(dateTime))
+            {
+                debugMessageThread("Task validated");
+                valid = true;
+                previousDateTime = dateTime;
             }
         }
-        else
-        {
-            initial = false;
-            valid = true;
-            previousDateTime = dateTime;
-        }
     }
-
-    /*
-    if(false == busy)
-    {
-        QTime   currentTm = dateTime.time();
-        QTime   sendTm = sendTime.time();
-
-        if((currentTm.addSecs(-1) < sendTm) && (currentTm.addSecs(1) > sendTm))
-        {
-            valid = true;
-            debugMessageThread("Task validated");
-        }
-        else
-        {
-            valid = false;
-            debugMessageThread("Task invalidated");
-        }
-    }
-    else
-        valid = false;
-        */
 
     return valid;
 }

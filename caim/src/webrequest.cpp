@@ -21,7 +21,7 @@
 WebRequest::WebRequest()
 {
     m_currentState = stateNormal;
-
+    whoSend = NULL;
     manager = new QNetworkAccessManager();
     // connect(manager, SIGNAL(finished(QNetworkReply*)), CBluuDataManagerWorker::Instance(), SLOT(networkReplySlot(QNetworkReply*)));
 
@@ -33,7 +33,7 @@ WebRequest::WebRequest(QObject *parent) :
 {
 
     m_currentState = stateNormal;
-
+    whoSend = NULL;
     manager = new QNetworkAccessManager(this);
     // QObject::connect(manager, SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
 
@@ -44,7 +44,7 @@ WebRequest::WebRequest(QObject *parent, const QString url) :
     m_url(url)
 {
     m_currentState = stateNormal;
-
+    whoSend = NULL;
     manager = new QNetworkAccessManager(this);
     // QObject::connect(manager,     SIGNAL(finished(QNetworkReply* )), this, SLOT(finishedSlot(QNetworkReply*)));
 }
@@ -72,6 +72,14 @@ void WebRequest::setUrl(const QUrl& u)
     // m_url = url;
 }
 
+/**
+ * @brief WebRequest::getManager
+ * @return
+ */
+QNetworkAccessManager* WebRequest::getManager()
+{
+    return manager;
+}
 
 void WebRequest::finishedSlot(QNetworkReply* reply)
 {
@@ -98,7 +106,18 @@ void WebRequest::finishedSlot(QNetworkReply* reply)
     }
     */
 
-    emit networkReplySignal(reply);
+    if(NULL != whoSend)
+    {
+        QString     className = whoSend->metaObject()->className();
+
+        qDebug() << "AAAAAAAAAAAA" << className;
+
+        if("DatabaseManager" == className)
+            emit networkReplyDatabaseSendSignal(reply);
+
+        if("PacketSendTask" == className)
+            emit networkReplySignal(reply);
+    }
 }
 
 
@@ -132,6 +151,7 @@ void WebRequest::sendDataToServer(QString* msg)
     QUrl        tmpUrl;
     QByteArray  temp = msg->toUtf8();
 
+    whoSend = sender();
     request.setUrl(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", "Basic" + QByteArray(QString("%1:%2").arg(USER).arg(PASSWORD).toAscii()).toBase64());
