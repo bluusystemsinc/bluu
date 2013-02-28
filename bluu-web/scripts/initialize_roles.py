@@ -260,6 +260,7 @@ def run():
     user_group.permissions = [
         perm_change_user,
         perm_browse_sites,
+        perm_view_site,
     ]
 
     """

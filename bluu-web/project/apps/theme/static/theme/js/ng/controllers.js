@@ -163,7 +163,7 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
 
       $scope.set = function (id, group) {
           var access = new SiteAccess({'id': id,
-                                          'group': group});
+                                       'group': group});
           access.$set_access({'siteId':SITE_ID}, function(data){
               console.log(data);
               $scope.access_datatable.fnDraw();

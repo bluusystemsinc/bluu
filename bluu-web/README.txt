@@ -22,6 +22,12 @@ Installation procedure:
    instead configure web server to run Django.
    For more information about this see Django docs (https://docs.djangoproject.com/en/1.5/howto/deployment/)
 
+8. Set up cron jobs:
+* *  * * * (/opt/webapps/test/bluu/bin/django send_mail >> /opt/webapps/test/cron_bluu_mailer.out 2>&1)
+0,20,40 * * * * (/opt/webapps/test/bluu/bin/django retry_deferred >> /opt/webapps/test/cron_bluu_mailer.out 2>&1)
+0 0 * * * (/opt/webapps/test/bluu/bin/django cleanupinvitation >> /opt/webapps/test/cron_bluu_invitations.out 2>&1)
+
+
 Additional informations:
 1. Project uses buildout (buildout.org) to perform installation
 2. Base buildout configuration is at buildout.cfg
