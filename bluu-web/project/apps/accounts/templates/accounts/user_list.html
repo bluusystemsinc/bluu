@@ -12,7 +12,7 @@
     </div>
 
     {% if perms.accounts.add_bluuuser %}
-    <ul class="nav nav-pills nav-stacked">
+    <ul class="nav nav-pills">
         <li><a href="{% url 'bluuuser_add' %}">{% trans "Add user" %}</a></li>
     </ul>
     {% endif %}
@@ -83,10 +83,7 @@
                     {
                         $(nTd).css('text-align', 'center');
                     },
-                    "mData": "edit_url",
-                    "mRender": function( data, type, full) {
-                        return '<a href="' + data + '">{% trans "Edit" %}</a>';
-                    },
+                    "mData": "actions",
                     "bSearchable": false, 
                     "bSortable": false
                 }
