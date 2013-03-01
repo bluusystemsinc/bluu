@@ -23,5 +23,18 @@ urlpatterns = patterns('',
     url(
         r'',
         include('devices.urls', namespace="devices")),
+    url(r'^(?P<site_pk>\d+)/rooms/$',
+        views.RoomListView.as_view(),
+        name='room_list'),
+    url(r'^(?P<site_pk>\d+)/rooms/add/$',
+        views.RoomCreateView.as_view(),
+        name='room_add'),
+    url(r'^(?P<site_pk>\d+)/rooms/(?P<pk>\d+)/$',
+        views.RoomUpdateView.as_view(),
+        name='room_edit'),
+    url(
+        r'^(?P<site_pk>\d+)/rooms/(?P<pk>\d+)/delete/$',
+        views.room_delete,
+        name='room_delete'),
 )
 

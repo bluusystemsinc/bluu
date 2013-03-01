@@ -68,14 +68,27 @@ perm_delete_bluusiteaccess = Permission.objects.get(content_type=siteaccess_type
 
 perm_browse_devices = Permission.objects.get(content_type=site_type,
                                                   codename=u"browse_devices")
-perm_view_device = Permission.objects.get(content_type=device_type,
-                                                  codename=u"view_device")
+#perm_view_device = Permission.objects.get(content_type=site_type,
+#                                                  codename=u"view_device")
 perm_add_device = Permission.objects.get(content_type=site_type,
                         codename=u"add_device")
 perm_change_device = Permission.objects.get(content_type=site_type,
                         codename=u"change_device")
 perm_delete_device = Permission.objects.get(content_type=site_type,
                         codename=u"delete_device")
+
+perm_browse_rooms = Permission.objects.get(content_type=site_type,
+                                                  codename=u"browse_rooms")
+#perm_view_room = Permission.objects.get(content_type=site_type,
+#                                                  codename=u"view_room")
+perm_add_room = Permission.objects.get(content_type=site_type,
+                        codename=u"add_room")
+perm_change_room = Permission.objects.get(content_type=site_type,
+                        codename=u"change_room")
+perm_delete_room = Permission.objects.get(content_type=site_type,
+                        codename=u"delete_room")
+
+
 
 
 def run():
@@ -119,9 +132,13 @@ def run():
         perm_delete_bluusiteaccess,
 
         perm_browse_devices,
-        perm_view_device,
         perm_add_device,
         perm_change_device,
+        perm_delete_device,
+
+        perm_browse_rooms,
+        perm_add_room,
+        perm_change_room,
         perm_delete_device,
     ]
 
@@ -161,9 +178,13 @@ def run():
         perm_delete_bluusiteaccess,
 
         perm_browse_devices,
-        perm_view_device,
         perm_add_device,
         perm_change_device,
+        perm_delete_device,
+
+        perm_browse_rooms,
+        perm_add_room,
+        perm_change_room,
         perm_delete_device,
     ]
 
@@ -197,9 +218,13 @@ def run():
         perm_delete_bluusiteaccess,
 
         perm_browse_devices,
-        perm_view_device,
         perm_add_device,
         perm_change_device,
+        perm_delete_device,
+
+        perm_browse_rooms,
+        perm_add_room,
+        perm_change_room,
         perm_delete_device,
     ]
 

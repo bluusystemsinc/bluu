@@ -14,5 +14,9 @@ urlpatterns = patterns('',
     url(r'^(?P<site_pk>\d+)/devices/(?P<pk>\d+)/$',
         views.DeviceUpdateView.as_view(),
         name='device_edit'),
+    url(
+        r'^(?P<site_pk>\d+)/devices/(?P<pk>\d+)/delete/$',
+        views.device_delete,
+        name='device_delete'),
 )
 

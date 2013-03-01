@@ -50,6 +50,10 @@ class BluuSite(models.Model):
             ("add_device", "Can add device"),
             ("change_device", "Can change device"),
             ("delete_device", "Can delete device"),
+            ("browse_rooms", "Can browse rooms"),
+            ("add_room", "Can add room"),
+            ("change_room", "Can change room"),
+            ("delete_room", "Can delete room"),
         )
 
     def __unicode__(self):
@@ -94,6 +98,18 @@ class BluuSiteAccess(models.Model):
         if self.user is not None:
             return self.user.email
         return self.email
+
+
+class Room(models.Model):
+    bluusite = models.ForeignKey(BluuSite)
+    name = models.CharField(_('name'), max_length=255)
+
+    def __unicode__(self):
+        return u'%s' % unicode(self.name)
+ 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('room_edit', [str(self.bluusite_id), str(self.id)])
 
 
 @receiver(pre_save, sender=BluuSite)

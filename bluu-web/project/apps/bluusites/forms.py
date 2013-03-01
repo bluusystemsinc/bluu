@@ -11,7 +11,7 @@ from crispy_forms.layout import Submit
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
 
-from .models import BluuSite, BluuSiteAccess
+from .models import BluuSite, BluuSiteAccess, Room
 
 class SiteForm(forms.ModelForm):
 
@@ -143,5 +143,38 @@ class SiteInvitationForm(forms.ModelForm):
                 raise forms.ValidationError(_('User with the same e-mail has already been granted access.'))
         # Always return the full collection of cleaned data.
         return cleaned_data
+
+
+class RoomForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        self.bluusite = kwargs.pop('bluusite')
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = layout.Layout(
+            layout.Div(
+                    layout.Field('name'),
+            ),
+            FormActions(
+                layout.Submit('submit', _('Submit'), css_class="btn-primary")
+            )
+        )
+
+        super(RoomForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Room
+        fields = ('name',)
+
+    def save(self, commit=True):
+        instance = super(RoomForm, self).save(commit=False)
+        if hasattr(self, 'bluusite') and self.bluusite is not None:
+            instance.bluusite = self.bluusite
+        instance.save()
+        if commit:
+            self.save_m2m()
+        return instance
 
 

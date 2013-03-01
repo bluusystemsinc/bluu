@@ -26,13 +26,8 @@ from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
 from invitations.models import InvitationKey
 from grontextual.models import UserObjectGroup
 from accounts.models import BluuUser
-from companies.models import Company
-from companies.serializers import CompanyAccessSerializer,\
-        CompanyAccessGroupsSerializer
-from devices.models import Device
 
-from .models import BluuSite, BluuSiteAccess
-from .serializers import SiteSerializer
+from .models import (BluuSite, BluuSiteAccess, Room)
 from .forms import SiteInvitationForm
 
 
@@ -294,3 +289,90 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteAccessUpdateView, self).dispatch(*args, **kwargs)
 
+
+class RoomListJson(BaseDatatableView):
+    """
+    Returns list of rooms assigned to a site.
+    It's intended to work with Jquery datatable.
+    """
+
+    # Defines column names that will be used in sorting.
+    # Order is important and should be the same as order of columns
+    # displayed by datatables. For non sortable columns use empty
+    # value like ''
+    order_columns = ['', 'name']
+
+    def get_site(self, pk):
+        return get_object_or_404(BluuSite, pk=pk)
+
+    def filter_queryset(self, qs):
+        q = self.request.GET.get('sSearch', None)
+        if q is not None:
+            return qs.filter(Q(name__istartswith=q))
+        return qs
+
+    def get_context_data(self, *args, **kwargs):
+        request = self.request
+        self.initialize(*args, **kwargs)
+
+        self.bluusite = self.get_site(kwargs.get('site_pk'))
+
+        qs = Room.objects.filter(bluusite=self.bluusite)
+        # number of records before filtering
+        total_records = qs.count()
+        qs = self.filter_queryset(qs)
+        # number of records after filtering
+        total_display_records = qs.count()
+        qs = self.ordering(qs)
+        qs = self.paging(qs)
+
+        # prepare output data
+        aaData = self.prepare_results(qs)
+
+        ret = {'sEcho': int(request.REQUEST.get('sEcho', 0)),
+               'iTotalRecords': total_records,
+               'iTotalDisplayRecords': total_display_records,
+               'aaData': aaData
+               }
+
+        return ret
+
+    def prepare_results(self, qs):
+        # prepare list with output column data
+        # queryset is already paginated here
+        json_data = []
+
+        try:
+            no = int(self.request.GET.get('iDisplayStart', 0)) + 1
+        except (ValueError, TypeError):
+            no = 0
+
+        for room in qs:
+            actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
+                    reverse('room_edit', args=(room.bluusite_id, room.pk,)), _('Manage'),
+                    reverse('room_delete', args=(room.bluusite_id, room.pk,)), 
+                    _('Are you sure you want delete this room?'),
+                    _('Delete'))
+
+            json_data.append(
+                {
+                    "room":{
+                        "no": no,
+                        "name": room.name,
+                        "actions": actions
+                    }
+                }
+            )
+            no += 1
+        return json_data
+
+    @method_decorator(permission_required_or_403(
+        'bluusites.change_bluusite',
+        (BluuSite, 'pk', 'site_pk'),
+        accept_global_perms=True))
+    @method_decorator(permission_required_or_403(
+        'bluusites.browse_rooms',
+        (BluuSite, 'pk', 'site_pk'),
+        accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(RoomListJson, self).dispatch(*args, **kwargs)

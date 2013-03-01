@@ -83,9 +83,20 @@ class DeviceUpdateView(UpdateView):
     model = Device
     template_name = "devices/device_update.html"
     form_class = DeviceForm
+    pk_url_kwarg = 'pk'
+
+    def get_site(self):
+        pk = self.kwargs.get('site_pk', None)
+        return get_object_or_404(BluuSite, pk=int(pk))
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(DeviceUpdateView, self).get_context_data(**kwargs)
+        kwargs.update({'bluusite': self.get_site()})
+        return kwargs
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(DeviceUpdateView, self).get_form_kwargs(**kwargs)
+        kwargs['bluusite'] = self.get_site()
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -96,9 +107,19 @@ class DeviceUpdateView(UpdateView):
 
     @method_decorator(login_required)
     @method_decorator(permission_required('bluusites.change_device',
-                                          (BluuSite, 'pk', 'pk'),
+                                          (BluuSite, 'pk', 'site_pk'),
                                           accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(DeviceUpdateView, self).dispatch(*args, **kwargs)
+
+
+@permission_required('bluusites.delete_device',
+                     (BluuSite, 'pk', 'site_pk'))
+def device_delete(request, site_pk, pk):
+    obj = get_object_or_404(Device, pk=pk)
+    obj.delete()
+    messages.success(request, _('Device deleted'))
+    site_pk = int(site_pk)
+    return redirect('devices:device_list', site_pk=site_pk)
 
 

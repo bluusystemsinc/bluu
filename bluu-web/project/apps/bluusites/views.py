@@ -14,8 +14,8 @@ from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 from grontextual.shortcuts import get_objects_for_user
 from accounts.forms import BluuUserForm
 from accounts.models import BluuUser
-from .forms import SiteInvitationForm
-from .models import BluuSite
+from .forms import SiteInvitationForm, RoomForm
+from .models import BluuSite, Room
 from .forms import SiteForm
 
 
@@ -226,4 +226,106 @@ def site_user_delete(request, pk, site_id):
     obj.delete()
     messages.success(request, _('Bluuuser deleted'))
     return redirect('site_users', pk=site.pk)
+
+class RoomListView(TemplateView):
+    template_name = "bluusites/room_list.html"
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get('site_pk', None)
+        return get_object_or_404(BluuSite, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        bluusite = self.get_object()
+        return {
+            'params': kwargs,
+            'bluusite': bluusite,
+        }
+
+    @method_decorator(permission_required(
+                        'bluusites.change_bluusite',
+                        (BluuSite, 'pk', 'site_pk'),
+                        accept_global_perms=True))
+    @method_decorator(permission_required(
+                        'bluusites.browse_rooms',
+                        (BluuSite, 'pk', 'site_pk'),
+                        accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(RoomListView, self).dispatch(*args, **kwargs)
+
+
+class RoomCreateView(CreateView):
+    model = Room
+    template_name = "bluusites/room_create.html"
+    form_class = RoomForm
+    pk_url_kwarg = 'site_pk'
+
+    def get_site(self):
+        pk = self.kwargs.get(self.pk_url_kwarg, None)
+        return get_object_or_404(BluuSite, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(RoomCreateView, self).get_context_data(**kwargs)
+        kwargs.update({'bluusite': self.get_site()})
+        return kwargs
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(RoomCreateView, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        kwargs['bluusite'] = self.get_site()
+        return kwargs
+
+    def form_valid(self, form):
+        response = super(RoomCreateView, self).form_valid(form)
+        messages.success(self.request, _('Room added'))
+        return response
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('bluusites.add_room'))
+    def dispatch(self, *args, **kwargs):
+        return super(RoomCreateView, self).dispatch(*args, **kwargs)
+
+
+class RoomUpdateView(UpdateView):
+    model = Room
+    template_name = "bluusites/room_update.html"
+    form_class = RoomForm
+    pk_url_kwarg = 'pk'
+
+    def get_site(self):
+        pk = self.kwargs.get('site_pk', None)
+        return get_object_or_404(BluuSite, pk=int(pk))
+
+    def get_context_data(self, **kwargs):
+        kwargs = super(RoomUpdateView, self).get_context_data(**kwargs)
+        kwargs.update({'bluusite': self.get_site()})
+        return kwargs
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(RoomUpdateView, self).get_form_kwargs(**kwargs)
+        kwargs['bluusite'] = self.get_site()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        response = super(RoomUpdateView, self).form_valid(form)
+        messages.success(self.request, _('Room changed'))
+        return response
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('bluusites.change_room',
+                                          (BluuSite, 'pk', 'site_pk'),
+                                          accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(RoomUpdateView, self).dispatch(*args, **kwargs)
+
+
+@permission_required('bluusites.delete_room',
+                     (BluuSite, 'pk', 'site_pk'))
+def room_delete(request, site_pk, pk):
+    obj = get_object_or_404(Room, pk=pk)
+    obj.delete()
+    messages.success(request, _('Room deleted'))
+    site_pk = int(site_pk)
+    return redirect('room_list', site_pk=site_pk)
+
 

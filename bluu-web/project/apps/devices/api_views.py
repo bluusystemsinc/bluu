@@ -91,17 +91,16 @@ class DeviceListJson(BaseDatatableView):
             no = 0
 
         for device in qs:
+            actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
+                    reverse('devices:device_edit', args=(device.bluusite_id, device.pk,)), _('Manage'),
+                    reverse('devices:device_delete', args=(device.bluusite_id, device.pk,)), 
+                    _('Are you sure you want delete this device?'),
+                    _('Delete'))
 
-            #actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
-            #        reverse('device_edit', args=(device.bluusite_id, device.pk,)), _('Manage'),
-            #        reverse('device_delete', args=(device.pk,)), 
-            #        _('Are you sure you want delete this device?'),
-            #        _('Delete'))
-
-            actions = '<a href="{0}">{1}</a>'.format(
-                    reverse('devices:device_edit',
-                            args=(device.bluusite_id, device.pk,)),
-                    _('Manage'))
+            #actions = '<a href="{0}">{1}</a>'.format(
+            #        reverse('devices:device_edit',
+            #                args=(device.bluusite_id, device.pk,)),
+            #        _('Manage'))
 
             json_data.append(
                 {
@@ -110,6 +109,7 @@ class DeviceListJson(BaseDatatableView):
                         "name": device.name,
                         "serial": device.serial,
                         "device_type": device.device_type,
+                        "room": device.room.name,
                         "actions": actions
                     }
                 }

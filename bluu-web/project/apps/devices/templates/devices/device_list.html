@@ -35,6 +35,7 @@
             <th>{% trans 'Name' %}</th>
             <th>{% trans 'Serial' %}</th>
             <th>{% trans 'Type' %}</th>
+            <th>{% trans 'Room' %}</th>
             <th>{% trans 'Actions' %}</th>
         </tr>
     </thead>
@@ -50,12 +51,13 @@
     {{ block.super }}
     {% include "utils/_datatable_trans.html" %}
     <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}theme/js/datatables-bootstrap-paging.js" language="javascript" type="text/javascript"></script>
     <script charset="utf-8" type="text/javascript">
-    //var COMPANY_ID = {{ company.id }};
     $(document).ready(function() {
         $('#site_list_table').dataTable( {
          "oLanguage": DATATABLE_TRANS,
          "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+         "sPaginationType": "bootstrap",
          "bServerSide": true,
          "bProcessing": false,
          "sAjaxSource": "{% url 'sites:api_device_list_json' bluusite.pk %}",
@@ -69,6 +71,7 @@
                 { "mData": 'device.name'},
                 { "mData": 'device.serial'},
                 { "mData": 'device.device_type'},
+                { "mData": 'device.room'},
                 {
                     "fnCreatedCell": function(nTd, sData, oData, iRow, iCol)
                     {

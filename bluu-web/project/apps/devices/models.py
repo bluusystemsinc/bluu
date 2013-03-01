@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 
 from model_utils.models import TimeStampedModel
 
-from bluusites.models import BluuSite
+from bluusites.models import (BluuSite, Room)
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 
@@ -51,6 +51,7 @@ class Device(TimeStampedModel):
     serial = models.CharField(_('serial'), max_length=6)
     device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     bluusite = models.ForeignKey(BluuSite)
+    room = models.ForeignKey(Room)
 
     class Meta:
         verbose_name = _("device")
@@ -65,7 +66,7 @@ class Device(TimeStampedModel):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('device_edit', [str(self.bluusite_id), str(self.id)])
+        return ('devices:device_edit', [str(self.bluusite_id), str(self.id)])
 
 
 class Status(models.Model):
@@ -84,3 +85,12 @@ class Status(models.Model):
     supervisory = models.BooleanField(_('supervisory'))
     tamper = models.BooleanField(_('tamper'))
     timestamp = models.DateTimeField(_('timestamp'))
+
+    class Meta:
+        verbose_name = _("status")
+        verbose_name_plural = _("statuses")
+
+    def __unicode__(self):
+        return "{0} | {1} | {2}".format(self.timestamp,
+                                        self.device.name,
+                                        self.data)
