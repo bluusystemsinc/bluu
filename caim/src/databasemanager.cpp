@@ -102,7 +102,7 @@ bool DatabaseManager::writePacket(QString* packet)
  * @param id
  * @return
  */
-bool DatabaseManager::removePacket(const quint64 &id)
+void DatabaseManager::removePacket(const quint64 &id)
 {
     debugMessage();
 
@@ -150,8 +150,6 @@ void DatabaseManager::createTable()
 void DatabaseManager::databaseStorePacketSlot(QString* packet)
 {
     debugMessage();
-
-    bool    result = false;
 
     if(true == database.isOpen())
     {
@@ -230,9 +228,7 @@ void DatabaseManager::sendSlot(QSqlQuery* query)
     {
         if(true == query->next())
         {
-            quint64     id = query->value(0).toInt();
             QString     packet = query->value(1).toString();
-
             emit networkSendSignal(&packet);
         }
         else

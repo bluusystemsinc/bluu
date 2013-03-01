@@ -7,4 +7,5 @@ JSonRequest::JSonRequest(QObject *parent) :
 
 void JSonRequest::send(const QByteArray &data)
 {
+    Q_UNUSED(data);
 }

@@ -125,11 +125,3 @@ void PacketSendTask::sendSlot()
         busy = false;
     }
 }
-
-/**
- * @brief PacketSendTask::setSpan
- * @param tm
- */
-void PacketSendTask::setSpan(const QTime &tm)
-{
-}

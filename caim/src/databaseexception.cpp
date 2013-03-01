@@ -39,4 +39,5 @@ const char *DatabaseException::what()
  */
 void DatabaseException::setSqlError(const QSqlError& value)
 {
+    error = value;
 }
