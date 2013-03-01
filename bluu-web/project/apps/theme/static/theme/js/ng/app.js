@@ -2,7 +2,7 @@
 
 
 // Declare app level module which depends on filters, and services
-var app = angular.module('Bluu', ['ui', 'ui.bootstrap.dialog', 'ngGrid', 'Bluu.filters', 'Bluu.services', 'Bluu.directives']).
+var app = angular.module('Bluu', ['ui', 'ui.bootstrap.dialog', 'Bluu.filters', 'Bluu.services', 'Bluu.directives']).
   config(['$httpProvider', function($httpProvider) {
       var authToken;
       authToken = $('meta[name="csrf-token"]').attr('content');
