@@ -77,6 +77,12 @@ class BluuUserListJson(PermissionRequiredMixin, BaseDatatableView):
             no = 0
 
         for item in qs:
+            actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
+                    reverse('bluuuser_edit', kwargs={'username': item.username}), _('Edit'),
+                    reverse('bluuuser_delete', kwargs={'username': item.username}), 
+                    _('Are you sure you want delete this user?'),
+                    _('Delete'))
+
             json_data.append(
                 {
                     "no": no,
@@ -84,7 +90,7 @@ class BluuUserListJson(PermissionRequiredMixin, BaseDatatableView):
                     "full_name": item.get_full_name(),
                     "email": item.email,
                     "is_active": item.is_active and _('active') or _('inactive'),
-                    "edit_url": reverse('bluuuser_edit', args=[item.username]),
+                    "actions": actions,
                 }
             )
             no += 1

@@ -14,7 +14,7 @@
         <li class="{% active request "^/accounts/users/[\w.@+-]+/companies/$" %}"><a href="{% url 'bluuuser_companies' object.username %}">{% trans 'Assigned Companies' %}</a></li>
         {% if object %}
             <li class="divider"></li>
-            {% if perms.accounts.delete_bluuuser %}<li><a href="{% url 'bluuuser_delete' object.username %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Remove user' %}</a></li>{% endif %}
+            {% if perms.accounts.delete_bluuuser %}<li><a href="{% url 'bluuuser_delete' object.username %}" onclick="return confirm('{% trans "Are you sure you want delete this user?" %}')">{% trans 'Delete user' %}</a></li>{% endif %}
         {% endif %}
       </ul>
     </div>

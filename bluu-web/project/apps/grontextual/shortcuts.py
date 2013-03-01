@@ -1,16 +1,22 @@
+from __future__ import unicode_literals
+
+from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 from django.shortcuts import _get_queryset
 from itertools import groupby
 
+from guardian.compat import get_user_model
+from guardian.compat import basestring
 from guardian.core import ObjectPermissionChecker
 from guardian.exceptions import MixedContentTypeError
 from guardian.exceptions import WrongAppError
-from guardian.models import UserObjectPermission, GroupObjectPermission
 from guardian.utils import get_identity
-from guardian.models import Permission, User, Group
-
+from guardian.utils import get_user_obj_perms_model
+from guardian.utils import get_group_obj_perms_model
+import warnings
 from .models import UserObjectGroup
 
 def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=False):
@@ -109,19 +115,30 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
         return queryset
 
     # Now we should extract list of pk values for which we would filter queryset
-    user_obj_perms = UserObjectPermission.objects\
-        .filter(user=user)\
-        .filter(permission__content_type=ctype)\
-        .filter(permission__codename__in=codenames)\
-        .values_list('object_pk', 'permission__codename')
+    user_model = get_user_obj_perms_model(queryset.model)
+    user_obj_perms_queryset = (user_model.objects
+        .filter(user=user)
+        .filter(permission__content_type=ctype)
+        .filter(permission__codename__in=codenames))
+    if user_model.objects.is_generic():
+        fields = ['object_pk', 'permission__codename']
+    else:
+        fields = ['content_object__pk', 'permission__codename']
+    user_obj_perms = user_obj_perms_queryset.values_list(*fields)
     data = list(user_obj_perms)
     if use_groups:
-        group_kwargs = {'group__%s' % User.groups_backref_name: user}
-        groups_obj_perms = GroupObjectPermission.objects\
-            .filter(**group_kwargs)\
-            .filter(permission__content_type=ctype)\
-            .filter(permission__codename__in=codenames)\
-            .values_list('object_pk', 'permission__codename')
+        group_model = get_group_obj_perms_model(queryset.model)
+        group_filters = {
+            'permission__content_type': ctype,
+            'permission__codename__in': codenames,
+            'group__%s' % get_user_model()._meta.module_name: user,
+        }
+        groups_obj_perms_queryset = group_model.objects.filter(**group_filters)
+        if group_model.objects.is_generic():
+            fields = ['object_pk', 'permission__codename']
+        else:
+            fields = ['content_object__pk', 'permission__codename']
+        groups_obj_perms = groups_obj_perms_queryset.values_list(*fields)
         data += list(groups_obj_perms)
 
     # Here we search for groups assigned to a user
