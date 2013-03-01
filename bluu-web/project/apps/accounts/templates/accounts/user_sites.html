@@ -18,7 +18,7 @@
 <ul>
 {% for site in bluusites %}
 <li><a href="{{ site.get_absolute_url }}">{{ site.first_name }} {{ site.last_name }}</a></li>
-{% else %}
+{% empty %}
 <li>{% trans "No sites assigned" %}
 {% endfor %}
 </ul>

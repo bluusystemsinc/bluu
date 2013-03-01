@@ -18,7 +18,7 @@
 <ul>
 {% for company in companies %}
 <li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a></li>
-{% else %}
+{% empty %}
 <li>{% trans "No companies assigned" %}
 {% endfor %}
 </ul>
