@@ -3,6 +3,9 @@ from project.settings import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+COMPRESS_ENABLED = False
+COMPRESS_OFFLINE = False
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
