@@ -1,6 +1,7 @@
 #include "databasemanager.h"
 #include "webrequest.h"
 #include "databaseexception.h"
+#include "debug.h"
 #include <QDir>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -14,6 +15,8 @@
 DatabaseManager::DatabaseManager(QObject *parent)
                : QObject(parent)
 {
+    debugMessage();
+
     connect(this, SIGNAL(sendSignal(QSqlQuery*)), SLOT(sendSlot(QSqlQuery*)));
     connect(this, SIGNAL(networkSendSignal(QString*)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(QString*)));
     connect(CBluuWebRequest::Instance(), SIGNAL(networkReplyDatabaseSendSignal(QNetworkReply*)), this, SLOT(networkReplySlot(QNetworkReply*)));
@@ -25,6 +28,8 @@ DatabaseManager::DatabaseManager(QObject *parent)
  */
 bool DatabaseManager::openDB()
 {
+    debugMessage();
+
     database = QSqlDatabase::addDatabase("QSQLITE");
 
 #ifdef Q_OS_LINUX
@@ -45,6 +50,8 @@ bool DatabaseManager::openDB()
  */
 bool DatabaseManager::deleteDB()
 {
+    debugMessage();
+
     // Close database
     database.close();
 
@@ -67,6 +74,8 @@ bool DatabaseManager::deleteDB()
  */
 bool DatabaseManager::writePacket(QString* packet)
 {
+    debugMessage();
+
     bool    result = false;
 
     if(true == database.isOpen())
@@ -76,9 +85,14 @@ bool DatabaseManager::writePacket(QString* packet)
             QString     str = QString("insert into packet values (NULL, %1").arg(*packet);
             QSqlQuery   query(str);
 
-            result = query.exec();
+            if(false == query.exec())
+                throw DatabaseException(DatabaseException::databaseInsertException, query.lastError());
         }
+        else
+            throw DatabaseException(DatabaseException::databaseTableException);
     }
+    else
+        throw DatabaseException(DatabaseException::databaseOpenException);
 
     return result;
 }
@@ -90,7 +104,22 @@ bool DatabaseManager::writePacket(QString* packet)
  */
 bool DatabaseManager::removePacket(const quint64 &id)
 {
-    // TODO
+    debugMessage();
+
+    if(true == database.isOpen())
+    {
+        if(true == database.tables().contains("packet"))
+        {
+            QSqlQuery   query(QString("delete from packet where id = %1").arg(id));
+
+            if(false == query.exec())
+                throw DatabaseException(DatabaseException::databaseRemoveException, query.lastError());
+        }
+        else
+            throw DatabaseException(DatabaseException::databaseTableException);
+    }
+    else
+        throw DatabaseException(DatabaseException::databaseOpenException);
 }
 
 /**
@@ -98,6 +127,8 @@ bool DatabaseManager::removePacket(const quint64 &id)
  */
 void DatabaseManager::createTable()
 {
+    debugMessage();
+
     if(true == database.isOpen())
     {
         if(false == database.tables().contains("packet"))
@@ -118,6 +149,8 @@ void DatabaseManager::createTable()
  */
 void DatabaseManager::databaseStorePacketSlot(QString* packet)
 {
+    debugMessage();
+
     bool    result = false;
 
     if(true == database.isOpen())
@@ -127,9 +160,7 @@ void DatabaseManager::databaseStorePacketSlot(QString* packet)
             QString     str = QString("insert into packet (content) values ('%1')").arg(*packet);
             QSqlQuery   query(str);
 
-            result = query.exec();
-
-            if(false == result)
+            if(false == query.exec())
                 throw DatabaseException(DatabaseException::databaseInsertException, query.lastError());
             else
                 emit databasePacketStoredSignal();
@@ -146,6 +177,8 @@ void DatabaseManager::databaseStorePacketSlot(QString* packet)
  */
 void DatabaseManager::databaseSendPacketsSlot()
 {
+    debugMessage();
+
     if(true == database.isOpen())
     {
         if(true == database.tables().contains("packet"))
@@ -158,12 +191,14 @@ void DatabaseManager::databaseSendPacketsSlot()
                 qr = QSqlQuery(query);
                 emit sendSignal(&qr);
             }
+            else
+                throw DatabaseException(DatabaseException::databaseSelectException, query.lastError());
         }
         else
-            throw 0;
+            throw DatabaseException(DatabaseException::databaseTableException);
     }
     else
-        throw 0;
+        throw DatabaseException(DatabaseException::databaseOpenException);
 }
 
 /**
@@ -172,6 +207,8 @@ void DatabaseManager::databaseSendPacketsSlot()
  */
 void DatabaseManager::networkReplySlot(QNetworkReply* reply)
 {
+    debugMessage();
+
     if(QNetworkReply::NoError == reply->error())
     {
         quint64     id = qr.value(0).toInt();
@@ -187,6 +224,8 @@ void DatabaseManager::networkReplySlot(QNetworkReply* reply)
  */
 void DatabaseManager::sendSlot(QSqlQuery* query)
 {
+    debugMessage();
+
     if(NULL != query)
     {
         if(true == query->next())
