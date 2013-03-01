@@ -15,12 +15,10 @@
 DataManager::DataManager(QObject* parent) :
     QObject(parent)
 {
-    // DataManagerThread*  thread = new DataManagerThread();
     Scheduler*    scheduler = new Scheduler();
     DatabaseSendTask*   databaseSendTask = new DatabaseSendTask();
     PacketSendTask*     packetSendTask = new PacketSendTask();
 
-    // thread->start();
     packetSendTask->moveToThread(scheduler);
     databaseSendTask->moveToThread(scheduler);
     scheduler->registerTask(packetSendTask);

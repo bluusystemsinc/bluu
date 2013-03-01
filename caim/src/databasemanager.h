@@ -20,7 +20,7 @@ public:
     bool openDB();
     bool deleteDB();
     bool writePacket(QString* packet);
-    bool removePacket(const quint64& id);
+    void removePacket(const quint64& id);
     void createTable();
 
 signals:

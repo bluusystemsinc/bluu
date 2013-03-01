@@ -18,7 +18,6 @@ private:
 public:
     explicit PacketSendTask(QObject *parent = 0);
     virtual bool validateTask(const QDateTime& dateTime);
-    void setSpan(const QTime& tm);
     
 signals:
     void databaseStorePacketSignal(QString* data);

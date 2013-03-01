@@ -73,12 +73,9 @@ void DataManagerThread::networkReplySlot(QNetworkReply *reply)
 {
     debugMessageThread("");
 
-    bool    result = false;
-
     if(QNetworkReply::NoError == reply->error())
     {
         debugMessageThread("Packet send OK");
-        result = true;
         // emit sendSignal();
     }
     else

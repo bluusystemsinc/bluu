@@ -125,6 +125,8 @@ void WebRequest::sendDataToServer(const QVariantMap &info)
 {
     debugMessage();
 
+    Q_UNUSED(info);
+
     QVariantList infoData;
     QNetworkRequest request;
     QUrl tmpUrl;
