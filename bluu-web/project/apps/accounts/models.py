@@ -125,11 +125,15 @@ class BluuUser(AbstractUser):
             If user isn't Bluu or Dealer or Technician and is assigned
             to only one site then show this one site
             """
-            perm_dict = {'bluusites': False,
-                    'bluusite': 
-                        {'bluusite':sites[0],
-                         'can_browse_devices': self.has_perm('browse_devices', sites[0])
-                        }
+            perm_dict = {
+                'bluusites': False,
+                'bluusite': 
+                    {'bluusite':sites[0],
+                     'can_browse_devices': 
+                        self.has_perm('bluusites.browse_devices', sites[0]),
+                     'can_browse_rooms': 
+                        self.has_perm('bluusites.browse_rooms', sites[0])
+                    }
                 }
             return perm_dict
         else:

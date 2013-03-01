@@ -1,5 +1,5 @@
 {% extends "bluusites/site_base.html" %}
-{% load i18n crispy_forms_tags guardian_tags theme_tags %}
+{% load i18n crispy_forms_tags grontextual_tags theme_tags %}
 
 {% block title %}
     {% trans 'Room Management' %} |
@@ -17,7 +17,7 @@
 
 {% block main %}
 {{ block.super }}
-{% get_obj_perms request.user for bluusite as "bluusite_perms" %}
+{% get_uog_perms request.user for bluusite as "bluusite_perms" %}
 
 {% if perms.bluusites.add_room or "add_room" in bluusite_perms %}
     <ul class="nav nav-pills">

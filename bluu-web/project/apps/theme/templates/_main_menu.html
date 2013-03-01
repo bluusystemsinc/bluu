@@ -19,6 +19,9 @@
             {% if main_menu.bluusite.can_browse_devices %}
                 <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'devices:device_list' main_menu.bluusite.bluusite.pk %}">{% trans "Device management" %}</a></li>
             {% endif %}
+            {% if main_menu.bluusite.can_browse_rooms %}
+                <li class="{% active request "^/sites/\d+/rooms" %}"><a href="{% url 'room_list' main_menu.bluusite.bluusite.pk %}">{% trans "Room management" %}</a></li>
+            {% endif %}
         {% elif main_menu.bluusites %}
             <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
         {% else %}

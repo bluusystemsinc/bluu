@@ -1,5 +1,5 @@
 {% extends "devices/devices_base.html" %}
-{% load i18n crispy_forms_tags guardian_tags theme_tags %}
+{% load i18n crispy_forms_tags grontextual_tags theme_tags %}
 
 {% block title %}
     {% trans 'Devices Management' %} |
@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
 {% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; {% trans "Devices management" %}
-{% endblock %}
+{% endblock breadcrumbs %}
 
 
 {% block page-title %}
@@ -17,7 +17,7 @@
 
 {% block main %}
 {{ block.super }}
-{% get_obj_perms request.user for bluusite as "bluusite_perms" %}
+{% get_uog_perms request.user for bluusite as "bluusite_perms" %}
 
 {% if perms.bluusites.add_device or "add_device" in bluusite_perms %}
     <ul class="nav nav-pills">
