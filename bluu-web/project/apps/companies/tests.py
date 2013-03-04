@@ -130,6 +130,9 @@ class CompaniesAccessTestCase(WebTest):
         self.bluu = G(BluuUser, username='bluu',
                        groups=[Group.objects.get(name='Bluu')])
 
+        self.user = G(BluuUser, username='user', email='user@example.com',
+                       groups=[Group.objects.get(name='Dealer')])
+
         self.dealer_group = Group.objects.get(name='Dealer')
         self.technician_group = Group.objects.get(name='Technician')
 
@@ -172,6 +175,30 @@ class CompaniesAccessTestCase(WebTest):
         self.assertEqual(mail.outbox[0].subject,
                          'Invitation from bluu to join example.com')
         assert key.key in mail.outbox[0].body
+
+    def testInviteToCompanyEmailCaseInsensitive(self):
+        """
+        After an invitation is sent there should be a case insensitive check
+        of the user's email
+        """
+        form_data = {'email':'User@example.com', 'group':self.dealer_group.pk}
+        resp = self.app.post(
+                reverse('companies:api_company_access', 
+                        kwargs={'company_pk':self.company1.pk}),
+                json.dumps(form_data),
+                content_type='application/json;charset=utf-8',
+                user='bluu',
+                status=201)
+
+        # new company access shouldn't be created
+        ca = CompanyAccess.objects.filter(
+                            email='User@example.com',
+                            group=self.dealer_group,
+                            company=self.company1)
+        self.assertFalse(ca.exists())
+
+        # Invitation shouldn't be sent
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class CompaniesAccessRegisterTestCase(WebTest):

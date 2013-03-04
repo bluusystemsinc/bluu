@@ -312,26 +312,34 @@ class CompanyAccessCreateView(generics.CreateAPIView):
         company = self.get_company(company_pk)
         email = request.DATA['email']
         try:
-            user = BluuUser.objects.get(email=email)
+            user = BluuUser.objects.get(email__iexact=email)
         except BluuUser.DoesNotExist:
             user = None
         try:
             if user:
-                company_access = CompanyAccess.objects.get(user=user, company=company)
+                company_access = CompanyAccess.objects.get(user=user,
+                                                           company=company)
             elif email:
-                company_access = CompanyAccess.objects.get(email=email, company=company)
+                company_access = CompanyAccess.objects.get(email__iexact=email,
+                                                           company=company)
 
-            form = CompanyInvitationForm(request.DATA, instance=company_access, request=request, company=company)
+            form = CompanyInvitationForm(request.DATA,
+                                         instance=company_access,
+                                         request=request,
+                                         company=company)
         except CompanyAccess.DoesNotExist:
-            form = CompanyInvitationForm(request.DATA, request=request, company=company)
+            form = CompanyInvitationForm(request.DATA,
+                                         request=request,
+                                         company=company)
         
         if form.is_valid():
             access = form.save(commit=False)
             access.company = company
             try:
-                user = BluuUser.objects.get(email=email)
+                user = BluuUser.objects.get(email__iexact=email)
                 # user exists, so grant him an access to company
                 access.user = user
+                access.email = user.email  # this is to prevent changing user's email after ca was saved
                 access.save()
                 form.save_m2m()
             except BluuUser.DoesNotExist:
@@ -344,7 +352,7 @@ class CompanyAccessCreateView(generics.CreateAPIView):
                         )
                 invitation.send_to(access.email)
 
-            return Response({'email': request.DATA['email'],
+            return Response({'email': email,
                              'group': request.DATA['group']},
                             status=status.HTTP_201_CREATED)
 

@@ -216,16 +216,17 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
 
     def post(self, request, pk, format=None):
         site = self.get_site(pk)
-        email = request.DATA['email']
+        email = request.DATA.get('email')
         try:
-            user = BluuUser.objects.get(email=email)
+            user = BluuUser.objects.get(email__iexact=email)
         except BluuUser.DoesNotExist:
             user = None
         try:
             if user:
                 site_access = BluuSiteAccess.objects.get(user=user, site=site)
             elif email:
-                site_access = BluuSiteAccess.objects.get(email=email, site=site)
+                site_access = BluuSiteAccess.objects.get(email__iexact=email,
+                                                         site=site)
 
             form = SiteInvitationForm(request.DATA,
                                       instance=site_access,
@@ -238,9 +239,10 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
             access = form.save(commit=False)
             access.site = site
             try:
-                user = BluuUser.objects.get(email=email)
+                user = BluuUser.objects.get(email__iexact=email)
                 # user exists, so grant him an access to a company
                 access.user = user
+                access.email = user.email
                 access.save()
                 form.save_m2m()
 
@@ -254,7 +256,7 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
                         )
                 invitation.send_to(access.email)
 
-            return Response({'email': request.DATA['email'],
+            return Response({'email': email,
                              'group': request.DATA['group']},
                             status=status.HTTP_201_CREATED)
 
