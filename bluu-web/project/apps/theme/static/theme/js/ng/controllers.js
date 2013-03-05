@@ -57,22 +57,50 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
                   $scope.company_access = new CompanyAccess();
                   $scope.addForm.$setPristine();
                   $scope.access_datatable.fnDraw();
+              },
+              function (res) {
+                for (var key in res.data['errors']) {
+                  if (res.data['errors'].hasOwnProperty(key)) {
+                    $('.invite-message-placeholder').html('<div class="alert alert-error content-wrapper">'+
+                        '<button class="close" data-dismiss="alert">×</button>' +
+                        res.data['errors'][key] + '</div>');
+                  }
+                }
+
               }
               );
       };
 
 
-      $scope.set = function (id, group) {
-          var access = new CompanyAccess({'id': id,
-                                          'group': group});
-          access.$set_access({'companyId':COMPANY_ID}, function(data){
-              console.log(data);
-              $scope.access_datatable.fnDraw();
-          });
+      $scope.set = function (id, group, current_user_access_id) {
+
+          var set_access = function(id, group){  
+              var access = new CompanyAccess({'id': id,
+                                              'group': group});
+              access.$set_access({'companyId':COMPANY_ID}, function(data){
+                  if (id == current_user_access_id){
+                    window.location = window.location;
+                  }else{
+                     $scope.access_datatable.fnDraw();
+                  }
+              });
+          }
+
+          if (id === current_user_access_id){
+              var msgbox = $dialog.messageBox('Change own access', 'Are you sure you want to change your own access level?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+
+              msgbox.open().then(function(result){
+                if(result === 'yes') {
+                    set_access(id, group);  
+                }
+              });
+          }else{
+            set_access(id, group);  
+          }
       };
 
       $scope.remove = function (id){
-        var msgbox = $dialog.messageBox('Delete Item', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+        var msgbox = $dialog.messageBox('Remove access', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
         msgbox.open().then(function(result){
             if(result === 'yes') {
                 CompanyAccess.delete({'companyId':COMPANY_ID, 'id': id}, {},
@@ -117,7 +145,7 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                    "sWidth": "145px",
+                    "sWidth": "160px",
                     "bSearchable": false, 
                     "bSortable": false
                   },
@@ -156,29 +184,57 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
                   $scope.site_access = new SiteAccess();
                   $scope.addForm.$setPristine();
                   $scope.access_datatable.fnDraw();
+              },
+              function (res) {
+                    for (var key in res.data['errors']) {
+                      if (res.data['errors'].hasOwnProperty(key)) {
+                        $('.invite-message-placeholder').html('<div class="alert alert-error content-wrapper">'+
+                            '<button class="close" data-dismiss="alert">×</button>' +
+                            res.data['errors'][key] + '</div>');
+                      }
+                    }
               }
-              );
+          );
       };
 
 
-      $scope.set = function (id, group) {
-          var access = new SiteAccess({'id': id,
-                                       'group': group});
-          access.$set_access({'siteId':SITE_ID}, function(data){
-              console.log(data);
-              $scope.access_datatable.fnDraw();
-          });
+      $scope.set = function (id, group, current_user_access_id) {
+
+          var set_access = function(id, group){  
+              var access = new SiteAccess({'id': id,
+                                           'group': group});
+              access.$set_access({'siteId':SITE_ID}, function(data){
+                  if (id == current_user_access_id){
+                    window.location = window.location;
+                  }else{
+                     $scope.access_datatable.fnDraw();
+                  }
+              });
+          }
+
+          if (id === current_user_access_id){
+              var msgbox = $dialog.messageBox('Change own access', 'Are you sure you want to change your own access level?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+
+              msgbox.open().then(function(result){
+                if(result === 'yes') {
+                    set_access(id, group);  
+                }
+              });
+          }else{
+            set_access(id, group);  
+          }
       };
 
       $scope.remove = function (id){
-        var msgbox = $dialog.messageBox('Delete Item', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+        var msgbox = $dialog.messageBox('Remove access', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
         msgbox.open().then(function(result){
             if(result === 'yes') {
                 SiteAccess.delete({'siteId': SITE_ID, 'id': id}, {},
                                 function(data){
                                     console.log(data);
                                     $scope.access_datatable.fnDraw();
-                                }); 
+                                }                                
+                                ); 
             }
         });
          
@@ -216,7 +272,7 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                    "sWidth": "145px",
+                    "sWidth": "160px",
                     "bSearchable": false, 
                     "bSortable": false
                   },

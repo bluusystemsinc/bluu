@@ -24,13 +24,11 @@
 
         <div ng-controller="SiteAccessController">
         <div>
-            <p>{% trans "Invite user" %}</p>
+            <p>{% trans "Assign user" %}</p>
+            <div class="invite-message-placeholder"></div>
             <form name="addForm" class="form-inline">
-                {#% crispy invitation_form invitation_form.helper %#}
-                {% comment %}<input type="text" name="email" ng-model="company_access.email" placeholder="e-mail" />{% endcomment %}
                 {{ invitation_form.email }}
                 {{ invitation_form.group }}
-                {% comment %}<select ng-model="company_access.groups" ng-options="group.name for group in groups"></select>{% endcomment %}
                 <button type="submit" class="btn" ng-disabled="form.$invalid" ng-click="save()">{% trans "Add" %}</button>
             </form>
         </div>

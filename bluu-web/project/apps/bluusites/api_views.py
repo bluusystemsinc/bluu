@@ -132,7 +132,7 @@ class BluuSiteAccessListJson(BaseDatatableView):
 
         return ret
 
-    def _render_access_level(self, access):
+    def _render_access_level(self, access, current_access):
         """
         Renders cell data determining user's access level to a site.
         Contains links that allow user to change access level. 
@@ -159,6 +159,7 @@ class BluuSiteAccessListJson(BaseDatatableView):
 
         t = get_template('bluusites/_site_access_list_cell.html')
         c = Context({
+            'current_access': current_access,
             'access': access,
             'groups': groups})
         return t.render(c)
@@ -173,8 +174,16 @@ class BluuSiteAccessListJson(BaseDatatableView):
         except (ValueError, TypeError):
             no = 0
 
+        try:
+            current_access = BluuSiteAccess.objects.get(user=self.request.user,
+                                                        site=self.bluusite)
+            current_access_pk = current_access.pk
+        except BluuSiteAccess.DoesNotExist:
+            current_access_pk = -1
+
         for access in qs:
-            rendered_groups = self._render_access_level(access)
+            rendered_groups = self._render_access_level(access,
+                                                        current_access_pk)
 
             json_data.append(
                 {
@@ -219,6 +228,7 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
         email = request.DATA.get('email')
         try:
             user = BluuUser.objects.get(email__iexact=email)
+            return Response({'errors': {'has_access': _('{} already has access'.format(email))}}, status=status.HTTP_400_BAD_REQUEST)
         except BluuUser.DoesNotExist:
             user = None
         try:

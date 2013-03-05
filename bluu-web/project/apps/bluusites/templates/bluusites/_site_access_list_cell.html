@@ -1,6 +1,6 @@
 <ul class="inline-list" >
 {% for group in groups %}
-  <li ng-click="set({{ access.pk }}, {{ group.pk }});" class="clickable inline-box {% if group.assigned %}box-on{% else %}box-off{% endif %}">
+<li ng-click="set({{ access.pk }}, {{ group.pk }}, {{ current_access }});" class="clickable inline-box {% if group.assigned %}box-on{% else %}box-off{% endif %}">
       {{ group.name }}
   </li>
 {% endfor %}
