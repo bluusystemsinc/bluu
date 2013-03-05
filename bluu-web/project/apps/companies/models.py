@@ -121,7 +121,7 @@ def _remove_access_for_company_user(sender, instance, *args, **kwargs):
     if instance.pk and instance.user:
         instance.user.remove_all_accesses(obj=instance.company)
         for site in instance.company.bluusite_set.all():
-            instance.user.remove_all_accesses(obj=site)
+            instance.user.remove_access(group=instance.group, obj=site)
 
 
 @receiver(post_save, sender=CompanyAccess)
@@ -151,18 +151,20 @@ def _assign_access_for_company_user(sender, instance, *args, **kwargs):
                         .format(group_name))
 
 
-@receiver(post_delete, sender=CompanyAccess)
+@receiver(pre_delete, sender=CompanyAccess)
 def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
     """
     If user is no longer in any company then remove him from default company 
     groups.
     """
-    if instance.pk and instance.user:
+    if instance and instance.user:
         if not CompanyAccess.objects.filter(user=instance.user).exists():
             for group_name in settings.DEFAULT_COMPANY_GROUPS:
                 default_group = Group.objects.get(name=group_name)
                 instance.user.groups.remove(default_group)
-        instance.user.remove_access(instance.group, instance.company)
+        instance.user.remove_all_accesses(instance.company)
+        for site in instance.company.bluusite_set.all():
+            instance.user.remove_access(group=instance.group, obj=site)
 
 
 @receiver(signals.user_registered)

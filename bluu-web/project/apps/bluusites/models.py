@@ -5,7 +5,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import post_save, pre_save, pre_delete
+from django.db.models.signals import post_save, pre_save, pre_delete, post_delete
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -160,7 +160,7 @@ def _remove_access_for_site_user(sender, instance, *args, **kwargs):
     Removes current accesses to a site.
     """
     if instance.pk and instance.user:
-        instance.user.remove_all_accesses(obj=instance.site)
+        instance.user.remove_accesses(group=instance.group, obj=instance.site)
         
 
 @receiver(post_save, sender=BluuSiteAccess)
@@ -181,5 +181,14 @@ def _assign_access_for_newly_registered_user(sender, user, request, *args, **kwa
         access.user = user
         access.save()
 
-pre_delete.connect(remove_orphaned_obj_perms, sender=BluuSite)
 
+@receiver(pre_delete, sender=BluuSiteAccess)
+def _clear_groups_for_site_user(sender, instance, *args, **kwargs):
+    """
+    If user is no longer in a site then remove his contextual group perms.
+    """
+    if instance and instance.user:
+        instance.user.remove_access(group=instance.group, obj=instance.site)
+
+# guardian
+pre_delete.connect(remove_orphaned_obj_perms, sender=BluuSite)

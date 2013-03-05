@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -289,6 +290,7 @@ class CompanyAccessListJson(BaseDatatableView):
                         "email": access.get_email,
                         "groups": rendered_groups,
                         "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                        "current_user_access_id": current_access_pk
                     }
                 }
             )
@@ -323,16 +325,29 @@ class CompanyAccessCreateView(generics.CreateAPIView):
         email = request.DATA['email']
         try:
             user = BluuUser.objects.get(email__iexact=email)
-            return Response({'errors': {'has_access': _('{} already has access'.format(email))}}, status=status.HTTP_400_BAD_REQUEST)
         except BluuUser.DoesNotExist:
             user = None
         try:
             if user:
                 company_access = CompanyAccess.objects.get(user=user,
                                                            company=company)
+                return Response(
+                            {
+                             'errors': {
+                                'has_access': _('{} already has access'.\
+                                        format(email))}
+                            },
+                            status=status.HTTP_400_BAD_REQUEST)
             elif email:
                 company_access = CompanyAccess.objects.get(email__iexact=email,
                                                            company=company)
+                return Response(
+                            {
+                             'errors': {
+                                'has_access': _('{} is already ivited'.\
+                                        format(email))}
+                            },
+                            status=status.HTTP_400_BAD_REQUEST)
 
             form = CompanyInvitationForm(request.DATA,
                                          instance=company_access,
@@ -387,6 +402,18 @@ class CompanyAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
+
+        try:
+            current_access = CompanyAccess.objects.get(
+                                user=request.user,
+                                company__pk=kwargs.get('company_pk'))
+            current_access_pk = current_access.pk
+        except CompanyAccess.DoesNotExist:
+            current_access_pk = -1
+
+        if current_access_pk == request.DATA.get('id'):
+            messages.success(request, _('Company access changed'))
+
         return super(CompanyAccessUpdateView, self).update(request, *args, **kwargs)
 
     @method_decorator(permission_required_or_403('companies.change_company',

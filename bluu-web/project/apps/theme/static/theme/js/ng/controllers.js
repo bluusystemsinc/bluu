@@ -79,7 +79,7 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
                                               'group': group});
               access.$set_access({'companyId':COMPANY_ID}, function(data){
                   if (id == current_user_access_id){
-                    window.location = window.location;
+                    window.location = '/';  //window.location;
                   }else{
                      $scope.access_datatable.fnDraw();
                   }
@@ -99,14 +99,21 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
           }
       };
 
-      $scope.remove = function (id){
-        var msgbox = $dialog.messageBox('Remove access', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+      $scope.remove = function (id, current_user_access_id){
+        if (id === current_user_access_id){
+            var msgbox = $dialog.messageBox('Remove own access', 'Are you sure you want to remove your own access?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+        }else{
+            var msgbox = $dialog.messageBox('Remove access', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+        }
         msgbox.open().then(function(result){
             if(result === 'yes') {
                 CompanyAccess.delete({'companyId':COMPANY_ID, 'id': id}, {},
                                 function(data){
-                                    console.log(data);
-                                    $scope.access_datatable.fnDraw();
+                                    if (id == current_user_access_id){
+                                        window.location = '/';
+                                    }else{
+                                        $scope.access_datatable.fnDraw();
+                                    }
                                 }); 
             }
         });
@@ -154,9 +161,9 @@ function CompanyAccessController(CompanyAccess, $dialog, $compile, $configServic
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                      "mData": 'access.id',
+                      "mData": 'access',
                       "mRender": function( data, type, full) {
-                          return '<a ng-click="remove(' + data + ')" href="#"><i class="icon-remove"></i></a>';
+                          return '<a ng-click="remove(' + data.id + ', ' + data.current_user_access_id + ')" href="#"><i class="icon-remove"></i></a>';
                       },
                       "sWidth": "100px",
                       "bSearchable": false, 
@@ -205,7 +212,7 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
                                            'group': group});
               access.$set_access({'siteId':SITE_ID}, function(data){
                   if (id == current_user_access_id){
-                    window.location = window.location;
+                    window.location = '/'; //window.location;
                   }else{
                      $scope.access_datatable.fnDraw();
                   }
@@ -225,14 +232,21 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
           }
       };
 
-      $scope.remove = function (id){
-        var msgbox = $dialog.messageBox('Remove access', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+      $scope.remove = function (id, current_user_access_id){
+        if (id === current_user_access_id){
+            var msgbox = $dialog.messageBox('Remove own access', 'Are you sure you want to remove your own access?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+        }else{
+            var msgbox = $dialog.messageBox('Remove access', 'Are you sure?', [{label:'Yes, I\'m sure', result: 'yes'},{label:'Nope', result: 'no'}]);
+        }
         msgbox.open().then(function(result){
             if(result === 'yes') {
                 SiteAccess.delete({'siteId': SITE_ID, 'id': id}, {},
                                 function(data){
-                                    console.log(data);
-                                    $scope.access_datatable.fnDraw();
+                                    if (id == current_user_access_id){
+                                        window.location = '/'; //window.location;
+                                    }else{
+                                        $scope.access_datatable.fnDraw();
+                                    }
                                 }                                
                                 ); 
             }
@@ -281,9 +295,9 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
                       {
                           $(nTd).css('text-align', 'center');
                       },
-                      "mData": 'access.id',
+                      "mData": 'access',
                       "mRender": function( data, type, full) {
-                          return '<a ng-click="remove(' + data + ')" href="#"><i class="icon-remove"></i></a>';
+                          return '<a ng-click="remove(' + data.id +', ' + data.current_user_access_id + ')" href="#"><i class="icon-remove"></i></a>';
                       },
                       "sWidth": "100px",
                       "bSearchable": false, 

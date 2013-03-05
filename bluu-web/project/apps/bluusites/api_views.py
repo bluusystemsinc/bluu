@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import (login_required, permission_required)
 from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 
 import django_filters
 from rest_framework.views import APIView
@@ -193,6 +194,7 @@ class BluuSiteAccessListJson(BaseDatatableView):
                         "email": access.get_email,
                         "groups": rendered_groups,
                         "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                        "current_user_access_id": current_access_pk
                     }
                 }
             )
@@ -228,15 +230,28 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
         email = request.DATA.get('email')
         try:
             user = BluuUser.objects.get(email__iexact=email)
-            return Response({'errors': {'has_access': _('{} already has access'.format(email))}}, status=status.HTTP_400_BAD_REQUEST)
         except BluuUser.DoesNotExist:
             user = None
         try:
             if user:
                 site_access = BluuSiteAccess.objects.get(user=user, site=site)
+                return Response(
+                            {
+                             'errors': 
+                                {'has_access': _('{} already has access'.\
+                                        format(email))}
+                            },
+                            status=status.HTTP_400_BAD_REQUEST)
             elif email:
                 site_access = BluuSiteAccess.objects.get(email__iexact=email,
                                                          site=site)
+                return Response(
+                            {
+                             'errors': 
+                                {'has_access': _('{} is alread invited'.\
+                                        format(email))}
+                            },
+                            status=status.HTTP_400_BAD_REQUEST)
 
             form = SiteInvitationForm(request.DATA,
                                       instance=site_access,
@@ -290,6 +305,17 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
+
+        try:
+            current_access = BluuSiteAccess.objects.get(
+                                user=request.user,
+                                site__pk=kwargs.get('site_pk'))
+            current_access_pk = current_access.pk
+        except BluuSiteAccess.DoesNotExist:
+            current_access_pk = -1
+
+        if current_access_pk == request.DATA.get('id'):
+            messages.success(request, _('Site access changed'))
         return super(BluuSiteAccessUpdateView, self).update(request, *args, **kwargs)
 
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
