@@ -12,6 +12,6 @@
     QString     debugMessage = QString("%1 %2").arg(__PRETTY_FUNCTION__).arg(value); \
 \
     emit debugSignal(debugMessage); \
-}
+};
 
 #endif // DEBUG_H

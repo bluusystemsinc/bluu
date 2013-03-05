@@ -6,6 +6,7 @@
 #include "webrequest.h"
 #include "databasesendtask.h"
 #include "packetsendtask.h"
+#include "controlerlivetask.h"
 #include <QMutexLocker>
 
 /**
@@ -18,11 +19,11 @@ DataManager::DataManager(QObject* parent) :
     Scheduler*    scheduler = new Scheduler();
     DatabaseSendTask*   databaseSendTask = new DatabaseSendTask();
     PacketSendTask*     packetSendTask = new PacketSendTask();
+    ControlerLiveTask*  controlerLiveTask = new ControlerLiveTask();
 
-    packetSendTask->moveToThread(scheduler);
-    databaseSendTask->moveToThread(scheduler);
     scheduler->registerTask(packetSendTask);
     scheduler->registerTask(databaseSendTask);
+    scheduler->registerTask(controlerLiveTask);
     scheduler->start();
 }
 

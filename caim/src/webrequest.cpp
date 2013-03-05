@@ -110,13 +110,14 @@ void WebRequest::finishedSlot(QNetworkReply* reply)
     {
         QString     className = whoSend->metaObject()->className();
 
-        qDebug() << "AAAAAAAAAAAA" << className;
-
         if("DatabaseManager" == className)
             emit networkReplyDatabaseSendSignal(reply);
 
         if("PacketSendTask" == className)
             emit networkReplySignal(reply);
+
+        if("ControlerLiveTask" == className)
+            emit networkReplyControlerSignal(reply);
     }
 }
 

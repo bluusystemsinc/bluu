@@ -39,7 +39,9 @@ HEADERS += qtservice/src/qtservice.h \
     src/scheduler.h \
     src/task.h \
     src/databasesendtask.h \
-    src/packetsendtask.h
+    src/packetsendtask.h \
+    src/settingsmanager.h \
+    src/controlerlivetask.h
 
 HEADERS += ../caim_sensorbase/include/abstractsensor.h
 
@@ -48,7 +50,6 @@ SOURCES += src/caim.cpp \
            src/dataparser.cpp \
            src/datapacket.cpp \
            src/sensormanager.cpp \
-           qtservice/src/qtservice.cpp \
            ../utils/unixsignals.cpp \
     src/webrequest.cpp \
     src/datamanagerthread.cpp \
@@ -59,18 +60,18 @@ SOURCES += src/caim.cpp \
     src/scheduler.cpp \
     src/task.cpp \
     src/databasesendtask.cpp \
-    src/packetsendtask.cpp
+    src/packetsendtask.cpp \
+    src/settingsmanager.cpp \
+    src/controlerlivetask.cpp
 
 unix {
     HEADERS += qtservice/src/qtunixserversocket.h \
                qtservice/src/qtunixsocket.h
 
-    SOURCES += qtservice/src/qtservice_unix.cpp \
-               qtservice/src/qtunixserversocket.cpp \
-               qtservice/src/qtunixsocket.cpp
+    SOURCES +=
 }
 
-win32:SOURCES += qtservice/src/qtservice_win.cpp
+win32:SOURCES +=
 
 SAMPLES += qtservice/examples/controller/main.cpp \
            qtservice/examples/interactive/main.cpp \

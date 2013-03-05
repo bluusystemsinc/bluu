@@ -44,6 +44,7 @@ signals:
     void debugMessageMessage(int, QString message);
     void networkReplySignal(QNetworkReply* reply);
     void networkReplyDatabaseSendSignal(QNetworkReply* reply);
+    void networkReplyControlerSignal(QNetworkReply* reply);
 
 public slots:
 //    void send(debugMessage::debugMessageLevel debugMessageLevel, QVariantMap &fields);
