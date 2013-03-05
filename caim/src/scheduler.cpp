@@ -19,6 +19,7 @@ Scheduler::Scheduler(QObject* parent)
  */
 void Scheduler::registerTask(Task* task)
 {
+    task->moveToThread(this);
     tasks.append(task);
 }
 

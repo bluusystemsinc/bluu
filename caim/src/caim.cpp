@@ -7,12 +7,14 @@
 #include "webrequest.h"
 #include "datamanager.h"
 #include "databasemanager.h"
+#include "settingsmanager.h"
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     SensorManager sm;
 
+    CBluuSettingsManager::Instance();
     CBluuUnixSignals::Instance()->setupUnixSignalHandlers();
     CBluuDataManager::Instance();
     CBluuDatabaseManager::Instance()->openDB();

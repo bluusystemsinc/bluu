@@ -116,8 +116,6 @@ void DataPacket::generateJson()
     file.open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text);
 
     QTextStream     stream(&file);
-
-    QJson::Parser       parser;
     QJson::Serializer   serializer;
     QVariantMap     map;
     QByteArray      out;

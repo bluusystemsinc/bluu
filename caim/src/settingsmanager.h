@@ -2,6 +2,8 @@
 #define SETTINGSMANAGER_H
 
 #include <QObject>
+#include <QSettings>
+#include <QStringList>
 #include "singleton.h"
 
 /**
@@ -11,8 +13,14 @@ class SettingsManager : public QObject
 {
     Q_OBJECT
 
+protected:
+    QSettings*   settings;
+    QStringList  macAdresses;
+
 public:
     explicit SettingsManager(QObject *parent = 0);
+    void getMacAdresses();
+    QSettings* getSettings();
     
 signals:
     
