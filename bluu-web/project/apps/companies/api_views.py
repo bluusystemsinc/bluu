@@ -402,19 +402,35 @@ class CompanyAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
-
+        company_pk = int(kwargs.get('company_pk'))
+        access_pk = int(kwargs.get('pk'))
         try:
             current_access = CompanyAccess.objects.get(
                                 user=request.user,
-                                company__pk=kwargs.get('company_pk'))
-            current_access_pk = current_access.pk
+                                company__pk=company_pk)
+            if current_access.pk == access_pk:
+                messages.success(request, _('Company access changed'))
         except CompanyAccess.DoesNotExist:
-            current_access_pk = -1
+            pass
+        return super(CompanyAccessUpdateView, self).update(request,
+                                                          *args, **kwargs)
 
-        if current_access_pk == request.DATA.get('id'):
-            messages.success(request, _('Company access changed'))
+    def delete(self, request, *args, **kwargs):
+        company_pk = int(kwargs.get('company_pk'))
+        access_pk = int(kwargs.get('pk'))
+        try:
+            # If user removes his own access then there will be a redirection,
+            # so we should show information about the operation.
+            current_access = CompanyAccess.objects.get(
+                                user=request.user,
+                                company__pk=company_pk)
+            if current_access.pk == access_pk:
+                messages.success(request, _('Company access removed'))
+        except CompanyAccess.DoesNotExist:
+            pass
 
-        return super(CompanyAccessUpdateView, self).update(request, *args, **kwargs)
+        return super(CompanyAccessUpdateView, self).delete(request,
+                                                          *args, **kwargs)
 
     @method_decorator(permission_required_or_403('companies.change_company',
                                                  (Company, 'pk', 'company_pk'),

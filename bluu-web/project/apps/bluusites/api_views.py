@@ -305,18 +305,35 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
-
+        site_pk = int(kwargs.get('site_pk'))
+        access_pk = int(kwargs.get('pk'))
         try:
             current_access = BluuSiteAccess.objects.get(
                                 user=request.user,
-                                site__pk=kwargs.get('site_pk'))
-            current_access_pk = current_access.pk
+                                site__pk=site_pk)
+            if current_access.pk == access_pk:
+                messages.success(request, _('Site access changed'))
         except BluuSiteAccess.DoesNotExist:
-            current_access_pk = -1
+            pass
+        return super(BluuSiteAccessUpdateView, self).update(request,
+                                                           *args, **kwargs)
 
-        if current_access_pk == request.DATA.get('id'):
-            messages.success(request, _('Site access changed'))
-        return super(BluuSiteAccessUpdateView, self).update(request, *args, **kwargs)
+    def delete(self, request, *args, **kwargs):
+        site_pk = int(kwargs.get('site_pk'))
+        access_pk = int(kwargs.get('pk'))
+        try:
+            # If user removes his own access then there will be a redirection,
+            # so we should show information about the operation.
+            current_access = BluuSiteAccess.objects.get(
+                                user=request.user,
+                                site__pk=site_pk)
+            if current_access.pk == access_pk:
+                messages.success(request, _('Site access removed'))
+        except BluuSiteAccess.DoesNotExist:
+            pass
+        return super(BluuSiteAccessUpdateView, self).delete(request,
+                                                            *args, **kwargs)
+
 
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
                                                  (BluuSite, 'pk', 'site_pk'),

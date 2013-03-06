@@ -286,3 +286,84 @@ class CompaniesAccessRegisterTestCase(WebTest):
 
     # test multiple invited has multiple accessess
 
+
+class CompaniesAccessChangesTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        run_initialize_script()
+
+        self.company1 = G(Company, name="C1")
+        self.company2 = G(Company, name="C2")
+
+        self.bluu = G(BluuUser, username='bluu',
+                      groups=[Group.objects.get(name='Bluu')])
+
+        self.dealer = G(BluuUser, username='dealer', email='dealer@example.com',
+                      groups=[Group.objects.get(name='Company Employee')])
+
+
+
+        self.dealer_group = Group.objects.get(name='Dealer')
+        self.technician_group = Group.objects.get(name='Technician')
+
+        self.company1_access = G(CompanyAccess,
+                                 company=self.company1,
+                                 group=self.dealer_group,
+                                 user=self.dealer)
+
+        self.ca_ctype = ContentType.objects.get_for_model(CompanyAccess)
+
+    def testAccessChangedByOther(self):
+        """
+        Checks whether access change works
+        """
+        assigned_groups = []
+        for uog in UserObjectGroup.objects.get_for_object(self.dealer, self.company1):
+            assigned_groups.append(uog.group.name)
+        self.assertTrue('Dealer' in assigned_groups)
+        self.assertFalse('Technician' in assigned_groups)
+
+        form_data = {'id':self.company1_access.pk,
+                     'group':self.technician_group.pk}
+        resp = self.app.put(
+                reverse('companies:api_company_access_json', 
+                        kwargs={'company_pk':self.company1.pk,
+                                'pk':self.company1_access.pk}),
+                json.dumps(form_data),
+                content_type='application/json;charset=utf-8',
+                user='bluu',
+                status=200)
+        assigned_groups = []
+        for uog in UserObjectGroup.objects.get_for_object(self.dealer, self.company1):
+            assigned_groups.append(uog.group.name)
+        self.assertTrue('Technician' in assigned_groups)
+        self.assertFalse('Dealer' in assigned_groups)
+
+
+    def testAccessRemoval(self):
+        """
+        Checks whether access removal works
+        """
+        assigned_groups = []
+        for uog in UserObjectGroup.objects.get_for_object(self.dealer, self.company1):
+            assigned_groups.append(uog.group.name)
+        self.assertTrue('Dealer' in assigned_groups)
+        self.assertFalse('Technician' in assigned_groups)
+
+        form_data = {'id':self.company1_access.pk,
+                     'group':self.technician_group.pk}
+        resp = self.app.delete(
+                reverse('companies:api_company_access_json', 
+                        kwargs={'company_pk':self.company1.pk,
+                                'pk':self.company1_access.pk}),
+                content_type='application/json;charset=utf-8',
+                user='bluu',
+                status=204)
+        assigned_groups = []
+        for uog in UserObjectGroup.objects.get_for_object(self.dealer, self.company1):
+            assigned_groups.append(uog.group.name)
+        self.assertFalse(assigned_groups)
+
+
