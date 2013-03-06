@@ -20,7 +20,7 @@ public:
 
 signals:
     void debugSignal(QString debugMessage);
-    void databaseSendPacketsSignal();
+    void databaseSendPacketsSignal(QDateTime time);
 
 public slots:
     virtual void processTask();
