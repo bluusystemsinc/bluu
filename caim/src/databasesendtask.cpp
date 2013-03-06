@@ -12,7 +12,7 @@ DatabaseSendTask::DatabaseSendTask()
                 : Task()
 {
     connect(this, SIGNAL(debugSignal(QString)), CBluuDebugger::Instance(), SLOT(debugSlot(QString)));
-    connect(this, SIGNAL(databaseSendPacketsSignal()), CBluuDatabaseManager::Instance(), SLOT(databaseSendPacketsSlot()));
+    connect(this, SIGNAL(databaseSendPacketsSignal(QDateTime)), CBluuDatabaseManager::Instance(), SLOT(databaseSendPacketsSlot(QDateTime)));
     connect(CBluuDatabaseManager::Instance(), SIGNAL(databaseSendPacketsSignal()), this, SLOT(databaseSendPacketsSlot()));
     previousDateTime = currentDateTime = QDateTime::currentDateTime();
     type = taskRepeat;
@@ -26,7 +26,7 @@ void DatabaseSendTask::processTask()
 {
     valid = false;
     busy = true;
-    emit databaseSendPacketsSignal();
+    emit databaseSendPacketsSignal(QDateTime::currentDateTime());
 }
 
 /**

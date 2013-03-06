@@ -2,12 +2,12 @@
 #include "webrequest.h"
 #include "databaseexception.h"
 #include "debug.h"
+#include "parser.h"
 #include <QDir>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
 #include <QDebug>
-
 /**
  * @brief DatabaseManager::DatabaseManager
  * @param parent
@@ -173,7 +173,7 @@ void DatabaseManager::databaseStorePacketSlot(QString* packet)
 /**
  * @brief DatabaseManager::databaseSendPacketSlot
  */
-void DatabaseManager::databaseSendPacketsSlot()
+void DatabaseManager::databaseSendPacketsSlot(QDateTime time)
 {
     debugMessage();
 
@@ -187,6 +187,8 @@ void DatabaseManager::databaseSendPacketsSlot()
             if(true == query.exec())
             {
                 qr = QSqlQuery(query);
+                removeOutdated(time);
+                qr.first();
                 emit sendSignal(&qr);
             }
             else
@@ -233,5 +235,27 @@ void DatabaseManager::sendSlot(QSqlQuery* query)
         }
         else
             emit databaseSendPacketsSignal();
+    }
+}
+
+/**
+ * @brief DatabaseManager::removeOutdated
+ * @param time
+ */
+void DatabaseManager::removeOutdated(const QDateTime &time)
+{
+    debugMessage();
+
+    QJson::Parser   parser;
+
+    while(true == qr.next())
+    {
+        qulonglong    id = qr.value(0).toULongLong();
+        QString       packet = qr.value(1).toString();
+        QVariantMap   map = parser.parse(packet.toUtf8()).toMap();
+        QDateTime     dateTime = QDateTime::fromString(map["timestamp"].toString(), "yyyy-MM-dd hh:mm:ss");
+
+        if(14 <= dateTime.daysTo(time))
+            removePacket(id);
     }
 }

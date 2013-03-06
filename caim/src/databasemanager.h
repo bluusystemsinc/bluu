@@ -5,6 +5,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QNetworkReply>
+#include <QDateTime>
 #include "singleton.h"
 
 class DatabaseManager : public QObject
@@ -14,6 +15,9 @@ class DatabaseManager : public QObject
 protected:
     QSqlDatabase    database;
     QSqlQuery       qr;
+
+protected:
+    void removeOutdated(const QDateTime& time);
 
 public:
     explicit DatabaseManager(QObject *parent = 0);
@@ -31,7 +35,7 @@ signals:
     
 public slots:
     void databaseStorePacketSlot(QString* packet);
-    void databaseSendPacketsSlot();
+    void databaseSendPacketsSlot(QDateTime time);
     void networkReplySlot(QNetworkReply* reply);
     void sendSlot(QSqlQuery* query);
 };
