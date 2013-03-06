@@ -6,6 +6,9 @@
 {% trans 'Manage device' %} |
 {% endblock %}
 
+{% block breadcrumbs %}
+{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; <a href="{% url "devices:device_list" bluusite.pk %}">{% trans "Devices management" %}</a> &gt; {% trans "Manage device" %}
+{% endblock %}
 
 {% block page-title %}
    {% trans "Manage device" %}

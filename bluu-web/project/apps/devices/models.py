@@ -1,18 +1,24 @@
 from __future__ import unicode_literals
 
-from django.conf import settings
 from django.db import models
-from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_save, pre_delete
-from django.contrib.auth.models import Group
 
 from model_utils.models import TimeStampedModel
-
 from bluusites.models import (BluuSite, Room)
-from grontextual.models import UserObjectGroup
-from utils.misc import remove_orphaned_obj_perms
+
+class DeviceType(models.Model):
+    name = models.CharField(_('name'), max_length=255)
+    icon = models.ImageField(_('icon'), upload_to='resources/devices/icons')
+
+    class Meta:
+        verbose_name = _("device type")
+        verbose_name_plural = _("device types")
+        ordering = ('name',)
+
+    def __unicode__(self):
+        return "{}".format(self.name)
 
 
 class Device(TimeStampedModel):
@@ -49,7 +55,8 @@ class Device(TimeStampedModel):
 
     name = models.CharField(_('name'), max_length=255)
     serial = models.CharField(_('serial'), max_length=6)
-    device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
+    #device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
+    device_type = models.ForeignKey(DeviceType)
     bluusite = models.ForeignKey(BluuSite)
     room = models.ForeignKey(Room)
 

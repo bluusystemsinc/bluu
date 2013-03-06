@@ -108,7 +108,7 @@ class DeviceListJson(BaseDatatableView):
                         "no": no,
                         "name": device.name,
                         "serial": device.serial,
-                        "device_type": device.device_type,
+                        "device_type": device.device_type.name,
                         "room": device.room.name,
                         "actions": actions
                     }
