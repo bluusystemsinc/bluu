@@ -20,9 +20,6 @@ urlpatterns = patterns('',
         r'^(?P<pk>\d+)/delete/$',
         views.site_delete,
         name='site_delete'),
-    url(
-        r'',
-        include('devices.urls', namespace="devices")),
     url(r'^(?P<site_pk>\d+)/rooms/$',
         views.RoomListView.as_view(),
         name='room_list'),
@@ -36,5 +33,6 @@ urlpatterns = patterns('',
         r'^(?P<site_pk>\d+)/rooms/(?P<pk>\d+)/delete/$',
         views.room_delete,
         name='room_delete'),
+    url(r'^', include('devices.urls', namespace='site_devices')),
 )
 

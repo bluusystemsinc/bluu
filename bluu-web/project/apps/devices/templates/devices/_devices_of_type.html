@@ -1,16 +1,22 @@
 {% load i18n thumbnail %}
 
-<div>
-  <div><img src="{% thumbnail device_type.icon 50x50 %}" alt="" /> {{ device_type.name }}</div>
-  <table class="well" width="100%">
-    {% for device in devices %}
-    <tr>
-      <td>{{ device.name }}</td> 
-      <td>{{ device.is_online }}</td> 
-      <td><a href="{% url "devices:device_edit" bluusite.pk device.pk %}">{% trans "Manage" %}</a></td> 
-      <td><a href="{% url "devices:device_history" bluusite.pk device.pk %}">{% trans "History" %}</a></td> 
-      <td><a href="{% url "devices:device_delete" bluusite.pk device.pk %}">{% trans "Delete" %}</a></td> 
-    </tr>
-    {% endfor %}
-  </table>
+<div class="mod monitor row-fluid">
+  <div class="inner span12">
+    <div class="hd">
+      <img class="icon" src="{% thumbnail device_type.icon 50x50 %}" alt="" /> <span class="title">{{ device_type.name }}</span>
+    </div>
+    <div class="bd">
+      <table width="100%">
+        {% for device in devices %}
+        <tr>
+          <td class="name">{{ device.name }}</td> 
+          <td class="status"><div class="circle {% if device.is_online %}online{% else %}offline{% endif %}"></div></td> 
+          <td class="action center"><a href="{% url "site_devices:device_edit" bluusite.pk device.pk %}">{% trans "Manage" %}</a></td> 
+          <td class="action center"><a href="{% url "site_devices:device_history" bluusite.pk device.pk %}">{% trans "History" %}</a></td> 
+          <td class="action center"><a href="{% url "site_devices:device_delete" bluusite.pk device.pk %}">{% trans "Delete" %}</a></td> 
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
 </div>

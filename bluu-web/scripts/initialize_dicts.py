@@ -5,7 +5,7 @@ def run():
     Initializes dictionaries
     """
     # DeviceType
-    DeviceType.objects.get_or_create(name='Bed', icon='resources/devices/icons/door.png')
+    DeviceType.objects.get_or_create(name='Bed', icon='resources/devices/icons/bed.png')
     DeviceType.objects.get_or_create(name='Blood pressure', icon='resources/devices/icons/blood-pressure.png')
     DeviceType.objects.get_or_create(name='Controller', icon='resources/devices/icons/controller.png')
     DeviceType.objects.get_or_create(name='Door', icon='resources/devices/icons/door.png')

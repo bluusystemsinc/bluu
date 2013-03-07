@@ -190,3 +190,75 @@ table.table thead .sorting_desc_disabled {
 }
 
 /* end twitter bootstrap for datatables */
+/* monitor module */
+/* line 166, ../sass/style.scss */
+.monitor .icon {
+  padding: 5px 15px;
+}
+
+/* line 170, ../sass/style.scss */
+.monitor .title {
+  display: block;
+  float: right;
+  margin-top: 40px;
+  padding: 0 15px;
+  text-transform: uppercase;
+  color: #686868;
+}
+
+/* line 179, ../sass/style.scss */
+.monitor .bd {
+  border: 2px solid #dfe11e;
+  -webkit-border-radius: 4px 4px;
+  -moz-border-radius: 4px / 4px;
+  border-radius: 4px / 4px;
+  padding: 15px 10px;
+}
+
+/* line 185, ../sass/style.scss */
+.monitor tr {
+  border-bottom: 1px dashed #dbdbdb;
+}
+
+/* line 189, ../sass/style.scss */
+.monitor td.action {
+  width: 20%;
+  min-width: 50px;
+}
+
+/* line 194, ../sass/style.scss */
+.monitor td.status {
+  width: 5%;
+}
+
+/* line 198, ../sass/style.scss */
+.monitor td.name {
+  width: 35%;
+}
+
+/* line 202, ../sass/style.scss */
+.circle {
+  width: 10px;
+  height: 10px;
+  margin: auto;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+}
+
+/* line 209, ../sass/style.scss */
+.online {
+  background-color: #588fac;
+}
+
+/* line 213, ../sass/style.scss */
+.offline {
+  background-color: red;
+}
+
+/* line 217, ../sass/style.scss */
+.center {
+  text-align: center;
+}

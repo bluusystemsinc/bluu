@@ -227,3 +227,6 @@ class DeviceHistoryListJson(BaseDatatableView):
     def dispatch(self, *args, **kwargs):
         return super(DeviceHistoryListJson, self).dispatch(*args, **kwargs)
 
+
+class DeviceStatusCreateView(generics.CreateAPIView):
+    model = Status

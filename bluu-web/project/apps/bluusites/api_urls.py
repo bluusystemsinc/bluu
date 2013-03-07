@@ -5,7 +5,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from .api_views import (BluuSiteListJson, BluuSiteAccessListJson,
                         BluuSiteAccessCreateView, BluuSiteAccessUpdateView,
                         RoomListJson)
-
+from devices.api_views import (DeviceListJson, DeviceHistoryListJson)
 
 urlpatterns = (patterns('',
      url(
@@ -35,5 +35,12 @@ urlpatterns += format_suffix_patterns(patterns('',
         r'^(?P<site_pk>[0-9]+)/rooms/$',
         RoomListJson.as_view(),
         name='api_room_list_json'),
-
+    url(
+        r'^(?P<site_pk>[0-9]+)/devices/$',
+        DeviceListJson.as_view(),
+        name='api_device_list_json'),
+    url(
+        r'^(?P<site_pk>[0-9]+)/devices/(?P<pk>[0-9]+)/$',
+        DeviceHistoryListJson.as_view(),
+        name='api_device_history_list'),
 ), allowed=['jsonp', 'json', 'html'])

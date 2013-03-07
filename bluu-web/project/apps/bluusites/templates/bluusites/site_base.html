@@ -13,7 +13,7 @@
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/access" %}"><a href="{% url 'site_access' bluusite.pk %}">{% trans "Access management" %}</a></li>{% endif %}
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
             {% if perms.bluusites.browse_devices or "browse_devices" in site_perms %}    
-            {% block devices %}<li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'devices:device_list' bluusite.pk %}">{% trans "Device management" %}</a></li>{% endblock devices %}
+            {% block devices %}<li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' bluusite.pk %}">{% trans "Device management" %}</a></li>{% endblock devices %}
             {% endif %}
         {% endif %}
 

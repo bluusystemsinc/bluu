@@ -160,7 +160,7 @@ def _remove_access_for_site_user(sender, instance, *args, **kwargs):
     Removes current accesses to a site.
     """
     if instance.pk and instance.user:
-        instance.user.remove_accesses(group=instance.group, obj=instance.site)
+        instance.user.remove_access(group=instance.group, obj=instance.site)
         
 
 @receiver(post_save, sender=BluuSiteAccess)

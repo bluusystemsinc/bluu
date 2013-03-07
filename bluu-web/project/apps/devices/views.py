@@ -104,7 +104,9 @@ class DeviceCreateView(CreateView):
         return response
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('bluusites.add_device'))
+    @method_decorator(permission_required('bluusites.add_device',
+                                          (BluuSite, 'pk', 'site_pk'),
+                                          accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(DeviceCreateView, self).dispatch(*args, **kwargs)
 

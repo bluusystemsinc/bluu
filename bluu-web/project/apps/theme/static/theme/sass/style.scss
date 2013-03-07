@@ -157,3 +157,63 @@ table.table thead .sorting_asc_disabled { background: url(#{$datatables-media}/i
 table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/images/sort_desc_disabled.png) no-repeat center right; }
 
 /* end twitter bootstrap for datatables */
+
+
+/* monitor module */
+.monitor{
+}
+
+.monitor .icon{
+    padding: 5px 15px;
+}
+
+.monitor .title{
+    display: block;
+    float: right;
+    margin-top: 40px;
+    padding: 0 15px;
+    text-transform: uppercase;
+    color: #686868;
+}
+
+.monitor .bd{
+    border: 2px solid #dfe11e;
+    @include border-radius(4px, 4px);
+    padding: 15px 10px;
+}
+
+.monitor tr{
+    border-bottom: 1px dashed #dbdbdb;
+}
+
+.monitor td.action{
+    width: 20%;
+    min-width: 50px;
+}
+
+.monitor td.status{
+    width: 5%;
+}
+
+.monitor td.name{
+    width: 35%;
+}
+
+.circle{
+    width: 10px;
+    height: 10px;
+    margin: auto;
+    @include border-radius(5px);
+}
+
+.online{
+    background-color: #588fac;
+}
+
+.offline{
+    background-color: red;
+}
+
+.center{
+    text-align: center;
+}
