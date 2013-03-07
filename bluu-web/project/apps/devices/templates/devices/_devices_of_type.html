@@ -1,0 +1,16 @@
+{% load i18n thumbnail %}
+
+<div>
+  <div><img src="{% thumbnail device_type.icon 50x50 %}" alt="" /> {{ device_type.name }}</div>
+  <table class="well" width="100%">
+    {% for device in devices %}
+    <tr>
+      <td>{{ device.name }}</td> 
+      <td>{{ device.is_online }}</td> 
+      <td><a href="{% url "devices:device_edit" bluusite.pk device.pk %}">{% trans "Manage" %}</a></td> 
+      <td><a href="{% url "devices:device_history" bluusite.pk device.pk %}">{% trans "History" %}</a></td> 
+      <td><a href="{% url "devices:device_delete" bluusite.pk device.pk %}">{% trans "Delete" %}</a></td> 
+    </tr>
+    {% endfor %}
+  </table>
+</div>

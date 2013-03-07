@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -8,9 +9,11 @@ from django.db.models.signals import post_save, pre_save, pre_delete
 from model_utils.models import TimeStampedModel
 from bluusites.models import (BluuSite, Room)
 
+
 class DeviceType(models.Model):
     name = models.CharField(_('name'), max_length=255)
     icon = models.ImageField(_('icon'), upload_to='resources/devices/icons')
+    #config = models.ForeignKey(DeviceTypeConfiguration, null=True, blank=True)
 
     class Meta:
         verbose_name = _("device type")
@@ -59,6 +62,7 @@ class Device(TimeStampedModel):
     device_type = models.ForeignKey(DeviceType)
     bluusite = models.ForeignKey(BluuSite)
     room = models.ForeignKey(Room)
+    last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
 
     class Meta:
         verbose_name = _("device")
@@ -69,12 +73,17 @@ class Device(TimeStampedModel):
         )
 
     def __unicode__(self):
-        return "{0} | {1}".format(self.serial, self.get_device_type_display())
+        return "{0} | {1}".format(self.serial, self.device_type.name)
 
     @models.permalink
     def get_absolute_url(self):
         return ('devices:device_edit', [str(self.bluusite_id), str(self.id)])
 
+    @property
+    def is_online(self):
+        if (datetime.now() - self.last_seen) > timedelta(hours = 1):
+            return False
+        return True
 
 class Status(models.Model):
     created = models.DateTimeField(_('created'),

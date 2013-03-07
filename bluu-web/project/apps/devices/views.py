@@ -18,11 +18,41 @@ from accounts.models import BluuUser
 from bluusites.models import BluuSite
 
 from .forms import DeviceForm
-from .models import Device
+from .models import Device, DeviceType
 
 
 class DeviceListView(TemplateView):
     template_name = "devices/device_list.html"
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get('site_pk', None)
+        return get_object_or_404(BluuSite, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        bluusite = self.get_object()
+        device_types = DeviceType.objects.filter(device__isnull=False).distinct()
+
+        return {
+            'params': kwargs,
+            'bluusite': bluusite,
+            'device_types': device_types,
+        }
+
+    @method_decorator(permission_required(
+                        'bluusites.change_bluusite',
+                        (BluuSite, 'pk', 'site_pk'),
+                        accept_global_perms=True))
+    @method_decorator(permission_required(
+                        'bluusites.browse_devices',
+                        (BluuSite, 'pk', 'site_pk'),
+                        accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(DeviceListView, self).dispatch(*args, **kwargs)
+
+
+
+class DeviceListView_classic(TemplateView):
+    template_name = "devices/device_list_classic.html"
 
     def get_object(self, queryset=None):
         pk = self.kwargs.get('site_pk', None)
@@ -121,5 +151,32 @@ def device_delete(request, site_pk, pk):
     messages.success(request, _('Device deleted'))
     site_pk = int(site_pk)
     return redirect('devices:device_list', site_pk=site_pk)
+
+
+class DeviceHistoryListView(TemplateView):
+    template_name = "devices/device_history_list.html"
+
+    def get_context_data(self, **kwargs):
+        site_pk = self.kwargs.get('site_pk', None)
+        pk = self.kwargs.get('pk', None)
+        bluusite = get_object_or_404(BluuSite, pk=site_pk)
+        device = get_object_or_404(Device, pk=pk)
+
+        return {
+            'params': kwargs,
+            'bluusite': bluusite,
+            'device': device,
+        }
+
+    @method_decorator(permission_required(
+                        'bluusites.change_bluusite',
+                        (BluuSite, 'pk', 'site_pk'),
+                        accept_global_perms=True))
+    @method_decorator(permission_required(
+                        'bluusites.browse_devices',
+                        (BluuSite, 'pk', 'site_pk'),
+                        accept_global_perms=True))
+    def dispatch(self, *args, **kwargs):
+        return super(DeviceHistoryListView, self).dispatch(*args, **kwargs)
 
 

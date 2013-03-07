@@ -1,0 +1,73 @@
+{% extends "devices/devices_base.html" %}
+{% load i18n crispy_forms_tags grontextual_tags theme_tags devices_tags %}
+
+{% block title %}
+    {% trans 'Device History' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; <a href="{% url "devices:device_list" bluusite.pk %}">{% trans "Devices management" %}</a> &gt; {% trans "Manage device" %}
+{% endblock breadcrumbs %}
+
+
+{% block page-title %}
+    {% trans "Device History" %}
+{% endblock %}
+
+
+{% block main %}
+{{ block.super }}
+{% get_uog_perms request.user for bluusite as "bluusite_perms" %}
+
+<table id="site_list_table" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>{% trans 'No.' %}</th>
+            <th>{% trans 'Timestamp' %}</th>
+            <th>{% trans 'Action' %}</th>
+            <th>{% trans 'Battery Low' %}</th>
+            <th>{% trans 'Tamper' %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="5" class="dataTables_empty">{% trans "Loading data from server" %}</td> 
+        </tr>
+    </tbody>
+</table>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    {% include "utils/_datatable_trans.html" %}
+    <script src="{{ STATIC_URL }}theme/components/datatables/media/js/jquery.dataTables.js" language="javascript" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}theme/js/datatables-bootstrap-paging.js" language="javascript" type="text/javascript"></script>
+    <script charset="utf-8" type="text/javascript">
+    $(document).ready(function() {
+        $('#site_list_table').dataTable( {
+         "oLanguage": DATATABLE_TRANS,
+         "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
+         "sPaginationType": "bootstrap",
+         "bServerSide": true,
+         "bProcessing": false,
+         "sAjaxSource": "{% url 'sites:api_device_history_list' bluusite.pk device.pk %}",
+         "aaSorting": [[1, 'asc']],
+         "aoColumns": [
+                {
+                  "mData": 'device.no',
+                  "bSearchable": false, 
+                  "bSortable": false
+                },
+                { "mData": 'device.last_seen'},
+                { "mData": 'device.action'},
+                { "mData": 'device.battery_low'},
+                { "mData": 'device.tamper'},
+            ]
+    });
+    $.extend( $.fn.dataTableExt.oStdClasses, {
+      "sWrapper": "dataTables_wrapper form-inline"
+    } );
+});
+</script>
+{% endblock %}
+

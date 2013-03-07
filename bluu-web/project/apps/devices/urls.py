@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, url
 from . import views
-from utils.views import WorkInProgressView
 from . import views
 
 
@@ -18,5 +17,8 @@ urlpatterns = patterns('',
         r'^(?P<site_pk>\d+)/devices/(?P<pk>\d+)/delete/$',
         views.device_delete,
         name='device_delete'),
+    url(r'^(?P<site_pk>\d+)/devices/(?P<pk>\d+)/history/$',
+        views.DeviceHistoryListView.as_view(),
+        name='device_history'),
 )
 
