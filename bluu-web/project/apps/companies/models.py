@@ -48,10 +48,7 @@ class Company(Entity):
             while Company.objects.filter(code=code).exists():
                 code = self.generate_code()
             self.code = code
-        #try:
         super(Company, self).save(*args, **kwargs)
-        #except:
-        #    pass
 
     def _get_code(self, name, number):
         return '%s%04d' % (name[:2].upper(), number)
@@ -119,9 +116,10 @@ def _remove_access_for_company_user(sender, instance, *args, **kwargs):
     Access is removed in context of company and its sites.
     """
     if instance.pk and instance.user:
+        ca = CompanyAccess.objects.get(pk=instance.pk)
         instance.user.remove_all_accesses(obj=instance.company)
         for site in instance.company.bluusite_set.all():
-            instance.user.remove_access(group=instance.group, obj=site)
+            instance.user.remove_access(group=ca.group, obj=site)
 
 
 @receiver(post_save, sender=CompanyAccess)

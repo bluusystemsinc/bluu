@@ -1,26 +1,21 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Adding model 'Room'
-        db.create_table(u'bluusites_room', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('bluusite', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['bluusites.BluuSite'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal(u'bluusites', ['Room'])
-
+        "Write your forwards methods here."
+        # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
+        from bluusites.models import get_site_slug
+        for site in orm.BluuSite.objects.all():
+            site.slug = get_site_slug(site)
+            site.save()
 
     def backwards(self, orm):
-        # Deleting model 'Room'
-        db.delete_table(u'bluusites_room')
-
+        "Write your backwards methods here."
 
     models = {
         u'accounts.bluuuser': {
@@ -64,6 +59,7 @@ class Migration(SchemaMigration):
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'middle_initial': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
+            'slug': ('autoslug.fields.AutoSlugField', [], {'max_length': '50', 'unique_with': '()', 'null': 'True', 'populate_from': 'None'}),
             'state': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'street': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'users': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['accounts.BluuUser']", 'null': 'True', 'through': u"orm['bluusites.BluuSiteAccess']", 'blank': 'True'}),
@@ -126,3 +122,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['bluusites']
+    symmetrical = True

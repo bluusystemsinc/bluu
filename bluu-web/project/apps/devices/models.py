@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 
 from django.db import models
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import post_save, pre_save, pre_delete
 
 from model_utils.models import TimeStampedModel
 from bluusites.models import (BluuSite, Room)
@@ -77,7 +77,7 @@ class Device(TimeStampedModel):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('devices:device_edit', [str(self.bluusite_id), str(self.id)])
+        return ('site_devices:device_edit', [str(self.bluusite_id), str(self.id)])
 
     @property
     def is_online(self):
@@ -110,3 +110,11 @@ class Status(models.Model):
         return "{0} | {1} | {2}".format(self.timestamp,
                                         self.device.name,
                                         self.data)
+
+@receiver(post_save, sender=Status)
+def set_device_last_seen(sender, instance, *args, **kwargs):
+    """
+    Sets device's last seen after a status update was received
+    """
+    instance.device.last_seen = instance.created
+    instance.device.save()

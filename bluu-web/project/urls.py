@@ -21,10 +21,7 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
 
-    url(r'^api/auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api/sites/', include('bluusites.api_urls', namespace='sites')),
-    url(r'^api/companies/', include('companies.api_urls', namespace='companies')),
-    url(r'^api/devices/', include('devices.api_urls', namespace='devices')),
+    url(r'^v1/', include('apiv1.urls', namespace='v1')),
 )
 
 if settings.DEBUG:

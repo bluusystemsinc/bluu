@@ -65,7 +65,7 @@
     {% include "utils/_datatable_trans.html" %}
     <script charset="utf-8" type="text/javascript">
         var COMPANY_ID = {{ company.id }};
-        var DATATABLE_URL = "{% url 'companies:api_company_access_list_json' company.pk %}";
+        var DATATABLE_URL = "{% url 'api_company_access_list_json' company.pk %}";
     </script>
 {% endblock %}
 

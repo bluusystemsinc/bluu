@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 
+from autoslug import AutoSlugField
 from registration import signals
 from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
@@ -18,9 +19,14 @@ from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
 
+def get_site_slug(instance):
+    fmt = "{}{}".format(instance.first_name[:2], instance.last_name[:2])
+    return fmt
+
 class BluuSite(models.Model):
     first_name = models.CharField(_('first name'), max_length=30)
     last_name = models.CharField(_('last name'), max_length=30)
+    slug = AutoSlugField(populate_from=get_site_slug, unique=True)
     middle_initial = models.CharField(
                 _('middle initial'), max_length=2, 
                 blank=True)
@@ -160,7 +166,8 @@ def _remove_access_for_site_user(sender, instance, *args, **kwargs):
     Removes current accesses to a site.
     """
     if instance.pk and instance.user:
-        instance.user.remove_access(group=instance.group, obj=instance.site)
+        ba = BluuSiteAccess.objects.get(pk=instance.pk)
+        instance.user.remove_access(group=ba.group, obj=instance.site)
         
 
 @receiver(post_save, sender=BluuSiteAccess)

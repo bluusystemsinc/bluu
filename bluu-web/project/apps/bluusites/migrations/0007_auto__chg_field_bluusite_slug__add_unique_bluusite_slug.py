@@ -8,19 +8,20 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Room'
-        db.create_table(u'bluusites_room', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('bluusite', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['bluusites.BluuSite'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal(u'bluusites', ['Room'])
+
+        # Changing field 'BluuSite.slug'
+        db.alter_column(u'bluusites_bluusite', 'slug', self.gf('autoslug.fields.AutoSlugField')(default='xyz', unique=True, max_length=50, populate_from=None, unique_with=()))
+        # Adding unique constraint on 'BluuSite', fields ['slug']
+        db.create_unique(u'bluusites_bluusite', ['slug'])
 
 
     def backwards(self, orm):
-        # Deleting model 'Room'
-        db.delete_table(u'bluusites_room')
+        # Removing unique constraint on 'BluuSite', fields ['slug']
+        db.delete_unique(u'bluusites_bluusite', ['slug'])
 
+
+        # Changing field 'BluuSite.slug'
+        db.alter_column(u'bluusites_bluusite', 'slug', self.gf('autoslug.fields.AutoSlugField')(populate_from=None, unique_with=(), max_length=50, null=True))
 
     models = {
         u'accounts.bluuuser': {
@@ -64,6 +65,7 @@ class Migration(SchemaMigration):
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'middle_initial': ('django.db.models.fields.CharField', [], {'max_length': '2', 'blank': 'True'}),
             'phone': ('django.db.models.fields.CharField', [], {'max_length': '10', 'blank': 'True'}),
+            'slug': ('autoslug.fields.AutoSlugField', [], {'unique': 'True', 'max_length': '50', 'populate_from': 'None', 'unique_with': '()'}),
             'state': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'street': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'users': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['accounts.BluuUser']", 'null': 'True', 'through': u"orm['bluusites.BluuSiteAccess']", 'blank': 'True'}),

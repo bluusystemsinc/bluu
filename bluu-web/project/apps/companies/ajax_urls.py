@@ -1,6 +1,6 @@
 from django.conf.urls import *
 from rest_framework.urlpatterns import format_suffix_patterns
-from .api_views import (CompanyAccessCreateView, CompanyAccessListJson,
+from .ajax_views import (CompanyAccessCreateView, CompanyAccessListJson,
                         CompanySiteListJson, CompanyAccessUpdateView,
                         CompanyAccessListCreateView)
 
@@ -16,4 +16,4 @@ urlpatterns = format_suffix_patterns(patterns('',
         name='api_company_access_json'),
     url(r'^(?P<company_pk>[0-9]+)/sites\.json[/]?$', CompanySiteListJson.as_view(),
         name='api_company_site_list_json'),
-), allowed=['jsonp', 'json', 'html'])
+), allowed=['json', 'html'])

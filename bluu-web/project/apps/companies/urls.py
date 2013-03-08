@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from . import views
 
 
@@ -17,5 +17,6 @@ urlpatterns = patterns('',
     #        views.CompanySiteCreateView.as_view(), name='company_site_add'),
     url(r'^delete/(?P<pk>\d+)/$', views.company_delete,
         name='company_delete'),
+    url(r'^', include('companies.ajax_urls')),
 )
 

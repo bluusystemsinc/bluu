@@ -4,10 +4,10 @@
 angular.module('Bluu.services', ['ngResource']).
     value('version', '0.1').
     factory('Company', function ($resource) {
-        return $resource('/api/companies/:companyId/', {companyId: '@id'});
+        return $resource('/companies/:companyId/', {companyId: '@id'});
     }).
     factory('CompanyAccess', function ($resource) {
-        return $resource('/api/companies/:companyId/access/:id/',
+        return $resource('/companies/:companyId/access/:id/',
             {
                 id: '@id'
             },
@@ -17,10 +17,10 @@ angular.module('Bluu.services', ['ngResource']).
             );
     }).
     factory('Site', function ($resource) {
-        return $resource('/api/companies/:companyId/sites/:siteId/', {siteId: '@id'});
+        return $resource('/companies/:companyId/sites/:siteId/', {siteId: '@id'});
     }).
     factory('SiteAccess', function ($resource) {
-        return $resource('/api/sites/:siteId/access/:id/',
+        return $resource('/sites/:siteId/access/:id/',
             {
                 id: '@id'
             },

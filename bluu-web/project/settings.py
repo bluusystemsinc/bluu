@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     'utils',
     'grontextual',
     'invitations',
+    'autoslug',
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"
