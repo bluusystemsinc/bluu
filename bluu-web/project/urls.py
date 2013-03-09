@@ -20,8 +20,7 @@ urlpatterns = patterns('',
     (r'^sites/', include('bluusites.urls')),
     (r'^admin/', include(admin.site.urls)),
     (r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
-
-    url(r'^v1/', include('apiv1.urls', namespace='v1')),
+    (r'^v1/', include('apiv1.urls', namespace='v1')),
 )
 
 if settings.DEBUG:

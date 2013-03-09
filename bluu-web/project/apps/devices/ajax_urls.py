@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import (DeviceListJson, DeviceHistoryListJson)
+from .ajax_views import (DeviceListJson, DeviceHistoryListJson)
 
 
 urlpatterns = patterns('',
