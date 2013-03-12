@@ -11,6 +11,7 @@ from crispy_forms.layout import Submit
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
 
+from devices.models import Room
 from .models import Device
 
 class DeviceForm(forms.ModelForm):
@@ -34,6 +35,7 @@ class DeviceForm(forms.ModelForm):
         )
 
         super(DeviceForm, self).__init__(*args, **kwargs)
+        self.fields['room'].queryset = Room.objects.filter(bluusite=self.bluusite)
 
     class Meta:
         model = Device

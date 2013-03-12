@@ -140,7 +140,7 @@ class DeviceHistoryListJson(BaseDatatableView):
     # Order is important and should be the same as order of columns
     # displayed by datatables. For non sortable columns use empty
     # value like ''
-    order_columns = ['', 'timestamp']
+    order_columns = ['', '-timestamp']
 
     def get_site(self, pk):
         return get_object_or_404(BluuSite, pk=pk)
@@ -207,7 +207,7 @@ class DeviceHistoryListJson(BaseDatatableView):
                 {
                     "device":{
                         "no": no,
-                        "last_seen": status.device.last_seen.strftime("%Y-%m-%d %H:%M:%S"),
+                        "last_seen": status.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                         "action": status.action,
                         "battery_low": status.battery,
                         "tamper": status.tamper,

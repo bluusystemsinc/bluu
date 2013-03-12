@@ -33,7 +33,7 @@ class DeviceListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         bluusite = self.get_object()
-        device_types = DeviceType.objects.filter(device__isnull=False).distinct()
+        device_types = DeviceType.objects.filter(device__isnull=False, device__bluusite=bluusite).distinct()
 
         return {
             'params': kwargs,

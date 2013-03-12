@@ -302,3 +302,19 @@ def run():
         perm_browse_sites,
     ]
 
+
+    """
+    WebService role is intended to be used in context of sites. Role should be
+    assigned to web-service users - ones used by site daemon to log in and report
+    status data.
+    """
+    webservice_group = Group.objects.get_or_create(name=u'WebService')[0]
+
+    # assign permissions to User
+    webservice_group.permissions.clear()
+
+    webservice_group.permissions = [
+        perm_change_device,
+        perm_browse_devices,
+    ]
+

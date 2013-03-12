@@ -259,6 +259,7 @@ APPEND_SLASH = False
 # App specific settings
 COMPANY_GROUPS = ['Dealer', 'Technician']
 SITE_GROUPS = ['Master User', 'User']
+WEBSERVICE_USERNAME_PREFIX = 'webservice'
 
 try:
     from settings_local import *

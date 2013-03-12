@@ -83,6 +83,14 @@ class BluuUserForm(ModelForm):
         fields = ('username', 'first_name', 'last_name', 'groups', 'email', 'is_active',
                   'groups', 'cell', 'cell_text_email')
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username.startswith(settings.WEBSERVICE_USERNAME_PREFIX):
+            raise forms.ValidationError(
+                    'Names starting with "{}" are restricted!'.format(
+                                           settings.WEBSERVICE_USERNAME_PREFIX))
+        return username
+
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')

@@ -160,6 +160,23 @@ def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs)
                                        obj=instance)
 
 
+@receiver(post_save, sender=BluuSite)
+def _create_webservice_user_for_site(sender, instance, *args, **kwargs):
+    from django.contrib.auth import get_user_model
+    user = get_user_model().objects.create_user(
+                        username='{0}_{1}'.format(
+                                            settings.WEBSERVICE_USERNAME_PREFIX,
+                                            instance.slug),
+                        email='',
+                        password=instance.slug,
+                        first_name=instance.first_name,
+                        last_name=instance.last_name)
+    group = Group.objects.get(name='WebService')
+    # create siteaccess
+    BluuSiteAccess.objects.create(site=instance, group=group, user=user)
+    # UOG permissions are assigned automatically by another signal
+
+
 @receiver(pre_save, sender=BluuSiteAccess)
 def _remove_access_for_site_user(sender, instance, *args, **kwargs):
     """
