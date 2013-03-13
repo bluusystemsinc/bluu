@@ -6,6 +6,10 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 admin.autodiscover()
 
+from django.contrib.auth import views as auth_views
+from accounts.forms import EmailAuthenticationForm
+from accounts.views import bluu_login
+
 js_info_dict = {
             #'packages':('photos', 'theme')
         }
@@ -13,7 +17,13 @@ js_info_dict = {
 urlpatterns = patterns('',
     # Uncomment the admin/doc line below to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^$', TemplateView.as_view(template_name="base.html"), name="dashboard"),
+    url(r'^$',
+        bluu_login,
+        {'template_name': 'registration/login.html',
+        'authentication_form': EmailAuthenticationForm},
+        name='auth_login'),
+    (r'^dashboard/', include('dashboard.urls')),
+    #url(r'^$', TemplateView.as_view(template_name="base.html"), name="homepage"),
     #(r'^accounts/', include('registration.backends.default.urls')),
     (r'^accounts/', include('accounts.urls')),
     (r'^companies/', include('companies.urls')),

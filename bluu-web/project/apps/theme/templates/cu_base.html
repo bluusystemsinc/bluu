@@ -10,13 +10,13 @@
           <li>dummy</li>
       </ul>
     </div>
-    {% endblock%}
+    {% endblock sidebar %}
   </aside>
   <div class="span9">
     <div class="page-header content-wrapper">
-        <h3>{% block page-title %}{% endblock %}</h3>
+        <h3>{% block page-title %}{% endblock page-title %}</h3>
     </div>
-    {% block main %}{% endblock%}
+    {% block main %}{% endblock main %}
   </div>
 </div>
-{% endblock %}
+{% endblock content %}

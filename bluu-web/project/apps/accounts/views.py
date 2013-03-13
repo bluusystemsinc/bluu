@@ -13,12 +13,10 @@ from django.template import RequestContext
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.views import login
 
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_objects_for_user, assign
 from registration.backends import get_backend
-from braces.views import LoginRequiredMixin
 from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 from braces.views import PermissionRequiredMixin
 from django_datatables_view.base_datatable_view import BaseDatatableView
@@ -204,6 +202,11 @@ class BluuUserCompaniesView(PermissionRequiredMixin, DetailView):
         context['companies'] = user.get_companies()
         return context
 
+
+def bluu_login(request, **kwargs):
+    if request.user.is_authenticated():
+        return redirect('dashboard')
+    return login(request, **kwargs)
 
 
 def register(request, backend, success_url=None, form_class=None,

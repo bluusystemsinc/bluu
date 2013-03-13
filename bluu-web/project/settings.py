@@ -152,6 +152,7 @@ INSTALLED_APPS = [
     'utils',
     'grontextual',
     'invitations',
+    'dashboard',
     'autoslug',
 ]
 
@@ -168,7 +169,8 @@ AUTHENTICATION_BACKENDS = (
 
 # django-registration settings
 ACCOUNT_ACTIVATION_DAYS = 14
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_URL = '/'
 
 # invitations settings
 ACCOUNT_INVITATION_DAYS = 14
@@ -255,6 +257,9 @@ SOUTH_MIGRATION_MODULES = {
 }
 
 APPEND_SLASH = False
+# Session timeout in seconds
+SESSION_COOKIE_AGE = 3600
+
 
 # App specific settings
 COMPANY_GROUPS = ['Dealer', 'Technician']

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.db import models
@@ -23,6 +24,7 @@ def get_site_slug(instance):
     fmt = "{}{}".format(instance.first_name[:2], instance.last_name[:2])
     return fmt
 
+
 class BluuSite(models.Model):
     first_name = models.CharField(_('first name'), max_length=30)
     last_name = models.CharField(_('last name'), max_length=30)
@@ -45,6 +47,7 @@ class BluuSite(models.Model):
     zip_code = models.CharField(_('zip code'), max_length=7)
     country = CountryField(_('country'), default='US')
     phone = models.CharField(_('phone'), max_length=10, blank=True)
+    last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
 
     class Meta:
         verbose_name = _("Site")
@@ -75,6 +78,13 @@ class BluuSite(models.Model):
     @property
     def get_name(self):
         return "{0} {1}".format(self.first_name, self.last_name)
+
+    @property
+    def is_online(self):
+        if (datetime.now() - self.last_seen) > timedelta(hours = 1):
+            return False
+        return True
+
 
 
 class BluuSiteAccess(models.Model):

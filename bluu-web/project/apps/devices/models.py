@@ -118,3 +118,12 @@ def set_device_last_seen(sender, instance, *args, **kwargs):
     """
     instance.device.last_seen = instance.created
     instance.device.save()
+
+
+@receiver(post_save, sender=Status)
+def set_site_last_seen(sender, instance, *args, **kwargs):
+    """
+    Sets site's last seen after a status update was received
+    """
+    instance.device.bluusite.last_seen = instance.created
+    instance.device.bluusite.save()

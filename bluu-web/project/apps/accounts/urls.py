@@ -7,37 +7,30 @@ from .forms import RegistrationForm, EmailAuthenticationForm
 from . import views
 
 urlpatterns = patterns('',
-    url(
-        regex=r'^users/$', 
+    url(regex=r'^users/$', 
         view=views.BluuUserListView.as_view(),
         name='bluuuser_list'
     ),
-    url(
-        regex=r'^users\.json/$', 
+    url(regex=r'^users\.json/$', 
         view=views.BluuUserListJson.as_view(),
         name='bluuuser_list_json'
     ),
-    url(
-        regex=r'^users/add/$',
+    url(regex=r'^users/add/$',
         view=views.BluuUserCreateView.as_view(),
         name='bluuuser_add'
     ),
-    url(
-        regex=r'^users/(?P<username>[\w.@+-]+)/edit/$',
+    url(regex=r'^users/(?P<username>[\w.@+-]+)/edit/$',
         view=views.BluuUserUpdateView.as_view(),
         name='bluuuser_edit'
     ),
-    url(
-        r'^users/(?P<username>[\w.@+-]+)/delete/$',
+    url(r'^users/(?P<username>[\w.@+-]+)/delete/$',
         views.bluuuser_delete,
         name='bluuuser_delete'),
-    url(
-        regex=r'^users/(?P<username>[\w.@+-]+)/sites/$',
+    url(regex=r'^users/(?P<username>[\w.@+-]+)/sites/$',
         view=views.BluuUserSitesView.as_view(),
         name='bluuuser_sites'
     ),
-    url(
-        regex=r'^users/(?P<username>[\w.@+-]+)/companies/$',
+    url(regex=r'^users/(?P<username>[\w.@+-]+)/companies/$',
         view=views.BluuUserCompaniesView.as_view(),
         name='bluuuser_companies'
     ),
@@ -51,40 +44,4 @@ urlpatterns = patterns('',
         name='auth_login'),
     (r'', include('invitations.urls')),
     (r'', include('registration.auth_urls')),
-
-
-#    url(r'^activate/complete/$',
-#       TemplateView.as_view(
-#           template_name='registration/activation_complete.html'),
-#       name='registration_activation_complete'),
-#    # Activation keys get matched by \w+ instead of the more specific
-#    # [a-fA-F0-9]{40} because a bad activation key should still get to the view;
-#    # that way it can return a sensible "invalid key" message instead of a
-#    # confusing 404.
-#    url(r'^activate/(?P<activation_key>\w+)/$',
-#       activate,
-#       {'backend': 'accounts.registration_backend.PhotoBackend'},
-#       name='registration_activate'),
-#    url(r'^register/$',
-#       views.register,
-#       {'form_class': RegistrationForm},
-#       name='registration_register'),
-#    url(r'^register/complete/$',
-#       TemplateView.as_view(
-#           template_name='registration/registration_complete.html'),
-#       name='registration_complete'),
-#    url(r'^register/closed/$',
-#       TemplateView.as_view(
-#           template_name='registration/registration_closed.html'),
-#       name='registration_disallowed'),
-#
-#
-#
-#    url('^profile/new',
-#       login_required(views.UserProfileCreateView.as_view()),
-#       name="profiles_create_profile"),
-#    url('^profile',
-#       login_required(views.UserProfileUpdateView.as_view()),
-#       name="profiles_edit_profile"),
-
 )
