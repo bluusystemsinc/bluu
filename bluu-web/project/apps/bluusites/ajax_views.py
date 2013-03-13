@@ -112,7 +112,8 @@ class BluuSiteAccessListJson(BaseDatatableView):
 
         self.bluusite = self.get_site(kwargs.get('pk'))
 
-        qs = BluuSiteAccess.objects.filter(site=self.bluusite)
+        qs = BluuSiteAccess.objects.filter(site=self.bluusite).\
+                exclude(user__username__startswith=settings.WEBSERVICE_USERNAME_PREFIX)
         # number of records before filtering
         total_records = qs.count()
         qs = self.filter_queryset(qs)
