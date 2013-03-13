@@ -120,13 +120,13 @@ $(document).ready(function(){
         {% csrf_token %}
         <div class="control-group">
             <div class="controls">
-                <input type="text" id="id_username" name="username"  class="round-input" value="{% trans "Username" %}">
+                <input type="text" id="id_username" name="username"  class="round-input" placeholder="{% trans "Username" %}">
             </div>
         </div>
         
         <div class="control-group">
             <div class="controls">
-                <input type="password" name="password" id="id_password" class="round-input" value="{% trans "Password" %}">
+                <input type="password" name="password" id="id_password" class="round-input" placeholder="{% trans "Password" %}">
             </div>
         </div>
         <div class="form-actions">
