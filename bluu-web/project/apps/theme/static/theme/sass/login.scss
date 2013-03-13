@@ -1,0 +1,107 @@
+@import "compass/css3/border-radius";
+
+html, body{
+	padding:0;
+	margin:0;
+	font-size:12px;
+	width:100%;
+	height:100%;
+}
+
+body {
+	background-image: url(../img/bg.jpg);
+}
+
+.round-input{
+	width:100%;
+	height:46px;
+	border:solid 1px #6d6f71;
+	text-indent:10px;
+	font-size: 20px;
+	font-weight:bold;
+	font-family:"Lato",Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	color:#666767;
+  @include border-radius(4px, 4px);
+}
+
+.loginform .control-group{
+	margin:10px auto 10px auto;
+}
+.loginbutton:hover{
+	cursor:pointer;
+	color:#CCC;
+	background-color:#004066;
+}
+.loginbutton {
+  background-color: #0065A4;
+  border: medium none;
+  @include border-radius(4px, 4px);
+  color: #FFFFFF;
+  font-family: "Lato",Arial,Helvetica,sans-serif;
+  font-size: 20px;
+  height: 46px;
+  font-weight:bold;
+  text-align: center;
+  text-transform: uppercase;
+  width: 100%;
+  margin:10px auto 10px auto;
+}
+.resetme a:hover{
+	color:#333;
+}
+.resetme a{
+	text-align:center;
+	color:#666767;
+	text-transform:uppercase;
+	font-family: "Lato",Arial,Helvetica,sans-serif;
+}
+.copyrights {
+  bottom: 20px;
+  color: #666767;
+  font-family: "Lato",Arial,Helvetica,sans-serif;
+  font-size: 15px;
+  left: 20px;
+  position: fixed;
+}
+
+.alert {
+  background-color: #FCF8E3;
+  border: 1px solid #FBEED5;
+  @include border-radius(4px, 4px);
+  font-family: "Lato",Arial,Helvetica,sans-serif;
+  font-size: 15px;
+  margin: 20px auto;
+  padding: 12px 35px 12px 14px;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.alert-danger, .alert-error {
+  background-color: #F2DEDE;
+  border-color: #cd4a66;
+  color: #B94A48;
+}
+.login-logo img{
+	width:100%;
+	height:auto;
+	max-width:482px;
+}
+
+.loginform{
+	max-width:600px;
+  width: 60%;
+}
+
+@media (max-width: 767px) {
+  .loginform{
+    width: 80%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+  .loginform{
+    width: 60%;
+  }
+}
+
+

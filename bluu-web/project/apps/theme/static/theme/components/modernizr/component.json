@@ -1,0 +1,17 @@
+{
+  "name": "modernizr",
+  "version": "2.6.2",
+  "main": [
+    "./modernizr.js"
+  ],
+  "dependencies": {},
+  "gitHead": "d5e4a7902fc4ceb8167965f042ea33e9e3b76081",
+  "readme": "# Temporary!\n\nThis is here only to serve up copies of the most awesome [modernizr][]\ndev version through [Bower][Bower], since the current repository is not\nBower friendly, and has issues with long paths that affect cloning on Windows.\n\nThe hope is that the original authors will eventually use a smaller distribution\nrepo through Bower itself, rather than the current [source repository][].\n\nAs soon as that happens, this will disappear.\n\nFor now, use in `component.json` like this\n\n```javascript\n{\n  \"name\": \"ClientSide Dependencies\",\n  \"version\": \"1.0.0\",\n  \"main\": \"\",\n  \"dependencies\": {\n    \"modernizr\": \"git+https://github.com/Iristyle/bower-angular.git#2.6.2\"\n  }\n}\n```\n\n\n[modernizr]: http://modernizr.com/\n[Bower]: https://github.com/twitter/bower\n[source repository]: https://github.com/Modernizr/Modernizr\n",
+  "readmeFilename": "README.md",
+  "_id": "modernizr@2.6.2",
+  "description": "This is here only to serve up copies of the most awesome [modernizr][] dev version through [Bower][Bower], since the current repository is not Bower friendly, and has issues with long paths that affect cloning on Windows.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Iristyle/bower-modernizr.git"
+  }
+}

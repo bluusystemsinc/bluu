@@ -84,6 +84,7 @@ class Device(TimeStampedModel):
             return False
         return True
 
+
 class Status(models.Model):
     created = models.DateTimeField(_('created'),
                                    editable=False,

@@ -4,12 +4,11 @@
   "main": ["./css/style.css", "./js/main.js", "./img/logo.png"],
   "dependencies": {
     "jquery": "~1.8.3",
-    "bootstrap": "~2.3.0",
     "sass-twitter-bootstrap":"https://github.com/jlong/sass-twitter-bootstrap.git",
     "datatables":"~1.9.4",
     "angular-complete":"latest",
     "angular-ui":"latest",
-    "angular-grid":"git://github.com/angular-ui/ng-grid.git",
-    "flot":"latest"
+    "flot":"latest",
+    "modernizr": "git+https://github.com/Iristyle/bower-modernizr.git#2.6.2"
   }
 }
