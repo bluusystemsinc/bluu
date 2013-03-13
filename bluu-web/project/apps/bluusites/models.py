@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
+import calendar
+import json
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
@@ -85,6 +88,57 @@ class BluuSite(models.Model):
             return False
         return True
 
+    def get_last_activity(self):
+        devices = self.device_set.filter(device_type__name="Motion")
+        try:
+            return devices.latest('last_seen')
+        except ObjectDoesNotExist:
+            return None
+
+    def get_last_weight(self):
+        devices = self.device_set.filter(device_type__name="Scale")
+        try:
+            last_scale = devices.latest('last_seen')
+            status = last_scale.status_set.filter(float_data__isnull=False).\
+                                                               latest('created')
+            return status.float_data
+        except ObjectDoesNotExist:
+            return None
+
+    def get_last_weights(self, count=7):
+        from devices.models import Status
+        ret = []
+        try:
+            scale_statuses = Status.objects.filter(device__device_type__name="Scale", float_data__isnull=False).order_by('-created')[:count]
+            for status in scale_statuses:
+                dat = calendar.timegm(status.timestamp.timetuple()) * 1000
+                ret.append((dat, status.float_data))
+            return json.dumps(ret)
+        except ObjectDoesNotExist:
+            return None
+
+    def get_last_bloodpressures(self, count=7):
+        from devices.models import Status
+        ret = []
+        try:
+            scale_statuses = Status.objects.filter(device__device_type__name="Blood pressure", float_data__isnull=False).order_by('-created')[:count]
+            for status in scale_statuses:
+                dat = calendar.timegm(status.timestamp.timetuple()) * 1000
+                ret.append((dat, status.float_data))
+            return json.dumps(ret)
+        except ObjectDoesNotExist:
+            return None
+
+    def get_battery_statuses(self):
+        low_counter = 0
+        for device in self.device_set.all():
+            try:
+                status = device.status_set.latest('created')
+                if status.battery:
+                    low_counter += 1
+            except ObjectDoesNotExist:
+                pass
+        return low_counter
 
 
 class BluuSiteAccess(models.Model):
@@ -92,7 +146,6 @@ class BluuSiteAccess(models.Model):
     site = models.ForeignKey(BluuSite)
     group = models.ForeignKey(Group)
     email = models.EmailField(_('e-mail'), blank=True, null=True)
-    #invitation = models.BooleanField(_('invitation', default=False))
     invitations = generic.GenericRelation('invitations.InvitationKey')
 
     class Meta:
@@ -171,20 +224,21 @@ def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs)
 
 
 @receiver(post_save, sender=BluuSite)
-def _create_webservice_user_for_site(sender, instance, *args, **kwargs):
-    from django.contrib.auth import get_user_model
-    user = get_user_model().objects.create_user(
-                        username='{0}_{1}'.format(
+def _create_webservice_user_for_site(sender, instance, created, *args, **kwargs):
+    if created:
+        from django.contrib.auth import get_user_model
+        user = get_user_model().objects.create_user(
+                            username='{0}_{1}'.format(
                                             settings.WEBSERVICE_USERNAME_PREFIX,
                                             instance.slug),
-                        email='',
-                        password=instance.slug,
-                        first_name=instance.first_name,
-                        last_name=instance.last_name)
-    group = Group.objects.get(name='WebService')
-    # create siteaccess
-    BluuSiteAccess.objects.create(site=instance, group=group, user=user)
-    # UOG permissions are assigned automatically by another signal
+                            email='',
+                            password=instance.slug,
+                            first_name=instance.first_name,
+                            last_name=instance.last_name)
+        group = Group.objects.get(name='WebService')
+        # create siteaccess
+        BluuSiteAccess.objects.create(site=instance, group=group, user=user)
+        # UOG permissions are assigned automatically by another signal
 
 
 @receiver(pre_save, sender=BluuSiteAccess)

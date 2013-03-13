@@ -9,6 +9,7 @@
     "datatables":"~1.9.4",
     "angular-complete":"latest",
     "angular-ui":"latest",
-    "angular-grid":"git://github.com/angular-ui/ng-grid.git"
+    "angular-grid":"git://github.com/angular-ui/ng-grid.git",
+    "flot":"latest"
   }
 }

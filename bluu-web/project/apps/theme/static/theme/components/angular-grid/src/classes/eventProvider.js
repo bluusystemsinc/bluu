@@ -5,7 +5,7 @@
     self.groupToMove = undefined;
     self.assignEvents = function() {
         // Here we set the onmousedown event handler to the header container.
-        if (grid.config.jqueryUIDraggable) {
+        if (grid.config.jqueryUIDraggable && !grid.config.enablePinning) {
             grid.$groupPanel.droppable({
                 addClasses: false,
                 drop: function(event) {
@@ -16,7 +16,7 @@
         } else {
             grid.$groupPanel.on('mousedown', self.onGroupMouseDown).on('dragover', self.dragOver).on('drop', self.onGroupDrop);
             grid.$headerScroller.on('mousedown', self.onHeaderMouseDown).on('dragover', self.dragOver);
-            if (grid.config.enableColumnReordering) {
+            if (grid.config.enableColumnReordering && !grid.config.enablePinning) {
                 grid.$headerScroller.on('drop', self.onHeaderDrop);
             }
             if (grid.config.enableRowReordering) {
@@ -25,33 +25,33 @@
         }
         $scope.$watch('columns', self.setDraggables, true);
     };
-	self.dragStart = function(evt){		
-		//FireFox requires there to be dataTransfer if you want to drag and drop.
-		evt.dataTransfer.setData('text', ''); //cannot be empty string
-	};
+    self.dragStart = function(evt){		
+      //FireFox requires there to be dataTransfer if you want to drag and drop.
+      evt.dataTransfer.setData('text', ''); //cannot be empty string
+    };
     self.dragOver = function(evt) {
         evt.preventDefault();
     };
     //For JQueryUI
     self.setDraggables = function() {
         if (!grid.config.jqueryUIDraggable) {
-			//Fix for FireFox. Instead of using jQuery on('dragstart', function) on find, we have to use addEventListeners for each column.
+            //Fix for FireFox. Instead of using jQuery on('dragstart', function) on find, we have to use addEventListeners for each column.
             var columns = grid.$root.find('.ngHeaderSortColumn'); //have to iterate if using addEventListener
-			angular.forEach(columns, function(col){
-				col.setAttribute('draggable', 'true');
-				//jQuery 'on' function doesn't have  dataTransfer as part of event in handler unless added to event props, which is not recommended
-				//See more here: http://api.jquery.com/category/events/event-object/
-				if (col.addEventListener) { //IE8 doesn't have drag drop or event listeners
-					col.addEventListener('dragstart', self.dragStart);
-				}
-			});
-			if (navigator.userAgent.indexOf("MSIE") != -1){
-         		//call native IE dragDrop() to start dragging
-				grid.$root.find('.ngHeaderSortColumn').bind('selectstart', function () { 
-					this.dragDrop(); 
-					return false; 
-				});	
-      		}
+            angular.forEach(columns, function(col){
+                col.setAttribute('draggable', 'true');
+                //jQuery 'on' function doesn't have  dataTransfer as part of event in handler unless added to event props, which is not recommended
+                //See more here: http://api.jquery.com/category/events/event-object/
+                if (col.addEventListener) { //IE8 doesn't have drag drop or event listeners
+                    col.addEventListener('dragstart', self.dragStart);
+                }
+            });
+            if (navigator.userAgent.indexOf("MSIE") != -1){
+                //call native IE dragDrop() to start dragging
+                grid.$root.find('.ngHeaderSortColumn').bind('selectstart', function () { 
+                    this.dragDrop(); 
+                    return false; 
+                });	
+            }
         } else {
             grid.$root.find('.ngHeaderSortColumn').draggable({
                 helper: 'clone',
@@ -77,16 +77,16 @@
                 // set draggable events
                 if (!grid.config.jqueryUIDraggable) {
                     groupItem.attr('draggable', 'true');
-					if(this.addEventListener){//IE8 doesn't have drag drop or event listeners
-						this.addEventListener('dragstart', self.dragStart); 
-					}
-					if (navigator.userAgent.indexOf("MSIE") != -1){
-						//call native IE dragDrop() to start dragging
-						groupItem.bind('selectstart', function () { 
-							this.dragDrop(); 
-							return false; 
-						});	
-					}
+                    if(this.addEventListener){//IE8 doesn't have drag drop or event listeners
+                        this.addEventListener('dragstart', self.dragStart); 
+                    }
+                    if (navigator.userAgent.indexOf("MSIE") != -1){
+                        //call native IE dragDrop() to start dragging
+                        groupItem.bind('selectstart', function () { 
+                            this.dragDrop(); 
+                            return false; 
+                        });	
+                    }
                 }
                 // Save the column for later.
                 self.groupToMove = { header: groupItem, groupName: groupItemScope.group, index: groupItemScope.$index };
@@ -196,15 +196,12 @@
             if (prevRow.scope.row == rowScope.row) {
                 return;
             }
-            // Splice the Rows via the actual datasource
-            var i = grid.rowCache.indexOf(prevRow.scope.row);
-            var j = grid.rowCache.indexOf(rowScope.row);
-            grid.rowCache.splice(i, 1);
-            grid.rowCache.splice(j, 0, prevRow.scope.row);
+            grid.changeRowOrder(prevRow.scope.row, rowScope.row);
             grid.searchProvider.evalFilter();
             // clear out the rowToMove object
             domUtilityService.eventStorage.rowToMove = undefined;
             // if there isn't an apply already in progress lets start one
+            domUtilityService.digest(rowScope.$root);
         }
     };
 

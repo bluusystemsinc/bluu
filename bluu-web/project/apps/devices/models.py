@@ -92,6 +92,7 @@ class Status(models.Model):
     device = models.ForeignKey(Device)
     data = models.IntegerField(_('data'))
     signal = models.IntegerField(_('signal'))
+    float_data = models.FloatField(_('float data'), null=True, blank=True)
     action = models.BooleanField(_('action'))
     battery = models.BooleanField(_('battery'))
     input1 = models.BooleanField(_('input1'))
