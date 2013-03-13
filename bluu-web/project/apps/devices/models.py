@@ -13,7 +13,6 @@ from bluusites.models import (BluuSite, Room)
 class DeviceType(models.Model):
     name = models.CharField(_('name'), max_length=255)
     icon = models.ImageField(_('icon'), upload_to='resources/devices/icons')
-    #config = models.ForeignKey(DeviceTypeConfiguration, null=True, blank=True)
 
     class Meta:
         verbose_name = _("device type")

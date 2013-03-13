@@ -150,6 +150,14 @@ class BluuSite(models.Model):
         return low_counter
 
 
+    def get_activity(self):
+        devices = self.device_set.filter(device_type__name="Motion")
+        try:
+            return devices.latest('last_seen')
+        except ObjectDoesNotExist:
+            return None
+
+
 class BluuSiteAccess(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
     site = models.ForeignKey(BluuSite)
