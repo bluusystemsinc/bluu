@@ -109,7 +109,10 @@ class BluuSite(models.Model):
         from devices.models import Status
         ret = []
         try:
-            scale_statuses = Status.objects.filter(device__device_type__name="Scale", float_data__isnull=False).order_by('-created')[:count]
+            scale_statuses = Status.objects.filter(
+                    device__bluusite=self,
+                    device__device_type__name="Scale",
+                    float_data__isnull=False).order_by('-created')[:count]
             for status in scale_statuses:
                 dat = calendar.timegm(status.timestamp.timetuple()) * 1000
                 ret.append((dat, status.float_data))
@@ -121,7 +124,10 @@ class BluuSite(models.Model):
         from devices.models import Status
         ret = []
         try:
-            scale_statuses = Status.objects.filter(device__device_type__name="Blood pressure", float_data__isnull=False).order_by('-created')[:count]
+            scale_statuses = Status.objects.filter(
+                    device__bluusite=self,
+                    device__device_type__name="Blood pressure",
+                    float_data__isnull=False).order_by('-created')[:count]
             for status in scale_statuses:
                 dat = calendar.timegm(status.timestamp.timetuple()) * 1000
                 ret.append((dat, status.float_data))
