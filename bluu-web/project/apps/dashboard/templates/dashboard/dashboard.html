@@ -1,0 +1,112 @@
+{% extends "cu_base.html" %}
+
+{% load i18n theme_tags grontextual_tags %}
+
+{% block sidebar %}
+<h5>{% trans "Select site" %}</h5>
+<div class="box">
+    <ul class="nav nav-list">
+        {% for site in sites %}
+        <li><a href="{% url "bluusite_dashboard" site.slug %}">{{ site.get_name }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock sidebar %}
+
+{% block page-title %}
+{{ bluusite.get_name }}
+{% endblock page-title %}
+
+{% block main %}
+<div class="row-fluid">
+<div class="span4">
+    <h4>{% trans "Weight" %}</h4>
+    <div id="weightchart" class="span12" style="height:300px"></div>
+</div>
+<div class="span4">
+    <h4>{% trans "BloodPressure" %}</h4>
+    <div id="bloodpressurechart" class="span12" style="height:300px"></div>
+</div>
+
+</div>
+
+<div class="row-fluid">
+<div class="span4">
+<div class="mod monitor row-fluid">
+  <div class="inner span12">
+    <div class="hd">
+      <span class="title">{% trans "Status" %}</span>
+    </div>
+    <div class="bd">
+      <table>
+        <tr>
+            <td class="status"><div class="circle {% if bluusite.is_online %}online{% else %}offline{% endif %}"></div></td>
+            <td class="name">{% trans "Controller" %}</td> 
+            <td class="name">{% if bluusite.is_online %}{% trans "Online" %}{% else %}{% trans "Offline" %}{% endif %}</td> 
+        </tr>
+        <tr>
+            {% with bluusite.get_battery_statuses as batteries %}
+            <td class="status"><div class="circle {% if not batteries %}online{% else %}offline{% endif %}"></div></td>
+            <td class="name">{% trans "Sensors" %}</td> 
+            <td class="name">{% if batteries %}{% trans "Low battery" %} {% if batteries > 1 %}({% trans "multiple" %}){% endif %}{% else %}{% trans "All batteries charged" %}{% endif %}</td> 
+            {% endwith %}
+        </tr>
+        <tr>
+            {% with bluusite.get_last_activity as device %}
+            <td class="status"><div class="circle {% if device %}online{% else %}offline{% endif %}"></div></td>
+            <td class="status">{% trans "Last Activity" %}</td>
+            <td>{% if device %}{{ device.name }}{% else %}---{% endif %}</td> 
+            {% endwith %}
+        </tr>
+        <tr>
+            {% with bluusite.get_last_weight as weight %}
+            <td class="status"><div class="circle {% if weight %}online{% else %}offline{% endif %}"></div></td>
+            <td class="status">{% trans "Last Weight" %}</td> 
+            <td>{% if weight %}{{ weight }}{% else %}---{% endif %}</td> 
+            {% endwith %}
+        </tr>
+        <tr>
+            <td class="status"><div class="circle {% if bluusite.is_online %}online{% else %}offline{% endif %}"></div></td>
+            <td class="status">{% trans "Last Sleep" %}</td> 
+            <td>{% trans "No sleep data yet" %}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+{% endblock main %}
+
+
+{% block javascript %}
+    {{ block.super }}
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}theme/components/flot/excanvas.min.js"></script><![endif]-->
+    <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.pie.js"></script>
+    <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.time.js"></script>
+    <script>
+    var options = {
+        series: {
+            lines: { show: true, fill: true },
+            points: { show: true }
+        },
+    	xaxis: {
+            mode: "time",
+            timeformat: '%m/%d',
+            minTickSize: [1, "day"],
+        } 
+    };
+    var weight_data = [ { 
+                   label: "Weight",
+                   data: {{ bluusite.get_last_weights }},
+                } ];
+    $.plot('#weightchart', weight_data, options);
+
+    var bloodpressure_data = [ { 
+                   label: "Blood pressure",
+                   data: {{ bluusite.get_last_bloodpressures }},
+                } ];
+    $.plot('#bloodpressurechart', bloodpressure_data, options);
+    </script>
+{% endblock javascript %}
