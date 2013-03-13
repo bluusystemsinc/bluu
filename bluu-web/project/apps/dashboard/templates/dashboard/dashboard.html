@@ -46,9 +46,17 @@
         </tr>
         <tr>
             {% with bluusite.get_battery_statuses as batteries %}
-            <td class="status"><div class="circle {% if not batteries %}online{% else %}offline{% endif %}"></div></td>
+            <td class="status"><div class="circle {% if batteries != 0 %}offline{% else %}online{% endif %}"></div></td>
             <td class="name">{% trans "Sensors" %}</td> 
-            <td class="name">{% if batteries %}{% trans "Low battery" %} {% if batteries > 1 %}({% trans "multiple" %}){% endif %}{% else %}{% trans "All batteries charged" %}{% endif %}</td> 
+            <td class="name">
+                {% if batteries > 0 %}
+                    {% trans "Low battery" %} {% if batteries > 1 %}({% trans "multiple" %}){% endif %}
+                {% elif batteries < 0 %}
+                    ---
+                {% else %}
+                    {% trans "All batteries charged" %}
+                {% endif %}
+            </td> 
             {% endwith %}
         </tr>
         <tr>

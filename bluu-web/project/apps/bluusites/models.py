@@ -136,7 +136,10 @@ class BluuSite(models.Model):
             return None
 
     def get_battery_statuses(self):
-        low_counter = 0
+        low_counter = -1
+        if self.device_set.exists():
+            low_counter = 0
+
         for device in self.device_set.all():
             try:
                 status = device.status_set.latest('created')
