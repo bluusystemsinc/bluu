@@ -56,7 +56,7 @@ class Device(TimeStampedModel):
     )
 
     name = models.CharField(_('name'), max_length=255)
-    serial = models.CharField(_('serial'), max_length=6)
+    serial = models.CharField(_('serial'), max_length=6, unique=True)
     #device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     device_type = models.ForeignKey(DeviceType)
     bluusite = models.ForeignKey(BluuSite)
