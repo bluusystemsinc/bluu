@@ -19,6 +19,7 @@ from guardian.utils import get_group_obj_perms_model
 import warnings
 from .models import UserObjectGroup
 
+
 def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=False):
     """
     Returns queryset of objects for which a given ``user`` has *all*
@@ -48,9 +49,9 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
         >>> joe = User.objects.get(username='joe')
         >>> get_objects_for_user(joe, 'auth.change_group')
         []
-        >>> from guardian.shortcuts import assign
+        >>> from guardian.shortcuts import assign_perm
         >>> group = Group.objects.create('some group')
-        >>> assign('auth.change_group', joe, group)
+        >>> assign_perm('auth.change_group', joe, group)
         >>> get_objects_for_user(joe, 'auth.change_group')
         [<Group some group>]
         
@@ -60,7 +61,7 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
         []
         >>> get_objects_for_user(joe, ['auth.change_group', 'auth.delete_group'], any_perm=True)
         [<Group some group>]
-        >>> assign('auth.delete_group', joe, group)
+        >>> assign_perm('auth.delete_group', joe, group)
         >>> get_objects_for_user(joe, ['auth.change_group', 'auth.delete_group'])
         [<Group some group>]        
 

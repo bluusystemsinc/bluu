@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import TimeStampedModel
 from bluusites.models import (BluuSite, Room)
+from .signals import data_received
 
 
 class DeviceType(models.Model):
@@ -56,7 +57,7 @@ class Device(TimeStampedModel):
     )
 
     name = models.CharField(_('name'), max_length=255)
-    serial = models.CharField(_('serial'), max_length=6, unique=True)
+    serial = models.CharField(_('serial'), max_length=6)
     #device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     device_type = models.ForeignKey(DeviceType)
     bluusite = models.ForeignKey(BluuSite)
@@ -70,6 +71,7 @@ class Device(TimeStampedModel):
             ("browse_devices", "Can browse devices"),
             ("view_device", "Can view device"),
         )
+        unique_together = (('bluusite', 'serial'),)
 
     def __unicode__(self):
         return "{0} | {1}".format(self.serial, self.device_type.name)
@@ -128,3 +130,14 @@ def set_site_last_seen(sender, instance, *args, **kwargs):
     """
     instance.device.bluusite.last_seen = instance.created
     instance.device.bluusite.save()
+
+
+@receiver(data_received, sender=Status)
+def update_site_ip_address(sender, instance, ip_address, *args, **kwargs):
+    """
+    Sets site's ip address to ip addres from which last status update was received
+    """
+    if instance.device.bluusite.ip != ip_address:
+        instance.device.bluusite.ip = ip_address
+        instance.device.bluusite.save()
+

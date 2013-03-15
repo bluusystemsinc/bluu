@@ -132,11 +132,11 @@ def _assign_access_for_company_user(sender, instance, *args, **kwargs):
     if instance.pk and instance.user:
 
         # assign a user to a company
-        instance.user.assign(group=instance.group, obj=instance.company)
+        instance.user.assign_group(group=instance.group, obj=instance.company)
 
         # assign a user to a company's sites
         for site in instance.company.bluusite_set.all():
-            instance.user.assign(group=instance.group, obj=site)
+            instance.user.assign_group(group=instance.group, obj=site)
 
         # assign default company groups
         for group_name in settings.DEFAULT_COMPANY_GROUPS:

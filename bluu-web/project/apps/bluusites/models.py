@@ -51,6 +51,7 @@ class BluuSite(models.Model):
     country = CountryField(_('country'), default='US')
     phone = models.CharField(_('phone'), max_length=10, blank=True)
     last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
+    ip = models.IPAddressField(_('ip address'), null=True, blank=True)
 
     class Meta:
         verbose_name = _("Site")
@@ -235,9 +236,9 @@ def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs)
     # assigned to
     for uog in UserObjectGroup.objects.filter(object_pk=company.pk,
                                               content_type=ctype):
-        UserObjectGroup.objects.assign(group=uog.group,
-                                       user=uog.user,
-                                       obj=instance)
+        UserObjectGroup.objects.assign_group(group=uog.group,
+                                             user=uog.user,
+                                             obj=instance)
 
 
 @receiver(post_save, sender=BluuSite)
@@ -274,7 +275,7 @@ def _assign_access_for_site_user(sender, instance, created, *args, **kwargs):
     Assigns user to a group in the context of a site.
     """
     if instance.pk and instance.user:
-        instance.user.assign(group=instance.group, obj=instance.site)
+        instance.user.assign_group(group=instance.group, obj=instance.site)
 
 
 @receiver(signals.user_registered)
@@ -294,6 +295,7 @@ def _clear_groups_for_site_user(sender, instance, *args, **kwargs):
     """
     if instance and instance.user:
         instance.user.remove_access(group=instance.group, obj=instance.site)
+
 
 # guardian
 pre_delete.connect(remove_orphaned_obj_perms, sender=BluuSite)

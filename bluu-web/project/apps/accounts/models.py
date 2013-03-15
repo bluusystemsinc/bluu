@@ -139,10 +139,10 @@ class BluuUser(AbstractUser):
         else:
             return {'bluusites': False, 'bluusite': None}
 
-    def assign(self, obj, group):
-        UserObjectGroup.objects.assign(group=group, 
-                                       user=self, 
-                                       obj=obj)
+    def assign_group(self, obj, group):
+        UserObjectGroup.objects.assign_group(group=group, 
+                                            user=self, 
+                                            obj=obj)
 
     def remove_access(self, obj, group):
         UserObjectGroup.objects.remove_access(group=group, 

@@ -6,7 +6,7 @@ from guardian.exceptions import ObjectNotPersisted
 
 class UserObjectGroupManager(models.Manager):
 
-    def assign(self, group, user, obj):
+    def assign_group(self, group, user, obj):
         """
         Assigns ``group`` for an instance ``obj`` and ``user``.
         """

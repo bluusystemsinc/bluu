@@ -8,13 +8,13 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding unique constraint on 'Device', fields ['serial']
-        db.create_unique(u'devices_device', ['serial'])
+        # Adding unique constraint on 'Device', fields ['serial', 'bluusite']
+        db.create_unique(u'devices_device', ['serial', 'bluusite_id'])
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Device', fields ['serial']
-        db.delete_unique(u'devices_device', ['serial'])
+        # Removing unique constraint on 'Device', fields ['serial', 'bluusite']
+        db.delete_unique(u'devices_device', ['serial', 'bluusite_id'])
 
 
     models = {
@@ -111,7 +111,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         u'devices.device': {
-            'Meta': {'object_name': 'Device'},
+            'Meta': {'unique_together': "((u'bluusite', u'serial'),)", 'object_name': 'Device'},
             'bluusite': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bluusites.BluuSite']"}),
             'created': ('model_utils.fields.AutoCreatedField', [], {'default': 'datetime.datetime.now'}),
             'device_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['devices.DeviceType']"}),
@@ -120,7 +120,7 @@ class Migration(SchemaMigration):
             'modified': ('model_utils.fields.AutoLastModifiedField', [], {'default': 'datetime.datetime.now'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'room': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bluusites.Room']"}),
-            'serial': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '6'})
+            'serial': ('django.db.models.fields.CharField', [], {'max_length': '6'})
         },
         u'devices.devicetype': {
             'Meta': {'ordering': "(u'name',)", 'object_name': 'DeviceType'},

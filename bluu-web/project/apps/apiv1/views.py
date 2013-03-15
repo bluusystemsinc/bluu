@@ -3,14 +3,14 @@ from __future__ import unicode_literals
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 
-from rest_framework import generics, serializers
+from rest_framework.response import Response
+from rest_framework import (generics, serializers, status)
 from guardian.decorators import permission_required_or_403
 
 from devices.models import Device, Status
+from devices.signals import data_received
 from bluusites.models import BluuSite
-from rest_framework.response import Response
-from rest_framework import status
-
+from utils.misc import get_client_ip
 
 #class SDeviceStatusSerializer(serializers.Serializer):
 #    serial = serializers.CharField(max_length=200)
@@ -69,12 +69,12 @@ class DeviceStatusCreateView(generics.CreateAPIView):
         """
         Checks whether device belongs to the site specified in url
         """
-
         site_slug = self.kwargs.get('site_slug', None)
         bluusite = get_object_or_404(BluuSite, slug=site_slug)
 
         data = request.DATA.copy()
-        serial = data.pop('serial')[0]
+        serial = data.get('serial')
+        data.pop('serial')
         device = get_object_or_404(Device, serial=serial, bluusite=bluusite)
         data['device'] = device
 
@@ -85,6 +85,11 @@ class DeviceStatusCreateView(generics.CreateAPIView):
             self.pre_save(serializer.object)
             self.object = serializer.save()
             self.post_save(self.object, created=True)
+
+            # send signal with caller ip address
+            data_received.send(sender=Status,
+                               instance=serializer.object,
+                               ip_address=get_client_ip(request))
             headers = self.get_success_headers(data)
             # revert data to be returned to contain serial instead of device
             data.pop('device')

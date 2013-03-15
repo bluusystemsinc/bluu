@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django_webtest import WebTest
 from django_dynamic_fixture import G
 from django.core.urlresolvers import reverse
-from guardian.shortcuts import assign
+from guardian.shortcuts import assign_perm
 from django.contrib.auth.models import Group
 
 from accounts.models import BluuUser, Company
@@ -23,7 +23,7 @@ class SitesTestCase(WebTest):
                        groups=[Group.objects.get(name='Bluu')])
 
         self.user3 = G(BluuUser, username='test3')
-        assign('accounts.browse_companies', self.user3)
-        assign('accounts.view_company', self.user3, self.company1)
+        assign_perm('accounts.browse_companies', self.user3)
+        assign_perm('accounts.view_company', self.user3, self.company1)
 
 
