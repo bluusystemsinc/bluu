@@ -13,6 +13,19 @@ body {
 }
 
 /* line 15, ../sass/login.scss */
+a {
+  color: #0088CC;
+}
+/* line 17, ../sass/login.scss */
+a:visited {
+  color: #0088CC;
+}
+/* line 20, ../sass/login.scss */
+a:hover, a:focus {
+  color: #005580;
+}
+
+/* line 25, ../sass/login.scss */
 .round-input {
   width: 100%;
   height: 46px;
@@ -27,19 +40,19 @@ body {
   border-radius: 4px / 4px;
 }
 
-/* line 27, ../sass/login.scss */
+/* line 37, ../sass/login.scss */
 .loginform .control-group {
   margin: 10px auto 10px auto;
 }
 
-/* line 30, ../sass/login.scss */
+/* line 40, ../sass/login.scss */
 .loginbutton:hover {
   cursor: pointer;
   color: #CCC;
   background-color: #004066;
 }
 
-/* line 35, ../sass/login.scss */
+/* line 45, ../sass/login.scss */
 .loginbutton {
   background-color: #0065A4;
   border: medium none;
@@ -57,30 +70,23 @@ body {
   margin: 10px auto 10px auto;
 }
 
-/* line 49, ../sass/login.scss */
-.resetme a:hover {
-  color: #333;
-}
-
-/* line 52, ../sass/login.scss */
+/* line 60, ../sass/login.scss */
 .resetme a {
   text-align: center;
-  color: #666767;
   text-transform: uppercase;
   font-family: "Lato",Arial,Helvetica,sans-serif;
 }
 
-/* line 58, ../sass/login.scss */
+/* line 65, ../sass/login.scss */
 .copyrights {
   bottom: 20px;
   color: #666767;
   font-family: "Lato",Arial,Helvetica,sans-serif;
   font-size: 15px;
   left: 20px;
-  position: fixed;
 }
 
-/* line 67, ../sass/login.scss */
+/* line 73, ../sass/login.scss */
 .alert {
   background-color: #FCF8E3;
   border: 1px solid #fbeed5;
@@ -95,34 +101,34 @@ body {
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* line 78, ../sass/login.scss */
+/* line 84, ../sass/login.scss */
 .alert-danger, .alert-error {
   background-color: #F2DEDE;
   border-color: #cd4a66;
   color: #B94A48;
 }
 
-/* line 83, ../sass/login.scss */
+/* line 89, ../sass/login.scss */
 .login-logo img {
   width: 100%;
   height: auto;
   max-width: 482px;
 }
 
-/* line 89, ../sass/login.scss */
+/* line 95, ../sass/login.scss */
 .loginform {
   max-width: 600px;
   width: 60%;
 }
 
 @media (max-width: 767px) {
-  /* line 95, ../sass/login.scss */
+  /* line 101, ../sass/login.scss */
   .loginform {
     width: 80%;
   }
 }
 @media (min-width: 768px) and (max-width: 979px) {
-  /* line 101, ../sass/login.scss */
+  /* line 107, ../sass/login.scss */
   .loginform {
     width: 60%;
   }

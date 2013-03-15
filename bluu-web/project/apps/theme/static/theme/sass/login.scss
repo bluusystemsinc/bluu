@@ -12,6 +12,16 @@ body {
 	background-image: url(../img/bg.jpg);
 }
 
+a{
+    color: #0088CC;
+    &:visited{
+        color: #0088CC;
+    }
+    &:hover, &:focus{
+        color:#005580;
+    }
+}
+
 .round-input{
 	width:100%;
 	height:46px;
@@ -46,12 +56,9 @@ body {
   width: 100%;
   margin:10px auto 10px auto;
 }
-.resetme a:hover{
-	color:#333;
-}
+
 .resetme a{
 	text-align:center;
-	color:#666767;
 	text-transform:uppercase;
 	font-family: "Lato",Arial,Helvetica,sans-serif;
 }
@@ -61,7 +68,6 @@ body {
   font-family: "Lato",Arial,Helvetica,sans-serif;
   font-size: 15px;
   left: 20px;
-  position: fixed;
 }
 
 .alert {
