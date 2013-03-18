@@ -4,10 +4,12 @@
 
 {% block sidebar %}
 {% get_uog_perms request.user for bluusite as "site_perms" %}
-    <div class="box">
       <h4 class="box-heading">
             {{ bluusite.first_name }} {{ bluusite.last_name }}
       </h4>
+      <div class="detail-box detail">
+        {% trans "Lastest IP" %}: {{ bluusite.ip|default:"---" }}
+      </div>
       <ul class="nav nav-list">
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' bluusite.pk %}">{% trans "Site Details" %}</a></li>{% endif %}
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/access" %}"><a href="{% url 'site_access' bluusite.pk %}">{% trans "Access management" %}</a></li>{% endif %}
@@ -26,5 +28,4 @@
         <li class="divider"></li>
         {% if perms.bluusites.delete_bluusite or "delete_bluusite" in site_perms %}<li><a href="{% url 'site_delete' bluusite.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Delete site' %}</a></li>{% endif %}
       </ul>
-    </div>
 {% endblock sidebar %}

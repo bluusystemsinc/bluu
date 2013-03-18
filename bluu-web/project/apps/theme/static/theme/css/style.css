@@ -44,16 +44,36 @@ form input.ng-valid.ng-dirty {
 }
 
 /* line 51, ../sass/style.scss */
+.info {
+  background-color: #FFFFFF;
+  border: 1px solid #dddddd;
+  -webkit-border-radius: 4px 4px;
+  -moz-border-radius: 4px / 4px;
+  border-radius: 4px / 4px;
+}
+
+/* line 57, ../sass/style.scss */
 .box {
-  margin: 10px;
+  margin: 15px 0;
 }
 
-/* line 55, ../sass/style.scss */
+/* line 61, ../sass/style.scss */
 .box-heading {
-  margin: 20px 15px;
+  margin: 20px 0px;
 }
 
-/* line 59, ../sass/style.scss */
+/* line 65, ../sass/style.scss */
+.detail-box {
+  margin: -15px 0 15px 0;
+}
+
+/* line 69, ../sass/style.scss */
+.detail {
+  color: #999999;
+  font-size: 10px;
+}
+
+/* line 74, ../sass/style.scss */
 footer {
   background-color: #F5F5F5;
   border-top: 1px solid #e5e5e5;
@@ -62,7 +82,7 @@ footer {
 }
 
 /* highlight remove icon */
-/* line 68, ../sass/style.scss */
+/* line 83, ../sass/style.scss */
 .datatable td:hover > a > [class^="icon-"],
 .datatable td:hover > a > [class*=" icon-"] {
   background-image: url(../components/sass-twitter-bootstrap/docs/assets/img/glyphicons-halflings-white.png);
@@ -70,26 +90,26 @@ footer {
 
 /* end highlight remove icon */
 /* Access Management */
-/* line 74, ../sass/style.scss */
+/* line 89, ../sass/style.scss */
 .inline-list {
   list-style: none outside none;
   margin: 0;
   padding: 0;
 }
 
-/* line 80, ../sass/style.scss */
+/* line 95, ../sass/style.scss */
 .inline-box {
   float: left;
   margin: 1px 5px 0 0;
   padding: 2px 4px 1px;
 }
 
-/* line 86, ../sass/style.scss */
+/* line 101, ../sass/style.scss */
 .clickable {
   cursor: pointer;
 }
 
-/* line 90, ../sass/style.scss */
+/* line 105, ../sass/style.scss */
 .box-on {
   color: #FFF;
   background-color: #0088CC;
@@ -99,7 +119,7 @@ footer {
   border-radius: 4px / 4px;
 }
 
-/* line 97, ../sass/style.scss */
+/* line 112, ../sass/style.scss */
 .box-off {
   color: #33BBFF;
   background-color: none;
@@ -111,7 +131,7 @@ footer {
 
 /* End Access Management */
 /* Devices Management */
-/* line 107, ../sass/style.scss */
+/* line 122, ../sass/style.scss */
 .nested-nav-list {
   margin-bottom: 0;
   padding-left: 15px;
@@ -120,41 +140,41 @@ footer {
 
 /* End Devices Management */
 /* twitter bootstrap for datatables */
-/* line 115, ../sass/style.scss */
+/* line 130, ../sass/style.scss */
 div.dataTables_length label {
   float: left;
   text-align: left;
 }
 
-/* line 120, ../sass/style.scss */
+/* line 135, ../sass/style.scss */
 div.dataTables_length select {
   width: 75px;
 }
 
-/* line 124, ../sass/style.scss */
+/* line 139, ../sass/style.scss */
 div.dataTables_filter label {
   float: right;
 }
 
-/* line 128, ../sass/style.scss */
+/* line 143, ../sass/style.scss */
 div.dataTables_info {
   padding-top: 8px;
 }
 
-/* line 132, ../sass/style.scss */
+/* line 147, ../sass/style.scss */
 div.dataTables_paginate {
   float: right;
   margin: 0;
 }
 
-/* line 137, ../sass/style.scss */
+/* line 152, ../sass/style.scss */
 table.table {
   clear: both;
   margin-bottom: 6px !important;
   max-width: none !important;
 }
 
-/* line 147, ../sass/style.scss */
+/* line 162, ../sass/style.scss */
 table.table thead .sorting,
 table.table thead .sorting_asc,
 table.table thead .sorting_desc,
@@ -164,39 +184,39 @@ table.table thead .sorting_desc_disabled {
   *cursor: hand;
 }
 
-/* line 152, ../sass/style.scss */
+/* line 167, ../sass/style.scss */
 table.table thead .sorting {
   background: url(../components/datatables/media/images/sort_both.png) no-repeat center right;
 }
 
-/* line 153, ../sass/style.scss */
+/* line 168, ../sass/style.scss */
 table.table thead .sorting_asc {
   background: url(../components/datatables/media/images/sort_asc.png) no-repeat center right;
 }
 
-/* line 154, ../sass/style.scss */
+/* line 169, ../sass/style.scss */
 table.table thead .sorting_desc {
   background: url(../components/datatables/media/images/sort_desc.png) no-repeat center right;
 }
 
-/* line 156, ../sass/style.scss */
+/* line 171, ../sass/style.scss */
 table.table thead .sorting_asc_disabled {
   background: url(../components/datatables/media/images/sort_asc_disabled.png) no-repeat center right;
 }
 
-/* line 157, ../sass/style.scss */
+/* line 172, ../sass/style.scss */
 table.table thead .sorting_desc_disabled {
   background: url(../components/datatables/media/images/sort_desc_disabled.png) no-repeat center right;
 }
 
 /* end twitter bootstrap for datatables */
 /* monitor module */
-/* line 166, ../sass/style.scss */
+/* line 181, ../sass/style.scss */
 .monitor .icon {
   padding: 5px 15px;
 }
 
-/* line 170, ../sass/style.scss */
+/* line 185, ../sass/style.scss */
 .monitor .title {
   display: block;
   float: right;
@@ -206,7 +226,7 @@ table.table thead .sorting_desc_disabled {
   color: #686868;
 }
 
-/* line 179, ../sass/style.scss */
+/* line 194, ../sass/style.scss */
 .monitor .bd {
   border: 2px solid #dfe11e;
   -webkit-border-radius: 4px 4px;
@@ -215,28 +235,28 @@ table.table thead .sorting_desc_disabled {
   padding: 15px 10px;
 }
 
-/* line 185, ../sass/style.scss */
+/* line 200, ../sass/style.scss */
 .monitor tr {
   border-bottom: 1px dashed #dbdbdb;
 }
 
-/* line 189, ../sass/style.scss */
+/* line 204, ../sass/style.scss */
 .monitor td.action {
   width: 20%;
   min-width: 50px;
 }
 
-/* line 194, ../sass/style.scss */
+/* line 209, ../sass/style.scss */
 .monitor td.status {
   width: 5%;
 }
 
-/* line 198, ../sass/style.scss */
+/* line 213, ../sass/style.scss */
 .monitor td.name {
   width: 35%;
 }
 
-/* line 202, ../sass/style.scss */
+/* line 217, ../sass/style.scss */
 .circle {
   width: 10px;
   height: 10px;
@@ -248,17 +268,17 @@ table.table thead .sorting_desc_disabled {
   border-radius: 5px;
 }
 
-/* line 209, ../sass/style.scss */
+/* line 224, ../sass/style.scss */
 .online {
   background-color: #588fac;
 }
 
-/* line 213, ../sass/style.scss */
+/* line 228, ../sass/style.scss */
 .offline {
   background-color: red;
 }
 
-/* line 217, ../sass/style.scss */
+/* line 232, ../sass/style.scss */
 .center {
   text-align: center;
 }

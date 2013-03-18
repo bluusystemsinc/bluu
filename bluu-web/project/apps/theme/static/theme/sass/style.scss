@@ -48,12 +48,27 @@ form input.ng-valid.ng-dirty {
 .admin-layout{
 }
 
+.info {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    @include border-radius(4px, 4px);
+}
+
 .box{
-    margin: 10px;
+    margin: 15px 0;
 }
 
 .box-heading{
-    margin: 20px 15px;
+    margin: 20px 0px;
+}
+
+.detail-box{
+    margin: -15px 0 15px 0;
+}
+
+.detail{
+    color: #999999;
+    font-size: 10px;
 }
 
 footer{
@@ -217,3 +232,5 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
 .center{
     text-align: center;
 }
+
+

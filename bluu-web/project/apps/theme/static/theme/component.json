@@ -9,6 +9,7 @@
     "angular-complete":"latest",
     "angular-ui":"latest",
     "flot":"latest",
-    "modernizr": "git+https://github.com/Iristyle/bower-modernizr.git#2.6.2"
+    "modernizr": "git+https://github.com/Iristyle/bower-modernizr.git#2.6.2",
+    "chosen": "0.9.12"
   }
 }

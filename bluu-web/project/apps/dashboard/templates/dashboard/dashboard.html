@@ -1,23 +1,23 @@
-{% extends "cu_base.html" %}
+{% extends "base.html" %}
 
 {% load i18n theme_tags grontextual_tags compress %}
 
-{% block sidebar %}
-<h5>{% trans "Select site" %}</h5>
-<div class="box">
-    <ul class="nav nav-list">
-        {% for site in sites %}
-        <li><a href="{% url "bluusite_dashboard" site.slug %}">{{ site.get_name }}</a></li>
-        {% endfor %}
-    </ul>
+{% block content %}
+{% if sites.count > 1 %}
+<div class="box pull-right">
+    <select class="site-select" data-placeholder="{% trans "Select another site" %}">
+         <option value=""></option>
+         {% for site in sites %}
+         <option value="{% url "bluusite_dashboard" site.slug %}">{{ site.get_name }}</option>
+         {% endfor %}
+    </select>
 </div>
-{% endblock sidebar %}
+{% endif %}
+{% if bluusite %}
+<div class="page-header content-wrapper">
+    <h3>{% block page-title %}{{ bluusite.get_name }}{% endblock page-title %}</h3>
+</div>
 
-{% block page-title %}
-{{ bluusite.get_name }}
-{% endblock page-title %}
-
-{% block main %}
 <div class="row-fluid">
     <div class="span6">
         <h4>{% trans "Weight" %}</h4>
@@ -83,52 +83,64 @@
 </div>
 </div>
 </div>
-{% endblock main %}
+{% else %}
+    No site
+{% endif %}
+{% endblock content %}
 
 
 {% block javascript %}
     {{ block.super }}
-    {% compress js %}
-    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}theme/components/flot/excanvas.min.js"></script><![endif]-->
-    <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.js"></script>
-    <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.pie.js"></script>
-    <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.time.js"></script>
-    <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.resize.js"></script>
-    {% endcompress %}
-    <script>
-    var data = {{ bluusite.get_last_weights }};
-    console.log(data);
-    if (data.length > 0){
-        var day = (24 * 60 * 60 * 1000);
-        var mindate = data[data.length - 1][0] - day;
-        var maxdate = data[0][0] + day;
-    }else{
-        var mindate = 0;
-        var maxdate = 0
-    }
-    var options = {
-        series: {
-            lines: { show: true, fill: true },
-            points: { show: true }
-        },
-    	xaxis: {
-            mode: "time",
-            timeformat: '%m/%d',
-            minTickSize: [1, "day"],
-            //min: mindate,
-            //max: maxdate
-        } 
-    };
-    var weight_data = [ { 
-                   label: "Weight",
-                   data: data,
-                } ];
-    $.plot('#weightchart', weight_data, options);
 
-    var bloodpressure_data = [ { 
-                   label: "Blood pressure",
-                   data: {{ bluusite.get_last_bloodpressures }},
-                } ];
-    $.plot('#bloodpressurechart', bloodpressure_data, options);
+    {% if bluusite %}
+        {% compress js %}
+        <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}theme/components/flot/excanvas.min.js"></script><![endif]-->
+        <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.js"></script>
+        <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.pie.js"></script>
+        <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.time.js"></script>
+        <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.resize.js"></script>
+        {% endcompress %}
+        <script>
+        var data = {{ bluusite.get_last_weights }};
+        console.log(data);
+        if (data.length > 0){
+            var day = (24 * 60 * 60 * 1000);
+            var mindate = data[data.length - 1][0] - day;
+            var maxdate = data[0][0] + day;
+        }else{
+            var mindate = 0;
+            var maxdate = 0
+        }
+        var options = {
+            series: {
+                lines: { show: true, fill: true },
+                points: { show: true }
+            },
+            xaxis: {
+                mode: "time",
+                timeformat: '%m/%d',
+                minTickSize: [1, "day"],
+                //min: mindate,
+                //max: maxdate
+            } 
+        };
+        var weight_data = [ { 
+                       label: "Weight",
+                       data: data,
+                    } ];
+        $.plot('#weightchart', weight_data, options);
+
+        var bloodpressure_data = [ { 
+                       label: "Blood pressure",
+                       data: {{ bluusite.get_last_bloodpressures }},
+                    } ];
+        $.plot('#bloodpressurechart', bloodpressure_data, options);
+    {% endif %}
+    {% if sites.count > 1 %}
+        $(".site-select").chosen();
+        $(".site-select").change(function () {
+            location.href = $(this).val();
+        });
+    {% endif %}
     </script>
 {% endblock javascript %}
