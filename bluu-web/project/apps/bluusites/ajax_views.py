@@ -147,7 +147,8 @@ class BluuSiteAccessListJson(BaseDatatableView):
                                                   "assigned": True}
         else:
             # if user already has this group
-            for uog in UserObjectGroup.objects.get_for_object(access.user, self.bluusite):
+            for uog in UserObjectGroup.objects.get_for_object(access.user,
+                                                              self.bluusite):
                 assigned_groups[uog.group.name] = {"name": uog.group.name,
                                                    "pk": uog.group.pk,
                                                    "assigned": True}
@@ -155,7 +156,8 @@ class BluuSiteAccessListJson(BaseDatatableView):
         for site_group in settings.SITE_GROUPS:
             group = Group.objects.get(name=site_group)
             if group.name not in assigned_groups.keys():
-                groups.append({"pk": group.pk, "name": group.name, "assigned": False})
+                groups.append({"pk": group.pk, "name": group.name,
+                               "assigned": False})
             else:
                 groups.append(assigned_groups.get(site_group))
 
@@ -228,65 +230,26 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
 
     def post(self, request, pk, format=None):
         site = self.get_site(pk)
-        email = request.DATA.get('email')
-        try:
-            user = BluuUser.objects.get(email__iexact=email)
-        except BluuUser.DoesNotExist:
-            user = None
-        try:
-            if user:
-                site_access = BluuSiteAccess.objects.get(user=user, site=site)
-                return Response(
-                            {
-                             'errors': 
-                                {'has_access': _('{} already has access'.\
-                                        format(email))}
-                            },
-                            status=status.HTTP_400_BAD_REQUEST)
-            elif email:
-                site_access = BluuSiteAccess.objects.get(email__iexact=email,
-                                                         site=site)
-                return Response(
-                            {
-                             'errors': 
-                                {'has_access': _('{} is alread invited'.\
-                                        format(email))}
-                            },
-                            status=status.HTTP_400_BAD_REQUEST)
-
-            form = SiteInvitationForm(request.DATA,
-                                      instance=site_access,
-                                      request=request,
-                                      site=site)
-        except BluuSiteAccess.DoesNotExist:
-            form = SiteInvitationForm(request.DATA, request=request, site=site)
-        
+        form = SiteInvitationForm(request.DATA,
+                                     request=request,
+                                     site=site)
+ 
         if form.is_valid():
-            access = form.save(commit=False)
-            access.site = site
-            try:
-                user = BluuUser.objects.get(email__iexact=email)
-                # user exists, so grant him an access to a company
-                access.user = user
-                access.email = user.email
-                access.save()
-                form.save_m2m()
+            group = form.cleaned_data.get('group', None)
+            email = form.cleaned_data.get('email', None)
+            is_assigned = site.assign_user(request.user, email, group)
+            if is_assigned:
+                return Response({'email': email,
+                                 'group': request.DATA['group']},
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({'errors': {
+                                    'has_access': _('{} already has access'.\
+                                                            format(email))}},
+                                 status=status.HTTP_400_BAD_REQUEST)
 
-            except BluuUser.DoesNotExist:
-                # send invitation
-                access.save()
-                form.save_m2m()
-                invitation = InvitationKey.objects.create_invitation(
-                        user=request.user,
-                        content_object=access
-                        )
-                invitation.send_to(access.email)
-
-            return Response({'email': email,
-                             'group': request.DATA['group']},
-                            status=status.HTTP_201_CREATED)
-
-        return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'errors': form.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
                                                  (BluuSite, 'pk', 'pk'),

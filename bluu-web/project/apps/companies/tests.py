@@ -14,6 +14,7 @@ from invitations.models import InvitationKey
 from accounts.models import BluuUser
 from .models import Company, CompanyAccess
 
+
 class CompaniesTestCase(WebTest):
 
     def setUp(self):
@@ -78,7 +79,7 @@ class CompaniesTestCase(WebTest):
                 user='test2', status=200)
         res = self.app.get(reverse('company_edit', args=[self.company1.pk]),
                 user='test1', status=302).follow()
-        assert "Sign in" in res
+        self.assertEqual(res.request.path, '/')
 
     def testCompanyDeleteOnlyAssignedCompany(self):
         """
@@ -92,7 +93,7 @@ class CompaniesTestCase(WebTest):
         User can't delete companies that aren't assigned to him."""
         res = self.app.get(reverse('company_delete', kwargs={'pk': self.company1.pk}),
                 user='test1', status=302).follow()
-        assert "Sign in" in res
+        self.assertEqual(res.request.path, '/')
 
     def testAccessCreateCompany(self):
         """
@@ -117,7 +118,7 @@ class CompaniesTestCase(WebTest):
         assert "Company added" in form_res
         
 
-class CompaniesAccessTestCase(WebTest):
+class CompaniesInvitationsTestCase(WebTest):
     csrf_checks = False
 
     def setUp(self):
@@ -145,7 +146,7 @@ class CompaniesAccessTestCase(WebTest):
         """
         form_data = {'email':'a@example.com', 'group':self.dealer_group.pk}
         resp = self.app.post(
-                reverse('companies:api_company_access', 
+                reverse('api_company_access', 
                         kwargs={'company_pk':self.company1.pk}),
                 json.dumps(form_data),
                 content_type='application/json;charset=utf-8',
@@ -183,7 +184,7 @@ class CompaniesAccessTestCase(WebTest):
         """
         form_data = {'email':'User@example.com', 'group':self.dealer_group.pk}
         resp = self.app.post(
-                reverse('companies:api_company_access', 
+                reverse('api_company_access', 
                         kwargs={'company_pk':self.company1.pk}),
                 json.dumps(form_data),
                 content_type='application/json;charset=utf-8',
@@ -328,7 +329,7 @@ class CompaniesAccessChangesTestCase(WebTest):
         form_data = {'id':self.company1_access.pk,
                      'group':self.technician_group.pk}
         resp = self.app.put(
-                reverse('companies:api_company_access_json', 
+                reverse('api_company_access_json', 
                         kwargs={'company_pk':self.company1.pk,
                                 'pk':self.company1_access.pk}),
                 json.dumps(form_data),
@@ -355,7 +356,7 @@ class CompaniesAccessChangesTestCase(WebTest):
         form_data = {'id':self.company1_access.pk,
                      'group':self.technician_group.pk}
         resp = self.app.delete(
-                reverse('companies:api_company_access_json', 
+                reverse('api_company_access_json', 
                         kwargs={'company_pk':self.company1.pk,
                                 'pk':self.company1_access.pk}),
                 content_type='application/json;charset=utf-8',

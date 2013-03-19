@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
@@ -14,6 +15,9 @@ logger = logging.getLogger('bluu')
 from registration import signals
 from utils.misc import remove_orphaned_obj_perms
 from utils.models import Entity
+
+from accounts.models import BluuUser
+from invitations.models import InvitationKey
 
 class Company(Entity):
     code = models.CharField(_('code'), max_length=6, unique=True)
@@ -75,6 +79,35 @@ class Company(Entity):
             new_code = new_code + 1
             code = self._get_code(self.name, new_code)
         return code
+
+    def assign_user(self, assignee, email, group):
+        # add or invite
+        try:
+            user = BluuUser.objects.get(email__iexact=email)
+            email = user.email
+        except BluuUser.DoesNotExist:
+            user = None
+
+        try:
+            CompanyAccess.objects.get(
+                (Q(user=user) & Q(user__isnull=False)) | Q(email__iexact=email),
+                company=self)
+        except CompanyAccess.DoesNotExist:
+            # User doesn't have access
+            ca = CompanyAccess.objects.create(user=user, email=email,
+                                              group=group, company=self)
+            if user is None:
+                self.invite_user(assignee, obj=ca)
+            return True
+
+        return False
+
+    def invite_user(self, inviter, obj):
+        invitation = InvitationKey.objects.create_invitation(
+                user=inviter,
+                content_object=obj
+                )
+        invitation.send_to(obj.email)
 
 
 class CompanyAccess(models.Model):

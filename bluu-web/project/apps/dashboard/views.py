@@ -30,6 +30,9 @@ class DashboardView(TemplateView, RedirectView):
             if sites.exists():
                 last_site = sites[0].slug
 
+        if last_site is None:
+            return None
+        
         self.url = reverse('bluusite_dashboard', 
                            kwargs={'site_slug': last_site})
 

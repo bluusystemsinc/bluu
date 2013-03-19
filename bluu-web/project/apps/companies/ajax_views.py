@@ -322,67 +322,26 @@ class CompanyAccessCreateView(generics.CreateAPIView):
 
     def post(self, request, company_pk, format=None):
         company = self.get_company(company_pk)
-        email = request.DATA['email']
-        try:
-            user = BluuUser.objects.get(email__iexact=email)
-        except BluuUser.DoesNotExist:
-            user = None
-        try:
-            if user:
-                company_access = CompanyAccess.objects.get(user=user,
-                                                           company=company)
-                return Response(
-                            {
-                             'errors': {
-                                'has_access': _('{} already has access'.\
-                                        format(email))}
-                            },
-                            status=status.HTTP_400_BAD_REQUEST)
-            elif email:
-                company_access = CompanyAccess.objects.get(email__iexact=email,
-                                                           company=company)
-                return Response(
-                            {
-                             'errors': {
-                                'has_access': _('{} is already ivited'.\
-                                        format(email))}
-                            },
-                            status=status.HTTP_400_BAD_REQUEST)
-
-            form = CompanyInvitationForm(request.DATA,
-                                         instance=company_access,
-                                         request=request,
-                                         company=company)
-        except CompanyAccess.DoesNotExist:
-            form = CompanyInvitationForm(request.DATA,
-                                         request=request,
-                                         company=company)
-        
+        form = CompanyInvitationForm(request.DATA,
+                                     request=request,
+                                     company=company)
+ 
         if form.is_valid():
-            access = form.save(commit=False)
-            access.company = company
-            try:
-                user = BluuUser.objects.get(email__iexact=email)
-                # user exists, so grant him an access to company
-                access.user = user
-                access.email = user.email  # this is to prevent changing user's email after ca was saved
-                access.save()
-                form.save_m2m()
-            except BluuUser.DoesNotExist:
-                # send invitation
-                access.save()
-                form.save_m2m()
-                invitation = InvitationKey.objects.create_invitation(
-                        user=request.user,
-                        content_object=access
-                        )
-                invitation.send_to(access.email)
+            group = form.cleaned_data.get('group', None)
+            email = form.cleaned_data.get('email', None)
+            is_assigned = company.assign_user(request.user, email, group)
+            if is_assigned:
+                return Response({'email': email,
+                                 'group': request.DATA['group']},
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({'errors': {
+                                    'has_access': _('{} already has access'.\
+                                                            format(email))}},
+                                 status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'email': email,
-                             'group': request.DATA['group']},
-                            status=status.HTTP_201_CREATED)
-
-        return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'errors': form.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @method_decorator(permission_required_or_403('companies.change_company',
                                                  (Company, 'pk', 'company_pk'),

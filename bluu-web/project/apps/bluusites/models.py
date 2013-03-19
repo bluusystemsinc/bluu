@@ -22,6 +22,9 @@ from utils.countries import CountryField
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
+from accounts.models import BluuUser
+from invitations.models import InvitationKey
+
 
 def get_site_slug(instance):
     fmt = "{}{}".format(instance.first_name[:2], instance.last_name[:2])
@@ -157,6 +160,34 @@ class BluuSite(models.Model):
             return devices.latest('last_seen')
         except ObjectDoesNotExist:
             return None
+
+    def assign_user(self, assignee, email, group):
+        # add or invite
+        try:
+            user = BluuUser.objects.get(email__iexact=email)
+        except BluuUser.DoesNotExist:
+            user = None
+
+        try:
+            BluuSiteAccess.objects.get(
+                (Q(user=user) & Q(user__isnull=False)) | Q(email__iexact=email),
+                site=self)
+        except BluuSiteAccess.DoesNotExist:
+            # User doesn't have access
+            ca = BluuSiteAccess.objects.create(user=user, email=email,
+                                               group=group, site=self)
+            if user is None:
+                self.invite_user(assignee, obj=ca)
+            return True
+
+        return False
+
+    def invite_user(self, inviter, obj):
+        invitation = InvitationKey.objects.create_invitation(
+                user=inviter,
+                content_object=obj
+                )
+        invitation.send_to(obj.email)
 
 
 class BluuSiteAccess(models.Model):
