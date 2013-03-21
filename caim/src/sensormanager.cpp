@@ -61,8 +61,7 @@ void SensorManager::loadSensorLibraries()
                     sensor->moveToThread(thread);
                     connect(thread, SIGNAL(started()), sensor, SLOT(plug()));
                     connect(sensor, SIGNAL(dataAvailable()), SLOT(readData()));
-                    connect(sensor, SIGNAL(unplugged()),
-                            SLOT(sensorUnplugged()));
+                    connect(sensor, SIGNAL(unplugged()), SLOT(sensorUnplugged()));
                     qDebug()<<"Sensor moved"<<qApp->thread()<<
                               "->"<<sensor->thread();
                     m_pluginsLoaded.insert(thread, sensor);

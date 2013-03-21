@@ -33,9 +33,9 @@ FtdiDevice::FtStatus FtdiDevice::error() const
 
 bool FtdiDevice::open(int deviceNumber)
 {
-    log()<<"m_handle"<<m_handle;
+    debugMessage()<<"m_handle"<<m_handle;
     setLastError(FT_Open(deviceNumber, &m_handle));
-    log()<<"m_lastStatus"<<m_lastStatus<<"m_handle"<<m_handle;
+    debugMessage()<<"m_lastStatus"<<m_lastStatus<<"m_handle"<<m_handle;
 
     if(FtOk == m_lastStatus)
     {
@@ -72,11 +72,11 @@ QByteArray FtdiDevice::readAll()
             s += " ";
         }
 
-        log() << s;
+        debugMessage() << s;
     }
     else
     {
-        log() << "FT_Read failed: " << status;
+        debugMessage() << "FT_Read failed: " << status;
     }
 
     return out;
@@ -84,7 +84,7 @@ QByteArray FtdiDevice::readAll()
 
 qint64 FtdiDevice::readData(char *data, qint64 maxlen)
 {
-    log();
+    debugMessage();
 
 
     /*
@@ -111,7 +111,7 @@ void FtdiDevice::setLastError(FT_STATUS status)
 
 void FtdiDevice::getStatus()
 {
-    log();
+    debugMessage();
 
     DWORD       event = 0;
     FT_STATUS   status = FT_OTHER_ERROR;
@@ -126,12 +126,12 @@ void FtdiDevice::getStatus()
         }
         else
         {
-            log() << "FT_GetStatus failed, no bytes read";
+            debugMessage() << "FT_GetStatus failed, no bytes read";
         }
     }
     else
     {
-        log() << "FT_GetStatus failed: " << status;
+        debugMessage() << "FT_GetStatus failed: " << status;
     }
 
     /*
@@ -213,7 +213,7 @@ void FtdiDeviceThread::setHandle(const FT_HANDLE &_handle)
 
 void FtdiDeviceThread::run()
 {
-    log();
+    debugMessage();
 
     DWORD           eventMask;
     EVENT_HANDLE    eventHandle;

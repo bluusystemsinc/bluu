@@ -18,7 +18,7 @@ INCLUDEPATH += /home/robal/libs/qjson/build/lib/Headers
 INCLUDEPATH += /home/robal/libs/jsonqt/lib
 
 LIBS += -L/home/robal/libs/qjson/build/lib -lqjson
-LIBS += -L/home/robal/libs/jsonqt/build/lib -lJsonQt
+# LIBS += -L/home/robal/libs/jsonqt/build/lib -lJsonQt
 
 # Input
 HEADERS += qtservice/src/qtservice.h \
