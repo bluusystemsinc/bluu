@@ -129,6 +129,7 @@ class CompanyAccess(models.Model):
     class Meta:
         verbose_name = _("company access")
         verbose_name_plural = _("company accesses")
+        unique_together = (("company", "user"), ("company", "email"))
         permissions = (
             ("browse_companyaccesses", "Can browse company accesses"),
             ("view_companyaccess", "Can view company access"),

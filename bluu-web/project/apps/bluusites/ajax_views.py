@@ -227,7 +227,6 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
         except BluuSite.DoesNotExist:
             raise Http404
 
-
     def post(self, request, pk, format=None):
         site = self.get_site(pk)
         form = SiteInvitationForm(request.DATA,

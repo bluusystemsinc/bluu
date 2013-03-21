@@ -353,8 +353,6 @@ class CompaniesAccessChangesTestCase(WebTest):
         self.assertTrue('Dealer' in assigned_groups)
         self.assertFalse('Technician' in assigned_groups)
 
-        form_data = {'id':self.company1_access.pk,
-                     'group':self.technician_group.pk}
         resp = self.app.delete(
                 reverse('api_company_access_json', 
                         kwargs={'company_pk':self.company1.pk,

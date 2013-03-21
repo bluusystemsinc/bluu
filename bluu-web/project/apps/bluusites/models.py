@@ -6,6 +6,7 @@ import json
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
@@ -182,6 +183,10 @@ class BluuSite(models.Model):
 
         return False
 
+    def add_user(self, user, group):
+        BluuSiteAccess.objects.create(user=user, email=user.email,
+                                           group=group, site=self)
+
     def invite_user(self, inviter, obj):
         invitation = InvitationKey.objects.create_invitation(
                 user=inviter,
@@ -200,6 +205,7 @@ class BluuSiteAccess(models.Model):
     class Meta:
         verbose_name = _("site access")
         verbose_name_plural = _("site accesses")
+        unique_together = (("site", "user"), ("site", "email"))
         permissions = (
             ("browse_bluusiteaccesses", "Can browse bluusite accesses"),
             ("view_bluusiteaccess", "Can view bluusite access"),
