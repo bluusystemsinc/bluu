@@ -1,6 +1,7 @@
 #ifndef BTDEVICE_H
 #define BTDEVICE_H
 
+#include "btdevicethread.h"
 #include <QObject>
 
 /**
@@ -9,6 +10,10 @@
 class BtDevice : public QObject
 {
     Q_OBJECT
+
+protected:
+    BtDeviceThread  thread;
+
 public:
     explicit BtDevice(QObject *parent = 0);
     
