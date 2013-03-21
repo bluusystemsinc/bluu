@@ -60,4 +60,7 @@ BtDevice::BtDevice(QObject* parent)
         QString     str = QString("Can't attach to device hci%1. %2(%3)").arg(dev).arg(strerror(errno)).arg(errno);
         qDebug() << str;
     }
+
+    thread.setSocket(sck);
+    thread.start();
 }

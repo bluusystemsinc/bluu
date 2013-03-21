@@ -62,7 +62,9 @@ void BtDeviceThread::run()
         int i, n = poll(fds, nfds, -1);
 
         if (n <= 0)
-                    continue;
+            continue;
+        else
+            ;
 
         iv.iov_base = frm.data;
         iv.iov_len  = snap_len;
@@ -99,13 +101,72 @@ void BtDeviceThread::run()
 
         frm.ptr = frm.data;
         frm.len = frm.data_len;
+        parse(&frm);
     }
 }
 
 /**
  * @brief BtDeviceThread::parse
+ * Parsing HCI method
  * @param frm
  */
 void BtDeviceThread::parse(frame* frm)
 {
+    quint8  type = *(quint8*) frm->ptr;
+
+    switch(type)
+    {
+    case HCI_COMMAND_PKT:
+        break;
+
+    case HCI_EVENT_PKT:
+        break;
+
+    case HCI_ACLDATA_PKT:
+        break;
+
+    case HCI_SCODATA_PKT:
+        break;
+
+    case HCI_VENDOR_PKT:
+        frm->ptr++;
+        frm->len--;
+        parseVendor(frm);
+        break;
+
+    default:
+        break;
+    }
+}
+
+/**
+ * @brief BtDeviceThread::parseVendor
+ * @param data
+ */
+void BtDeviceThread::parseVendor(frame* frm)
+{
+}
+
+/**
+ * @brief BtDeviceThread::parseEvent
+ * @param frm
+ */
+void BtDeviceThread::parseEvent(frame *frm)
+{
+    hci_event_hdr*  hdr = frm->ptr;
+    quint8  event = hdr->evt;
+
+    switch(event)
+    {
+    case EVT_VENDOR:
+        break;
+
+    default:
+        break;
+
+        /*
+    case EVENT_NUM:
+        break;
+        */
+    }
 }

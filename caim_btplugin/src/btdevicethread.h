@@ -56,6 +56,8 @@ protected:
 protected:
     virtual void run();
     void parse(frame* frm);
+    void parseVendor(frame* frm);
+    void parseEvent(frame* frm);
 
 public:
     explicit BtDeviceThread(QObject* parent = 0);
