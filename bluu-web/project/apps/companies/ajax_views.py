@@ -207,7 +207,8 @@ class CompanyAccessListJson(BaseDatatableView):
 
         self.company = self.get_object(kwargs.get('company_pk'))
 
-        qs = CompanyAccess.objects.filter(company=self.company)
+        qs = CompanyAccess.objects.filter(company=self.company).\
+                                                  exclude(user__is_active=False)
         # number of records before filtering
         total_records = qs.count()
         qs = self.filter_queryset(qs)

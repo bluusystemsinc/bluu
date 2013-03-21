@@ -1,6 +1,7 @@
 # Django settings for project project.
 
 import os
+import djcelery
 
 DEBUG = False
 
@@ -154,6 +155,8 @@ INSTALLED_APPS = [
     'invitations',
     'dashboard',
     'autoslug',
+    'djcelery',
+    'kombu.transport.django',
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"
@@ -265,6 +268,11 @@ SESSION_COOKIE_AGE = 3600
 COMPANY_GROUPS = ['Dealer', 'Technician']
 SITE_GROUPS = ['Master User', 'User']
 WEBSERVICE_USERNAME_PREFIX = 'webservice'
+
+# CELERY
+djcelery.setup_loader()
+BROKER_URL = 'django://'
+
 
 try:
     from settings_local import *

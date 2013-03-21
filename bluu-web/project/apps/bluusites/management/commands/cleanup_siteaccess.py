@@ -28,7 +28,7 @@ class Command(BaseCommand):
                     trash_me = True
             if trash_me:
                 trash.append(uog.pk)
-        #UserObjectGroup.objects.filter(pk__in=trash).delete()
+        UserObjectGroup.objects.filter(pk__in=trash).delete()
 
         self.stdout.write('Successfully cleaned up "{}" site uogs'.\
                                                              format(str(trash)))

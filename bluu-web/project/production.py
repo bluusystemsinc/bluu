@@ -10,6 +10,11 @@ DEFAULT_FROM_EMAIL='noreply@bluusystems.com'
 
 ALLOWED_HOSTS=['198.61.203.159']
 
+
+# celery
+INSTALLED_APPS.append('kombu.transport.django')
+BROKER_URL = 'django://'
+
 try:
     from local_settings import *
 except ImportError:
