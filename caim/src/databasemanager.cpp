@@ -133,10 +133,10 @@ void DatabaseManager::createTable()
     {
         if(false == database.tables().contains("packet"))
         {
-            QSqlQuery   query("create table packet (id integer primary key, content varchar)");
+            QSqlQuery   query(database);
 
-            if(false == query.exec())
-                throw DatabaseException(DatabaseException::databaseTableException);
+            if(false == query.exec("create table packet (id integer primary key, content varchar)"))
+                throw DatabaseException(DatabaseException::databaseTableException, query.lastError());
         }
     }
     else

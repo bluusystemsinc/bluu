@@ -14,6 +14,7 @@ SettingsManager::SettingsManager(QObject *parent)
 {
     settings = new QSettings("Bluu", "caim deamon");
     getMacAdresses();
+    obtainWebRequestAddress();
 }
 
 /**
@@ -53,6 +54,22 @@ void SettingsManager::getMacAdresses()
     }
     else
         throw 0;
+}
+
+/**
+ * @brief SettingsManager::obtainWebRequestAddress
+ */
+void SettingsManager::obtainWebRequestAddress()
+{
+    webRequestAddress = QString(qgetenv("BLUU_WEB_REQUEST"));
+}
+
+/**
+ * @brief SettingsManager::getWebRequestAddress
+ */
+QString SettingsManager::getWebRequestAddress()
+{
+    return webRequestAddress;
 }
 
 /**

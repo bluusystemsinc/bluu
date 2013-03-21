@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     app.setApplicationName(APPLICATION_NAME);
     app.setApplicationVersion(QString("0.1.%1").arg(APPLICATION_VERSION));
 
-    QUrl    url("http://127.0.0.1:5000/xyz");
+    QUrl    url(CBluuSettingsManager::Instance()->getWebRequestAddress());
 
     CBluuWebRequest::Instance()->setUrl(url);
 

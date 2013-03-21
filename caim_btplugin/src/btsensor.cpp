@@ -15,6 +15,9 @@ BtSensor::BtSensor(QObject* parent)
  */
 bool BtSensor::plug()
 {
+    device = new BtDevice(this);
+
+    emit plugged();
     return true;
 }
 

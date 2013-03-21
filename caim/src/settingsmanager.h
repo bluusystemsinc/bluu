@@ -16,11 +16,14 @@ class SettingsManager : public QObject
 protected:
     QSettings*   settings;
     QStringList  macAdresses;
+    QString      webRequestAddress;
 
 public:
     explicit SettingsManager(QObject *parent = 0);
     void getMacAdresses();
+    void obtainWebRequestAddress();
     QSettings* getSettings();
+    QString getWebRequestAddress();
     
 signals:
     
