@@ -25,7 +25,6 @@ add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
 from accounts.models import BluuUser
 from invitations.models import InvitationKey
-from devices.models import (Status, DeviceType)
 
 
 def get_site_slug(instance):
@@ -113,6 +112,7 @@ class BluuSite(models.Model):
 
     def get_last_weights(self, count=7):
         #from devices.models import Status
+        from devices.models import (Status, DeviceType)
         ret = []
         try:
             scale_statuses = Status.objects.filter(
@@ -128,6 +128,7 @@ class BluuSite(models.Model):
 
     def get_last_bloodpressures(self, count=7):
         #from devices.models import Status
+        from devices.models import (Status, DeviceType)
         ret = []
         try:
             scale_statuses = Status.objects.filter(
@@ -156,6 +157,7 @@ class BluuSite(models.Model):
         return low_counter
 
     def get_activity(self):
+        from devices.models import (Status, DeviceType)
         rooms = {}
         for room in Room.objects.all():
             rooms[room.pk]=0
