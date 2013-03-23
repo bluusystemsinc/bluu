@@ -156,7 +156,6 @@ INSTALLED_APPS = [
     'dashboard',
     'autoslug',
     'djcelery',
-    'kombu.transport.django',
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"
@@ -220,7 +219,14 @@ LOGGING = {
             'filename': os.path.join(ROOT_DIRECTORY, 'logs', 'bluu.log'),
             'formatter': 'verbose',
             'maxBytes': 1024 * 1024 * 100,  # 100 mb
-        }
+        },
+        'celery_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(ROOT_DIRECTORY, 'logs', 'celeryd_django.log'),
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 100,  # 100 mb
+        },
     },
     'loggers': {
         'django.request': {
@@ -232,7 +238,12 @@ LOGGING = {
             'level': 'INFO',
             'handlers': ['bluu_file', 'console'],
             'propagate': False
-        }
+        },
+        'celery': {
+            'level': 'DEBUG',
+            'handlers': ['mail_admins', 'celery_file'],
+            'propagate': False,
+        },
     }
 }
 
@@ -269,10 +280,8 @@ COMPANY_GROUPS = ['Dealer', 'Technician']
 SITE_GROUPS = ['Master User', 'User']
 WEBSERVICE_USERNAME_PREFIX = 'webservice'
 
-# CELERY
-djcelery.setup_loader()
-BROKER_URL = 'django://'
-
+# Algorithms
+MOTION_TIME_GAP = 5
 
 try:
     from settings_local import *

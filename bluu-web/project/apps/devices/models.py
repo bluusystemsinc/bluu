@@ -7,11 +7,20 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils.models import TimeStampedModel
-from bluusites.models import (BluuSite, Room)
 from .signals import data_received
 
 
 class DeviceType(models.Model):
+    BED = 'Bed'
+    BLOOD_PRESSURE = 'Blood Pressure'
+    DOOR = 'Door'
+    EMERGENCY = 'Emergency'
+    MOTION = 'Motion'
+    REFRIGERATOR = 'Refrigerator'
+    SCALE = 'Scale'
+    SEAT = 'Seat'
+    WINDOW  = 'Window'
+
     name = models.CharField(_('name'), max_length=255)
     icon = models.ImageField(_('icon'), upload_to='resources/devices/icons')
 
@@ -60,8 +69,8 @@ class Device(TimeStampedModel):
     serial = models.CharField(_('serial'), max_length=6)
     #device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     device_type = models.ForeignKey(DeviceType)
-    bluusite = models.ForeignKey(BluuSite)
-    room = models.ForeignKey(Room)
+    bluusite = models.ForeignKey('bluusites.BluuSite')
+    room = models.ForeignKey('bluusites.Room')
     last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
 
     class Meta:
@@ -113,6 +122,13 @@ class Status(models.Model):
         return "{0} | {1} | {2}".format(self.timestamp,
                                         self.device.name,
                                         self.data)
+
+    @property
+    def is_active(self):
+        if self.device.device_type.name == DeviceType.MOTION:
+            if self.action:
+                return True
+        return False
 
 @receiver(post_save, sender=Status)
 def set_device_last_seen(sender, instance, *args, **kwargs):

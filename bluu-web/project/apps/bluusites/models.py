@@ -25,6 +25,7 @@ add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
 from accounts.models import BluuUser
 from invitations.models import InvitationKey
+from devices.models import (Status, DeviceType)
 
 
 def get_site_slug(instance):
@@ -94,14 +95,14 @@ class BluuSite(models.Model):
         return True
 
     def get_last_activity(self):
-        devices = self.device_set.filter(device_type__name="Motion")
+        devices = self.device_set.filter(device_type__name=DeviceType.MOTION)
         try:
             return devices.latest('last_seen')
         except ObjectDoesNotExist:
             return None
 
     def get_last_weight(self):
-        devices = self.device_set.filter(device_type__name="Scale")
+        devices = self.device_set.filter(device_type__name=DeviceType.SCALE)
         try:
             last_scale = devices.latest('last_seen')
             status = last_scale.status_set.filter(float_data__isnull=False).\
@@ -111,12 +112,12 @@ class BluuSite(models.Model):
             return None
 
     def get_last_weights(self, count=7):
-        from devices.models import Status
+        #from devices.models import Status
         ret = []
         try:
             scale_statuses = Status.objects.filter(
                     device__bluusite=self,
-                    device__device_type__name="Scale",
+                    device__device_type__name=DeviceType.SCALE,
                     float_data__isnull=False).order_by('-created')[:count]
             for status in scale_statuses:
                 dat = calendar.timegm(status.timestamp.timetuple()) * 1000
@@ -126,12 +127,12 @@ class BluuSite(models.Model):
             return None
 
     def get_last_bloodpressures(self, count=7):
-        from devices.models import Status
+        #from devices.models import Status
         ret = []
         try:
             scale_statuses = Status.objects.filter(
                     device__bluusite=self,
-                    device__device_type__name="Blood pressure",
+                    device__device_type__name=DeviceType.BLOOD_PRESSURE,
                     float_data__isnull=False).order_by('-created')[:count]
             for status in scale_statuses:
                 dat = calendar.timegm(status.timestamp.timetuple()) * 1000
@@ -154,13 +155,44 @@ class BluuSite(models.Model):
                 pass
         return low_counter
 
-
     def get_activity(self):
-        devices = self.device_set.filter(device_type__name="Motion")
-        try:
-            return devices.latest('last_seen')
-        except ObjectDoesNotExist:
-            return None
+        rooms = {}
+        for room in Room.objects.all():
+            rooms[room.pk]=0
+
+        last_activity = None
+        timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
+
+        activities = Status.objects.filter(
+                device__bluusite=self,
+                device__device_type__name=DeviceType.MOTION,
+                ).order_by('created')
+        print activities
+        for activity in activities:
+            print 'activity: ', activity
+            if last_activity:
+                print 'last activity: ', last_activity
+                # if there's a last activity and new activity is reported
+                # in the same room and has "activated" state
+                #if last_activity['id'] == activity.device.pk and\
+                if activity.is_active:
+                    print 'is active'
+                    room = last_activity.device.room
+                    # store time since last activity, but no more than time gap
+                    last_time = last_activity.created 
+                    new_time = activity.created
+                    diff = new_time - last_time
+
+                    # if there is no activity for a time longer than timegap
+                    # then only count timegap as activity time
+                    if diff > timegap:
+                        diff = timegap
+
+                    rooms[room.pk] += diff.total_seconds()
+
+            last_activity = activity
+        print rooms
+        return json.dumps(rooms)
 
     def assign_user(self, assignee, email, group):
         # add or invite

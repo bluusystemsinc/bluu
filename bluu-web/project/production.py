@@ -10,10 +10,23 @@ DEFAULT_FROM_EMAIL='noreply@bluusystems.com'
 
 ALLOWED_HOSTS=['198.61.203.159']
 
+# CELERY
+from celery.schedules import crontab
+djcelery.setup_loader()
 
-# celery
-INSTALLED_APPS.append('kombu.transport.django')
-BROKER_URL = 'django://'
+BROKER_URL = 'redis://localhost:6379/0'
+
+CELERY_IMPORTS = ('bluusites.tasks', 'companies.tasks') 
+CELERYBEAT_SCHEDULE = {
+    'cleanup_siteacess': {
+        'task': 'bluusites.tasks.cleanup_siteaccess',
+        'schedule': crontab(hour='*', minute='*/1'),
+    },
+    'cleanup_companyaacess': {
+        'task': 'companies.tasks.cleanup_companyaccess',
+        'schedule': crontab(hour='*', minute='*/1'),
+    },
+}
 
 try:
     from local_settings import *

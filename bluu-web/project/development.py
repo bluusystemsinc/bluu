@@ -18,16 +18,21 @@ DATABASES = {
 
 }
 
-# celery
-INSTALLED_APPS.append('kombu.transport.django')
-BROKER_URL = 'django://'
+# CELERY
 from celery.schedules import crontab
+djcelery.setup_loader()
 
+BROKER_URL = 'redis://localhost:6379/0'
+
+CELERY_IMPORTS = ('bluusites.tasks', 'companies.tasks') 
 CELERYBEAT_SCHEDULE = {
-    'clean-up-perms': {
-        'task': 'bluusites.tasks.clean',
-        'schedule': crontab(hour=7, minute=30, day_of_week=1),
-        'args': (16, 16),
+    'cleanup_siteacess': {
+        'task': 'bluusites.tasks.cleanup_siteaccess',
+        'schedule': crontab(hour='*', minute='*/1'),
+    },
+    'cleanup_companyaacess': {
+        'task': 'companies.tasks.cleanup_companyaccess',
+        'schedule': crontab(hour='*', minute='*/1'),
     },
 }
 
