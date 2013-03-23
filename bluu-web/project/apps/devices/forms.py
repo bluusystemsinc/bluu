@@ -11,7 +11,7 @@ from crispy_forms.layout import Submit
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
 
-from devices.models import Room
+from bluusites.models import Room
 from .models import Device
 
 class DeviceForm(forms.ModelForm):
