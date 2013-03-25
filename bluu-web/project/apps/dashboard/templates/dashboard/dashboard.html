@@ -30,6 +30,13 @@
 </div>
 
 <div class="row-fluid">
+    <div class="span6">
+        <h4>{% trans "Activity" %}</h4>
+        <div id="activitychart" class="span12" style="height:300px"></div>
+    </div>
+</div>
+
+<div class="row-fluid">
 <div class="span6">
 <div class="mod monitor row-fluid">
   <div class="inner span12">
@@ -72,6 +79,7 @@
             <td>{% if weight %}{{ weight }}{% else %}---{% endif %}</td> 
             {% endwith %}
         </tr>
+
         <tr>
             <td class="status"><div class="circle {% if bluusite.is_online %}online{% else %}offline{% endif %}"></div></td>
             <td class="status">{% trans "Last Sleep" %}</td> 
@@ -101,6 +109,7 @@
         <script src="{{ STATIC_URL }}theme/components/flot/jquery.flot.resize.js"></script>
         {% endcompress %}
         <script>
+
         var data = {{ bluusite.get_last_weights }};
         console.log(data);
         if (data.length > 0){
@@ -124,6 +133,7 @@
                 //max: maxdate
             } 
         };
+
         var weight_data = [ { 
                        label: "Weight",
                        data: data,
@@ -135,6 +145,34 @@
                        data: {{ bluusite.get_last_bloodpressures }},
                     } ];
         $.plot('#bloodpressurechart', bloodpressure_data, options);
+
+        function labelFormatter(label, series) {
+            return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+        }
+
+        var pie_options = {
+            series: {
+                pie: {
+                    show: true,
+                    radius: 1,
+                    label: {
+                        show: true,
+                        radius: 3/4,
+                        formatter: labelFormatter,
+                        background: {
+                            opacity: 0.5
+                        }
+                    }
+                }
+            },
+            legend: {
+                show: false
+            }
+        };
+        var activity_data = {{ bluusite.get_activity }};
+        $.plot('#activitychart', activity_data, pie_options);
+
+
     {% endif %}
     {% if sites.count > 1 %}
         $(".site-select").chosen();

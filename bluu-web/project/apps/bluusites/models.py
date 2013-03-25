@@ -156,6 +156,7 @@ class BluuSite(models.Model):
         return low_counter
 
     def get_activity(self):
+        from django.utils.safestring import mark_safe
         rooms = {}
         for room in Room.objects.all():
             rooms[room.pk]=0
@@ -191,8 +192,17 @@ class BluuSite(models.Model):
                     rooms[room.pk] += diff.total_seconds()
 
             last_activity = activity
+        #import pdb;pdb.set_trace()
         print rooms
-        return json.dumps(rooms)
+        ret = []
+        for room_pk in rooms.keys():
+            room = Room.objects.get(pk=room_pk)
+            ret.append({'label': room.name, 'data': rooms[room_pk]})
+        json_ret = json.dumps(ret);
+        print json_ret
+        return mark_safe(json_ret)
+        
+        return json.dumps(rooms);
 
     def assign_user(self, assignee, email, group):
         # add or invite
