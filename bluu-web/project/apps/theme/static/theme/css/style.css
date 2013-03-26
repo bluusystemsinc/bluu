@@ -43,15 +43,11 @@ form input.ng-valid.ng-dirty {
   padding: 5px 10px;
 }
 
-/* line 51, ../sass/style.scss */
-.info {
-  background-color: #FFFFFF;
-  border: 1px solid #dddddd;
-  -webkit-border-radius: 4px 4px;
-  -moz-border-radius: 4px / 4px;
-  border-radius: 4px / 4px;
-}
-
+/*.info {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    @include border-radius(4px, 4px);
+}*/
 /* line 57, ../sass/style.scss */
 .box {
   margin: 15px 0;

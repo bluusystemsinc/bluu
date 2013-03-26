@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.db.models.signals import post_save, pre_save, pre_delete, post_delete
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes import generic
@@ -57,6 +58,9 @@ class BluuSite(models.Model):
     phone = models.CharField(_('phone'), max_length=10, blank=True)
     last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
     ip = models.IPAddressField(_('ip address'), null=True, blank=True)
+    many_inhabitants = models.BooleanField(
+                   _('more than one person living in this house'),
+                   default=False)
 
     class Meta:
         verbose_name = _("Site")
@@ -155,54 +159,72 @@ class BluuSite(models.Model):
                 pass
         return low_counter
 
+    @property
+    def has_activities(self):
+        return Status.objects.filter(
+                device__bluusite=self,
+                device__device_type__name=DeviceType.MOTION,
+                ).exists()
+
     def get_activity(self):
-        from django.utils.safestring import mark_safe
         rooms = {}
-        for room in Room.objects.all():
+        for room in Room.objects.filter(bluusite=self):
             rooms[room.pk]=0
 
         last_activity = None
+        last_room_activity = {}
         timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
 
         activities = Status.objects.filter(
                 device__bluusite=self,
                 device__device_type__name=DeviceType.MOTION,
-                ).order_by('created')
-        print activities
+                action=True
+                ).order_by('timestamp')
         for activity in activities:
-            print 'activity: ', activity
+            if self.many_inhabitants:
+                # there is more than one inhabitant in a house so
+                # the timers should overlap and not cancel each other
+                # check current room
+                room = activity.device.room
+                # get last activity in this room
+                last_activity = last_room_activity.get(room.pk, None)
+
             if last_activity:
-                print 'last activity: ', last_activity
-                # if there's a last activity and new activity is reported
-                # in the same room and has "activated" state
-                #if last_activity['id'] == activity.device.pk and\
-                if activity.is_active:
-                    print 'is active'
-                    room = last_activity.device.room
-                    # store time since last activity, but no more than time gap
-                    last_time = last_activity.created 
-                    new_time = activity.created
-                    diff = new_time - last_time
+                room = last_activity.device.room
+                # store time since last activity
+                # but no more than time gap
+                last_time = last_activity.timestamp 
+                new_time = activity.timestamp
+                diff = new_time - last_time
 
-                    # if there is no activity for a time longer than timegap
-                    # then only count timegap as activity time
-                    if diff > timegap:
-                        diff = timegap
+                # if there is no activity for a time longer than timegap
+                # then only count timegap as activity time
+                if diff > timegap:
+                    diff = timegap
+                rooms[room.pk] += diff.total_seconds()
 
-                    rooms[room.pk] += diff.total_seconds()
-
+            last_room_activity[room.pk] = activity
             last_activity = activity
-        #import pdb;pdb.set_trace()
-        print rooms
+
+        # add time for latest activities to the total
+        if self.many_inhabitants:
+            for activity in last_room_activity.values():
+                diff = datetime.now() - activity.timestamp
+                if diff > timegap:
+                    diff = timegap
+                rooms[activity.device.room.pk] += diff.total_seconds()
+        else:
+            diff = datetime.now() - last_activity.timestamp
+            if diff > timegap:
+                diff = timegap
+            rooms[last_activity.device.room.pk] += diff.total_seconds()
+
         ret = []
         for room_pk in rooms.keys():
             room = Room.objects.get(pk=room_pk)
             ret.append({'label': room.name, 'data': rooms[room_pk]})
         json_ret = json.dumps(ret);
-        print json_ret
         return mark_safe(json_ret)
-        
-        return json.dumps(rooms);
 
     def assign_user(self, assignee, email, group):
         # add or invite

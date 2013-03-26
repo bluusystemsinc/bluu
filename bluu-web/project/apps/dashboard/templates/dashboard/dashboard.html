@@ -32,7 +32,11 @@
 <div class="row-fluid">
     <div class="span6">
         <h4>{% trans "Activity" %}</h4>
+        {% if bluusite.has_activities %}
         <div id="activitychart" class="span12" style="height:300px"></div>
+        {% else %}
+        <div>{% trans "No activity data yet" %}</div>
+        {% endif %}
     </div>
 </div>
 
@@ -149,29 +153,31 @@
         function labelFormatter(label, series) {
             return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
         }
-
-        var pie_options = {
-            series: {
-                pie: {
-                    show: true,
-                    radius: 1,
-                    label: {
+        
+        {% if bluusite.has_activities %}
+            var pie_options = {
+                series: {
+                    pie: {
                         show: true,
-                        radius: 3/4,
-                        formatter: labelFormatter,
-                        background: {
-                            opacity: 0.5
+                        radius: 1,
+                        label: {
+                            show: true,
+                            radius: 3/4,
+                            formatter: labelFormatter,
+                            background: {
+                                opacity: 0.5
+                            }
                         }
                     }
+                },
+                legend: {
+                    show: false
                 }
-            },
-            legend: {
-                show: false
-            }
-        };
-        var activity_data = {{ bluusite.get_activity }};
-        $.plot('#activitychart', activity_data, pie_options);
+            };
 
+            var activity_data = {{ bluusite.get_activity }};
+            $.plot('#activitychart', activity_data, pie_options);
+        {% endif %}
 
     {% endif %}
     {% if sites.count > 1 %}

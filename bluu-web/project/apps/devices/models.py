@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
+from autoslug import AutoSlugField
 from model_utils.models import TimeStampedModel
 from .signals import data_received
 
@@ -67,6 +68,7 @@ class Device(TimeStampedModel):
 
     name = models.CharField(_('name'), max_length=255)
     serial = models.CharField(_('serial'), max_length=6)
+    slug = AutoSlugField(populate_from='serial')
     #device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     device_type = models.ForeignKey(DeviceType)
     bluusite = models.ForeignKey('bluusites.BluuSite')

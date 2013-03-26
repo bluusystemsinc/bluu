@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 
 from accounts.models import BluuUser
 from companies.models import Company, CompanyAccess
-from bluusites.models import BluuSite, BluuSiteAccess
+from bluusites.models import BluuSite, BluuSiteAccess, Room
 from devices.models import Device, DeviceType, Status
 from grontextual.models import UserObjectGroup
 
@@ -333,25 +333,38 @@ class MotionTestCase(WebTest):
         self.masteruser_group = Group.objects.get(name='Master User')
         self.user_group = Group.objects.get(name='User')
 
-        self.company1 = G(Company, name="C1")
-        self.site1 = G(BluuSite, slug="site1", company=self.company1)
         motion = DeviceType.objects.get(name=DeviceType.MOTION)
-        self.device1 = G(Device, bluusite=self.site1, company=self.company1, device_type=motion)
-        self.device2 = G(Device, bluusite=self.site1, company=self.company1, device_type=motion)
 
-        #self.site2 = G(BluuSite, slug="site2", company=self.company1)
+        self.company1 = G(Company, name="C1")
+        self.site1 = G(BluuSite, slug="site1", company=self.company1,
+                       many_inhabitants=False)
+        self.room1 = G(Room, name='Room 1', bluusite=self.site1)
+        self.room2 = G(Room, name='Room 2', bluusite=self.site1)
+        self.device1 = G(Device, bluusite=self.site1, company=self.company1,
+                         device_type=motion, room=self.room1)
+        self.device2 = G(Device, bluusite=self.site1, company=self.company1,
+                         device_type=motion, room=self.room2)
+
+
+        self.site2 = G(BluuSite, slug="site2", company=self.company1,
+                       many_inhabitants=True)
+        self.s2room1 = G(Room, name='S2 Room 1', bluusite=self.site2)
+        self.s2room2 = G(Room, name='S2 Room 2', bluusite=self.site2)
+        self.s2device1 = G(Device, bluusite=self.site2, company=self.company1,
+                           device_type=motion, room=self.s2room1)
+        self.s2device2 = G(Device, bluusite=self.site2, company=self.company1,
+                           device_type=motion, room=self.s2room2)
 
         self.bluu = G(BluuUser, username='bluu',
                       groups=[Group.objects.get(name='Bluu')])
 
         self.dealer = G(BluuUser, username='dealer', email='dealer@example.com')
-                      #groups=[Group.objects.get(name='Company Employee')])
 
         self.masteruser = G(BluuUser, username='masteruser',
                             email='masteruser@example.com')
 
 
-    def testMotion(self):
+    def testMotionSingleInhabitant(self):
         """
         Tests if a motion algorithm works as expected
         """
@@ -361,16 +374,143 @@ class MotionTestCase(WebTest):
         today = datetime.today()
         yesterday = today - day
 
-        G(Status, device=self.device1, action=True, created=yesterday)
-        G(Status, device=self.device1, action=True, created=yesterday + three_minutes)
-        G(Status, device=self.device1, action=True, created=yesterday + three_minutes +\
+        G(Status, device=self.device1, action=True, timestamp=yesterday)
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes)
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes +\
                 three_minutes)
-        G(Status, device=self.device1, action=True, created=yesterday + three_minutes +\
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes +\
                 three_minutes + ten_minutes)
-        G(Status, device=self.device1, action=True, created=yesterday + three_minutes +\
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes +\
                 three_minutes + ten_minutes + ten_minutes)
         site = BluuSite.objects.get(pk=self.site1.pk)
         json_data = site.get_activity()
         data = json.loads(json_data)
-        print data
-        self.assertEquals(data['1'], 960.0)
+        # total of 21 minutes should be counted
+        nineten_minutes = timedelta(minutes=21)
+        result = nineten_minutes.total_seconds()
+        self.assertEquals(data[0]['data'], result)
+
+    def testMotionInManyRooms(self):
+        """
+        Tests if a motion algorithm works as expected, when there is
+        many_inhabitants set to False, and data is from sensors in different
+        rooms
+        """
+        day = timedelta(days=1)
+        two_minutes = timedelta(minutes=2)
+        three_minutes = timedelta(minutes=3)
+        five_minutes = timedelta(minutes=5)
+        ten_minutes = timedelta(minutes=10)
+        today = datetime.today()
+        yesterday = today - day
+
+        G(Status, device=self.device1, action=True, timestamp=yesterday)
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes)
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes)
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes + ten_minutes)
+        G(Status, device=self.device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes + ten_minutes + ten_minutes)
+
+        G(Status, device=self.device2, action=True, timestamp=yesterday)
+        G(Status, device=self.device2, action=True, timestamp=yesterday + two_minutes)
+        G(Status, device=self.device2, action=True, timestamp=yesterday + two_minutes +\
+                two_minutes)
+        G(Status, device=self.device2, action=True, timestamp=yesterday + two_minutes +\
+                two_minutes + five_minutes)
+        G(Status, device=self.device2, action=True, timestamp=yesterday + two_minutes +\
+                two_minutes + five_minutes + ten_minutes)
+
+
+        site = BluuSite.objects.get(pk=self.site1.pk)
+        json_data = site.get_activity()
+        data = json.loads(json_data)
+        room1_result = 720.0
+        room2_result = 900.0
+
+        for room in ('Room 1', 'Room 2'):
+            for obj in data:
+                if obj['label'] == 'Room 1':
+                    self.assertEquals(obj['data'], room1_result)
+                elif obj['label'] == 'Room 2':
+                    self.assertEquals(obj['data'], room2_result)
+
+    def testMotionManyInhabitants(self):
+        """
+        Tests if a motion algorithm works as expected, when there is 
+        many_inhabitants set to True
+        """
+        day = timedelta(days=1)
+        three_minutes = timedelta(minutes=3)
+        ten_minutes = timedelta(minutes=10)
+        today = datetime.today()
+        yesterday = today - day
+
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes + ten_minutes)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes + ten_minutes + ten_minutes)
+
+        site = BluuSite.objects.get(pk=self.site2.pk)
+        json_data = site.get_activity()
+        data = json.loads(json_data)
+        # total of 21 minutes should be counted
+        nineten_minutes = timedelta(minutes=21)
+        result = nineten_minutes.total_seconds()
+        room = self.s2device1.room.name
+        for obj in data:
+            if obj['label'] == room:
+                self.assertEquals(obj['data'], result)
+
+
+    def testMotionManyInhabitantsInManyRooms(self):
+        """
+        Tests if a motion algorithm works as expected, when there is
+        many_inhabitants set to True, and data is from sensors in different
+        rooms
+        """
+        day = timedelta(days=1)
+        two_minutes = timedelta(minutes=2)
+        three_minutes = timedelta(minutes=3)
+        five_minutes = timedelta(minutes=5)
+        ten_minutes = timedelta(minutes=10)
+        today = datetime.today()
+        yesterday = today - day
+
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes + ten_minutes)
+        G(Status, device=self.s2device1, action=True, timestamp=yesterday + three_minutes +\
+                three_minutes + ten_minutes + ten_minutes)
+
+        G(Status, device=self.s2device2, action=True, timestamp=yesterday)
+        G(Status, device=self.s2device2, action=True, timestamp=yesterday + two_minutes)
+        G(Status, device=self.s2device2, action=True, timestamp=yesterday + two_minutes +\
+                two_minutes)
+        G(Status, device=self.s2device2, action=True, timestamp=yesterday + two_minutes +\
+                two_minutes + five_minutes)
+        G(Status, device=self.s2device2, action=True, timestamp=yesterday + two_minutes +\
+                two_minutes + five_minutes + ten_minutes)
+
+
+        site = BluuSite.objects.get(pk=self.site2.pk)
+        json_data = site.get_activity()
+        data = json.loads(json_data)
+
+        room1_result = 1260.0
+        room2_result = 1140.0
+
+        for room in ('S2 Room 1', 'S2 Room 2'):
+            for obj in data:
+                if obj['label'] == 'S2 Room 1':
+                    self.assertEquals(obj['data'], room1_result)
+                elif obj['label'] == 'S2 Room 2':
+                    self.assertEquals(obj['data'], room2_result)

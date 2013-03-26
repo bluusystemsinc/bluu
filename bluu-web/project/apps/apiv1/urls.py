@@ -8,7 +8,7 @@ urlpatterns = format_suffix_patterns(patterns('',
     #url(r'^sites/', include('bluusites.api_urls', namespace='sites')),
     #url(r'^companies/', include('companies.api_urls', namespace='companies')),
     #url(r'^devices/', include('devices.api_urls', namespace='devices')),
-    url(r'^sites/(?P<site_slug>[0-9\w.@+-]+)/devices/(?P<device_pk>[0-9]+)/statuses/',
+    url(r'^sites/(?P<site_slug>[0-9\w.@+-]+)/devices/(?P<device_slug>[0-9]+)/statuses/',
         views.DeviceStatusCreateView.as_view(),
         name='create_status'),
     ), allowed=['json', 'html']

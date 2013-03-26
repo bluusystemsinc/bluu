@@ -71,11 +71,13 @@ class DeviceStatusCreateView(generics.CreateAPIView):
         """
         site_slug = self.kwargs.get('site_slug', None)
         bluusite = get_object_or_404(BluuSite, slug=site_slug)
+        serial = self.kwargs.get('device_slug', None)
+        device = get_object_or_404(Device, bluusite=bluusite, slug=serial)
 
         data = request.DATA.copy()
-        serial = data.get('serial')
+        #serial = data.get('serial')
         data.pop('serial')
-        device = get_object_or_404(Device, serial=serial, bluusite=bluusite)
+        #device = get_object_or_404(Device, serial=serial, bluusite=bluusite)
         data['device'] = device
 
         serializer = self.get_serializer(data=data, files=request.FILES,

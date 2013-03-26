@@ -282,7 +282,11 @@ class AccountForm(forms.ModelForm):
         self.helper.layout = layout.Layout(
                 layout.Fieldset(_(u'Your data'),
                     'first_name',
-                    'last_name',),
+                    'last_name',
+                    'email',
+                    'cell',
+                    'cell_text_email',
+                    ),
                 layout.Fieldset(_(u'Password'),
                     layout.HTML("""{% load i18n %}
                     <p class="info">{% trans "If you don't want to change your password leave these fields empty." %}</p>
@@ -294,8 +298,8 @@ class AccountForm(forms.ModelForm):
 
     class Meta:
         model = BluuUser
-        fields = ('first_name', 'last_name', 'old_password', 'new_password1',
-                  'new_password2')
+        fields = ('first_name', 'last_name', 'email', 'cell', 'cell_text_email',
+                  'old_password', 'new_password1', 'new_password2')
 
     def clean_new_password2(self):
         password1 = self.cleaned_data.get('new_password1')

@@ -54,6 +54,7 @@ class SiteForm(forms.ModelForm):
                     'zip_code',
                     'country',
                     'phone',
+                    'many_inhabitants',
             ),
             FormActions(
                submit 
@@ -85,7 +86,8 @@ class SiteForm(forms.ModelForm):
     class Meta:
         model = BluuSite
         fields = ('company', 'first_name', 'middle_initial', 'last_name',
-                  'street', 'city', 'state', 'zip_code', 'country', 'phone')
+                  'street', 'city', 'state', 'zip_code', 'country', 'phone',
+                  'many_inhabitants')
 
     def save(self, commit=True):
         instance = super(SiteForm, self).save(commit=False)
