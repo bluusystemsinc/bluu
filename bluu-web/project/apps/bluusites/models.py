@@ -26,7 +26,7 @@ add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
 from accounts.models import BluuUser
 from invitations.models import InvitationKey
-from devices.models import (Status, DeviceType)
+from devices.models import (Device, Status, DeviceType)
 
 
 def get_site_slug(instance):
@@ -225,6 +225,89 @@ class BluuSite(models.Model):
             ret.append({'label': room.name, 'data': rooms[room_pk]})
         json_ret = json.dumps(ret);
         return mark_safe(json_ret)
+
+    def get_sleep_duration(self):
+        beds = {}
+        sleep_duration = timedelta(minutes=settings.SLEEP_DURATION) 
+        sleep_duration_seconds = sleep_duration.total_seconds() 
+        timegap = timedelta(minutes=settings.SLEEP_TIME_GAP)
+        for bed in self.device_set.filter(device_type__name=DeviceType.BED):
+            beds[bed.pk]=0
+
+            last_activity = None
+            last_sleep = 0
+            activities = Status.objects.filter(
+                    device__bluusite=self,
+                    device=bed,
+                    ).order_by('timestamp')
+            for activity in activities:
+                if last_activity:
+                    if last_activity.action == bed.active and \
+                            activity.action == bed.inactive:
+                        # someone was lying in a bed and has just stand up
+                        diff = activity.timestamp - last_activity.timestamp
+                        beds[bed.pk] += diff.total_seconds()
+                    elif last_activity.action == bed.inactive and \
+                            activity.action == bed.active:
+                        # someone was absent in a bed and has just laid into it
+                        # we have to check whether the gap between last
+                        # activity timestamp and current action timestamp
+                        # is less or equal to SLEEP_TIME_GAP
+                        # if it is then we count this time to 
+                        # total sleep length
+                        diff = activity.timestamp - last_activity.timestamp
+                        if diff <= timegap:
+                            beds[bed.pk] += diff.total_seconds()
+                        else:
+                            # break took more than SLEEP_TIME_GAP - start new sleep
+                            if beds[bed.pk] > sleep_duration_seconds:
+                                last_sleep = beds[bed.pk]
+                            beds[bed.pk] = 0
+                    elif last_activity.action == bed.active and \
+                            activity.action == bed.active:
+                        # dobule active action - this shouldn't happend
+                        # but is not impossible - fe. lost close message
+                        diff = activity.timestamp - last_activity.timestamp
+                        beds[bed.pk] += diff.total_seconds()
+                    #elif last_activity.action == bed.inactive and \
+                        #    activity.action == bed.inactive:
+                        # dobule inactive action - this shouldn't happend
+                        # but is not impossible - fe. lost active message
+                        # We can assume here that in fact active was lost
+                        # however its better to just do nothing because we're
+                        # not sure if the assumption is correct
+                        #diff = activity.timestamp - last_activity.timestamp
+                        #if diff <= timegap:
+                        #    beds[bed.pk] += diff.total_seconds()
+                last_activity = activity
+
+            # count also time since last action if it's not a close
+            if last_activity and (last_activity.action == bed.active):
+                diff = datetime.now() - last_activity.timestamp
+                if diff <= timegap:
+                    beds[bed.pk] += diff.total_seconds()
+                else:
+                    # break took more than SLEEP_TIME_GAP - start new sleep
+                    if beds[bed.pk] > sleep_duration_seconds:
+                        last_sleep = beds[bed.pk]
+                    beds[bed.pk] = 0
+
+            # if calculated sleep is shorter than SLEEP_DURATION then use
+            # last_sleep value
+            if beds[bed.pk] <= sleep_duration_seconds and last_sleep > beds[bed.pk]:
+                beds[bed.pk] = last_sleep
+
+        
+        #ret = []
+        #for bed_pk in beds.keys():
+        #    room = Room.objects.get(pk=room_pk)
+        #    ret.append({'label': room.name, 'data': rooms[room_pk]})
+        json_ret = json.dumps(beds);
+        return mark_safe(json_ret)
+
+
+
+
 
     def assign_user(self, assignee, email, group):
         # add or invite

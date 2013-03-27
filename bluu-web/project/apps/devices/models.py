@@ -74,6 +74,11 @@ class Device(TimeStampedModel):
     bluusite = models.ForeignKey('bluusites.BluuSite')
     room = models.ForeignKey('bluusites.Room')
     last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
+    active = models.BooleanField(_('check this if device active state is when action bit\'s value equals to "ON"'), default=True)
+
+    @property
+    def inactive(self):
+        return not self.active
 
     class Meta:
         verbose_name = _("device")

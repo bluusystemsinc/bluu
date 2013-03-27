@@ -27,6 +27,7 @@ class DeviceForm(forms.ModelForm):
                     layout.Field('name'),
                     layout.Field('serial'),
                     layout.Field('device_type'),
+                    layout.Field('active'),
                     layout.Field('room'),
             ),
             FormActions(
@@ -39,7 +40,7 @@ class DeviceForm(forms.ModelForm):
 
     class Meta:
         model = Device
-        fields = ('name', 'serial', 'device_type', 'room')
+        fields = ('name', 'serial', 'device_type', 'active', 'room')
 
     def save(self, commit=True):
         instance = super(DeviceForm, self).save(commit=False)

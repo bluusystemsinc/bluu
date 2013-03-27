@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django_webtest import WebTest
@@ -514,3 +515,157 @@ class MotionTestCase(WebTest):
                     self.assertEquals(obj['data'], room1_result)
                 elif obj['label'] == 'S2 Room 2':
                     self.assertEquals(obj['data'], room2_result)
+
+
+class SleepTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.dealer_group = Group.objects.get(name='Dealer')
+        self.technician_group = Group.objects.get(name='Technician')
+        self.masteruser_group = Group.objects.get(name='Master User')
+        self.user_group = Group.objects.get(name='User')
+
+        bed = DeviceType.objects.get(name=DeviceType.BED)
+
+        self.company1 = G(Company, name="C1")
+        self.site1 = G(BluuSite, slug="site1", company=self.company1,
+                       many_inhabitants=False)
+        self.room1 = G(Room, name='Room 1', bluusite=self.site1)
+        self.room2 = G(Room, name='Room 2', bluusite=self.site1)
+        self.device1 = G(Device, bluusite=self.site1, company=self.company1,
+                         device_type=bed, room=self.room1)
+        self.device2 = G(Device, bluusite=self.site1, company=self.company1,
+                         device_type=bed, room=self.room2)
+
+        self.bluu = G(BluuUser, username='bluu',
+                      groups=[Group.objects.get(name='Bluu')])
+
+        self.dealer = G(BluuUser, username='dealer', email='dealer@example.com')
+
+        self.masteruser = G(BluuUser, username='masteruser',
+                            email='masteruser@example.com')
+
+
+    def testSingleBedOneSleep(self):
+        """
+        Tests if a bed algorithm works as expected
+        """
+        day = timedelta(days=1)
+        three_minutes = timedelta(minutes=3)
+        ten_minutes = timedelta(minutes=10)
+        hour = timedelta(hours=1)
+        two_hours = timedelta(hours=2)
+        five_hours = timedelta(hours=5)
+        today = datetime.today()
+        yesterday = today - day
+
+        # slept for one hour
+        G(Status, device=self.device1, action=True, timestamp=yesterday)
+        # stand up
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour)
+        # back to bed after 10 minutes
+        G(Status, device=self.device1, action=True, timestamp=yesterday + hour +\
+                                                    ten_minutes)
+        # stand up after 5 hours
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour +\
+                ten_minutes + five_hours)
+
+        site = BluuSite.objects.get(pk=self.site1.pk)
+        json_data = site.get_sleep_duration()
+        data = json.loads(json_data)
+
+        time_count = timedelta(hours=6, minutes=10)
+        result = time_count.total_seconds()
+        self.assertEquals(data['1'], result)
+
+    def testSingleBedTwoSleeps(self):
+        """
+        Tests if a bed algorithm works as expected when there are two sleeps, 
+        each over SLEEP_DURATION
+        """
+        day = timedelta(days=1)
+        three_minutes = timedelta(minutes=3)
+        ten_minutes = timedelta(minutes=10)
+        hour = timedelta(hours=1)
+        two_hours = timedelta(hours=2)
+        five_hours = timedelta(hours=5)
+        today = datetime.today()
+        yesterday = today - day
+
+        # slept for one hour
+        G(Status, device=self.device1, action=True, timestamp=yesterday)
+        # stand up
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour)
+        # back to bed after 10 minutes
+        G(Status, device=self.device1, action=True, timestamp=yesterday + hour +\
+                                                    ten_minutes)
+        # stand up after 5 hours
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour +\
+                ten_minutes + five_hours)
+
+        # go to bed again after 20 minutes - so second sleep starts here
+        G(Status, device=self.device1, action=True, timestamp=yesterday + hour +\
+                ten_minutes + five_hours + 2*ten_minutes)
+        # wake up after 2 hours
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour +\
+                ten_minutes + five_hours + 2*ten_minutes + two_hours)
+
+
+        site = BluuSite.objects.get(pk=self.site1.pk)
+        json_data = site.get_sleep_duration()
+        data = json.loads(json_data)
+
+        time_count = timedelta(hours=2)
+        result = time_count.total_seconds()
+        self.assertEquals(data['1'], result)
+
+    def testSingleBedAlmostTwoSleeps(self):
+        """
+        Tests if a bed algorithm works as expected when there are two sleeps, 
+        only first over SLEEP_DURATION and secon too short to be taken under
+        consideration
+        """
+        day = timedelta(days=1)
+        three_minutes = timedelta(minutes=3)
+        ten_minutes = timedelta(minutes=10)
+        hour = timedelta(hours=1)
+        two_hours = timedelta(hours=2)
+        five_hours = timedelta(hours=5)
+
+        sleep_duration = timedelta(minutes=settings.SLEEP_DURATION)
+
+        today = datetime.today()
+        yesterday = today - day
+
+        # slept for one hour
+        G(Status, device=self.device1, action=True, timestamp=yesterday)
+        # stand up
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour)
+        # back to bed after 10 minutes
+        G(Status, device=self.device1, action=True, timestamp=yesterday + hour +\
+                                                    ten_minutes)
+        # stand up after 5 hours
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour +\
+                ten_minutes + five_hours)
+
+        # go to bed again after 20 minutes - so second sleep starts here
+        G(Status, device=self.device1, action=True, timestamp=yesterday + hour +\
+                ten_minutes + five_hours + 2*ten_minutes)
+        # wake up after less than SLEEP_DURATION
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour +\
+                ten_minutes + five_hours + 2*ten_minutes + sleep_duration-ten_minutes)
+
+
+        site = BluuSite.objects.get(pk=self.site1.pk)
+        json_data = site.get_sleep_duration()
+        data = json.loads(json_data)
+
+        time_count = timedelta(hours=6, minutes=10)
+        result = time_count.total_seconds()
+        self.assertEquals(data['1'], result)

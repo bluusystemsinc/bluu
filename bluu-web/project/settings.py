@@ -281,7 +281,14 @@ SITE_GROUPS = ['Master User', 'User']
 WEBSERVICE_USERNAME_PREFIX = 'webservice'
 
 # Algorithms
+# gaps in minutes
 MOTION_TIME_GAP = 5
+SLEEP_TIME_GAP = 15
+
+# duration in minutes
+# if someone is in a bed for a time longer than SLEEP_DURATION
+# then count is as a sleep
+SLEEP_DURATION = 60
 
 try:
     from settings_local import *
