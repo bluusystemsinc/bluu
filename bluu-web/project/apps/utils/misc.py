@@ -1,3 +1,6 @@
+import json
+from datetime import datetime
+from time import mktime
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 
@@ -21,3 +24,12 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+class DateTimeEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return int(mktime(obj.timetuple()))
+
+        return json.JSONEncoder.default(self, obj)

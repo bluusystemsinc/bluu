@@ -1,0 +1,19 @@
+{% if sleeps %} 
+  var sleep_options = {
+      series: {
+          lines: { show: true, fill: true },
+          points: { show: true }
+      },
+      xaxis: {
+          mode: "time",
+          timeformat: '%m/%d/%H',
+          minTickSize: [1, "hour"],
+      } 
+  };
+
+  var sleep_data = [ { 
+                 label: "Sleep",
+                 data: {{ sleeps }},
+              } ];
+  $.plot('#sleepchart', sleep_data, options);
+{% endif %}

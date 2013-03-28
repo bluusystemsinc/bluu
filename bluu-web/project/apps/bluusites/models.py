@@ -15,6 +15,7 @@ from django.db.models.signals import post_save, pre_save, pre_delete, post_delet
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import F
 
 from autoslug import AutoSlugField
 from registration import signals
@@ -24,6 +25,7 @@ from utils.countries import CountryField
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
+from utils.misc import DateTimeEncoder
 from accounts.models import BluuUser
 from invitations.models import InvitationKey
 from devices.models import (Device, Status, DeviceType)
@@ -116,7 +118,6 @@ class BluuSite(models.Model):
             return None
 
     def get_last_weights(self, count=7):
-        #from devices.models import Status
         ret = []
         try:
             scale_statuses = Status.objects.filter(
@@ -131,7 +132,6 @@ class BluuSite(models.Model):
             return None
 
     def get_last_bloodpressures(self, count=7):
-        #from devices.models import Status
         ret = []
         try:
             scale_statuses = Status.objects.filter(
@@ -178,7 +178,7 @@ class BluuSite(models.Model):
         activities = Status.objects.filter(
                 device__bluusite=self,
                 device__device_type__name=DeviceType.MOTION,
-                action=True
+                action=F('device__active')
                 ).order_by('timestamp')
         for activity in activities:
             if self.many_inhabitants:
@@ -226,13 +226,31 @@ class BluuSite(models.Model):
         json_ret = json.dumps(ret);
         return mark_safe(json_ret)
 
-    def get_sleep_duration(self):
+    def get_sleeps(self, bed_pk=None):
+        """
+        Returns sleep data calculated per bed. Data looks like:
+        {1: [
+              {u'timestamp': datetime.datetime(2013, 3, 27, 19, 17, 0, 827098),
+               u'length': 22200.0
+              },
+              {u'timestamp': datetime.datetime(2013, 3, 27, 21, 37, 0, 827098),
+               u'length': 7200.0}], 2: [{u'timestamp': None, u'length': 0
+              }
+            ]
+        }
+        """
         beds = {}
         sleep_duration = timedelta(minutes=settings.SLEEP_DURATION) 
         sleep_duration_seconds = sleep_duration.total_seconds() 
         timegap = timedelta(minutes=settings.SLEEP_TIME_GAP)
-        for bed in self.device_set.filter(device_type__name=DeviceType.BED):
-            beds[bed.pk]=0
+        if bed_pk:
+            bed_list = self.device_set.filter(pk=bed_pk)
+        else:
+            bed_list = self.device_set.filter(device_type__name=DeviceType.BED)
+
+        for bed in bed_list:
+            beds[bed.pk]={'sleeps': [0]}
+            beds[bed.pk]=[{'length': 0, 'timestamp': None}]
 
             last_activity = None
             last_sleep = 0
@@ -246,7 +264,8 @@ class BluuSite(models.Model):
                             activity.action == bed.inactive:
                         # someone was lying in a bed and has just stand up
                         diff = activity.timestamp - last_activity.timestamp
-                        beds[bed.pk] += diff.total_seconds()
+                        beds[bed.pk][-1]['length'] += diff.total_seconds()
+                        beds[bed.pk][-1]['timestamp'] = activity.timestamp
                     elif last_activity.action == bed.inactive and \
                             activity.action == bed.active:
                         # someone was absent in a bed and has just laid into it
@@ -257,18 +276,20 @@ class BluuSite(models.Model):
                         # total sleep length
                         diff = activity.timestamp - last_activity.timestamp
                         if diff <= timegap:
-                            beds[bed.pk] += diff.total_seconds()
+                            beds[bed.pk][-1]['length'] += diff.total_seconds()
+                            beds[bed.pk][-1]['timestamp'] = activity.timestamp
                         else:
-                            # break took more than SLEEP_TIME_GAP - start new sleep
-                            if beds[bed.pk] > sleep_duration_seconds:
-                                last_sleep = beds[bed.pk]
-                            beds[bed.pk] = 0
+                            # break took more than SLEEP_TIME_GAP -> start new sleep
+                            if beds[bed.pk][-1]['length'] > sleep_duration_seconds:
+                                last_sleep = beds[bed.pk][-1]['length']
+                            beds[bed.pk].append({'length': 0, 'timestamp': None})
                     elif last_activity.action == bed.active and \
                             activity.action == bed.active:
                         # dobule active action - this shouldn't happend
                         # but is not impossible - fe. lost close message
                         diff = activity.timestamp - last_activity.timestamp
-                        beds[bed.pk] += diff.total_seconds()
+                        beds[bed.pk][-1]['length'] += diff.total_seconds()
+                        beds[bed.pk][-1]['timestamp'] = activity.timestamp
                     #elif last_activity.action == bed.inactive and \
                         #    activity.action == bed.inactive:
                         # dobule inactive action - this shouldn't happend
@@ -276,41 +297,49 @@ class BluuSite(models.Model):
                         # We can assume here that in fact active was lost
                         # however its better to just do nothing because we're
                         # not sure if the assumption is correct
-                        #diff = activity.timestamp - last_activity.timestamp
-                        #if diff <= timegap:
-                        #    beds[bed.pk] += diff.total_seconds()
                 last_activity = activity
 
             # count also time since last action if it's not a close
             if last_activity and (last_activity.action == bed.active):
                 diff = datetime.now() - last_activity.timestamp
                 if diff <= timegap:
-                    beds[bed.pk] += diff.total_seconds()
+                    beds[bed.pk][-1]['length'] += diff.total_seconds()
+                    beds[bed.pk][-1]['timestamp'] = activity.timestamp
                 else:
-                    # break took more than SLEEP_TIME_GAP - start new sleep
-                    if beds[bed.pk] > sleep_duration_seconds:
-                        last_sleep = beds[bed.pk]
-                    beds[bed.pk] = 0
+                    # break took more than SLEEP_TIME_GAP -> start new sleep
+                    if beds[bed.pk][-1]['length'] > sleep_duration_seconds:
+                        last_sleep = beds[bed.pk][-1]['length']
+                    beds[bed.pk].append({'length': 0, 'timestamp': None})
 
             # if calculated sleep is shorter than SLEEP_DURATION then use
             # last_sleep value
-            if beds[bed.pk] <= sleep_duration_seconds and last_sleep > beds[bed.pk]:
-                beds[bed.pk] = last_sleep
+            if beds[bed.pk][-1]['length'] <= sleep_duration_seconds and \
+                                       last_sleep > beds[bed.pk][-1]['length']:
+                del(beds[bed.pk][-1])
+        return beds
 
-        
-        #ret = []
-        #for bed_pk in beds.keys():
-        #    room = Room.objects.get(pk=room_pk)
-        #    ret.append({'label': room.name, 'data': rooms[room_pk]})
-        json_ret = json.dumps(beds);
-        return mark_safe(json_ret)
-
-
-
-
+    def get_last_sleep(self):
+        """
+        Returns duration of last sleep in seconds
+        """
+        beds = self.get_sleeps()
+        last = None
+        for bed_key in beds.keys():
+            bed = beds[bed_key]
+            if last is None:
+                last = bed
+            else:
+                bed_stamp = bed[-1].get('timestamp')
+                last_stamp = last[-1].get('timestamp')
+                if (bed_stamp is not None and last_stamp is not None) and\
+                    bed_stamp > last_stamp:
+                    last = bed
+        return last[-1]['length']
 
     def assign_user(self, assignee, email, group):
-        # add or invite
+        """
+        Assigns or invites a user to a site
+        """
         try:
             user = BluuUser.objects.get(email__iexact=email)
         except BluuUser.DoesNotExist:

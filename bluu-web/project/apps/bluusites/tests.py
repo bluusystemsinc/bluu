@@ -551,7 +551,6 @@ class SleepTestCase(WebTest):
         self.masteruser = G(BluuUser, username='masteruser',
                             email='masteruser@example.com')
 
-
     def testSingleBedOneSleep(self):
         """
         Tests if a bed algorithm works as expected
@@ -577,12 +576,13 @@ class SleepTestCase(WebTest):
                 ten_minutes + five_hours)
 
         site = BluuSite.objects.get(pk=self.site1.pk)
-        json_data = site.get_sleep_duration()
-        data = json.loads(json_data)
+        data = site.get_sleeps()
+        #json_data = site.get_sleeps()
+        #data = json.loads(json_data)
 
         time_count = timedelta(hours=6, minutes=10)
         result = time_count.total_seconds()
-        self.assertEquals(data['1'], result)
+        self.assertEquals(data[1][-1]['length'], result)
 
     def testSingleBedTwoSleeps(self):
         """
@@ -618,12 +618,13 @@ class SleepTestCase(WebTest):
 
 
         site = BluuSite.objects.get(pk=self.site1.pk)
-        json_data = site.get_sleep_duration()
-        data = json.loads(json_data)
+        data = site.get_sleeps()
+        #json_data = site.get_sleeps()
+        #data = json.loads(json_data)
 
         time_count = timedelta(hours=2)
         result = time_count.total_seconds()
-        self.assertEquals(data['1'], result)
+        self.assertEquals(data[1][-1]['length'], result)
 
     def testSingleBedAlmostTwoSleeps(self):
         """
@@ -663,9 +664,50 @@ class SleepTestCase(WebTest):
 
 
         site = BluuSite.objects.get(pk=self.site1.pk)
-        json_data = site.get_sleep_duration()
-        data = json.loads(json_data)
+        data = site.get_sleeps()
+        #json_data = site.get_sleeps()
+        #data = json.loads(json_data)
 
         time_count = timedelta(hours=6, minutes=10)
         result = time_count.total_seconds()
-        self.assertEquals(data['1'], result)
+        self.assertEquals(data[1][-1]['length'], result)
+
+    def testSingleBedTwoSleepsLastSleep(self):
+        """
+        Tests if a bed algorithm works as expected when there are two sleeps, 
+        each over SLEEP_DURATION and if proper sleeps is returned as last one
+        """
+        day = timedelta(days=1)
+        three_minutes = timedelta(minutes=3)
+        ten_minutes = timedelta(minutes=10)
+        hour = timedelta(hours=1)
+        two_hours = timedelta(hours=2)
+        five_hours = timedelta(hours=5)
+        today = datetime.today()
+        yesterday = today - day
+
+        # slept for one hour
+        G(Status, device=self.device1, action=True, timestamp=yesterday)
+        # stand up
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour)
+        # back to bed after 10 minutes
+        G(Status, device=self.device1, action=True, timestamp=yesterday + hour +\
+                                                    ten_minutes)
+        # stand up after 5 hours
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour +\
+                ten_minutes + five_hours)
+
+        # go to bed again after 20 minutes - so second sleep starts here
+        G(Status, device=self.device1, action=True, timestamp=yesterday + hour +\
+                ten_minutes + five_hours + 2*ten_minutes)
+        # wake up after 2 hours
+        G(Status, device=self.device1, action=False, timestamp=yesterday + hour +\
+                ten_minutes + five_hours + 2*ten_minutes + two_hours)
+
+
+        site = BluuSite.objects.get(pk=self.site1.pk)
+        data = site.get_last_sleep()
+
+        self.assertEquals(data, 7200)
+
+
