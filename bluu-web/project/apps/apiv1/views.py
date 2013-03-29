@@ -110,8 +110,8 @@ class DeviceStatusCreateView(generics.CreateAPIView):
     #    'bluusites.change_device',
     #    (BluuSite, 'slug', 'site_slug'),
     #    accept_global_perms=True))
-    def dispatch(self, *args, **kwargs):
-        return super(DeviceStatusCreateView, self).dispatch(*args, **kwargs)
+    #def dispatch(self, *args, **kwargs):
+    #    return super(DeviceStatusCreateView, self).dispatch(*args, **kwargs)
 
 
 class SiteHeartBeatSerializer(serializers.ModelSerializer):
@@ -146,7 +146,7 @@ class SiteHeartBeatView(generics.UpdateAPIView):
     #    'bluusites.browse_devices',
     #    (BluuSite, 'slug', 'site_slug'),
     #    accept_global_perms=True))
-    def dispatch(self, *args, **kwargs):
-        return super(SiteHeartBeatView, self).dispatch(*args, **kwargs)
+    #def dispatch(self, *args, **kwargs):
+    #    return super(SiteHeartBeatView, self).dispatch(*args, **kwargs)
 
 
