@@ -53,11 +53,16 @@ class DeviceForm(forms.ModelForm):
 
 
     def clean(self):
-       cleaned_data = self.cleaned_data
-       serial = cleaned_data.get("serial")
+        cleaned_data = self.cleaned_data
+        serial = cleaned_data.get("serial")
 
-       if Device.objects.filter(serial=serial,
-                                bluusite=self.bluusite).count() > 0:
+        if self.instance:
+            count = Device.objects.exclude(pk=self.instance.pk).filter(serial=serial,
+                                    bluusite=self.bluusite).count()
+        else:
+            count = Device.objects.filter(serial=serial,
+                                    bluusite=self.bluusite).count()
+        if count > 0:
            del cleaned_data["serial"]
            raise forms.ValidationError("Device with such serial already exists in this site.")
-       return cleaned_data
+        return cleaned_data

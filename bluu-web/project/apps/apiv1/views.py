@@ -46,22 +46,22 @@ class DeviceStatusSerializer(serializers.ModelSerializer):
         exclude = (id,)
         depth = 1
 
-    def to_native(self, obj):
-        """
-        Serialize objects -> primitives.
-        """
-        ret = self._dict_class()
-        ret.fields = {}
-
-        for field_name, field in self.fields.items():
-            if field_name == 'serial':
-                continue
-            field.initialize(parent=self, field_name=field_name)
-            key = self.get_field_key(field_name)
-            value = field.field_to_native(obj, field_name)
-            ret[key] = value
-            ret.fields[key] = field
-        return ret
+    #def to_native(self, obj):
+    #    """
+    #    Serialize objects -> primitives.
+    #    """
+    #    ret = self._dict_class()
+    #    ret.fields = {}
+#
+    #    for field_name, field in self.fields.items():
+    #        if field_name == 'serial':
+    #            continue
+    #        field.initialize(parent=self, field_name=field_name)
+    #        key = self.get_field_key(field_name)
+    #        value = field.field_to_native(obj, field_name)
+    #        ret[key] = value
+    #        ret.fields[key] = field
+    #    return ret
 
 
 class DeviceStatusCreateView(generics.CreateAPIView):
@@ -74,7 +74,7 @@ class DeviceStatusCreateView(generics.CreateAPIView):
         site_slug = self.kwargs.get('site_slug', None)
         bluusite = get_object_or_404(BluuSite, slug=site_slug)
         serial = self.kwargs.get('device_slug', None)
-        device = get_object_or_404(Device, bluusite=bluusite, slug=serial)
+        device = get_object_or_404(Device, bluusite=bluusite, serial=serial)
 
         data = request.DATA.copy()
         #serial = data.get('serial')
