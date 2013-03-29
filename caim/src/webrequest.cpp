@@ -1,5 +1,6 @@
 #include "webrequest.h"
 #include "debug.h"
+#include "settingsmanager.h"
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include <QStringList>
@@ -131,8 +132,8 @@ void WebRequest::sendDataToServer(const QVariantMap &info)
     QVariantList infoData;
     QNetworkRequest request;
     QUrl tmpUrl;
-    request.setUrl(m_url);
 
+    request.setUrl(m_url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", "Basic" + QByteArray(QString("%1:%2").arg(USER).arg(PASSWORD).toAscii()).toBase64());
 
@@ -151,12 +152,47 @@ void WebRequest::sendDataToServer(QString* msg)
     debugMessage();
 
     QNetworkRequest request;
-    QUrl        tmpUrl;
     QByteArray  temp = msg->toUtf8();
+    QString     webRequest = CBluuSettingsManager::Instance()->getWebRequestAddress();
+    QString     siteId = CBluuSettingsManager::Instance()->getSiteId();
+    QString     userId = CBluuSettingsManager::Instance()->getUserId();
+    QString     userPassword = CBluuSettingsManager::Instance()->getUserPassword();
+    QString     urlStr;
+    QUrl        url;
 
     whoSend = sender();
+    urlStr = QString("%1%2/").arg(webRequest).arg(siteId);
+    url = QUrl(urlStr);
     request.setUrl(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", "Basic" + QByteArray(QString("%1:%2").arg(USER).arg(PASSWORD).toAscii()).toBase64());
+    request.setRawHeader("Authorization", "Basic " + QByteArray(QString("%1:%2").arg(userId).arg(userPassword).toAscii()).toBase64());
+
+    manager->put(request, temp);
+}
+
+/**
+ * @brief WebRequest::sendDataToServer
+ * @param msg
+ * @param serial
+ */
+void WebRequest::sendDataToServer(const QString msg, const QString serial)
+{
+    debugMessage();
+
+    QNetworkRequest request;
+    QByteArray  temp = msg.toUtf8();
+    QString     webRequest = CBluuSettingsManager::Instance()->getWebRequestAddress();
+    QString     siteId = CBluuSettingsManager::Instance()->getSiteId();
+    QString     userId = CBluuSettingsManager::Instance()->getUserId();
+    QString     userPassword = CBluuSettingsManager::Instance()->getUserPassword();
+    QString     urlStr;
+    QUrl        url;
+
+    whoSend = sender();
+    urlStr = QString("%1%2/devices/%3/statuses/").arg(webRequest).arg(siteId).arg(serial);
+    url = QUrl(urlStr);
+    request.setUrl(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Basic " + QByteArray(QString("%1:%2").arg(userId).arg(userPassword).toAscii()).toBase64());
     manager->post(request, temp);
 }

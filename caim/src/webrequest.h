@@ -54,6 +54,7 @@ public slots:
 //    void restoreState();
     void sendDataToServer(const QVariantMap &info);
     void sendDataToServer(QString* msg);
+    void sendDataToServer(const QString msg, const QString serial);
     void finishedSlot(QNetworkReply* reply);
     
 private:

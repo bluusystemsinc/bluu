@@ -120,7 +120,7 @@ void DataPacket::generateJson()
     QVariantMap     map;
     QByteArray      out;
 
-    map.insert("timestamp", QDateTime::currentDateTime ().toString("yyyy-MM-dd hh:mm:ss"));
+    map.insert("timestamp", QDateTime::currentDateTime ().toString("yyyy-MM-ddThh:mm:ss"));
     map.insert("serial", serial);
     map.insert("data", 0);
     map.insert("signal", 80);

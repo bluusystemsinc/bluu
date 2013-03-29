@@ -25,8 +25,12 @@ int main(int argc, char **argv)
     app.setApplicationName(APPLICATION_NAME);
     app.setApplicationVersion(QString("0.1.%1").arg(APPLICATION_VERSION));
 
+    CBluuSettingsManager::Instance()->obtainUserId();
+    CBluuSettingsManager::Instance()->obtainUserPassword();
+    CBluuSettingsManager::Instance()->obtainSiteId();
     QUrl    url(CBluuSettingsManager::Instance()->getWebRequestAddress());
 
+    QString     u = CBluuSettingsManager::Instance()->getWebRequestAddress();
     CBluuWebRequest::Instance()->setUrl(url);
 
     qDebug()<<QString("Starting %1 %2 %3...").arg(app.organizationName())

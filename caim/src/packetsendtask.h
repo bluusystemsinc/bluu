@@ -23,6 +23,7 @@ signals:
     void databaseStorePacketSignal(QString* data);
     void debugSignal(QString debugMessage);
     void networkSendSignal(QString* data);
+    void networkSendSignal(const QString data, const QString serial);
     void sendSignal();
     
 public slots:

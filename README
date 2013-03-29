@@ -7,6 +7,7 @@ Kacper Gazda    ( kgazda@milosolutions.com )
 Jesus Fernandez ( jfernandez@milosolutions.com )
 Robert Gosztyla ( rgosztyla@milosolutions.com )
 Zlatko Gjuroski ( zgjuroski@milosolutions.com )
+Jakub Wiśniowski ( jwisniowski@milosolutions.com )
 
 A complete build command could be:
   qmake && make

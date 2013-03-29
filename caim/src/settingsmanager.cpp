@@ -65,11 +65,62 @@ void SettingsManager::obtainWebRequestAddress()
 }
 
 /**
+ * @brief SettingsManager::obtainSiteId
+ */
+void SettingsManager::obtainSiteId()
+{
+    siteId = QString(qgetenv("BLUU_SITE_ID"));
+}
+
+/**
+ * @brief SettingsManager::obtainUserId
+ */
+void SettingsManager::obtainUserId()
+{
+    userId = QString(qgetenv("BLUU_USER_ID"));
+}
+
+/**
+ * @brief SettingsManager::obtainUserPassword
+ */
+void SettingsManager::obtainUserPassword()
+{
+    userPassword = QString(qgetenv("BLUU_USER_PASS"));
+}
+
+/**
  * @brief SettingsManager::getWebRequestAddress
  */
 QString SettingsManager::getWebRequestAddress()
 {
     return webRequestAddress;
+}
+
+/**
+ * @brief SettingsManager::getSiteId
+ * @return
+ */
+QString SettingsManager::getSiteId()
+{
+    return siteId;
+}
+
+/**
+ * @brief SettingsManager::getUserId
+ * @return
+ */
+QString SettingsManager::getUserId()
+{
+    return userId;
+}
+
+/**
+ * @brief SettingsManager::getUserPassword
+ * @return
+ */
+QString SettingsManager::getUserPassword()
+{
+    return userPassword;
 }
 
 /**
