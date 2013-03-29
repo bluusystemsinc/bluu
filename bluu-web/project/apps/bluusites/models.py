@@ -8,10 +8,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver
-from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.db.models.signals import post_save, pre_save, pre_delete, post_delete
+from django.db.models.signals import (post_save, pre_save, pre_delete)
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
@@ -25,10 +24,9 @@ from utils.countries import CountryField
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
-from utils.misc import DateTimeEncoder
 from accounts.models import BluuUser
 from invitations.models import InvitationKey
-from devices.models import (Device, Status, DeviceType)
+from devices.models import (Status, DeviceType)
 
 
 def get_site_slug(instance):

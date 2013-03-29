@@ -4,9 +4,6 @@ import re
 from django import template
 from django.template import Library
 
-from grontextual.models import UserObjectGroup
-from grontextual.shortcuts import get_objects_for_user
-
 register = Library()
 
 @register.simple_tag

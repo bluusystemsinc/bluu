@@ -2,13 +2,14 @@ from __future__ import unicode_literals
 from django.dispatch import receiver
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_save, pre_save, pre_delete
+from django.db.models.signals import post_save
 from django.contrib.auth.models import (Group, AbstractUser, UserManager)
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.authtoken.models import Token
 
 from grontextual.models import UserObjectGroup
+
 
 class AppBluuUserManager(models.Manager):
     def get_query_set(self):
@@ -20,7 +21,6 @@ class BluuUser(AbstractUser):
     """
     A class representing users of Bluu system.
     """
-    #email = models.EmailField(_('email address'))
     cell = models.CharField(_('cell'), max_length=10, blank=True)
     cell_text_email = models.EmailField(_('cell text email address'),
             blank=True

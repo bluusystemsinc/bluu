@@ -1,27 +1,16 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from django.core.urlresolvers import reverse
-from django.views.generic import UpdateView, CreateView, DetailView,\
-                                 DeleteView, ListView, TemplateView
-from django.db.models import Q
+from django.views.generic import (UpdateView, CreateView, TemplateView)
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
-from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import resolve
 
-from guardian.decorators import (permission_required, 
-                                 permission_required_or_403)
-from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
-from django_datatables_view.base_datatable_view import BaseDatatableView
-
-from grontextual.shortcuts import get_objects_for_user
-from accounts.forms import BluuUserForm
-from accounts.models import BluuUser
+from guardian.decorators import permission_required
 from bluusites.models import BluuSite
 
 from .forms import DeviceForm
-from .models import (Device, DeviceType, Status)
+from .models import (Device, DeviceType)
 
 
 class DeviceListView(TemplateView):
@@ -33,7 +22,9 @@ class DeviceListView(TemplateView):
 
     def get_context_data(self, **kwargs):
         bluusite = self.get_object()
-        device_types = DeviceType.objects.filter(device__isnull=False, device__bluusite=bluusite).distinct()
+        device_types = DeviceType.objects.filter(
+                                    device__isnull=False,
+                                    device__bluusite=bluusite).distinct()
 
         return {
             'params': kwargs,

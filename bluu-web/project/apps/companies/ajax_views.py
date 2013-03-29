@@ -7,27 +7,21 @@ from django.db.models import Q
 from django.template import Context
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import login_required
 from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 from rest_framework import generics
-from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
-from guardian.decorators import permission_required, permission_required_or_403
-import django_filters
+from guardian.decorators import permission_required_or_403
 from django_datatables_view.base_datatable_view import BaseDatatableView
 
-from accounts.models import BluuUser
 from grontextual.models import UserObjectGroup
-from invitations.models import InvitationKey
 from .forms import CompanyInvitationForm
 from .models import (Company, CompanyAccess)
 
@@ -69,7 +63,10 @@ class CompanySiteListJson(BaseDatatableView):
                     "first_name": item.first_name,
                     "last_name": item.last_name,
                     "city": item.city,
-                    "actions": '<a href="{0}">{1}</a>'.format(reverse('site_edit', args=(item.pk,)), _('Manage'))
+                    "actions": '<a href="{0}">{1}</a>'.format(
+                                            reverse('site_edit',
+                                                    args=(item.pk,)),
+                                            _('Manage'))
                 }
             )
             no += 1
@@ -82,38 +79,11 @@ class CompanySiteListJson(BaseDatatableView):
                                                  accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         try:
-            self.company = \
-                    Company.objects.get(pk=kwargs.get('company_pk', None))
+            self.company = Company.objects.get(pk=kwargs.get('company_pk',
+                                                             None))
         except Company.DoesNotExist:
             pass
         return super(CompanySiteListJson, self).dispatch(*args, **kwargs)
-
-
-#class CompanyFilter(django_filters.FilterSet):
-#    name = django_filters.CharFilter(lookup_type='icontains')
-#    class Meta:
-#        model = Company
-#        fields = ['name']
-#
-#
-#class CompanyList(generics.ListCreateAPIView):
-#    permission_classes = (permissions.IsAuthenticated,)
-#    model = Company
-#    serializer_class = CompanySerializer
-#    filter_class = CompanyFilter
-#    filter_fields = ('name',)
-#
-#    def get_queryset(self):
-#        user = self.request.user
-#        if user.has_perm('accounts.view_company'):
-#            return super(CompanyList, self).get_queryset()
-#        return get_objects_for_user(user, 'companies.view_company')
-#
-#
-#class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
-#    permission_classes = (permissions.IsAuthenticated,)
-#    model = Company
-#    serializer_class = CompanySerializer
 
 
 class CompanyAccessListCreateView(generics.ListCreateAPIView):
@@ -177,7 +147,9 @@ class CompanyAccessListCreateView(generics.ListCreateAPIView):
 
         page = int(math.ceil(object_number / page_size))
         request.GET['page'] = page
-        return super(CompanyAccessListCreateView, self).dispatch(request, *args, **kwargs)
+        return super(CompanyAccessListCreateView, self).dispatch(request,
+                                                                 *args,
+                                                                 **kwargs)
 
 
 class CompanyAccessListJson(BaseDatatableView):
@@ -242,7 +214,8 @@ class CompanyAccessListJson(BaseDatatableView):
                                                "assigned": True}
         else:
             # if user already has this group
-            for uog in UserObjectGroup.objects.get_for_object(access.user, self.company):
+            for uog in UserObjectGroup.objects.get_for_object(access.user,
+                                                              self.company):
                 assigned_groups[uog.group.name] = {"name": uog.group.name,
                                                    "pk": uog.group.pk,
                                                    "assigned": True}
@@ -250,7 +223,8 @@ class CompanyAccessListJson(BaseDatatableView):
         for company_group in settings.COMPANY_GROUPS:
             group = Group.objects.get(name=company_group)
             if group.name not in assigned_groups.keys():
-                groups.append({"pk": group.pk, "name": group.name, "assigned": False})
+                groups.append({"pk": group.pk, "name": group.name,
+                               "assigned": False})
             else:
                 groups.append(assigned_groups.get(company_group))
 
@@ -290,7 +264,8 @@ class CompanyAccessListJson(BaseDatatableView):
                         "id": access.pk,
                         "email": access.get_email,
                         "groups": rendered_groups,
-                        "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                        "invitation": access.invitations.filter(
+                                              registrant__isnull=True).exists(),
                         "current_user_access_id": current_access_pk
                     }
                 }

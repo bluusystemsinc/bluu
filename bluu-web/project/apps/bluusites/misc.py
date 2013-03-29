@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from bluusites.models import BluuSite, BluuSiteAccess
 from grontextual.models import UserObjectGroup
-from companies.models import Company, CompanyAccess
+from companies.models import CompanyAccess
 
 # import the logging library
 import logging

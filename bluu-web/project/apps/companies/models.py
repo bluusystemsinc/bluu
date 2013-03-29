@@ -1,25 +1,36 @@
 from __future__ import unicode_literals
 
+import logging
+
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
+from django.db.models.signals import (post_save, pre_save, pre_delete)
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import Group
 from django.conf import settings
 
-import logging
-logger = logging.getLogger('bluu')
-
 from registration import signals
 from utils.misc import remove_orphaned_obj_perms
-from utils.models import Entity
+from utils.countries import CountryField
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
 from accounts.models import BluuUser
 from invitations.models import InvitationKey
 
-class Company(Entity):
+logger = logging.getLogger('bluu')
+
+
+class Company(models.Model):
+    street = models.CharField(_('street'), max_length=50, blank=True)
+    city = models.CharField(_('city'), max_length=50, blank=True)
+    state = models.CharField(_('state'), max_length=50, blank=True)
+    zip_code = models.CharField(_('zip code'), max_length=7, blank=True)
+    country = CountryField(_('country'), default='US', blank=True)
+    phone = models.CharField(_('phone'), max_length=10, blank=True)
+    email = models.EmailField(_('email address'), blank=True)
     code = models.CharField(_('code'), max_length=6, unique=True)
     name = models.CharField(_('name'), max_length=255)
     contact_name = models.CharField(_('contact name'), max_length=255,
@@ -200,7 +211,8 @@ def _clear_groups_for_company_user(sender, instance, *args, **kwargs):
 
 
 @receiver(signals.user_registered)
-def _assign_access_for_newly_registered_user(sender, user, request, *args, **kwargs):
+def _assign_access_for_newly_registered_user(sender, user, request, *args,
+                                             **kwargs):
     """
     Sets user object on on access objects with user email (invitations)
     """

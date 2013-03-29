@@ -3,13 +3,8 @@ from __future__ import unicode_literals
 from django.core.urlresolvers import reverse
 from django.views.generic import (DetailView, RedirectView, TemplateView)
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
-from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django import http
-
-from guardian.decorators import permission_required
-from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 
 from bluusites.models import BluuSite
 

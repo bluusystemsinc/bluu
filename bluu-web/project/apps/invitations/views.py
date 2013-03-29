@@ -12,25 +12,10 @@ from registration.backends import get_backend
 from accounts.forms import RegistrationForm
 from .models import InvitationKey
 from .forms import InvitationKeyForm
-from .backends import InvitationBackend
 
 is_key_valid = InvitationKey.objects.is_key_valid
 get_key = InvitationKey.objects.get_key
 
-
-#def invited(request, invitation_key=None, extra_context=None):
-#    if getattr(settings, 'INVITE_MODE', False):
-#        if invitation_key and is_key_valid(invitation_key):
-#            return HttpResponseRedirect(reverse('registration_register'))
-#            template_name = 'invitations/invited.html'
-#        else:
-#            template_name = 'invitation/wrong_invitation_key.html'
-#        extra_context = extra_context is not None and extra_context.copy() or {}
-#        extra_context.update({'invitation_key': invitation_key})
-#        return render(request, template_name, extra_context)
-#    else:
-#        return HttpResponseRedirect(reverse('registration_register'))
-#
 
 def invited_register(request, backend, invitation_key, success_url=None,
             form_class=RegistrationForm,

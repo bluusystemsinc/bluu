@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django import forms
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import Group
-from django.contrib.auth import get_user_model
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from crispy_forms import layout
 from crispy_forms.bootstrap import FormActions
 
@@ -57,8 +53,9 @@ class DeviceForm(forms.ModelForm):
         serial = cleaned_data.get("serial")
 
         if self.instance:
-            count = Device.objects.exclude(pk=self.instance.pk).filter(serial=serial,
-                                    bluusite=self.bluusite).count()
+            count = Device.objects.exclude(pk=self.instance.pk).\
+                                    filter(serial=serial,
+                                           bluusite=self.bluusite).count()
         else:
             count = Device.objects.filter(serial=serial,
                                     bluusite=self.bluusite).count()

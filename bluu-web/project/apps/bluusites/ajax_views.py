@@ -1,32 +1,24 @@
 # -*- coding: utf-8 -*-
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.template import Context
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import (login_required, permission_required)
 from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 
-import django_filters
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 from rest_framework import generics
-from rest_framework.parsers import JSONParser
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from guardian.decorators import permission_required_or_403
-from guardian.shortcuts import get_groups_with_perms, get_objects_for_user
 
-
-from invitations.models import InvitationKey
 from grontextual.models import UserObjectGroup
-from accounts.models import BluuUser
 
 from .models import (BluuSite, BluuSiteAccess, Room)
 from .forms import SiteInvitationForm

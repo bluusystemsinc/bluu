@@ -205,7 +205,6 @@ class SitesAccessTestCase(WebTest):
                 reverse('api_company_access_json', 
                         kwargs={'company_pk':self.company1.pk,
                                 'pk':ac.pk}),
-                content_type='application/json;charset=utf-8',
                 user='bluu',
                 status=204)
 
@@ -305,12 +304,10 @@ class SitesAccessTestCase(WebTest):
         ac = BluuSiteAccess.objects.get(user=self.masteruser,
                                         site=self.site1,
                                         group=self.masteruser_group)
-
         resp = self.app.delete(
                 reverse('api_site_access_json', 
                         kwargs={'site_pk':self.site1.pk,
                                 'pk':ac.pk}),
-                content_type='application/json;charset=utf-8',
                 user='bluu',
                 status=204)
         assigned_groups = []

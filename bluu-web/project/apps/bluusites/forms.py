@@ -13,6 +13,7 @@ from crispy_forms.bootstrap import FormActions
 
 from .models import BluuSite, BluuSiteAccess, Room
 
+
 class SiteForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -120,7 +121,8 @@ class SiteInvitationForm(forms.ModelForm):
             )
         )
         super(SiteInvitationForm, self).__init__(*args, **kwargs)
-        self.fields['group'].choices = [('', '---')] + [(group.pk, group.name) for group in Group.objects.filter(name__in=settings.SITE_GROUPS)]
+        self.fields['group'].choices = [('', '---')] + [(group.pk, group.name)\
+              for group in Group.objects.filter(name__in=settings.SITE_GROUPS)]
         self.fields['group'].label = ''
         self.fields['group'].widget.attrs['ng-model'] = 'site_access.group'
         self.fields['email'].label = ''
@@ -130,18 +132,17 @@ class SiteInvitationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(SiteInvitationForm, self).clean()
         email = cleaned_data.get("email")
-        group = cleaned_data.get("group")
         try:
             user = get_user_model().objects.get(email=email)
         except get_user_model().DoesNotExist:
             user = None
 
         if not self.instance.pk:
-            if user and \
-                BluuSiteAccess.objects.filter(site=self.site, user=user).exists():
+            if user and BluuSiteAccess.objects.filter(site=self.site,
+                                                      user=user).exists():
                 raise forms.ValidationError(_('User with the same e-mail has already been granted access.'))
-            elif email and \
-                    BluuSiteAccess.objects.filter(site=self.site, email=email).exists():
+            elif email and BluuSiteAccess.objects.filter(site=self.site,
+                                                         email=email).exists():
                 raise forms.ValidationError(_('User with the same e-mail has already been granted access.'))
         # Always return the full collection of cleaned data.
         return cleaned_data

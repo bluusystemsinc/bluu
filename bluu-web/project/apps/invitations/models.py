@@ -5,7 +5,6 @@ import datetime
 import hashlib
 from django.db import models
 from django.conf import settings
-from django.utils.http import int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.template.loader import render_to_string

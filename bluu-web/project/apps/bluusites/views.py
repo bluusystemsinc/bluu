@@ -1,17 +1,14 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import UpdateView, CreateView, DetailView,\
-                                 DeleteView, ListView, TemplateView
+from django.views.generic import (UpdateView, CreateView, ListView,
+                                  TemplateView)
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
-from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
 from guardian.decorators import permission_required
-from guardian.mixins import PermissionRequiredMixin as GPermissionRequiredMixin
 
-from grontextual.shortcuts import get_objects_for_user
 from accounts.forms import BluuUserForm
 from accounts.models import BluuUser
 from .forms import SiteInvitationForm, RoomForm
@@ -111,16 +108,6 @@ def site_delete(request, pk):
     messages.success(request, _('Site deleted'))
     return redirect('site_list')
 
-
-#class SiteDeleteView(DeleteView):
-#    model = BluuSite
-#    template_name = "bluusites/site_delete.html"
-#
-#    @method_decorator(login_required)
-#    @method_decorator(permission_required('bluusites.delete_bluusite'))
-#    def dispatch(self, *args, **kwargs):
-#        return super(SiteDeleteView, self).dispatch(*args, **kwargs)
-#
 
 class SiteUserListView(ListView):
     model = BluuUser
@@ -226,6 +213,7 @@ def site_user_delete(request, pk, site_id):
     obj.delete()
     messages.success(request, _('Bluuuser deleted'))
     return redirect('site_users', pk=site.pk)
+
 
 class RoomListView(TemplateView):
     template_name = "bluusites/room_list.html"
