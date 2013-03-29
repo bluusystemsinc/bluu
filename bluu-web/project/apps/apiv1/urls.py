@@ -12,7 +12,7 @@ urlpatterns = format_suffix_patterns(patterns('',
         views.DeviceStatusCreateView.as_view(),
         name='create_status'),
     url(r'^sites/(?P<site_slug>[0-9\w.@+-]+)/',
-        views.SiteHeartbeatView.as_view(),
+        views.SiteHeartBeatView.as_view(),
         name='site_heartbeat'),
     ), allowed=['json', 'html']
 
