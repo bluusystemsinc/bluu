@@ -64,8 +64,8 @@ void ControlerLiveTask::processTask()
     QJson::Serializer   serializer;
     QVariantMap         map;
 
-    map.insert("timestamp", previousDateTime.toString("yyyy-MM-dd hh:mm:ss"));
-    map.insert("mac", CBluuSettingsManager::Instance()->getSettings()->value("mac"));
+    map.insert("timestamp", previousDateTime.toString("yyyy-MM-ddThh:mm:ss"));
+    // map.insert("mac", CBluuSettingsManager::Instance()->getSettings()->value("mac"));
     serializer.setIndentMode(QJson::IndentFull);
     out = QString(serializer.serialize(map));
     emit networkSendSignal(&out);
@@ -78,12 +78,15 @@ void ControlerLiveTask::processTask()
  */
 void ControlerLiveTask::networkReplySlot(QNetworkReply* reply)
 {
+    //QString     rawHeader(reply->rawHeader());
+
     if(QNetworkReply::NoError == reply->error())
     {
         debugMessageThread("Packet send OK");
     }
     else
     {
+        int err = reply->error();
         debugMessageThread("Packed send FAIL");
     }
 

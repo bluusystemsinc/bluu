@@ -4,6 +4,7 @@
 #include "datamanager.h"
 #include "webrequest.h"
 #include "databasemanager.h"
+#include "parser.h"
 
 /**
  * @brief PacketSendTask::PacketSendTask
@@ -14,7 +15,7 @@ PacketSendTask::PacketSendTask(QObject *parent)
 {
     connect(this, SIGNAL(debugSignal(QString)), CBluuDebugger::Instance(), SLOT(debugSlot(QString)));
     connect(this, SIGNAL(sendSignal()), SLOT(sendSlot()));
-    connect(this, SIGNAL(networkSendSignal(QString*)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(QString*)));
+    connect(this, SIGNAL(networkSendSignal(const QString, const QString)), CBluuWebRequest::Instance(), SLOT(sendDataToServer(const QString, const QString)));
     connect(CBluuWebRequest::Instance(), SIGNAL(networkReplySignal(QNetworkReply*)), this, SLOT(networkReplySlot(QNetworkReply*)));
     connect(this, SIGNAL(databaseStorePacketSignal(QString*)), CBluuDatabaseManager::Instance(), SLOT(databaseStorePacketSlot(QString*)));
     connect(CBluuDatabaseManager::Instance(), SIGNAL(databasePacketStoredSignal()), this, SLOT(databasePacketStoredSlot()));
@@ -77,10 +78,19 @@ void PacketSendTask::networkReplySlot(QNetworkReply* reply)
 
     if(QNetworkReply::NoError == reply->error())
     {
+        QStringList*  packets = CBluuDataManager::Instance()->getPackets();
+
         debugMessageThread("Packet send OK");
+        packets->erase(it);
+
+        if(0 < packets->size())
+            emit sendSignal();
+        else
+            busy = false;
     }
     else
     {
+        int err = reply->error();
         debugMessageThread("Packed send FAIL, store in database");
         emit databaseStorePacketSignal(&(*it));
     }
@@ -115,9 +125,13 @@ void PacketSendTask::sendSlot()
 
     if(0 < packets->size())
     {
+        QJson::Parser   parser;
+        QVariantMap     map;
+
         debugMessageThread("Packets > 0");
         it = packets->begin();
-        emit networkSendSignal(&*it);
+        map = parser.parse((*it).toUtf8()).toMap();
+        emit networkSendSignal((*it), map["serial"].toString());
     }
     else
     {

@@ -17,13 +17,22 @@ protected:
     QSettings*   settings;
     QStringList  macAdresses;
     QString      webRequestAddress;
+    QString      siteId;
+    QString      userId;
+    QString      userPassword;
 
 public:
     explicit SettingsManager(QObject *parent = 0);
     void getMacAdresses();
     void obtainWebRequestAddress();
+    void obtainSiteId();
+    void obtainUserId();
+    void obtainUserPassword();
     QSettings* getSettings();
     QString getWebRequestAddress();
+    QString getSiteId();
+    QString getUserId();
+    QString getUserPassword();
     
 signals:
     
