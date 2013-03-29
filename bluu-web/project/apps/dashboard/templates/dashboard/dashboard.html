@@ -187,9 +187,10 @@
             $.plot('#activitychart', activity_data, pie_options);
         {% endif %}
 
+        {% sleep_graph_media bluusite %}
+
     {% endif %}
 
-    {% sleep_graph_media bluusite %}
     {% comment %}
     var sleep_options = {
         series: {

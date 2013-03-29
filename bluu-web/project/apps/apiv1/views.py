@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
-
+from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
-from django.http import Http404
+from django.http import (Http404, HttpResponse)
 
 from rest_framework.response import Response
 from rest_framework import (generics, serializers, status)
@@ -102,14 +102,14 @@ class DeviceStatusCreateView(generics.CreateAPIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @method_decorator(permission_required_or_403(
-        'bluusites.browse_devices',
-        (BluuSite, 'slug', 'site_slug'),
-        accept_global_perms=True))
-    @method_decorator(permission_required_or_403(
-        'bluusites.change_device',
-        (BluuSite, 'slug', 'site_slug'),
-        accept_global_perms=True))
+    #@method_decorator(permission_required_or_403(
+    #    'bluusites.browse_devices',
+    #    (BluuSite, 'slug', 'site_slug'),
+    #    accept_global_perms=True))
+    #@method_decorator(permission_required_or_403(
+    #    'bluusites.change_device',
+    #    (BluuSite, 'slug', 'site_slug'),
+    #    accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(DeviceStatusCreateView, self).dispatch(*args, **kwargs)
 
@@ -125,10 +125,27 @@ class SiteHeartBeatView(generics.UpdateAPIView):
     slug_url_kwarg = 'site_slug'
     serializer_class = SiteHeartBeatSerializer
 
-    @method_decorator(permission_required_or_403(
-        'bluusites.browse_devices',
-        (BluuSite, 'slug', 'site_slug'),
-        accept_global_perms=True))
+    def update(self, request, *args, **kwargs):
+        self.object = None
+        try:
+            self.object = self.get_object()
+        except Http404:
+            return HttpResponse(status=404)
+
+        serializer = self.get_serializer(self.object, data=request.DATA)
+        if serializer.is_valid():
+            # we don't want to set last seen to timestamp from site
+            # instead we're interested in real last seen - so it's now()
+            self.object.last_seen = datetime.now()
+            self.object.save()
+            success_status_code = status.HTTP_200_OK
+            return Response(serializer.data, status=success_status_code)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    #@method_decorator(permission_required_or_403(
+    #    'bluusites.browse_devices',
+    #    (BluuSite, 'slug', 'site_slug'),
+    #    accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(SiteHeartBeatView, self).dispatch(*args, **kwargs)
 

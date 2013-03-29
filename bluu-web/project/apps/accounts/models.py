@@ -6,6 +6,8 @@ from django.db.models.signals import post_save, pre_save, pre_delete
 from django.contrib.auth.models import (Group, AbstractUser, UserManager)
 from django.utils.translation import ugettext_lazy as _
 
+from rest_framework.authtoken.models import Token
+
 from grontextual.models import UserObjectGroup
 
 class AppBluuUserManager(models.Manager):
@@ -178,3 +180,9 @@ def _set_accesses(sender, instance, created, *args, **kwargs):
             instance.groups.add(default_group)
         except Group.DoesNotExist:
             pass
+
+@receiver(post_save, sender=BluuUser)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        if instance.username.startswith(settings.WEBSERVICE_USERNAME_PREFIX):
+            Token.objects.create(user=instance)

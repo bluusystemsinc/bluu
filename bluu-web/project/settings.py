@@ -156,6 +156,7 @@ INSTALLED_APPS = [
     'dashboard',
     'autoslug',
     'djcelery',
+    'rest_framework.authtoken',
 ]
 
 EMAIL_BACKEND = "mailer.backend.DbBackend"
@@ -261,6 +262,10 @@ TOS_URL = u'#'
 # REST Framework
 REST_FRAMEWORK = {
     'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     )
