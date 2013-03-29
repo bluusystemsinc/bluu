@@ -3,6 +3,7 @@ from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.http import (Http404, HttpResponse)
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework.response import Response
 from rest_framework import (generics, serializers, status)
@@ -77,7 +78,7 @@ class DeviceStatusCreateView(generics.CreateAPIView):
 
         data = request.DATA.copy()
         #serial = data.get('serial')
-        data.pop('serial')
+        #data.pop('serial')
         #device = get_object_or_404(Device, serial=serial, bluusite=bluusite)
         data['device'] = device
 
@@ -96,22 +97,23 @@ class DeviceStatusCreateView(generics.CreateAPIView):
             headers = self.get_success_headers(data)
             # revert data to be returned to contain serial instead of device
             data.pop('device')
-            data['serial'] = serial
+            #data['serial'] = serial
             return Response(data, status=status.HTTP_201_CREATED,
                             headers=headers)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    #@method_decorator(permission_required_or_403(
-    #    'bluusites.browse_devices',
-    #    (BluuSite, 'slug', 'site_slug'),
-    #    accept_global_perms=True))
-    #@method_decorator(permission_required_or_403(
-    #    'bluusites.change_device',
-    #    (BluuSite, 'slug', 'site_slug'),
-    #    accept_global_perms=True))
-    #def dispatch(self, *args, **kwargs):
-    #    return super(DeviceStatusCreateView, self).dispatch(*args, **kwargs)
+#    @method_decorator(permission_required_or_403(
+#        'bluusites.browse_devices',
+#        (BluuSite, 'slug', 'site_slug'),
+#        accept_global_perms=True))
+#    @method_decorator(permission_required_or_403(
+#        'bluusites.change_device',
+#        (BluuSite, 'slug', 'site_slug'),
+#        accept_global_perms=True))
+#    @csrf_exempt
+#    def dispatch(self, *args, **kwargs):
+#        return super(DeviceStatusCreateView, self).dispatch(*args, **kwargs)
 
 
 class SiteHeartBeatSerializer(serializers.ModelSerializer):
@@ -142,6 +144,7 @@ class SiteHeartBeatView(generics.UpdateAPIView):
             return Response(serializer.data, status=success_status_code)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    #@csrf_exempt
     #@method_decorator(permission_required_or_403(
     #    'bluusites.browse_devices',
     #    (BluuSite, 'slug', 'site_slug'),
