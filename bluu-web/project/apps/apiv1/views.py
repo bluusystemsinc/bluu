@@ -40,7 +40,7 @@ from utils.misc import get_client_ip
 #
 
 class DeviceStatusSerializer(serializers.ModelSerializer):
-    serial = serializers.CharField(max_length=200)
+    #serial = serializers.CharField(max_length=200)
     class Meta:
         model = Status
         exclude = (id,)
