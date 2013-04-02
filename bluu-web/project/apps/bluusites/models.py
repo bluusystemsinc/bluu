@@ -283,18 +283,14 @@ class BluuSite(models.Model):
                             beds[bed.pk].append({'length': 0, 'timestamp': None})
                     elif last_activity.action == bed.active and \
                             activity.action == bed.active:
-                        # dobule active action - this shouldn't happend
-                        # but is not impossible - fe. lost close message
+                        # dobule active action - we treat is as a heartbeat
                         diff = activity.timestamp - last_activity.timestamp
                         beds[bed.pk][-1]['length'] += diff.total_seconds()
                         beds[bed.pk][-1]['timestamp'] = activity.timestamp
                     #elif last_activity.action == bed.inactive and \
                         #    activity.action == bed.inactive:
-                        # dobule inactive action - this shouldn't happend
-                        # but is not impossible - fe. lost active message
-                        # We can assume here that in fact active was lost
-                        # however its better to just do nothing because we're
-                        # not sure if the assumption is correct
+                        # dobule inactive action - heartbeat 
+                        # Nobody's in a bed so do nothing
                 last_activity = activity
 
             # count also time since last action if it's not a close
