@@ -28,6 +28,7 @@ urlpatterns = patterns('',
         name='room_delete'),
     url(r'^', include('bluusites.ajax_urls')),
     url(r'^', include('devices.urls', namespace='site_devices')),
+    url(r'^', include('alerts.urls', namespace='site_alerts')),
 )
 
 # ajax views

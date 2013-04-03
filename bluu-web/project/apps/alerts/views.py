@@ -11,13 +11,31 @@ from guardian.decorators import permission_required
 
 from accounts.forms import BluuUserForm
 from accounts.models import BluuUser
-from .forms import SiteInvitationForm, RoomForm
-from .models import BluuSite, Room
-from .forms import SiteForm
+from bluusites.forms import SiteInvitationForm, RoomForm
+from bluusites.models import BluuSite, Room
+from bluusites.forms import SiteForm
+
+from devices.models import DeviceType
 
 
 class AlertsConfigurationView(TemplateView):
     template_name = "alerts/alerts.html"
+
+    def get_object(self, queryset=None):
+        pk = self.request.get('site_pk', None)
+        return get_object_or_404(BluuSite, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        bluusite = self.get_object()
+        device_types = DeviceType.objects.filter(
+                                    device__isnull=False,
+                                    device__bluusite=bluusite).distinct()
+
+        return {
+            'params': kwargs,
+            'bluusite': bluusite,
+            'device_types': device_types,
+        }
 
     @method_decorator(login_required)
     @method_decorator(permission_required('bluusites.browse_bluusites', 

@@ -21,6 +21,17 @@ class DeviceType(models.Model):
     SCALE = 'Scale'
     SEAT = 'Seat'
     WINDOW  = 'Window'
+    DEVICE_TYPE_CHOICES = (
+        (BED, _('Bed')),
+        (BLOOD_PRESSURE, _('Blood Pressure')),
+        (DOOR, _('Door')),
+        (EMERGENCY, _('Emergency')),
+        (MOTION, _('Motion')),
+        (REFRIGERATOR, _('Refrigerator')),
+        (SCALE, _('Scale')),
+        (SEAT, _('Seat')),
+        (WINDOW, _('Window')),
+    )
 
     name = models.CharField(_('name'), max_length=255)
     icon = models.ImageField(_('icon'), upload_to='resources/devices/icons')

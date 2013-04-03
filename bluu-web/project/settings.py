@@ -150,6 +150,7 @@ INSTALLED_APPS = [
     'companies',
     'bluusites',
     'devices',
+    'alerts',
     'utils',
     'grontextual',
     'invitations',

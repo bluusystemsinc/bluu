@@ -4,5 +4,7 @@ from . import views
 
 
 urlpatterns = patterns('',
-    url(r'^$', views.AlertsConfigurationView.as_view(), name='site_list'),
+    url(r'^(?P<site_pk>\d+)/alerts/$',
+        views.AlertsConfigurationView.as_view(),
+        name='alert_list'),
 )

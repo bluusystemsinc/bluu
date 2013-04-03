@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import UserAlerts
+from .models import UserAlert
 
 
-admin.site.register(UserAlerts)
+admin.site.register(UserAlert)

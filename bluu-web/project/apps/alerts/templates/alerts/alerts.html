@@ -1,0 +1,33 @@
+{% extends "alerts/alerts_base.html" %}
+{% load i18n crispy_forms_tags grontextual_tags theme_tags alerts_tags %}
+
+{% block title %}
+    {% trans 'Alerts' %} |
+{% endblock %}
+
+{% block breadcrumbs %}
+{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; {% trans "Alerts" %}
+{% endblock breadcrumbs %}
+
+
+{% block page-title %}
+    {% trans "Alerts" %}
+{% endblock %}
+
+
+{% block main %}
+{{ block.super }}
+{% get_uog_perms request.user for bluusite as "bluusite_perms" %}
+
+{% for device_type in device_types %}
+    {% if not forloop.counter|divisibleby:2 %}
+    <div class="row-fluid">
+    {% endif %}
+        <div class="span6">
+            {% alerts_of_type bluusite device_type %}
+        </div>
+    {% if forloop.counter|divisibleby:2 or forloop.last %}
+    </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}
