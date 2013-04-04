@@ -20,10 +20,11 @@ from devices.models import DeviceType
 
 class AlertsConfigurationView(TemplateView):
     template_name = "alerts/alerts.html"
+    pk_url_kwarg = 'site_pk'
 
     def get_object(self, queryset=None):
-        pk = self.request.get('site_pk', None)
-        return get_object_or_404(BluuSite, pk=pk)
+        site_pk = self.kwargs.get(self.pk_url_kwarg, None)
+        return get_object_or_404(BluuSite, pk=site_pk)
 
     def get_context_data(self, **kwargs):
         bluusite = self.get_object()

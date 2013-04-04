@@ -1,0 +1,14 @@
+{% load i18n thumbnail alert_tags %}
+
+<div class="mod monitor row-fluid">
+  <div class="inner span12">
+    <div class="hd">
+      <img class="icon" src="{% thumbnail device_type.icon 50x50 %}" alt="" /> <span class="title">{{ device_type.name }}</span>
+    </div>
+    <div class="bd">
+      {% for alert in alerts %}
+        {% alertbox bluusite device_type alert %}
+      {% endfor %}
+    </div>
+  </div>
+</div>

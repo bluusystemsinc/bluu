@@ -26,7 +26,7 @@ class Alert(models.Model):
 
     ALERT_CHOICES = (
              (OPEN, _('open')),
-             (OPEN_GREATER_THAN, _('open')),
+             (OPEN_GREATER_THAN, _('open greater than')),
              (OPEN_GREATER_THAN_NO_MOTION, _('open greater than (no motion)')),
              (CLOSED_GREATER_THAN, _('closed greater than')),
              (ACTIVE_IN_PERIOD_GREATER_THAN, _('active in period greater than')),
@@ -45,7 +45,7 @@ class Alert(models.Model):
 
     def __unicode__(self):
         return u'{0} | {1}'.format(unicode(self.pk),
-                                   unicode(self.get_alert_display()))
+                                   unicode(self.get_alert_type_display()))
 
 
 class UserAlert(models.Model):

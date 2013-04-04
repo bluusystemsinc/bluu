@@ -13,7 +13,7 @@ from .signals import data_received
 
 class DeviceType(models.Model):
     BED = 'Bed'
-    BLOOD_PRESSURE = 'Blood Pressure'
+    BLOOD_PRESSURE = 'Blood pressure'
     DOOR = 'Door'
     EMERGENCY = 'Emergency'
     MOTION = 'Motion'
