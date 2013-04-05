@@ -233,4 +233,66 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
     text-align: center;
 }
 
+/* alert configuration */
+.alert_cfg{
+    width: 100%;
 
+    .alert_params{
+      min-width: 200px;
+      //padding-top: 10px;
+      height: 50px;
+
+      .description{
+        float: left;
+        //padding-top: 5px;
+        max-width: 220px;
+      }
+      .config{ 
+          width: 150px;
+          float: left;
+      }
+      .outer{
+        position: relative;
+        height: 50px;
+      }
+      .inner{
+        display: table;
+        p {
+          display: table-cell; 
+          vertical-align: middle; 
+        }
+      }
+      .inner-left{
+         position: absolute;
+        height: 40px;
+        top: 50%;
+        margin-top: -20px;       
+      }
+
+      .inner-right{
+        position: absolute;
+        height: 30px;
+        top: 50%;
+        margin-top: -15px;
+        left: 225px; 
+      }
+    }
+    .notifications{
+      width: 100px;
+
+      .notification_wrapper{
+        margin-top: -10px;
+      }
+
+      .notification{
+        float: left;
+        width: 50px;
+        text-align: center;
+      }
+    }
+}
+
+.input-mili{
+   width: 30px;
+   text-align: right;
+}

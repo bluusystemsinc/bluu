@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 
 from devices.models import Device
 from ..models import UserAlert
+from ..forms import DurationForm
 
 register = Library()
 
@@ -40,17 +41,23 @@ class AlertBoxNode(template.Node):
     def render(self, context):
         # for each alert render all devices of this type in this site
         # for each device set value of its current alert setting (if set)
+        request = context['request']
         bluusite = self.bluusite_var.resolve(context)
         device_type = self.device_type_var.resolve(context)
         alert = self.alert_var.resolve(context)
         devices = Device.objects.filter(bluusite=bluusite,
                                         device_type=device_type)
+        form = DurationForm(device_type=device_type, alert=alert)
+
         t = template.loader.get_template('alerts/_conf_{0}_{1}.html'.\
                    format(device_type.name.lower(), alert.alert_type.lower()))
 
-        #t = template.loader.get_template('alerts/_alerts_of_type.html')
-
-        ctx = template.Context({'alert': alert}, autoescape=context.autoescape)
+        ctx = template.Context({'alert': alert,
+                                'user': request.user,
+                                'form': form,
+                                'device_type': device_type,
+                                'devices': devices},
+                               autoescape=context.autoescape)
         return t.render(ctx)
         #except template.VariableDoesNotExist:
         #    return ''

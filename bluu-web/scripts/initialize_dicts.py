@@ -19,7 +19,7 @@ def run():
 
     # Register alerts for device types
     o, created = Alert.objects.get_or_create(alert_type=Alert.OPEN)
-    o.device_types.add(door, window, refrigerator, seat, bed, emergency)
+    o.device_types.add(door, window, refrigerator, emergency)
     ogt, created = Alert.objects.get_or_create(alert_type=Alert.OPEN_GREATER_THAN)
     ogt.device_types.add(door, window, refrigerator, bed, seat)
     ogtnm, created = Alert.objects.get_or_create(alert_type=Alert.OPEN_GREATER_THAN_NO_MOTION)

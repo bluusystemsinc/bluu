@@ -5,10 +5,10 @@
     <td class="alert_header alert_params">
       <div class="outer">
         <div class="description inner inner-left">
-          <p>{% trans "Alert when no bed activity is detected in" %}:&nbsp;</p>
+          <p>{% trans "Alert when bed activity in a 24&nbsp;hour period is less than" %}:&nbsp;</p>
         </div>
         <div class="config inner inner-right">
-                {% crispy form form.helper %}
+          {% crispy form form.helper %}
         </div>
       </div> 
     </td> 

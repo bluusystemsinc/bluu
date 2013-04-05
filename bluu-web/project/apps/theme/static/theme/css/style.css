@@ -278,3 +278,73 @@ table.table thead .sorting_desc_disabled {
 .center {
   text-align: center;
 }
+
+/* alert configuration */
+/* line 237, ../sass/style.scss */
+.alert_cfg {
+  width: 100%;
+}
+/* line 240, ../sass/style.scss */
+.alert_cfg .alert_params {
+  min-width: 200px;
+  height: 50px;
+}
+/* line 245, ../sass/style.scss */
+.alert_cfg .alert_params .description {
+  float: left;
+  max-width: 220px;
+}
+/* line 250, ../sass/style.scss */
+.alert_cfg .alert_params .config {
+  width: 150px;
+  float: left;
+}
+/* line 254, ../sass/style.scss */
+.alert_cfg .alert_params .outer {
+  position: relative;
+  height: 50px;
+}
+/* line 258, ../sass/style.scss */
+.alert_cfg .alert_params .inner {
+  display: table;
+}
+/* line 260, ../sass/style.scss */
+.alert_cfg .alert_params .inner p {
+  display: table-cell;
+  vertical-align: middle;
+}
+/* line 265, ../sass/style.scss */
+.alert_cfg .alert_params .inner-left {
+  position: absolute;
+  height: 40px;
+  top: 50%;
+  margin-top: -20px;
+}
+/* line 272, ../sass/style.scss */
+.alert_cfg .alert_params .inner-right {
+  position: absolute;
+  height: 30px;
+  top: 50%;
+  margin-top: -15px;
+  left: 225px;
+}
+/* line 280, ../sass/style.scss */
+.alert_cfg .notifications {
+  width: 100px;
+}
+/* line 283, ../sass/style.scss */
+.alert_cfg .notifications .notification_wrapper {
+  margin-top: -10px;
+}
+/* line 287, ../sass/style.scss */
+.alert_cfg .notifications .notification {
+  float: left;
+  width: 50px;
+  text-align: center;
+}
+
+/* line 295, ../sass/style.scss */
+.input-mili {
+  width: 30px;
+  text-align: right;
+}
