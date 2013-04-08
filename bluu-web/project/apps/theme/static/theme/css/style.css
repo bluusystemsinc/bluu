@@ -280,71 +280,105 @@ table.table thead .sorting_desc_disabled {
 }
 
 /* alert configuration */
-/* line 237, ../sass/style.scss */
+/* line 238, ../sass/style.scss */
+.bd [class*="alert_cfg"]:first-child {
+  margin-top: 0;
+}
+
+/* line 242, ../sass/style.scss */
+.block-left {
+  display: block;
+  float: left;
+}
+
+/* line 247, ../sass/style.scss */
 .alert_cfg {
   width: 100%;
+  margin: 15px 0 0 0;
 }
-/* line 240, ../sass/style.scss */
+/* line 251, ../sass/style.scss */
 .alert_cfg .alert_params {
-  min-width: 200px;
-  height: 50px;
+  /*.outer{
+    position: relative;
+    height: 50px;
+  }
+  .inner{
+    display: table;
+    p {
+      display: table-cell; 
+      vertical-align: middle; 
+    }
+  }*/
 }
-/* line 245, ../sass/style.scss */
+/* line 256, ../sass/style.scss */
 .alert_cfg .alert_params .description {
   float: left;
-  max-width: 220px;
+  max-width: 250px;
 }
-/* line 250, ../sass/style.scss */
+/* line 262, ../sass/style.scss */
 .alert_cfg .alert_params .config {
   width: 150px;
   float: left;
 }
-/* line 254, ../sass/style.scss */
-.alert_cfg .alert_params .outer {
-  position: relative;
-  height: 50px;
-}
-/* line 258, ../sass/style.scss */
-.alert_cfg .alert_params .inner {
-  display: table;
-}
-/* line 260, ../sass/style.scss */
-.alert_cfg .alert_params .inner p {
-  display: table-cell;
-  vertical-align: middle;
-}
-/* line 265, ../sass/style.scss */
+/* line 277, ../sass/style.scss */
 .alert_cfg .alert_params .inner-left {
-  position: absolute;
-  height: 40px;
-  top: 50%;
-  margin-top: -20px;
+  float: left;
 }
-/* line 272, ../sass/style.scss */
+/* line 281, ../sass/style.scss */
 .alert_cfg .alert_params .inner-right {
-  position: absolute;
-  height: 30px;
-  top: 50%;
-  margin-top: -15px;
-  left: 225px;
+  float: right;
 }
-/* line 280, ../sass/style.scss */
+/* line 285, ../sass/style.scss */
 .alert_cfg .notifications {
   width: 100px;
 }
-/* line 283, ../sass/style.scss */
+/* line 288, ../sass/style.scss */
 .alert_cfg .notifications .notification_wrapper {
   margin-top: -10px;
 }
-/* line 287, ../sass/style.scss */
+/* line 292, ../sass/style.scss */
 .alert_cfg .notifications .notification {
   float: left;
   width: 50px;
   text-align: center;
 }
 
-/* line 295, ../sass/style.scss */
+/* line 300, ../sass/style.scss */
 .input-mili {
   width: 30px;
   text-align: right;
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+  /* line 308, ../sass/style.scss */
+  .box-row-fluid {
+    width: 100%;
+  }
+
+  /* line 314, ../sass/style.scss */
+  [class*="span"],
+  .uneditable-input[class*="span"],
+  .box-row-fluid [class*="span"] {
+    float: none;
+    display: block;
+    width: 100%;
+    margin-left: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  /* line 322, ../sass/style.scss */
+  .span12,
+  .box-row-fluid .span12 {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  /* line 326, ../sass/style.scss */
+  .box-row-fluid [class*="offset"]:first-child {
+    margin-left: 0;
+  }
 }

@@ -29,6 +29,9 @@ angular.module('Bluu.services', ['ngResource']).
             }
             );
     }).
+    factory('AlertConf', function ($resource) {
+        return $resource('/sites/:siteId/alerts/set/', {});
+    }).
     factory('$configService', function () {
         var hgtOpts = {minHeight: 120};
 

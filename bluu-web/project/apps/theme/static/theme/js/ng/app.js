@@ -20,7 +20,10 @@ var app = angular.module('Bluu', ['ui', 'ui.bootstrap.dialog', 'Bluu.filters', '
                     '</div>';
                  
     $dialogProvider.options({template: t, backdropClick: false, modalFade: true});  
-  }]);
+  }]).config(function($interpolateProvider) {
+    $interpolateProvider.startSymbol('{[{');
+    $interpolateProvider.endSymbol('}]}');
+  });
 
   //config(['$routeProvider', function($routeProvider) {
   //  $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: MyCtrl1});

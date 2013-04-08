@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     url(r'^(?P<site_pk>\d+)/alerts/$',
         views.AlertsConfigurationView.as_view(),
         name='alert_list'),
+    url(r'^', include('alerts.ajax_urls')),
 )

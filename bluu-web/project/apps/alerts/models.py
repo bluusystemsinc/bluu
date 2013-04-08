@@ -49,6 +49,16 @@ class Alert(models.Model):
 
 
 class UserAlert(models.Model):
+    SECONDS = 's'
+    MINUTES = 'm'
+    HOURS = 'h'
+    DAYS = 'd'
+    UNITS = (
+        (SECONDS, _('seconds')),
+        (MINUTES, _('minutes')),
+        (HOURS, _('hours')),
+        (DAYS, _('days')),
+    )
     user = models.ForeignKey(
                 settings.AUTH_USER_MODEL,
                 verbose_name=_('user'))
@@ -56,6 +66,8 @@ class UserAlert(models.Model):
                 Alert,
                 verbose_name=_('alert'))
     duration = models.IntegerField(_('duration', blank=True, null=True))
+    unit = models.CharField(_('unit'), blank=True, null=True, choices=UNITS,
+                            max_length=2)
     email_notification = models.BooleanField(_('email notification'),
                                              default=True)
     text_notification = models.BooleanField(_('text notification'),

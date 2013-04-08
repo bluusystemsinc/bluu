@@ -19,15 +19,26 @@
 {{ block.super }}
 {% get_uog_perms request.user for bluusite as "bluusite_perms" %}
 
+<div ng-controller="AlertConfController">
 {% for device_type in device_types %}
     {% if not forloop.counter|divisibleby:2 %}
-    <div class="row-fluid">
+    <div class="row-fluid box-row-fluid">
     {% endif %}
-        <div class="span6">
+        <div class="box-span6 span6">
             {% alerts_for_device_type bluusite device_type %}
         </div>
     {% if forloop.counter|divisibleby:2 or forloop.last %}
     </div>
     {% endif %}
 {% endfor %}
+</div>
 {% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script charset="utf-8" type="text/javascript">
+    var SITE_ID = {{ bluusite.id }};
+</script>
+{% endblock %}
+
+

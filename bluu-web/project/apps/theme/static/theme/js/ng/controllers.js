@@ -313,3 +313,22 @@ function SiteAccessController(SiteAccess, $dialog, $compile, $configService, $sc
   };
  SiteAccessController.$inject = ['SiteAccess', '$dialog', '$compile', '$configService', '$scope'];
 
+
+function AlertConfController(AlertConf, $compile, $configService, $scope) {
+      $scope.set_alert = function (device_id, alert_id, time, unit, text, email, user) {
+            var user_alert_conf = new AlertConf({'device_id': device_id,
+                                                 'alert_id': alert_id,
+                                                 'time': time,
+                                                 'unit': unit,
+                                                 'text': text,
+                                                 'email': email,
+                                                 'user': user});
+              user_alert_conf.$save({'siteId':SITE_ID}, function(data){
+                  console.log('success');
+                  alert('success!');
+              });
+          }
+    }
+
+
+ AlertConfController.$inject = ['AlertConf', '$compile', '$configService', '$scope'];

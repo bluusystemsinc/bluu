@@ -3,11 +3,10 @@
 <table class="alert_cfg">
   <tr>
     <td class="alert_header alert_params">
-      <div class="outer">
-        <div class="description inner inner-left">
+        <div class="description inner-left">
           <p>{% trans "Alert when bed activity in a 24&nbsp;hour period is less than" %}:&nbsp;</p>
         </div>
-        <div class="config inner inner-right">
+        <div class="config inner-right">
           {% crispy form form.helper %}
         </div>
       </div> 
@@ -22,7 +21,7 @@
   {% for device in devices %}
     <tr>
       <td colspan="2">
-        <label class="checkbox">
+        <label class="checkbox block-left">
           <input type="checkbox" value="">
           {{ device.name }}
         </label>

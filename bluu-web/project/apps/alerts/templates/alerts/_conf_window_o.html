@@ -1,10 +1,31 @@
-{% load i18n %}
+{% load i18n crispy_forms_tags %}
 
-<table width="100%">
+<table class="alert_cfg">
   <tr>
-    <td class="name">{{ alert.alert_type }}</td> 
+    <td class="alert_header alert_params">
+        <div class="description inner-left">
+          <p>{% trans "Alert when window(s) have been opened" %}:&nbsp;</p>
+        </div>
+        <div class="config inner-right">
+          {% crispy form form.helper %}
+        </div>
+    </td> 
+    <td class="alert_header notifications">
+      <div class="notification_wrapper">
+        <div class="notification">{% trans "text"|capfirst %}<br><input id="" type="checkbox" value=""></div>
+        <div class="notification">{% trans "e-mail"|capfirst %}<br><input id="" type="checkbox" value=""></div>
+      </div>
+    </td>
   </tr>
-  <tr>
-  </tr>
+  {% for device in devices %}
+    <tr>
+      <td colspan="2">
+        <label class="checkbox block-left">
+          <input type="checkbox" value="">
+          {{ device.name }}
+        </label>
+      </td>
+    </tr>
+  {% endfor %}
 </table>
 

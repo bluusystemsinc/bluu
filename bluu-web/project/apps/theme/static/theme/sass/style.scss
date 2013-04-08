@@ -234,24 +234,36 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
 }
 
 /* alert configuration */
+
+.bd [class*="alert_cfg"]:first-child {
+    margin-top: 0;
+}
+
+.block-left{
+    display: block;
+    float: left;
+}
+
 .alert_cfg{
     width: 100%;
+    margin: 15px 0 0 0;
 
     .alert_params{
-      min-width: 200px;
+      //min-width: 200px;
       //padding-top: 10px;
-      height: 50px;
+      //height: 50px;
 
       .description{
         float: left;
         //padding-top: 5px;
-        max-width: 220px;
+        max-width: 250px;
+
       }
       .config{ 
           width: 150px;
           float: left;
       }
-      .outer{
+      /*.outer{
         position: relative;
         height: 50px;
       }
@@ -261,20 +273,13 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
           display: table-cell; 
           vertical-align: middle; 
         }
-      }
+      }*/
       .inner-left{
-         position: absolute;
-        height: 40px;
-        top: 50%;
-        margin-top: -20px;       
+        float: left;       
       }
 
       .inner-right{
-        position: absolute;
-        height: 30px;
-        top: 50%;
-        margin-top: -15px;
-        left: 225px; 
+          float: right;
       }
     }
     .notifications{
@@ -295,4 +300,32 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
 .input-mili{
    width: 30px;
    text-align: right;
+}
+
+
+@media (min-width: 768px) and (max-width: 979px) {
+  // Fluid rows
+  .box-row-fluid {
+    width: 100%;
+  }
+  // Make all grid-sized elements block level again
+  [class*="span"],
+  .uneditable-input[class*="span"], // Makes uneditable inputs full-width when using grid sizing
+  .box-row-fluid [class*="span"] {
+    float: none;
+    display: block;
+    width: 100%;
+    margin-left: 0;
+    @include box-sizing(border-box);
+  }
+  .span12,
+  .box-row-fluid .span12 {
+    width: 100%;
+    @include box-sizing(border-box);
+  }
+  .box-row-fluid [class*="offset"]:first-child {
+    margin-left: 0;
+  }
+
+
 }
