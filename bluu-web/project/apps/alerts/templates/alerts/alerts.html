@@ -38,6 +38,31 @@
     {{ block.super }}
     <script charset="utf-8" type="text/javascript">
     var SITE_ID = {{ bluusite.id }};
+    var USER_ID = {{ user.pk }};
+  $(document).ready(function() {
+    $('.device').change(function(event){
+      var alert_cfg = $(this).parents('.alert_cfg');
+      console.log($(alert_cfg));
+      var notifications = $(alert_cfg).find('.notification');
+      console.log(notifications);
+      console.log(notifications.length);
+
+            var text = notifications.find('input[name=text]')[0];
+      var email = notifications.find('input[name=email]')[0];
+      
+      console.log($(this).attr('device_id'));
+      console.log($(this).attr('alert_id'));
+
+      console.log($(text).is(':checked'));
+      console.log($(email).is(':checked'));
+
+      //for (var i=0; i < notifications.length; i++){
+      //}
+      //set_alert(user, device, alert, duration, unit, text, email)
+      //var scope = angular.element(dom_element).scope();
+      //scope.set_alert(device, {{ alert.id }}, '', '', '', '', '{{ request.user.pk }}');
+    }); 
+  });
 </script>
 {% endblock %}
 

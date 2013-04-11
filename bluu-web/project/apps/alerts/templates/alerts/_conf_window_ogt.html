@@ -21,7 +21,10 @@
     <tr>
       <td colspan="2">
         <label class="checkbox block-left">
-          <input type="checkbox" value="">
+          <input type="checkbox"
+                 class="device"
+                 device_id="{{ device.id }}"
+                 alert_id="{{ alert.id }}">
           {{ device.name }}
         </label>
       </td>

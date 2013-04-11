@@ -47,7 +47,8 @@ class AlertBoxNode(template.Node):
         alert = self.alert_var.resolve(context)
         devices = Device.objects.filter(bluusite=bluusite,
                                         device_type=device_type)
-        form = DurationForm(device_type=device_type, alert=alert)
+        form = DurationForm(device_type=device_type, alert=alert,
+                initial={'time': 0, 'unit': 's'}, prefix=alert.pk)
 
         t = template.loader.get_template('alerts/_conf_{0}_{1}.html'.\
                    format(device_type.name.lower(), alert.alert_type.lower()))

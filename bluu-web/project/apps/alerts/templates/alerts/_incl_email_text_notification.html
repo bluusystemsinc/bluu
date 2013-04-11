@@ -1,0 +1,16 @@
+{% load i18n %}
+
+<div class="notification_wrapper">
+  <div class="notification">{% trans "text"|capfirst %}<br>
+    <input 
+      type="checkbox"
+      name="text"
+      id="{{alert.id }}_text">
+  </div>
+  <div class="notification">{% trans "e-mail"|capfirst %}<br>
+    <input 
+      type="checkbox"
+      name="email"
+      id="{{alert.id }}_email"> 
+  </div>
+</div>

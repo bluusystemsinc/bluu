@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from django.db.models import F
 
-from devices.models import (Status, DeviceType)
+from devices.models import (Device, DeviceType)
 
 
 class Alert(models.Model):
@@ -36,6 +36,18 @@ class Alert(models.Model):
              (MOTION_IN_ROOM_LESS_THAN, _('motion in room less than')),
              (NOMOTION_IN_ROOM_GREATER_THAN, _('no motion in room greater than')),
             )
+
+    SECONDS = 's'
+    MINUTES = 'm'
+    HOURS = 'h'
+    DAYS = 'd'
+    UNITS = (
+        (SECONDS, _('seconds')),
+        (MINUTES, _('minutes')),
+        (HOURS, _('hours')),
+        (DAYS, _('days')),
+    )
+
     alert_type = models.CharField(_('alert'), max_length=50, choices=ALERT_CHOICES)
     device_types = models.ManyToManyField(DeviceType)
 
@@ -47,18 +59,7 @@ class Alert(models.Model):
         return u'{0} | {1}'.format(unicode(self.pk),
                                    unicode(self.get_alert_type_display()))
 
-
-class UserAlert(models.Model):
-    SECONDS = 's'
-    MINUTES = 'm'
-    HOURS = 'h'
-    DAYS = 'd'
-    UNITS = (
-        (SECONDS, _('seconds')),
-        (MINUTES, _('minutes')),
-        (HOURS, _('hours')),
-        (DAYS, _('days')),
-    )
+class UserAlertConfig(models.Model):
     user = models.ForeignKey(
                 settings.AUTH_USER_MODEL,
                 verbose_name=_('user'))
@@ -66,7 +67,35 @@ class UserAlert(models.Model):
                 Alert,
                 verbose_name=_('alert'))
     duration = models.IntegerField(_('duration', blank=True, null=True))
-    unit = models.CharField(_('unit'), blank=True, null=True, choices=UNITS,
+    unit = models.CharField(_('unit'), blank=True, null=True, choices=Alert.UNITS,
+                            max_length=2)
+    email_notification = models.BooleanField(_('email notification'),
+                                             default=True)
+    text_notification = models.BooleanField(_('text notification'),
+                                            default=False)
+
+    class Meta:
+        verbose_name = _("user alert configuration")
+        verbose_name_plural = _("user alert configurations")
+        unique_together = ('user', 'alert')
+
+    def __unicode__(self):
+        return u'{0} | {1}'.format(unicode(self.user.get_full_name()),
+                                   unicode(self.alert.get_alert_type_display()))
+
+
+class UserAlertDevice(models.Model):
+    user = models.ForeignKey(
+                settings.AUTH_USER_MODEL,
+                verbose_name=_('user'))
+    alert = models.ForeignKey(
+                Alert,
+                verbose_name=_('alert'))
+    device = models.ForeignKey(
+                Device,
+                verbose_name=_('device'))
+    duration = models.IntegerField(_('duration', blank=True, null=True))
+    unit = models.CharField(_('unit'), blank=True, null=True, choices=Alert.UNITS,
                             max_length=2)
     email_notification = models.BooleanField(_('email notification'),
                                              default=True)
@@ -76,8 +105,11 @@ class UserAlert(models.Model):
     class Meta:
         verbose_name = _("user alert")
         verbose_name_plural = _("user alerts")
+        unique_together = ('user', 'device', 'alert')
 
     def __unicode__(self):
-        return u'{0} | {1}'.format(unicode(self.user.get_full_name()),
-                                   unicode(self.alert.get_alert_type_display()))
+        return u'{0} | {1} | {2}'.format(unicode(self.user.get_full_name()),
+                                   unicode(self.alert.get_alert_type_display()),
+                                   unicode(self.device.name),
+                                   )
 

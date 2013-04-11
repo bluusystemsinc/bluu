@@ -20,10 +20,9 @@ class DurationForm(forms.Form):
         self.helper.form_tag = False
 
         unit = layout.Field('unit', css_class="input-small", template='alerts/conf_unit_template.html')
-        unit.attrs['ng-model'] = 'id_{}_unit'.format(alert.id)
-        unit.attrs['ng-change'] = 'alert(\'change all enabled alerts for this alert type\');'
+        #unit.attrs['ng-change'] = 'alert(\'change all enabled alerts for this alert type\');'
         durak = layout.Field('time', css_class="input-mili", maxlength="3", template='alerts/conf_time_template.html')
-        durak.attrs['ng-model'] = 'id_{}_time'.format(alert.id)
+        #durak.attrs['ng-model'] = 'id_{}_time'.format(alert.id)
 
         super(DurationForm, self).__init__(**kwargs)
         self.helper.layout = layout.Layout(durak, unit)
