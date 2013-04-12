@@ -22,7 +22,7 @@ from grontextual.models import UserObjectGroup
 
 from bluusites.models import BluuSite
 
-from .models import (Alert, UserAlert)
+from .models import (Alert, UserAlertDevice, UserAlertConfig)
 
 
 class AlertCfgCreateView(generics.CreateAPIView):
@@ -30,7 +30,7 @@ class AlertCfgCreateView(generics.CreateAPIView):
     Set alert for user
     """
     permission_classes = (permissions.IsAuthenticated,)
-    model = UserAlert
+    model = UserAlertDevice
 
     def get_site(self, pk):
         try:

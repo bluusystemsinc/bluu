@@ -6,7 +6,6 @@ from django.template import Library
 from django.utils.translation import ugettext as _
 
 from devices.models import Device
-from ..models import UserAlert
 from ..forms import DurationForm
 
 register = Library()
@@ -48,7 +47,7 @@ class AlertBoxNode(template.Node):
         devices = Device.objects.filter(bluusite=bluusite,
                                         device_type=device_type)
         form = DurationForm(device_type=device_type, alert=alert,
-                initial={'time': 0, 'unit': 's'}, prefix=alert.pk)
+                initial={'time': 0, 'unit': 's'})
 
         t = template.loader.get_template('alerts/_conf_{0}_{1}.html'.\
                    format(device_type.name.lower(), alert.alert_type.lower()))
