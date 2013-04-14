@@ -43,29 +43,28 @@
   $(document).ready(function() {
     $('.device').change(function(event){
       // get notification parameters for clicked device
-      var alert_cfg = $(this).parents('.alert_cfg');
-      var notifications = $(alert_cfg).find('.notification');
-      var text = notifications.find('input[name=text]')[0];
-      var email = notifications.find('input[name=email]')[0];
-      
-      var device = $(this).attr('device_id');
-      var alert_id = $(this).attr('alert_id');
-      var text_val = $(text).is(':checked');
-      var email_val = $(email).is(':checked');
+      var alert_cfg = $(this).closest('.alert_cfg');
+      var notifications = alert_cfg.find('.notification');
 
-      var durak = null;
-      var unit = null;
-      var duraks = $(alert_cfg).find('input[name=duration]');
-      var units = $(alert_cfg).find('select[name=unit]');
-      if (!(duraks.length === 0 || units.length === 0)){
-        var durak = duraks[0];
-        var unit = units[0]; 
+      var text = notifications.find('input.text_input');
+      var text_val = $(text).is(':checked');
+      var email = notifications.find('input.email_input');
+      var email_val = $(email).is(':checked');
+      
+      var device_id = $(this).data('device_id');
+      var alert_id = $(this).data('alert_id');
+
+      var durak_val = null;
+      var unit_val = null;
+
+      var durak = $(alert_cfg).find('input.duration');
+      var unit = $(alert_cfg).find('select.unit');
+      if (durak || units){
+          var durak_val = durak.val();
+          var unit_val = unit.val();
       }
 
-      console.log($(durak).val());
-      console.log($(unit).val());
-
-      set_alert(USER_ID, device, alert_id, durak, unit, text_val, email_val)
+      Bluu.set_alert(USER_ID, device_id, alert_id, durak_val, unit_val, text_val, email_val)
     }); 
   });
 </script>

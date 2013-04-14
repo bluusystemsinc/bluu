@@ -19,8 +19,8 @@ class DurationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
-        unit = layout.Field('unit', css_class="input-small", template='alerts/conf_unit_template.html')
-        durak = layout.Field('duration', css_class="input-mili", maxlength="3", template='alerts/conf_duration_template.html')
+        unit = layout.Field('unit', css_class="input-small unit", template='alerts/conf_unit_template.html')
+        durak = layout.Field('duration', css_class="input-mili duration", maxlength="3", template='alerts/conf_duration_template.html')
 
         super(DurationForm, self).__init__(**kwargs)
         self.helper.layout = layout.Layout(durak, unit)

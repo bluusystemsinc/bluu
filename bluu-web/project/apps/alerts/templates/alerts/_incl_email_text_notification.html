@@ -3,12 +3,14 @@
 <div class="notification_wrapper">
   <div class="notification">{% trans "text"|capfirst %}<br>
     <input 
+      class="text_input"
       type="checkbox"
       name="text"
       id="{{alert.id }}_text">
   </div>
   <div class="notification">{% trans "e-mail"|capfirst %}<br>
     <input 
+      class="email_input"
       type="checkbox"
       name="email"
       id="{{alert.id }}_email"> 
