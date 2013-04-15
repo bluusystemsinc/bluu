@@ -42,6 +42,9 @@
 
   $(document).ready(function() {
     $('.device').change(function(event){
+      var device_id = $(this).data('device_id');
+      var alert_id = $(this).data('alert_id');
+
       // get notification parameters for clicked device
       var alert_cfg = $(this).closest('.alert_cfg');
       var notifications = alert_cfg.find('.notification');
@@ -51,14 +54,11 @@
       var email = notifications.find('input.email_input');
       var email_val = $(email).is(':checked');
       
-      var device_id = $(this).data('device_id');
-      var alert_id = $(this).data('alert_id');
-
       var durak_val = null;
       var unit_val = null;
 
-      var durak = $(alert_cfg).find('input.duration');
-      var unit = $(alert_cfg).find('select.unit');
+      var durak = alert_cfg.find('input.duration');
+      var unit = alert_cfg.find('select.unit');
       if (durak || units){
           var durak_val = durak.val();
           var unit_val = unit.val();

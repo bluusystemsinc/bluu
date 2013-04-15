@@ -1,7 +1,8 @@
-{% load i18n %}
+{% load i18n crispy_forms_tags %}
 
 <div class="notification_wrapper">
   <div class="notification">{% trans "text"|capfirst %}<br>
+    {% crispy nform nform.helper %}
     <input 
       class="text_input"
       type="checkbox"
