@@ -1,0 +1,6 @@
+{% load crispy_forms_field %}
+
+<div id="div_{{ field.auto_id }}" class=" notification control-group{% if form_show_errors%}{% if field.errors %} error{% endif %}{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
+  {{ field.label|capfirst|safe }}<br />
+  {% crispy_field field %}
+</div>

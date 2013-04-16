@@ -1,0 +1,32 @@
+{% load i18n crispy_forms_tags %}
+
+<table class="alert_cfg" data-alert_id="{{ alert.id }}" data-device_type_id="{{ device_type.id }}>
+  <tr>
+    <td class="alert_header alert_params">
+        <div class="description inner-left">
+          <p>{% block alert_title %}{% endblock alert_title %}</p>
+        </div>
+        <div class="config inner-right">
+            {% crispy form form.helper %}
+        </div>
+    </td> 
+    <td class="alert_header notifications">
+      <div class="notification_wrapper">
+          {% crispy nform nform.helper %}
+      </div>
+    </td>
+  </tr>
+  {% for device in devices %}
+    <tr>
+      <td colspan="2">
+        <label class="checkbox block-left">
+            <input type="checkbox"
+                 class="device"
+                 data-device_id="{{ device.id }}"
+                 data-alert_id="{{ alert.id }}">
+          {{ device.name }}
+        </label>
+      </td>
+    </tr>
+  {% endfor %}
+</table>

@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from django.db.models import F
 
+from bluusites.models import BluuSite
 from devices.models import (Device, DeviceType)
 
 
@@ -60,6 +61,8 @@ class Alert(models.Model):
                                    unicode(self.get_alert_type_display()))
 
 class UserAlertConfig(models.Model):
+    bluusite = models.ForeignKey(BluuSite)
+    device_type = models.ForeignKey(DeviceType)
     user = models.ForeignKey(
                 settings.AUTH_USER_MODEL,
                 verbose_name=_('user'))

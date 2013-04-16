@@ -51,15 +51,21 @@ class AlertBoxNode(template.Node):
         devices = Device.objects.filter(bluusite=bluusite,
                                         device_type=device_type)
         try:
-            instance = UserAlertConfig.objects.get(user=user, alert=alert)
+            instance = UserAlertConfig.objects.get(
+                            bluusite=bluusite,
+                            device_type=device_type,
+                            user=user,
+                            alert=alert)
         except UserAlertConfig.DoesNotExist:
             instance = None
         form = DurationForm(device_type=device_type, alert=alert,
-                instance=instance, initial={'duration': 0, 'unit': 'h'})
+                initial={'duration': 0, 'unit': 'h'},
+                instance=instance)
 
         nform = NotificationForm(device_type=device_type, alert=alert,
-                initial={'text_notification': True,
-                         'email_notification': False})
+                initial={'text_notification': False,
+                         'email_notification': False},
+                instance=instance)
 
 
         t = template.loader.get_template('alerts/_conf_{0}_{1}.html'.\
@@ -73,6 +79,4 @@ class AlertBoxNode(template.Node):
                                 'devices': devices},
                                autoescape=context.autoescape)
         return t.render(ctx)
-        #except template.VariableDoesNotExist:
-        #    return ''
 

@@ -285,7 +285,7 @@ SESSION_COOKIE_AGE = 3600
 # App specific settings
 COMPANY_GROUPS = ['Dealer', 'Technician']
 SITE_GROUPS = ['Master User', 'User']
-WEBSERVICE_USERNAME_PREFIX = 'webservice'
+WEBSERVICE_USERNAME_PREFIX = 'controller'
 
 # Algorithms
 # gaps in minutes

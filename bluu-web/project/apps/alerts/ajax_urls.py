@@ -5,8 +5,10 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from . import ajax_views
 
 urlpatterns = patterns('',
-    # sites
+    url(r'^(?P<pk>[0-9]+)/alerts/configure[/]?$',
+        ajax_views.UserAlertConfigSetView.as_view(),
+        name='user_alert_config_set'),
     url(r'^(?P<pk>[0-9]+)/alerts/set[/]?$',
-        ajax_views.AlertCfgCreateView.as_view(),
-        name='api_site_access'),
+        ajax_views.UserAlertDeviceSetView.as_view(),
+        name='user_alert_device_set'),
 )
