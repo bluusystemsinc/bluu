@@ -200,8 +200,6 @@ class RegistrationForm(ModelForm):
         return user
 
 
-
-
 dummy_trans = _("If you don't want to change your password leave these fields empty.")
 
 attrs_dict = {'class': 'required'}

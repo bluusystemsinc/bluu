@@ -1,4 +1,4 @@
-/* Javascript plotting library for jQuery, version 0.8.0-beta.
+/* Javascript plotting library for jQuery, version 0.8.0.
 
 Copyright (c) 2007-2013 IOLA and Ole Laursen.
 Licensed under the MIT license.
@@ -37,16 +37,6 @@ Licensed under the MIT license.
 	// Cache the prototype hasOwnProperty for faster access
 
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-	// Add default styles for tick labels and other text
-
-	var STYLES = [
-		".flot-tick-label {font-size:smaller;color:#545454;}"
-	];
-
-	$(function() {
-		$("head").prepend("<style id='flot-default-styles'>" + STYLES.join("") + "</style>");
-	});
 
 	///////////////////////////////////////////////////////////////////////////
 	// The Canvas object is a wrapper around an HTML5 <canvas> tag.
@@ -109,6 +99,7 @@ Licensed under the MIT license.
 
 		// Collection of HTML div layers for text overlaid onto the canvas
 
+		this.textContainer = null;
 		this.text = {};
 
 		// Cache of text fragments and metrics, so we can avoid expensively
@@ -228,8 +219,25 @@ Licensed under the MIT license.
 		// Create the text layer if it doesn't exist
 
 		if (layer == null) {
+
+			// Create the text layer container, if it doesn't exist
+
+			if (this.textContainer == null) {
+				this.textContainer = $("<div class='flot-text'></div>")
+					.css({
+						position: "absolute",
+						top: 0,
+						left: 0,
+						bottom: 0,
+						right: 0,
+						'font-size': "smaller",
+						color: "#545454"
+					})
+					.insertAfter(this.element);
+			}
+
 			layer = this.text[classes] = $("<div></div>")
-				.addClass("flot-text " + classes)
+				.addClass(classes)
 				.css({
 					position: "absolute",
 					top: 0,
@@ -237,7 +245,7 @@ Licensed under the MIT license.
 					bottom: 0,
 					right: 0
 				})
-				.insertAfter(this.element);
+				.appendTo(this.textContainer);
 		}
 
 		return layer;
@@ -278,7 +286,7 @@ Licensed under the MIT license.
 		// If the font is a font-spec object, generate a CSS font definition
 
 		if (typeof font === "object") {
-			textStyle = font.style + " " + font.variant + " " + font.weight + " " + font.size + "px " + font.family;
+			textStyle = font.style + " " + font.variant + " " + font.weight + " " + font.size + "px/" + font.lineHeight + "px " + font.family;
 		} else {
 			textStyle = font;
 		}
@@ -377,8 +385,8 @@ Licensed under the MIT license.
 		// Move the element to its final position within the container
 
 		info.element.css({
-			top: parseInt(y, 10),
-			left: parseInt(x, 10)
+			top: Math.round(y),
+			left: Math.round(x)
 		});
 	};
 
@@ -445,8 +453,7 @@ Licensed under the MIT license.
                     show: null, // null = auto-detect, true = always, false = never
                     position: "bottom", // or "top"
                     mode: null, // null or "time"
-                    timezone: null, // "browser" for local to the client or timezone for timezone-js
-                    font: null, // null (derived from CSS in placeholder) or object like { size: 11, style: "italic", weight: "bold", family: "sans-serif", variant: "small-caps" }
+                    font: null, // null (derived from CSS in placeholder) or object like { size: 11, lineHeight: 13, style: "italic", weight: "bold", family: "sans-serif", variant: "small-caps" }
                     color: null, // base color, labels, ticks
                     tickColor: null, // possibly different color of ticks, e.g. "rgba(0,0,0,0.15)"
                     transform: null, // null or f: number -> number to transform axis
@@ -461,14 +468,9 @@ Licensed under the MIT license.
                     reserveSpace: null, // whether to reserve space even if axis isn't shown
                     tickLength: null, // size in pixels of ticks, or "full" for whole line
                     alignTicksWithAxis: null, // axis number or null for no sync
-
-                    // mode specific options
                     tickDecimals: null, // no. of decimals, null means auto
                     tickSize: null, // number or [number, "unit"]
-                    minTickSize: null, // number or [number, "unit"]
-                    monthNames: null, // list of names of months
-                    timeformat: null, // format string to use
-                    twelveHourClock: false // 12 or 24 time in time mode
+                    minTickSize: null // number or [number, "unit"]
                 },
                 yaxis: {
                     autoscaleMargin: 0.02,
@@ -670,10 +672,19 @@ Licensed under the MIT license.
                     family: placeholder.css("font-family")
                 };
 
+            fontDefaults.lineHeight = fontDefaults.size * 1.15;
+
             axisCount = options.xaxes.length || 1;
             for (i = 0; i < axisCount; ++i) {
-                axisOptions = $.extend(true, {}, options.xaxis, options.xaxes[i]);
+
+                axisOptions = options.xaxes[i];
+                if (axisOptions && !axisOptions.tickColor) {
+                    axisOptions.tickColor = axisOptions.color;
+                }
+
+                axisOptions = $.extend(true, {}, options.xaxis, axisOptions);
                 options.xaxes[i] = axisOptions;
+
                 if (axisOptions.font) {
                     axisOptions.font = $.extend({}, fontDefaults, axisOptions.font);
                     if (!axisOptions.font.color) {
@@ -684,8 +695,15 @@ Licensed under the MIT license.
 
             axisCount = options.yaxes.length || 1;
             for (i = 0; i < axisCount; ++i) {
-                axisOptions = $.extend(true, {}, options.yaxis, options.yaxes[i]);
+
+                axisOptions = options.yaxes[i];
+                if (axisOptions && !axisOptions.tickColor) {
+                    axisOptions.tickColor = axisOptions.color;
+                }
+
+                axisOptions = $.extend(true, {}, options.yaxis, axisOptions);
                 options.yaxes[i] = axisOptions;
+
                 if (axisOptions.font) {
                     axisOptions.font = $.extend({}, fontDefaults, axisOptions.font);
                     if (!axisOptions.font.color) {
@@ -1524,7 +1542,42 @@ Licensed under the MIT license.
                 // some data points that seemed reasonable
                 noTicks = 0.3 * Math.sqrt(axis.direction == "x" ? surface.width : surface.height);
 
-            axis.delta = (axis.max - axis.min) / noTicks;
+            var delta = (axis.max - axis.min) / noTicks,
+                dec = -Math.floor(Math.log(delta) / Math.LN10),
+                maxDec = opts.tickDecimals;
+
+            if (maxDec != null && dec > maxDec) {
+                dec = maxDec;
+            }
+
+            var magn = Math.pow(10, -dec),
+                norm = delta / magn, // norm is between 1.0 and 10.0
+                size;
+
+            if (norm < 1.5) {
+                size = 1;
+            } else if (norm < 3) {
+                size = 2;
+                // special case for 2.5, requires an extra decimal
+                if (norm > 2.25 && (maxDec == null || dec + 1 <= maxDec)) {
+                    size = 2.5;
+                    ++dec;
+                }
+            } else if (norm < 7.5) {
+                size = 5;
+            } else {
+                size = 10;
+            }
+
+            size *= magn;
+
+            if (opts.minTickSize != null && size < opts.minTickSize) {
+                size = opts.minTickSize;
+            }
+
+            axis.delta = delta;
+            axis.tickDecimals = Math.max(0, maxDec != null ? maxDec : dec);
+            axis.tickSize = opts.tickSize || size;
 
             // Time mode was moved to a plug-in in 0.8, but since so many people use this
             // we'll add an especially friendly make sure they remembered to include it.
@@ -1539,45 +1592,12 @@ Licensed under the MIT license.
             if (!axis.tickGenerator) {
 
                 axis.tickGenerator = function (axis) {
-                    var maxDec = opts.tickDecimals,
-                        dec = -Math.floor(Math.log(axis.delta) / Math.LN10);
 
-                    if (maxDec != null && dec > maxDec)
-                        dec = maxDec;
-
-                    var magn = Math.pow(10, -dec),
-                        norm = axis.delta / magn, // norm is between 1.0 and 10.0
-                        size,
-
-                        ticks = [],
-                        start,
+                    var ticks = [],
+                        start = floorInBase(axis.min, axis.tickSize),
                         i = 0,
                         v = Number.NaN,
                         prev;
-
-                    if (norm < 1.5)
-                        size = 1;
-                    else if (norm < 3) {
-                        size = 2;
-                        // special case for 2.5, requires an extra decimal
-                        if (norm > 2.25 && (maxDec == null || dec + 1 <= maxDec)) {
-                            size = 2.5;
-                            ++dec;
-                        }
-                    }
-                    else if (norm < 7.5)
-                        size = 5;
-                    else size = 10;
-
-                    size *= magn;
-
-                    if (opts.minTickSize != null && size < opts.minTickSize)
-                        size = opts.minTickSize;
-
-                    axis.tickDecimals = Math.max(0, maxDec != null ? maxDec : dec);
-                    axis.tickSize = opts.tickSize || size;
-
-                    start = floorInBase(axis.min, axis.tickSize);
 
                     do {
                         prev = v;
@@ -1873,13 +1893,16 @@ Licensed under the MIT license.
                     ctx.beginPath();
                     xoff = yoff = 0;
                     if (axis.direction == "x")
-                        xoff = plotWidth;
+                        xoff = plotWidth + 1;
                     else
-                        yoff = plotHeight;
+                        yoff = plotHeight + 1;
 
                     if (ctx.lineWidth == 1) {
-                        x = Math.floor(x) + 0.5;
-                        y = Math.floor(y) + 0.5;
+                        if (axis.direction == "x") {
+                            y = Math.floor(y) + 0.5;
+                        } else {
+                            x = Math.floor(x) + 0.5;
+                        }
                     }
 
                     ctx.moveTo(x, y);
@@ -2836,13 +2859,16 @@ Licensed under the MIT license.
             if (s == null && point == null) {
                 highlights = [];
                 triggerRedrawOverlay();
+                return;
             }
 
             if (typeof s == "number")
                 s = series[s];
 
-            if (typeof point == "number")
-                point = s.data[point];
+            if (typeof point == "number") {
+                var ps = s.datapoints.pointsize;
+                point = s.datapoints.points.slice(ps * point, ps * (point + 1));
+            }
 
             var i = indexOfHighlight(s, point);
             if (i != -1) {
@@ -2934,7 +2960,7 @@ Licensed under the MIT license.
         return plot;
     };
 
-    $.plot.version = "0.8.0-beta";
+    $.plot.version = "0.8.0";
 
     $.plot.plugins = [];
 

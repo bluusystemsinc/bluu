@@ -5,33 +5,14 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from crispy_forms import layout
-from crispy_forms.bootstrap import FormActions
-from .models import (Alert, UserAlertDevice, UserAlertConfig)
 
-
-class AlertConfigForm(forms.ModelForm):
-
-    def __init__(self, device_type, alert, **kwargs):
-        #self.helper = FormHelper()
-        #self.helper.form_tag = False
-
-        #text = layout.Field('text_notification', css_class="text_input", template='alerts/conf_checkbox_template.html')
-        #email = layout.Field('email_notification', css_class="email_input", template='alerts/conf_checkbox_template.html')
-
-        super(NotificationForm, self).__init__(**kwargs)
-        #self.fields['text_notification'].label = 'text'
-        #self.fields['email_notification'].label = 'email'
-        #self.helper.layout = layout.Layout(text, email)
-
-    class Meta:
-        model = UserAlertConfig
+from .models import (UserAlertDevice, UserAlertConfig)
 
 
 class DurationForm(forms.ModelForm):
 
-    def __init__(self, device_type, alert, **kwargs):
+    def __init__(self, **kwargs):
         super(DurationForm, self).__init__(**kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -50,7 +31,7 @@ class DurationForm(forms.ModelForm):
 
 class NotificationForm(forms.ModelForm):
 
-    def __init__(self, device_type, alert, **kwargs):
+    def __init__(self, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
@@ -66,4 +47,22 @@ class NotificationForm(forms.ModelForm):
         model = UserAlertConfig
         fields = ('text_notification', 'email_notification')
 
+
+class AlertDeviceForm(forms.ModelForm):
+
+    def __init__(self, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+        #text = layout.Field('text_notification', css_class="alert_config text_input", template='alerts/conf_checkbox_template.html')
+        #email = layout.Field('email_notification', css_class="alert_config email_input", template='alerts/conf_checkbox_template.html')
+
+        super(AlertDeviceForm, self).__init__(**kwargs)
+        #self.fields['text_notification'].label = 'text'
+        #self.fields['email_notification'].label = 'email'
+        self.helper.layout = layout.Layout('device')
+
+    class Meta:
+        model = UserAlertDevice
+        fields = ('device',)
 

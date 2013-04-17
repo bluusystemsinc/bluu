@@ -69,7 +69,7 @@ class UserAlertConfig(models.Model):
     alert = models.ForeignKey(
                 Alert,
                 verbose_name=_('alert'))
-    duration = models.IntegerField(_('duration', blank=True, null=True))
+    duration = models.IntegerField(_('duration'), blank=True, null=True)
     unit = models.CharField(_('unit'), blank=True, null=True, choices=Alert.UNITS,
                             max_length=2)
     email_notification = models.BooleanField(_('email notification'),
@@ -80,10 +80,11 @@ class UserAlertConfig(models.Model):
     class Meta:
         verbose_name = _("user alert configuration")
         verbose_name_plural = _("user alert configurations")
-        unique_together = ('user', 'alert')
+        unique_together = ('bluusite', 'device_type', 'user', 'alert')
 
     def __unicode__(self):
-        return u'{0} | {1}'.format(unicode(self.user.get_full_name()),
+        return u'{0} | {1}'.format(unicode(self.user.get_full_name() or \
+                                           self.user.username),
                                    unicode(self.alert.get_alert_type_display()))
 
 
@@ -111,7 +112,8 @@ class UserAlertDevice(models.Model):
         unique_together = ('user', 'device', 'alert')
 
     def __unicode__(self):
-        return u'{0} | {1} | {2}'.format(unicode(self.user.get_full_name()),
+        return u'{0} | {1} | {2}'.format(unicode(self.user.get_full_name() or\
+                                                 self.user.username),
                                    unicode(self.alert.get_alert_type_display()),
                                    unicode(self.device.name),
                                    )

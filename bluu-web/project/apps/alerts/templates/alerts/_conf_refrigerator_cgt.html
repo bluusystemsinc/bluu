@@ -1,30 +1,6 @@
-{% load i18n crispy_forms_tags %}
+{% extends "alerts/_conf_base_with_params.html" %}
 
-<table class="alert_cfg">
-  <tr>
-    <td class="alert_header alert_params">
-        <div class="description inner-left">
-          <p>{% trans "Alert when refrigerator has been closed longer than" %}:&nbsp;</p>
-        </div>
-        <div class="config inner-right">
-                {% crispy form form.helper %}
-        </div>
-    </td> 
-    <td class="alert_header notifications">
-        {% include "alerts/_incl_email_text_notification.html" %}
-    </td>
-  </tr>
-  {% for device in devices %}
-    <tr>
-      <td colspan="2">
-        <label class="checkbox block-left">
-            <input type="checkbox"
-                 class="device"
-                 data-device_id="{{ device.id }}"
-                 data-alert_id="{{ alert.id }}">
-          {{ device.name }}
-        </label>
-      </td>
-    </tr>
-  {% endfor %}
-</table>
+{% load i18n %}
+
+{% block alert_title %}{% trans "Alert when refrigerator has been closed longer than" %}:&nbsp;{% endblock alert_title %}
+

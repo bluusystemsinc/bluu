@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+
+{% for obj in forms %}
+<tr>
+  <td colspan="2">
+    <label class="checkbox block-left">
+        {% crispy obj.form obj.form.helper %} 
+        <!--input type="checkbox"
+             class="device"
+             data-device_id="{{ device.id }}"-->
+      {{ obj.device.name }}
+    </label>
+  </td>
+</tr>
+{% endfor %}

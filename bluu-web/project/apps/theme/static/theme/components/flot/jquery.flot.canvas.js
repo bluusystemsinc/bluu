@@ -67,6 +67,7 @@ browser, but needs to redraw with canvas text when exporting as an image.
 			// For each text layer, render elements marked as active
 
 			context.save();
+			context.textBaseline = "middle";
 
 			for (var layerKey in cache) {
 				if (hasOwnProperty.call(cache, layerKey)) {
@@ -85,11 +86,6 @@ browser, but needs to redraw with canvas text when exporting as an image.
 										continue;
 									}
 
-									var x = info.x,
-										y = info.y,
-										lines = info.lines,
-										halign = info.halign;
-
 									// Since every element at this level of the cache have the
 									// same font and fill styles, we can just change them once
 									// using the values from the first element.
@@ -100,48 +96,10 @@ browser, but needs to redraw with canvas text when exporting as an image.
 										updateStyles = false;
 									}
 
-									// TODO: Comments in Ole's implementation indicate that
-									// some browsers differ in their interpretation of 'top';
-									// so far I don't see this, but it requires more testing.
-									// We'll stick with top until this can be verified.
-
-									// Original comment was:
-									// Top alignment would be more natural, but browsers can
-									// differ a pixel or two in where they consider the top to
-									// be, so instead we middle align to minimize variation
-									// between browsers and compensate when calculating the
-									// coordinates.
-
-									context.textBaseline = "top";
-
+									var lines = info.lines;
 									for (var i = 0; i < lines.length; ++i) {
-
-										var line = lines[i],
-											linex = x;
-
-										// Apply horizontal alignment per-line
-
-										if (halign == "center") {
-											linex -= line.width / 2;
-										} else if (halign == "right") {
-											linex -= line.width;
-										}
-
-										// FIXME: LEGACY BROWSER FIX
-										// AFFECTS: Opera < 12.00
-
-										// Round the coordinates, since Opera otherwise
-										// switches to uglier (probably non-hinted) rendering.
-										// Also offset the y coordinate, since Opera is off
-										// pretty consistently compared to the other browsers.
-
-										if (!!(window.opera && window.opera.version().split(".")[0] < 12)) {
-											linex = Math.floor(linex);
-											y = Math.ceil(y - 2);
-										}
-
-										context.fillText(line.text, linex, y);
-										y += line.height;
+										var line = lines[i];
+										context.fillText(line.text, line.x, line.y);
 									}
 								}
 							}
@@ -219,22 +177,27 @@ browser, but needs to redraw with canvas text when exporting as an image.
 
 				if (typeof font !== "object") {
 
-					var element = $("<div></div>").html(text)
+					var element = $("<div>&nbsp;</div>")
+						.css("position", "absolute")
 						.addClass(typeof font === "string" ? font : null)
-						.css({
-							position: "absolute",
-							top: -9999
-						})
 						.appendTo(this.getTextLayer(layer));
 
 					font = {
+						lineHeight: element.height(),
 						style: element.css("font-style"),
 						variant: element.css("font-variant"),
 						weight: element.css("font-weight"),
-						size: parseInt(element.css("font-size"), 10),
 						family: element.css("font-family"),
 						color: element.css("color")
 					};
+
+					// Setting line-height to 1, without units, sets it equal
+					// to the font-size, even if the font-size is abstract,
+					// like 'smaller'.  This enables us to read the real size
+					// via the element's height, working around browsers that
+					// return the literal 'smaller' value.
+
+					font.size = element.css("line-height", 1).height();
 
 					element.remove();
 				}
@@ -245,8 +208,6 @@ browser, but needs to redraw with canvas text when exporting as an image.
 				// zero so we can count them up line-by-line.
 
 				info = styleCache[text] = {
-					x: null,
-					y: null,
 					width: 0,
 					height: 0,
 					active: false,
@@ -270,28 +231,15 @@ browser, but needs to redraw with canvas text when exporting as an image.
 				for (var i = 0; i < lines.length; ++i) {
 
 					var lineText = lines[i],
-						measured = context.measureText(lineText),
-						lineWidth, lineHeight;
+						measured = context.measureText(lineText);
 
-					lineWidth = measured.width;
-
-					// Height might not be defined; not in the standard yet
-
-					lineHeight = measured.height || font.size;
-
-					// Add a bit of margin since font rendering is not pixel
-					// perfect and cut off letters look bad.  This also doubles
-					// as spacing between lines.
-
-					lineHeight += Math.round(font.size * 0.15);
-
-					info.width = Math.max(lineWidth, info.width);
-					info.height += lineHeight;
+					info.width = Math.max(measured.width, info.width);
+					info.height += font.lineHeight;
 
 					info.lines.push({
 						text: lineText,
-						width: lineWidth,
-						height: lineHeight
+						width: measured.width,
+						height: font.lineHeight
 					});
 				}
 
@@ -309,25 +257,52 @@ browser, but needs to redraw with canvas text when exporting as an image.
 				return addText.call(this, layer, x, y, text, font, angle, halign, valign);
 			}
 
-			var info = this.getTextInfo(layer, text, font, angle);
-
-			info.x = x;
-			info.y = y;
+			var info = this.getTextInfo(layer, text, font, angle),
+				lines = info.lines;
 
 			// Mark the text for inclusion in the next render pass
 
 			info.active = true;
 
-			// Save horizontal alignment for later; we'll apply it per-line
+			// Text is drawn with baseline 'middle', which we need to account
+			// for by adding half a line's height to the y position.
 
-			info.halign = halign;
+			y += info.height / lines.length / 2;
 
 			// Tweak the initial y-position to match vertical alignment
 
 			if (valign == "middle") {
-				info.y = y - info.height / 2;
+				y = Math.round(y - info.height / 2);
 			} else if (valign == "bottom") {
-				info.y = y - info.height;
+				y = Math.round(y - info.height);
+			} else {
+				y = Math.round(y);
+			}
+
+			// FIXME: LEGACY BROWSER FIX
+			// AFFECTS: Opera < 12.00
+
+			// Offset the y coordinate, since Opera is off pretty
+			// consistently compared to the other browsers.
+
+			if (!!(window.opera && window.opera.version().split(".")[0] < 12)) {
+				y -= 2;
+			}
+
+			// Fill in the x & y positions of each line, adjusting them
+			// individually for horizontal alignment.
+
+			for (var i = 0; i < lines.length; ++i) {
+				var line = lines[i];
+				line.y = y;
+				y += line.height;
+				if (halign == "center") {
+					line.x = Math.round(x - line.width / 2);
+				} else if (halign == "right") {
+					line.x = Math.round(x - line.width);
+				} else {
+					line.x = Math.round(x);
+				}
 			}
 		};
 	}

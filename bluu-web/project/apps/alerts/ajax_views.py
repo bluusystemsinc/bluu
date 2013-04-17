@@ -1,29 +1,25 @@
 # -*- coding: utf-8 -*-
 from django.http import Http404
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
-from django.conf import settings
-from django.contrib.auth.models import Group
-from django.template import Context
-from django.utils.decorators import method_decorator
-from django.template.loader import get_template
-from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse
-from django.contrib import messages
 
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import permissions
-from rest_framework import generics
-from django_datatables_view.base_datatable_view import BaseDatatableView
-from guardian.decorators import permission_required_or_403
-
-from grontextual.models import UserObjectGroup
+from rest_framework import (serializers, status, permissions, generics)
 
 from bluusites.models import BluuSite
-
-from .forms import (AlertConfigForm, DurationForm, NotificationForm)
 from .models import (UserAlertDevice, UserAlertConfig)
+
+
+class UserAlertConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAlertConfig
+        fields = ('user', 'device_type', 'alert', 'duration', 'unit', 
+                  'email_notification', 'text_notification')
+
+
+class UserAlertDeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAlertDevice
+        fields = ('user', 'device', 'alert', 'duration', 'unit', 
+                  'email_notification', 'text_notification')
 
 
 class UserAlertConfigSetView(generics.GenericAPIView):
@@ -31,7 +27,6 @@ class UserAlertConfigSetView(generics.GenericAPIView):
     Set alert configuration for user
     """
     permission_classes = (permissions.IsAuthenticated,)
-    model = UserAlertConfig
 
     def get_site(self, pk):
         try:
@@ -39,41 +34,37 @@ class UserAlertConfigSetView(generics.GenericAPIView):
         except BluuSite.DoesNotExist:
             raise Http404
 
-    def post(self, request, pk, format=None):
+    def get_object(self, bluusite, data):
+        try:
+            return UserAlertConfig.objects.get(
+                                            bluusite=bluusite,
+                                            user=data.get('user'),
+                                            device_type=data.get('device_type'),
+                                            alert=data.get('alert'))
+        except UserAlertConfig.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        """
+        Create a new UserAlertConfig
+        """
         site = self.get_site(pk)
-        print request.DATA
 
+        self.object = None
+        try:
+            self.object = self.get_object(site, request.DATA)
+        except Http404:
+            success_status_code = status.HTTP_201_CREATED
+        else:
+            success_status_code = status.HTTP_200_OK
 
-        form = AlertConfigForm(request.DATA,
-                               request=request,
-                               site=site)
+        serializer = UserAlertConfigSerializer(self.object, data=request.DATA)
+        if serializer.is_valid():
+            serializer.object.bluusite = site
+            serializer.save()
+            return Response(serializer.data, status=success_status_code)
  
-        if form.is_valid():
-            group = form.cleaned_data.get('group', None)
-            email = form.cleaned_data.get('email', None)
-            is_assigned = site.assign_user(request.user, email, group)
-            if is_assigned:
-                return Response({'email': email,
-                                 'group': request.DATA['group']},
-                                status=status.HTTP_201_CREATED)
-            else:
-                return Response({'errors': {
-                                    'has_access': _('{} already has access'.\
-                                                            format(email))}},
-                                 status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'errors': form.errors},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-    @method_decorator(permission_required_or_403('bluusites.change_bluusite',
-                                                 (BluuSite, 'pk', 'pk'),
-                                                 accept_global_perms=True))
-    @method_decorator(permission_required_or_403('bluusites.add_bluusiteaccess',
-                                                 (BluuSite, 'pk', 'pk'),
-                                                 accept_global_perms=True))
-    def dispatch(self, *args, **kwargs):
-        return super(AlertCfgCreateView, self).dispatch(*args, **kwargs)
-
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserAlertDeviceSetView(generics.GenericAPIView):
@@ -81,7 +72,6 @@ class UserAlertDeviceSetView(generics.GenericAPIView):
     Set alert for user for specific device
     """
     permission_classes = (permissions.IsAuthenticated,)
-    model = UserAlertDevice
 
     def get_site(self, pk):
         try:
@@ -89,37 +79,30 @@ class UserAlertDeviceSetView(generics.GenericAPIView):
         except BluuSite.DoesNotExist:
             raise Http404
 
-    def post(self, request, pk, format=None):
-        site = self.get_site(pk)
-        print request.DATA
-        return 1
-        form = SiteInvitationForm(request.DATA,
-                                     request=request,
-                                     site=site)
+    def get_object(self, data):
+        try:
+            return UserAlertDevice.objects.get(user=data.get('user'),
+                                               device=data.get('device'),
+                                               alert=data.get('alert'))
+        except UserAlertDevice.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        """
+        Create a new UserAlertDevice
+        """
+        self.object = None
+        try:
+            self.object = self.get_object(request.DATA)
+        except Http404:
+            success_status_code = status.HTTP_201_CREATED
+        else:
+            success_status_code = status.HTTP_200_OK
+
+        serializer = UserAlertDeviceSerializer(self.object, data=request.DATA)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=success_status_code)
  
-        if form.is_valid():
-            group = form.cleaned_data.get('group', None)
-            email = form.cleaned_data.get('email', None)
-            is_assigned = site.assign_user(request.user, email, group)
-            if is_assigned:
-                return Response({'email': email,
-                                 'group': request.DATA['group']},
-                                status=status.HTTP_201_CREATED)
-            else:
-                return Response({'errors': {
-                                    'has_access': _('{} already has access'.\
-                                                            format(email))}},
-                                 status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'errors': form.errors},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-    @method_decorator(permission_required_or_403('bluusites.change_bluusite',
-                                                 (BluuSite, 'pk', 'pk'),
-                                                 accept_global_perms=True))
-    @method_decorator(permission_required_or_403('bluusites.add_bluusiteaccess',
-                                                 (BluuSite, 'pk', 'pk'),
-                                                 accept_global_perms=True))
-    def dispatch(self, *args, **kwargs):
-        return super(AlertCfgCreateView, self).dispatch(*args, **kwargs)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

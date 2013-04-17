@@ -39,61 +39,40 @@
   <script charset="utf-8" type="text/javascript">
   var SITE_ID = {{ bluusite.pk }};
   var USER_ID = {{ user.pk }};
-  var SET_ALERT_URL = "{% url "site_alerts:user_alert_config_set" bluusite.pk %}";
+  var SET_ALERT_CONFIG_URL = "{% url "site_alerts:user_alert_config_set" bluusite.pk %}";
+  var SET_ALERT_URL = "{% url "site_alerts:user_alert_device_set" bluusite.pk %}";
 
   $(document).ready(function() {
 
     $('.alert_config').change(function(event){
+      // save alert configuration when changed
+      var alert_cfg, data;
+      alert_cfg = $(this).closest('.alert_cfg');
+      data = Bluu.get_config_data(alert_cfg);
 
-      // get notification parameters for clicked device
-      var alert_cfg = $(this).closest('.alert_cfg');
-      var device_type_id = alert_cfg.data('device_type_id');
-      var alert_id = alert_cft.data('alert_id');
-
-      var notifications = alert_cfg.find('.notification');
-
-      var text = notifications.find('input.text_input');
-      var text_val = $(text).is(':checked');
-      var email = notifications.find('input.email_input');
-      var email_val = $(email).is(':checked');
-      
-      var durak_val = null;
-      var unit_val = null;
-
-      var durak = alert_cfg.find('input.duration');
-      var unit = alert_cfg.find('select.unit');
-      if (durak || units){
-          var durak_val = durak.val();
-          var unit_val = unit.val();
-      }
-
-      Bluu.set_alert(USER_ID, alert_id, device_type_id, durak_val, unit_val, text_val, email_val)
+      Bluu.set_alert_config(USER_ID,
+                            data.alert_id,
+                            data.device_type_id,
+                            data.duration,
+                            data.unit,
+                            data.text,
+                            data.email_val)
     });
 
     $('.device').change(function(event){
-      var device_id = $(this).data('device_id');
-      var alert_id = $(this).data('alert_id');
+      // set alert for device when device checked / unchecked
+      var alert_cfg, data, device_id;
+      alert_cfg = $(this).closest('.alert_cfg');
+      data = Bluu.get_config_data(alert_cfg);
+      device_id = $(this).data('device_id');
 
-      // get notification parameters for clicked device
-      var alert_cfg = $(this).closest('.alert_cfg');
-      var notifications = alert_cfg.find('.notification');
-
-      var text = notifications.find('input.text_input');
-      var text_val = $(text).is(':checked');
-      var email = notifications.find('input.email_input');
-      var email_val = $(email).is(':checked');
-      
-      var durak_val = null;
-      var unit_val = null;
-
-      var durak = alert_cfg.find('input.duration');
-      var unit = alert_cfg.find('select.unit');
-      if (durak || units){
-          var durak_val = durak.val();
-          var unit_val = unit.val();
-      }
-
-      Bluu.set_alert(USER_ID, alert_id, device_id, durak_val, unit_val, text_val, email_val)
+      Bluu.set_alert(USER_ID,
+                     data.alert_id,
+                     device_id,
+                     data.duration,
+                     data.unit,
+                     data.text,
+                     data.email_val)
     }); 
   });
 </script>
