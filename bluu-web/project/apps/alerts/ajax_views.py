@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from devices.models import DeviceType
 from django.http import Http404
+from django.utils.translation import ugettext_lazy as _
 
 from rest_framework.response import Response
 from rest_framework import (serializers, status, permissions, generics)
 
-from bluusites.models import BluuSite
-from .models import (UserAlertDevice, UserAlertConfig)
+from bluusites.models import BluuSite, Room
+from .models import (UserAlertDevice, UserAlertConfig, UserAlertRoom)
 
 
 class UserAlertConfigSerializer(serializers.ModelSerializer):
@@ -19,6 +21,13 @@ class UserAlertDeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAlertDevice
         fields = ('user', 'device', 'alert', 'duration', 'unit', 
+                  'email_notification', 'text_notification')
+
+
+class UserAlertRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAlertRoom
+        fields = ('user', 'room', 'alert', 'duration', 'unit', 
                   'email_notification', 'text_notification')
 
 
@@ -89,7 +98,7 @@ class UserAlertDeviceSetView(generics.GenericAPIView):
 
     def post(self, request, pk):
         """
-        Create a new UserAlertDevice
+        Create or delete UserAlertDevice depending on checkbox state
         """
         self.object = None
         try:
@@ -97,9 +106,59 @@ class UserAlertDeviceSetView(generics.GenericAPIView):
         except Http404:
             success_status_code = status.HTTP_201_CREATED
         else:
+            if not request.DATA.get('checked', False):
+                self.object.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
             success_status_code = status.HTTP_200_OK
 
         serializer = UserAlertDeviceSerializer(self.object, data=request.DATA)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=success_status_code)
+ 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserAlertRoomSetView(generics.GenericAPIView):
+    """
+    Set alert for user for specific room
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_site(self, pk):
+        try:
+            return BluuSite.objects.get(pk=pk)
+        except BluuSite.DoesNotExist:
+            raise Http404
+
+    def get_object(self, data):
+        try:
+            return UserAlertRoom.objects.get(user=data.get('user'),
+                                             room=data.get('room'),
+                                             alert=data.get('alert'))
+        except UserAlertRoom.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        """
+        Create or delete UserAlertRoom depending on checkbox state
+        """
+        room = Room.objects.get(pk=request.DATA.get('room'))
+        if not room.device_set.filter(device_type__name=DeviceType.MOTION).count() > 1:
+            return Response({'room': ['No devices in this room']}, status=status.HTTP_400_BAD_REQUEST)
+
+        self.object = None
+        try:
+            self.object = self.get_object(request.DATA)
+        except Http404:
+            success_status_code = status.HTTP_201_CREATED
+        else:
+            if not request.DATA.get('checked', False):
+                self.object.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            success_status_code = status.HTTP_200_OK
+
+        serializer = UserAlertRoomSerializer(self.object, data=request.DATA)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=success_status_code)

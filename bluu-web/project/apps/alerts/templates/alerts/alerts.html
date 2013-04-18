@@ -40,7 +40,8 @@
   var SITE_ID = {{ bluusite.pk }};
   var USER_ID = {{ user.pk }};
   var SET_ALERT_CONFIG_URL = "{% url "site_alerts:user_alert_config_set" bluusite.pk %}";
-  var SET_ALERT_URL = "{% url "site_alerts:user_alert_device_set" bluusite.pk %}";
+  var SET_DEVICE_ALERT_URL = "{% url "site_alerts:user_alert_device_set" bluusite.pk %}";
+  var SET_ROOM_ALERT_URL = "{% url "site_alerts:user_alert_room_set" bluusite.pk %}";
 
   $(document).ready(function() {
 
@@ -56,24 +57,44 @@
                             data.duration,
                             data.unit,
                             data.text,
-                            data.email_val)
+                            data.email)
     });
 
     $('.device').change(function(event){
       // set alert for device when device checked / unchecked
-      var alert_cfg, data, device_id;
+      var alert_cfg, data, device_id, checked;
       alert_cfg = $(this).closest('.alert_cfg');
       data = Bluu.get_config_data(alert_cfg);
       device_id = $(this).data('device_id');
+      checked = $(this).is(':checked');
 
-      Bluu.set_alert(USER_ID,
+      Bluu.set_device_alert(checked,
+                            USER_ID,
+                            data.alert_id,
+                            device_id,
+                            data.duration,
+                            data.unit,
+                            data.text,
+                            data.email)
+    }); 
+
+    $('.room').change(function(event){
+      // set alert for room when room checked / unchecked
+      var alert_cfg, data, room_id, checked;
+      alert_cfg = $(this).closest('.alert_cfg');
+      data = Bluu.get_config_data(alert_cfg);
+      room_id = $(this).data('room_id');
+      checked = $(this).is(':checked');
+
+      Bluu.set_room_alert(checked,
+                     USER_ID,
                      data.alert_id,
-                     device_id,
+                     room_id,
                      data.duration,
                      data.unit,
                      data.text,
-                     data.email_val)
-    }); 
+                     data.email)
+    });
   });
 </script>
 {% endblock %}

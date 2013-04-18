@@ -18,18 +18,4 @@
     </td>
   </tr>
   {% devices_for_alert user bluusite device_type alert %}
-  {% comment %}
-  {% for device in devices %}
-    <tr>
-      <td colspan="2">
-        <label class="checkbox block-left">
-            <input type="checkbox"
-                 class="device"
-                 data-device_id="{{ device.id }}">
-          {{ device.name }}
-        </label>
-      </td>
-    </tr>
-  {% endfor %}
-  {% endcomment %}
 </table>

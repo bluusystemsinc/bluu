@@ -5,10 +5,12 @@ from django import template
 from django.template import Library
 from django.utils.translation import ugettext as _
 from django.forms.models import modelformset_factory
+from django.db.models import Count
 
-from devices.models import Device
+from devices.models import (Device, DeviceType)
+from bluusites.models import Room
 from ..forms import (AlertDeviceForm, DurationForm, NotificationForm)
-from ..models import (UserAlertDevice, UserAlertConfig)
+from ..models import (UserAlertDevice, UserAlertConfig, UserAlertRoom)
 
 register = Library()
 
@@ -105,27 +107,55 @@ class AlertDeviceNode(template.Node):
         device_type = self.device_type_var.resolve(context)
         alert = self.alert_var.resolve(context)
 
-        device_forms = []
-        devices = Device.objects.filter(bluusite=bluusite,
-                                        device_type=device_type)
-        for device in devices:
-            try:
-                instance = UserAlertDevice.objects.get(user=user.pk,
-                                                       device=device.pk,
-                                                       alert=alert.pk)
-                form = AlertDeviceForm(instance=instance)
-            except UserAlertDevice.DoesNotExist:
-                form = AlertDeviceForm(initial={'device': False})
-                device_forms.append({'form': form,
-                                     'device': device})
+        if device_type.name == DeviceType.MOTION:
+            forms = []
+            rooms = Room.objects.annotate(num_devices=Count('device')).\
+                filter(bluusite=bluusite, num_devices__gt=1)
+            for room in rooms:
+                try:
+                    UserAlertRoom.objects.get(user=user.pk,
+                                              room=room.pk,
+                                              alert=alert.pk)
+                    selected = True
+                except UserAlertRoom.DoesNotExist:
+                    selected = False
+                
+                forms.append({'selected': selected,
+                              'room': room,
+                              'name': room.name})
 
-        t = template.loader.get_template('alerts/conf_alert_device.html')
+            t = template.loader.get_template('alerts/conf_alert_room.html')
 
-        ctx = template.Context({'alert': alert,
-                                'user': request.user,
-                                'forms': device_forms,
-                                'device_type': device_type,
-                                },
-                               autoescape=context.autoescape)
+            ctx = template.Context({'alert': alert,
+                                    'user': request.user,
+                                    'forms': forms,
+                                    'device_type': device_type,
+                                    },
+                                   autoescape=context.autoescape)
+        else:
+            forms = []
+            devices = Device.objects.filter(bluusite=bluusite,
+                                            device_type=device_type)
+            for device in devices:
+                try:
+                    UserAlertDevice.objects.get(user=user.pk,
+                                                           device=device.pk,
+                                                           alert=alert.pk)
+                    selected = True
+                except UserAlertDevice.DoesNotExist:
+                    selected = False
+                
+                forms.append({'selected': selected,
+                              'device': device,
+                              'name': device.name})
+
+            t = template.loader.get_template('alerts/conf_alert_device.html')
+
+            ctx = template.Context({'alert': alert,
+                                    'user': request.user,
+                                    'forms': forms,
+                                    'device_type': device_type,
+                                    },
+                                   autoescape=context.autoescape)
         return t.render(ctx)
 

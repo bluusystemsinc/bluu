@@ -50,6 +50,8 @@ class NotificationForm(forms.ModelForm):
 
 class AlertDeviceForm(forms.ModelForm):
 
+    checked = forms.BooleanField(required=False)
+
     def __init__(self, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
@@ -60,9 +62,9 @@ class AlertDeviceForm(forms.ModelForm):
         super(AlertDeviceForm, self).__init__(**kwargs)
         #self.fields['text_notification'].label = 'text'
         #self.fields['email_notification'].label = 'email'
-        self.helper.layout = layout.Layout('device')
+        self.helper.layout = layout.Layout('checked')
 
     class Meta:
         model = UserAlertDevice
-        fields = ('device',)
+        fields = ('checked',)
 

@@ -1,10 +1,6 @@
+{% extends "alerts/_conf_base.html" %}
+
 {% load i18n %}
 
-<table width="100%">
-  <tr>
-    <td class="name">{{ alert.alert_type }}</td> 
-  </tr>
-  <tr>
-  </tr>
-</table>
+{% block alert_title %}{% trans "Alert when motion is detected in room(s)" %}:&nbsp;{% endblock alert_title %}
 

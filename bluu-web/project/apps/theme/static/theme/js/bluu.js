@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true*/
-/*global jQuery, SET_ALERT_CONFIG_URL:false, SET_ALERT_URL:false, JSON */
+/*global jQuery, SET_ALERT_CONFIG_URL:false, SET_DEVICE_ALERT_URL:false, SET_ROOM_ALERT_URL:false, JSON */
 
 var Bluu = (function ($) {
     "use strict";
@@ -20,20 +20,50 @@ var Bluu = (function ($) {
 
             return data;
         },
-        set_alert = function (user_id, alert_id, device_id, duration, unit, text, email) {
-            if (typeof SET_ALERT_URL !== 'undefined') {
+        set_device_alert = function (checked, user_id, alert_id, device_id, duration, unit, text, email) {
+            if (typeof SET_DEVICE_ALERT_URL !== 'undefined') {
                 var data = {
+                    'checked': checked,
                     'user': user_id,
                     'alert': alert_id,
                     'device': device_id,
                     'duration': duration,
                     'unit': unit,
-                    'email_notification': email,
-                    'text_notification': text
+                    'text_notification': text,
+                    'email_notification': email
                 };
                 $.ajax({
                     type: "POST",
-                    url: SET_ALERT_URL,
+                    url: SET_DEVICE_ALERT_URL,
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data);
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            } else {
+                console.log('Error! SET_ALERT_URL is not defined.');
+            }
+        },
+        set_room_alert = function (checked, user_id, alert_id, room_id, duration, unit, text, email) {
+            if (typeof SET_ROOM_ALERT_URL !== 'undefined') {
+                var data = {
+                    'checked': checked,
+                    'user': user_id,
+                    'alert': alert_id,
+                    'room': room_id,
+                    'duration': duration,
+                    'unit': unit,
+                    'text_notification': text,
+                    'email_notification': email
+                };
+                $.ajax({
+                    type: "POST",
+                    url: SET_ROOM_ALERT_URL,
                     data: JSON.stringify(data),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
@@ -56,8 +86,8 @@ var Bluu = (function ($) {
                     'device_type': device_type_id,
                     'duration': duration,
                     'unit': unit,
-                    'text_notification': text,
-                    'email_notification': email
+                    'email_notification': email,
+                    'text_notification': text
                 };
                 $.ajax({
                     type: "POST",
@@ -79,7 +109,8 @@ var Bluu = (function ($) {
 
     return {
         get_config_data: get_config_data,
-        set_alert: set_alert,
+        set_device_alert: set_device_alert,
+        set_room_alert: set_room_alert,
         set_alert_config: set_alert_config
     };
 
