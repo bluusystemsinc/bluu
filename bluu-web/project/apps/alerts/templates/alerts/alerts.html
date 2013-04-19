@@ -1,12 +1,18 @@
 {% extends "alerts/alerts_base.html" %}
 {% load i18n crispy_forms_tags grontextual_tags theme_tags alert_tags %}
 
+{% get_uog_perms request.user for bluusite as "site_perms" %}
+
 {% block title %}
     {% trans 'Alerts' %} |
 {% endblock %}
 
 {% block breadcrumbs %}
-{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; {% trans "Alerts" %}
+    {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
+        {% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; {% trans "Alerts" %}
+    {% else %}
+        <a href="{% url "dashboard" %}">{% trans "Dashboard" %}</a> &gt; {% trans "Alerts" %}
+    {% endif %}
 {% endblock breadcrumbs %}
 
 
@@ -17,9 +23,8 @@
 
 {% block main %}
 {{ block.super }}
-{% get_uog_perms request.user for bluusite as "bluusite_perms" %}
 
-<div ng-controller="AlertConfController">
+<div>
 {% for device_type in device_types %}
     {% if not forloop.counter|divisibleby:2 %}
     <div class="row-fluid box-row-fluid">

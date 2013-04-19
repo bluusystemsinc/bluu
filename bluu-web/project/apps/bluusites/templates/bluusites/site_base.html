@@ -8,23 +8,27 @@
             {{ bluusite.first_name }} {{ bluusite.last_name }}
       </h4>
       <div class="detail-box detail">
-        {% trans "Lastest IP" %}: {{ bluusite.ip|default:"---" }}
+        {% trans "Serial" %}: {{ bluusite.slug }}<br />
+        {% trans "Last IP" %}: {{ bluusite.ip|default:"---" }}
       </div>
       <ul class="nav nav-list">
-        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' bluusite.pk %}">{% trans "Site Details" %}</a></li>{% endif %}
-        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}<li class="{% active request "^/sites/\d+/access" %}"><a href="{% url 'site_access' bluusite.pk %}">{% trans "Access management" %}</a></li>{% endif %}
+        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
+            <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' bluusite.pk %}">{% trans "Site Details" %}</a></li>
+        {% endif %}
+        <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}">{% trans "Alerts" %}</a></li>
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
             {% if perms.bluusites.browse_devices or "browse_devices" in site_perms %}    
             {% block devices %}<li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' bluusite.pk %}">{% trans "Device management" %}</a></li>{% endblock devices %}
             {% endif %}
         {% endif %}
-
         {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
             {% if perms.bluusites.browse_rooms or "browse_rooms" in site_perms %}    
             <li class="{% active request "^/sites/\d+/rooms" %}"><a href="{% url 'room_list' bluusite.pk %}">{% trans "Room management" %}</a></li>
             {% endif %}
         {% endif %}
-
+        {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
+            <li class="{% active request "^/sites/\d+/access" %}"><a href="{% url 'site_access' bluusite.pk %}">{% trans "Access management" %}</a></li>
+        {% endif %}
         <li class="divider"></li>
         {% if perms.bluusites.delete_bluusite or "delete_bluusite" in site_perms %}<li><a href="{% url 'site_delete' bluusite.id %}" onclick="return confirm('{% trans "Are you sure you want delete this site?" %}')">{% trans 'Delete site' %}</a></li>{% endif %}
       </ul>

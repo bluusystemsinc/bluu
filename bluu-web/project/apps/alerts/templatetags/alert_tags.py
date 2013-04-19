@@ -109,8 +109,11 @@ class AlertDeviceNode(template.Node):
 
         if device_type.name == DeviceType.MOTION:
             forms = []
-            rooms = Room.objects.annotate(num_devices=Count('device')).\
-                filter(bluusite=bluusite, num_devices__gt=1)
+            # get all rooms that have devices of type MOTION
+            rooms = Room.objects.filter(bluusite=bluusite,
+                                        device__device_type=device_type)
+            #rooms = rooms.annotate(num_devices=Count('device')).\
+            #    filter(num_devices__gte=1)
             for room in rooms:
                 try:
                     UserAlertRoom.objects.get(user=user.pk,

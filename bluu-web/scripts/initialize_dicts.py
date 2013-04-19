@@ -38,4 +38,11 @@ def run():
     mirlt.device_types.add(motion)
     nmirgt, created = Alert.objects.get_or_create(alert_type=Alert.NOMOTION_IN_ROOM_GREATER_THAN)
     nmirgt.device_types.add(motion)
+    #scale
+    wgt, created = Alert.objects.get_or_create(alert_type=Alert.WEIGHT_GREATER_THAN)
+    wgt.device_types.add(scale)
+    wlt, created = Alert.objects.get_or_create(alert_type=Alert.WEIGHT_LESS_THAN)
+    wlt.device_types.add(scale)
+    su, created = Alert.objects.get_or_create(alert_type=Alert.SCALE_USED)
+    su.device_types.add(scale)
 

@@ -1,0 +1,21 @@
+{% load i18n crispy_forms_tags alert_tags %}
+
+
+<table class="alert_cfg" data-alert_id="{{ alert.id }}" data-device_type_id="{{ device_type.id }}">
+  <tr>
+    <td class="alert_header alert_params">
+        <div class="description inner-left">
+          <p>{% block alert_title %}{% endblock alert_title %}</p>
+        </div>
+        <div class="config inner-right">
+            {% crispy wform wform.helper %}
+        </div>
+    </td> 
+    <td class="alert_header notifications">
+      <div class="notification_wrapper">
+          {% crispy nform nform.helper %}
+      </div>
+    </td>
+  </tr>
+  {% devices_for_alert user bluusite device_type alert %}
+</table>

@@ -117,19 +117,12 @@ a:hover, a:focus {
 
 /* line 95, ../sass/login.scss */
 .loginform {
-  max-width: 600px;
-  width: 60%;
+  width: 300px;
 }
 
 @media (max-width: 767px) {
-  /* line 101, ../sass/login.scss */
+  /* line 100, ../sass/login.scss */
   .loginform {
-    width: 80%;
-  }
-}
-@media (min-width: 768px) and (max-width: 979px) {
-  /* line 107, ../sass/login.scss */
-  .loginform {
-    width: 60%;
+    width: 70%;
   }
 }

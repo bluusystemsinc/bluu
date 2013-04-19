@@ -342,20 +342,24 @@ table.table thead .sorting_desc_disabled {
   width: 50px;
   text-align: center;
 }
+/* line 299, ../sass/style.scss */
+.alert_cfg label.checkbox {
+  width: 100%;
+}
 
-/* line 300, ../sass/style.scss */
+/* line 304, ../sass/style.scss */
 .input-mili {
   width: 30px;
   text-align: right;
 }
 
 @media (min-width: 768px) and (max-width: 979px) {
-  /* line 308, ../sass/style.scss */
+  /* line 312, ../sass/style.scss */
   .box-row-fluid {
     width: 100%;
   }
 
-  /* line 314, ../sass/style.scss */
+  /* line 318, ../sass/style.scss */
   [class*="span"],
   .uneditable-input[class*="span"],
   .box-row-fluid [class*="span"] {
@@ -368,7 +372,7 @@ table.table thead .sorting_desc_disabled {
     box-sizing: border-box;
   }
 
-  /* line 322, ../sass/style.scss */
+  /* line 326, ../sass/style.scss */
   .span12,
   .box-row-fluid .span12 {
     width: 100%;
@@ -377,7 +381,7 @@ table.table thead .sorting_desc_disabled {
     box-sizing: border-box;
   }
 
-  /* line 326, ../sass/style.scss */
+  /* line 330, ../sass/style.scss */
   .box-row-fluid [class*="offset"]:first-child {
     margin-left: 0;
   }

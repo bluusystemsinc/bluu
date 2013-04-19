@@ -393,6 +393,15 @@ class BluuSiteAccess(models.Model):
             return self.user.email
         return self.email
 
+    @property
+    def get_email_or_username(self):
+        noemail = _('--- (username: %(username)s)')
+        ret = self.email
+        if not ret and (self.user is not None):
+            ret = self.user.email or noemail % {'username': self.user.username}
+        return ret or '---'
+
+
 
 class Room(models.Model):
     bluusite = models.ForeignKey(BluuSite)

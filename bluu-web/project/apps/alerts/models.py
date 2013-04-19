@@ -26,6 +26,9 @@ class Alert(models.Model):
     MOTION_IN_ROOM_GREATER_THAN = 'mirgt'
     MOTION_IN_ROOM_LESS_THAN = 'mirlt'
     NOMOTION_IN_ROOM_GREATER_THAN = 'nmirgt'
+    WEIGHT_GREATER_THAN = 'wgt'
+    WEIGHT_LESS_THAN = 'wlt'
+    SCALE_USED = 'su'
 
     ALERT_CHOICES = (
              (OPEN, _('open')),
@@ -38,6 +41,9 @@ class Alert(models.Model):
              (MOTION_IN_ROOM_GREATER_THAN, _('motion in room greater than')),
              (MOTION_IN_ROOM_LESS_THAN, _('motion in room less than')),
              (NOMOTION_IN_ROOM_GREATER_THAN, _('no motion in room greater than')),
+             (WEIGHT_GREATER_THAN, _('weight greater than')),
+             (WEIGHT_LESS_THAN, _('weight less than')),
+             (SCALE_USED, _('scale used')),
             )
 
     SECONDS = 's'

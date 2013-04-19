@@ -52,13 +52,19 @@ class BluuSiteListJson(BaseDatatableView):
             no = int(self.request.GET.get('iDisplayStart', 0)) + 1
         except (ValueError, TypeError):
             no = 0
-
+        user = self.request.user
         for item in qs:
-            actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
-                    reverse('site_edit', args=(item.pk,)), _('Manage'),
-                    reverse('site_delete', args=(item.pk,)), 
-                    _('Are you sure you want delete this site?'),
-                    _('Delete'))
+            if user.has_perm('bluusites.change_bluusite', item):
+                actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
+                        reverse('site_edit', args=(item.pk,)), _('Manage'),
+                        reverse('site_delete', args=(item.pk,)),
+                        _('Are you sure you want delete this site?'),
+                        _('Delete'))
+            elif user.has_perm('bluusites.view_bluusite', item):
+                actions = '<a href="{0}">{1}</a>'.format(
+                        reverse('site_alerts:alert_list', args=(item.pk,)), _('Alerts'))
+            else:
+                actions = '---'
             json_data.append(
                 {
                     "no": no,
@@ -107,7 +113,8 @@ class BluuSiteAccessListJson(BaseDatatableView):
         qs = BluuSiteAccess.objects.filter(site=self.bluusite).\
                 exclude(user__username__startswith=\
                             settings.WEBSERVICE_USERNAME_PREFIX,
-                        user__is_active=False)
+                        user__is_active=False).\
+                exclude(user__groups__name='WebService')
         # number of records before filtering
         total_records = qs.count()
         qs = self.filter_queryset(qs)
@@ -182,13 +189,12 @@ class BluuSiteAccessListJson(BaseDatatableView):
         for access in qs:
             rendered_groups = self._render_access_level(access,
                                                         current_access_pk)
-
             json_data.append(
                 {
                     "access":{
                         "no": no,
                         "id": access.pk,
-                        "email": access.get_email,
+                        "email": access.get_email_or_username,
                         "groups": rendered_groups,
                         "invitation": access.invitations.filter(registrant__isnull=True).exists(),
                         "current_user_access_id": current_access_pk

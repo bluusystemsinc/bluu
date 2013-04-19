@@ -110,9 +110,9 @@ class BluuUser(AbstractUser):
     def can_see_sites(self, perm='bluusites.view_bluusite'):
         sites = self.get_sites(perm=perm)
         scount = sites.count()
+        #if (self.has_perm('bluusites.browse_bluusites') and \
+            #self.has_perm('bluusites.add_bluusite')) or \
         if (self.has_perm('bluusites.browse_bluusites') and \
-            self.has_perm('bluusites.add_bluusite')) or \
-            (self.has_perm('bluusites.browse_bluusites') and \
             self._can_add_sites()) or \
            (scount > 1): 
             """

@@ -295,6 +295,10 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
         text-align: center;
       }
     }
+
+    label.checkbox{
+      width: 100%;
+    }
 }
 
 .input-mili{
@@ -326,6 +330,4 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
   .box-row-fluid [class*="offset"]:first-child {
     margin-left: 0;
   }
-
-
 }

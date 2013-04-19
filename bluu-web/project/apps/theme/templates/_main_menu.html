@@ -1,32 +1,41 @@
 {% load i18n grontextual_tags theme_tags compress %}
 <ul class="nav">
     {% if user.is_authenticated %}
-        <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Dashboard" %}</a></li>
+        <li class="{% active request "^/dashboard/" %}"><a href="/"><i class="icon-home"></i> {% trans "Dashboard" %}</a></li>
     {% else %}
         <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Home Page" %}</a></li>
     {% endif %}
     {% if user.is_authenticated %}
-        {% if main_menu.company %}
-            <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.company.pk %}"><i class="icon-th-large"></i> {% trans "Company" %}</a></li>
-        {% elif main_menu.companies %}
+        {% if main_menu.companies.company %}
+            <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.companies.company.pk %}"><i class="icon-th-large"></i> {% trans "Company" %}</a></li>
+        {% elif main_menu.companies.companies %}
             <li class="{% active request "^/companies/" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
         {% else %}
         {% comment %}<li><a href="#"><i class="icon-th-large"></i> {% trans "No companies assigned" %}</a></li>{% endcomment %}
         {% endif %}
 
-        {% if main_menu.bluusite %}
-            <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' main_menu.bluusite.bluusite.pk %}">{% trans "Site management" %}</a></li>
-            {% if main_menu.bluusite.can_browse_devices %}
-                <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'devices:device_list' main_menu.bluusite.bluusite.pk %}">{% trans "Device management" %}</a></li>
-            {% endif %}
-            {% if main_menu.bluusite.can_browse_rooms %}
-                <li class="{% active request "^/sites/\d+/rooms" %}"><a href="{% url 'room_list' main_menu.bluusite.bluusite.pk %}">{% trans "Room management" %}</a></li>
-            {% endif %}
-        {% elif main_menu.bluusites %}
+        {% if main_menu.bluusites.manage.bluusite %}
+            {% with m_bluusite=main_menu.bluusites.manage.bluusite %}
+                <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' m_bluusite.bluusite.pk %}">{% trans "Site management" %}</a></li>
+                {% if m_bluusite.can_browse_devices %}
+                    <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'devices:device_list' m_bluusite.bluusite.pk %}">{% trans "Device management" %}</a></li>
+                {% endif %}
+                {% if m_bluusite.can_browse_rooms %}
+                    <li class="{% active request "^/sites/\d+/rooms" %}"><a href="{% url 'room_list' m_bluusite.bluusite.pk %}">{% trans "Room management" %}</a></li>
+                {% endif %}
+            {% endwith %}
+        {% elif main_menu.bluusites.manage.bluusites %}
             <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
-        {% else %}
-        {% comment %}<li><a href="#"><i class="icon-eye-open"></i> {% trans "No sites assigned" %}</a></li>{% endcomment %}
+        {% elif main_menu.bluusites.view.bluusite %}
+            {% with m_bluusite=main_menu.bluusites.view.bluusite %}
+                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' m_bluusite.bluusite.pk %}">{% trans "Alerts" %}</a></li>
+            {% endwith %}
+        {% elif main_menu.bluusites.view.bluusites %}
+            {% if bluusite %}
+                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}">{% trans "Alerts" %}</a></li>
+            {%  endif %}
         {% endif %}
+
         {% if perms.accounts.browse_bluuusers %}
             <li class="{% active request "^/accounts/users/" %}"><a href="{% url 'bluuuser_list' %}"><i class="icon-user"></i> {% trans "Users" %}</a></li>
         {% endif %}

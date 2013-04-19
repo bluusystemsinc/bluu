@@ -24,13 +24,22 @@ def active(request, pattern):
 def main_menu(context):
     request = context['request']
     user = request.user
-    menu_dict = {'main_menu':{}}
+    menu_dict = {'main_menu':{
+        'companies': {},
+        'bluusites': {
+            'manage': {},
+            'view': {}
+        }
+    }}
 
     if user.is_authenticated():
-        menu_dict['main_menu'].update(
+        menu_dict['main_menu']['companies'].update(
                         user.can_see_companies(perm='companies.change_company'))
-        menu_dict['main_menu'].update(
+        menu_dict['main_menu']['bluusites']['manage'].update(
                         user.can_see_sites(perm='bluusites.change_bluusite'))
+        menu_dict['main_menu']['bluusites']['view'].update(
+                        user.can_see_sites(perm='bluusites.view_bluusite'))
+    print menu_dict
     context.update(menu_dict)
     return context
 
