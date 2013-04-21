@@ -54,13 +54,15 @@ class BluuSiteListJson(BaseDatatableView):
             no = 0
         user = self.request.user
         for item in qs:
-            if user.has_perm('bluusites.change_bluusite', item):
+            if user.has_perm('bluusites.change_bluusite') or\
+                    user.has_perm('bluusites.change_bluusite', item):
                 actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
                         reverse('site_edit', args=(item.pk,)), _('Manage'),
                         reverse('site_delete', args=(item.pk,)),
                         _('Are you sure you want delete this site?'),
                         _('Delete'))
-            elif user.has_perm('bluusites.view_bluusite', item):
+            elif user.has_perm('bluusites.view_bluusite') or\
+                    user.has_perm('bluusites.view_bluusite', item):
                 actions = '<a href="{0}">{1}</a>'.format(
                         reverse('site_alerts:alert_list', args=(item.pk,)), _('Alerts'))
             else:
