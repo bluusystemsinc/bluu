@@ -7,13 +7,21 @@ from rest_framework.response import Response
 from rest_framework import (serializers, status, permissions, generics)
 
 from bluusites.models import BluuSite, Room
-from .models import (UserAlertDevice, UserAlertConfig, UserAlertRoom)
+from .models import (UserAlertDevice, UserAlertConfig, UserAlertWeightConfig,
+                     UserAlertRoom)
 
 
 class UserAlertConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAlertConfig
         fields = ('user', 'device_type', 'alert', 'duration', 'unit', 
+                  'email_notification', 'text_notification')
+
+
+class UserAlertWeightConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAlertWeightConfig
+        fields = ('user', 'device_type', 'alert', 'weight',
                   'email_notification', 'text_notification')
 
 
@@ -73,6 +81,51 @@ class UserAlertConfigSetView(generics.GenericAPIView):
             serializer.save()
             return Response(serializer.data, status=success_status_code)
  
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserAlertWeightConfigSetView(generics.GenericAPIView):
+    """
+    Set weight alert configuration for user
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_site(self, pk):
+        try:
+            return BluuSite.objects.get(pk=pk)
+        except BluuSite.DoesNotExist:
+            raise Http404
+
+    def get_object(self, bluusite, data):
+        try:
+            return UserAlertWeightConfig.objects.get(
+                                            bluusite=bluusite,
+                                            user=data.get('user'),
+                                            device_type=data.get('device_type'),
+                                            alert=data.get('alert'))
+        except UserAlertWeightConfig.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        """
+        Create a new UserAlertConfig
+        """
+        site = self.get_site(pk)
+
+        self.object = None
+        try:
+            self.object = self.get_object(site, request.DATA)
+        except Http404:
+            success_status_code = status.HTTP_201_CREATED
+        else:
+            success_status_code = status.HTTP_200_OK
+
+        serializer = UserAlertWeightConfigSerializer(self.object, data=request.DATA)
+        if serializer.is_valid():
+            serializer.object.bluusite = site
+            serializer.save()
+            return Response(serializer.data, status=success_status_code)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

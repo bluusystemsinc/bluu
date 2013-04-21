@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 
-from .models import (UserAlertDevice, UserAlertConfig)
+from .models import (UserAlertDevice, UserAlertConfig, UserAlertWeightConfig)
 
 
 class DurationForm(forms.ModelForm):
@@ -27,6 +27,22 @@ class DurationForm(forms.ModelForm):
     class Meta:
         model = UserAlertConfig
         fields = ('duration', 'unit')
+
+
+class WeightForm(forms.ModelForm):
+
+    def __init__(self, **kwargs):
+        super(WeightForm, self).__init__(**kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+        weight = layout.Field('weight', css_class="alert_weight_config input-mili weight", maxlength="3", template='alerts/conf_weight_template.html')
+
+        self.helper.layout = layout.Layout(weight,)
+
+    class Meta:
+        model = UserAlertWeightConfig
+        fields = ('weight',)
 
 
 class NotificationForm(forms.ModelForm):
@@ -56,12 +72,7 @@ class AlertDeviceForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
-        #text = layout.Field('text_notification', css_class="alert_config text_input", template='alerts/conf_checkbox_template.html')
-        #email = layout.Field('email_notification', css_class="alert_config email_input", template='alerts/conf_checkbox_template.html')
-
         super(AlertDeviceForm, self).__init__(**kwargs)
-        #self.fields['text_notification'].label = 'text'
-        #self.fields['email_notification'].label = 'email'
         self.helper.layout = layout.Layout('checked')
 
     class Meta:

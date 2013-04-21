@@ -6,6 +6,20 @@
         <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Home Page" %}</a></li>
     {% endif %}
     {% if user.is_authenticated %}
+        {% if main_menu.bluusites.view.bluusite %}
+            <li class="divider-vertical"></li>
+            {% with m_bluusite=main_menu.bluusites.view.bluusite %}
+                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' m_bluusite.bluusite.pk %}">{% trans "Alerts" %}</a></li>
+            {% endwith %}
+            <li class="divider-vertical"></li>
+        {% elif main_menu.bluusites.view.bluusites %}
+            {% if bluusite %}
+                <li class="divider-vertical"></li>
+                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}">{% trans "Alerts" %}</a></li>
+                <li class="divider-vertical"></li>
+            {%  endif %}
+        {% endif %}
+
         {% if main_menu.companies.company %}
             <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.companies.company.pk %}"><i class="icon-th-large"></i> {% trans "Company" %}</a></li>
         {% elif main_menu.companies.companies %}

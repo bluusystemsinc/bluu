@@ -2,6 +2,7 @@ import datetime
 import re
 
 from django import template
+from django.core.exceptions import ObjectDoesNotExist
 from django.template import Library
 from django.utils.translation import ugettext as _
 from django.forms.models import modelformset_factory
@@ -9,8 +10,8 @@ from django.db.models import Count
 
 from devices.models import (Device, DeviceType)
 from bluusites.models import Room
-from ..forms import (AlertDeviceForm, DurationForm, NotificationForm)
-from ..models import (UserAlertDevice, UserAlertConfig, UserAlertRoom)
+from ..forms import (AlertDeviceForm, DurationForm, NotificationForm, WeightForm)
+from ..models import (UserAlertDevice, UserAlertConfig, UserAlertRoom, UserAlertWeightConfig)
 
 register = Library()
 
@@ -53,16 +54,24 @@ class AlertBoxNode(template.Node):
 
         devices = Device.objects.filter(bluusite=bluusite,
                                         device_type=device_type)
+
+        if device_type.name == DeviceType.SCALE:
+            cform = WeightForm
+            cinitial = {'weight': 0}
+        else:
+            cform = DurationForm
+            cinitial = {'duration': 0, 'unit': 'h'}
+
         try:
-            instance = UserAlertConfig.objects.get(
+            instance = UserAlertWeightConfig.objects.get(
                             bluusite=bluusite.pk,
                             user=user.pk,
                             device_type=device_type.pk,
                             alert=alert.pk)
-            dform = DurationForm(instance=instance)
+            cform = cform(instance=instance)
             nform = NotificationForm(instance=instance)
-        except UserAlertConfig.DoesNotExist:
-            dform = DurationForm(initial={'duration': 0, 'unit': 'h'})
+        except ObjectDoesNotExist:
+            cform = cform(initial=cinitial)
             nform = NotificationForm(initial={'text_notification': False,
                                               'email_notification': False})
 
@@ -73,11 +82,12 @@ class AlertBoxNode(template.Node):
                                 'bluusite': bluusite,
                                 'alert': alert,
                                 'user': request.user,
-                                'dform': dform,
+                                'cform': cform,
                                 'nform': nform,
                                 'device_type': device_type,
                                 'devices': devices},
                                autoescape=context.autoescape)
+
         return t.render(ctx)
 
 

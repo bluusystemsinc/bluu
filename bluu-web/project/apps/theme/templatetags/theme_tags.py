@@ -39,7 +39,6 @@ def main_menu(context):
                         user.can_see_sites(perm='bluusites.change_bluusite'))
         menu_dict['main_menu']['bluusites']['view'].update(
                         user.can_see_sites(perm='bluusites.view_bluusite'))
-    print menu_dict
     context.update(menu_dict)
     return context
 

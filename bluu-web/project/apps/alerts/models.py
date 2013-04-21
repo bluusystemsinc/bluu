@@ -97,6 +97,32 @@ class UserAlertConfig(models.Model):
                                    unicode(self.alert.get_alert_type_display()))
 
 
+class UserAlertWeightConfig(models.Model):
+    bluusite = models.ForeignKey(BluuSite)
+    device_type = models.ForeignKey(DeviceType)
+    user = models.ForeignKey(
+                settings.AUTH_USER_MODEL,
+                verbose_name=_('user'))
+    alert = models.ForeignKey(
+                Alert,
+                verbose_name=_('alert'))
+    weight = models.IntegerField(_('weight'), blank=True, null=True)
+    email_notification = models.BooleanField(_('email notification'),
+                                             default=True)
+    text_notification = models.BooleanField(_('text notification'),
+                                            default=False)
+
+    class Meta:
+        verbose_name = _("user alert weight configuration")
+        verbose_name_plural = _("user alert weight configurations")
+        unique_together = ('bluusite', 'device_type', 'user', 'alert')
+
+    def __unicode__(self):
+        return u'{0} | {1}'.format(unicode(self.user.get_full_name() or \
+                                           self.user.username),
+                                   unicode(self.alert.get_alert_type_display()))
+
+
 class UserAlertDevice(models.Model):
     """
     Set alerts for specific device's

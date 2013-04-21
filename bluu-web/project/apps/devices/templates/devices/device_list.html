@@ -36,5 +36,7 @@
         {% if forloop.counter|divisibleby:2 or forloop.last %}
         </div>
         {% endif %}
+    {% empty %}
+        <p>{% trans "No devices in this site." %}</p>
     {% endfor %}
 {% endblock %}
