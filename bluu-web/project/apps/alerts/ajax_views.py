@@ -197,7 +197,7 @@ class UserAlertRoomSetView(generics.GenericAPIView):
         Create or delete UserAlertRoom depending on checkbox state
         """
         room = Room.objects.get(pk=request.DATA.get('room'))
-        if not room.device_set.filter(device_type__name=DeviceType.MOTION).count() > 1:
+        if not room.device_set.filter(device_type__name=DeviceType.MOTION).exists():
             return Response({'room': ['No devices in this room']}, status=status.HTTP_400_BAD_REQUEST)
 
         self.object = None
