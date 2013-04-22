@@ -40,7 +40,7 @@
             {% endwith %}
         {% elif main_menu.bluusites.manage.bluusites %}
             <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
-        {% elif main_menu.bluusites.view.bluusite %}
+        {% comment %}{% elif main_menu.bluusites.view.bluusite %}
             {% with m_bluusite=main_menu.bluusites.view.bluusite %}
                 <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' m_bluusite.bluusite.pk %}">{% trans "Alerts" %}</a></li>
             {% endwith %}
@@ -48,6 +48,7 @@
             {% if bluusite %}
                 <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}">{% trans "Alerts" %}</a></li>
             {%  endif %}
+        {% endcomment %}
         {% endif %}
 
         {% if perms.accounts.browse_bluuusers %}

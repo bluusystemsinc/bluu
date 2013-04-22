@@ -42,10 +42,9 @@ class AlertsConfigurationView(TemplateView):
     @method_decorator(permission_required('bluusites.browse_bluusites', 
                                           accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
-        sites = self.request.user.can_see_sites(perm='bluusites.change_bluusite')
-        site = sites.get('bluusite', None)
-        if site is not None:
-            return redirect('site_edit', pk=site.pk)
-
+        #sites = self.request.user.can_see_sites(perm='bluusites.change_bluusite')
+        #site = sites.get('bluusite', None)
+        #if site is not None:
+        #    return redirect('site_edit', pk=site.pk)
         return super(AlertsConfigurationView, self).dispatch(*args, **kwargs)
 
