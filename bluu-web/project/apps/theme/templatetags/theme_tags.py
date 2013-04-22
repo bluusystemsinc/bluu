@@ -59,7 +59,7 @@ def bluusites_breadcrumb(context):
     request = context['request']
     user = request.user
  
-    if user.can_see_sites(perm='bluusites.change_bluusite').\
+    if user.can_see_sites(perm='bluusites.view_bluusite').\
             get('bluusite', None) is not None:
         return {'single': True}
     return {'single': False}
