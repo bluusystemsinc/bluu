@@ -58,12 +58,14 @@ class AlertBoxNode(template.Node):
         if device_type.name == DeviceType.SCALE:
             cform = WeightForm
             cinitial = {'weight': 0}
+            config_class = UserAlertWeightConfig
         else:
             cform = DurationForm
             cinitial = {'duration': 0, 'unit': 'h'}
+            config_class = UserAlertConfig
 
         try:
-            instance = UserAlertWeightConfig.objects.get(
+            instance = config_class.objects.get(
                             bluusite=bluusite.pk,
                             user=user.pk,
                             device_type=device_type.pk,

@@ -53,7 +53,7 @@ class DeviceStatusCreateView(generics.CreateAPIView):
         has_permissions = all(request.user.has_perm(perm) for perm in perms)
         # if no permission granted then try object perms
         if not has_permissions:
-            has_permissions = all(request.user.has_perm(perm, self.object) \
+            has_permissions = all(request.user.has_perm(perm, bluusite) \
                                                             for perm in perms)
 
         if not has_permissions:
@@ -66,6 +66,9 @@ class DeviceStatusCreateView(generics.CreateAPIView):
                                          partial=True)
         if serializer.is_valid():
             serializer.object.device = device
+            serializer.object.device_type = device.device_type
+            serializer.object.bluusite = device.bluusite
+            serializer.object.room = device.room
             self.pre_save(serializer.object)
             self.object = serializer.save()
             self.post_save(self.object, created=True)
@@ -135,4 +138,3 @@ class SiteHeartBeatView(generics.UpdateAPIView):
             success_status_code = status.HTTP_200_OK
             return Response(serializer.data, status=success_status_code)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-

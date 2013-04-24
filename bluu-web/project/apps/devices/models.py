@@ -20,7 +20,7 @@ class DeviceType(models.Model):
     REFRIGERATOR = 'Refrigerator'
     SCALE = 'Scale'
     SEAT = 'Seat'
-    WINDOW  = 'Window'
+    WINDOW = 'Window'
     DEVICE_TYPE_CHOICES = (
         (BED, _('Bed')),
         (BLOOD_PRESSURE, _('Blood Pressure')),
@@ -33,7 +33,9 @@ class DeviceType(models.Model):
         (WINDOW, _('Window')),
     )
 
-    name = models.CharField(_('name'), max_length=255)
+    #name = models.CharField(_('name'), max_length=255)
+    name = models.CharField(_('name'), max_length=15,
+                            choices=DEVICE_TYPE_CHOICES)
     icon = models.ImageField(_('icon'), upload_to='resources/devices/icons')
 
     class Meta:
@@ -119,6 +121,10 @@ class Status(models.Model):
                                    editable=False,
                                    auto_now_add=True)
     device = models.ForeignKey(Device)
+    bluusite = models.ForeignKey('bluusites.BluuSite', db_index=True)
+    device_type = models.ForeignKey(DeviceType, db_index=True)
+    room = models.ForeignKey('bluusites.Room', db_index=True)
+
     data = models.IntegerField(_('data'))
     signal = models.IntegerField(_('signal'))
     float_data = models.FloatField(_('float data'), null=True, blank=True)
@@ -130,7 +136,7 @@ class Status(models.Model):
     input4 = models.BooleanField(_('input4'))
     supervisory = models.BooleanField(_('supervisory'))
     tamper = models.BooleanField(_('tamper'))
-    timestamp = models.DateTimeField(_('timestamp'))
+    timestamp = models.DateTimeField(_('timestamp'), db_index=True)
 
     class Meta:
         verbose_name = _("status")

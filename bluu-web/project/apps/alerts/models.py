@@ -135,7 +135,7 @@ class UserAlertDevice(models.Model):
                 verbose_name=_('alert'))
     device = models.ForeignKey(
                 Device,
-                verbose_name=_('device'))
+                verbose_name=_('device'), db_index=True)
     duration = models.IntegerField(_('duration'), blank=True, null=True)
     unit = models.CharField(_('unit'), blank=True, null=True, choices=Alert.UNITS,
                             max_length=2)
@@ -182,6 +182,29 @@ class UserAlertRoom(models.Model):
                                          unicode(self.alert.get_alert_type_display()),
                                          unicode(self.room.name),
                                         )
+
+
+class AlertRunner(models.Model):
+    """
+    Set alerts to be run.
+    """
+    when = models.DateTimeField(_('when'), db_index=True)
+    user_alert_device = models.ForeignKey(UserAlertDevice, null=True,
+                                          blank=True)
+    user_alert_room = models.ForeignKey(UserAlertRoom, null=True, blank=True)
+
+    # last signal that triggered this alert was seen at
+    since = models.DateTimeField(_('since'))
+    is_active = models.BooleanField(_('active'), default=True)
+
+
+    class Meta:
+        verbose_name = _("alert runner")
+        verbose_name_plural = _("alert runners")
+
+    #def __unicode__(self):
+    #    return u'{0} | {1} | {2}'.format(unicode(self.when),
+    #                                    )
 
 
 @receiver(post_save, sender=UserAlertConfig)

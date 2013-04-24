@@ -402,7 +402,6 @@ class BluuSiteAccess(models.Model):
         return ret or '---'
 
 
-
 class Room(models.Model):
     bluusite = models.ForeignKey(BluuSite)
     name = models.CharField(_('name'), max_length=255)

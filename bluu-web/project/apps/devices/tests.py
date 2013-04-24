@@ -43,9 +43,9 @@ class SignalsTestCase(WebTest):
                      "action": "on", 
                      "data": "123"}
         self.app.post(
-                reverse('v1:create_status', 
+                reverse('v1:create_status',
                         kwargs={'site_slug':self.bluusite1.slug,
-                                'device_pk':self.device1.pk}),
+                                'device_slug':self.device1.serial}),
                 json.dumps(form_data),
                 content_type='application/json;charset=utf-8',
                 user='ws',
@@ -64,9 +64,9 @@ class SignalsTestCase(WebTest):
                      "action": "on", 
                      "data": "123"}
         self.app.post(
-                reverse('v1:create_status', 
+                reverse('v1:create_status',
                         kwargs={'site_slug':self.bluusite1.slug,
-                                'device_pk':self.device1.pk}),
+                                'device_slug':self.device1.serial}),
                 json.dumps(form_data),
                 content_type='application/json;charset=utf-8',
                 user='ws',
@@ -88,9 +88,9 @@ class SignalsTestCase(WebTest):
                      "action": "on", 
                      "data": "123"}
         self.app.post(
-                reverse('v1:create_status', 
+                reverse('v1:create_status',
                         kwargs={'site_slug':self.bluusite1.slug,
-                                'device_pk':self.device1.pk}),
+                                'device_slug':self.device1.serial}),
                 json.dumps(form_data),
                 content_type='application/json;charset=utf-8',
                 user='ws',

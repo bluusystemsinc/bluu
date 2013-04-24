@@ -26,12 +26,12 @@
 {% block main %}
 {{ block.super }}
 
-<div>
+<div class="">
 {% for device_type in device_types %}
     {% if not forloop.counter|divisibleby:2 %}
     <div class="row-fluid box-row-fluid">
     {% endif %}
-        <div class="box-span6 span6">
+        <div class="box-span6 span5">
             {% alerts_for_device_type bluusite device_type %}
         </div>
     {% if forloop.counter|divisibleby:2 or forloop.last %}
@@ -42,6 +42,10 @@
 {% endfor %}
 </div>
 {% endblock %}
+
+{% block js_compress %}
+<script src="{{ STATIC_URL }}theme/components/jquery-masonry/jquery.masonry.min.js"></script>
+{% endblock js_compress %}
 
 {% block javascript %}
   {{ block.super }}
@@ -54,6 +58,13 @@
   var SET_ROOM_ALERT_URL = "{% url "site_alerts:user_alert_room_set" bluusite.pk %}";
 
   $(document).ready(function() {
+
+
+    $('.masonry-container').masonry({
+        // options
+        itemSelector : '.alertbox'
+        //columnWidth : 240
+    });
 
     $('.alert_config').change(function(event){
       // save alert configuration when changed
