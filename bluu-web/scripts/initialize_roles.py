@@ -269,6 +269,8 @@ def run():
         perm_add_bluusiteaccess,
         perm_change_bluusiteaccess,
         perm_delete_bluusiteaccess,
+
+        perm_browse_devices,
         ]
 
     """
@@ -286,6 +288,7 @@ def run():
         perm_change_user,
         perm_browse_sites,
         perm_view_site,
+        perm_browse_devices,
     ]
 
     """

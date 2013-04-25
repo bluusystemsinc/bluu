@@ -301,6 +301,12 @@ table.table thead .sorting_desc_disabled { background: url(#{$datatables-media}/
     }
 }
 
+.row-fluid{
+  .masonry-brick{
+    margin-left: 0;
+  }
+}
+
 .input-mili{
    width: 30px;
    text-align: right;

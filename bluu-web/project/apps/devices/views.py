@@ -32,10 +32,10 @@ class DeviceListView(TemplateView):
             'device_types': device_types,
         }
 
-    @method_decorator(permission_required(
-                        'bluusites.change_bluusite',
-                        (BluuSite, 'pk', 'site_pk'),
-                        accept_global_perms=True))
+    #@method_decorator(permission_required(
+    #                    'bluusites.change_bluusite',
+    #                    (BluuSite, 'pk', 'site_pk'),
+    #                    accept_global_perms=True))
     @method_decorator(permission_required(
                         'bluusites.browse_devices',
                         (BluuSite, 'pk', 'site_pk'),
@@ -139,7 +139,7 @@ class DeviceUpdateView(UpdateView):
 
 
 @permission_required('bluusites.delete_device',
-                     (BluuSite, 'pk', 'site_pk'))
+                     (BluuSite, 'pk', 'site_pk'), accept_global_perms=True)
 def device_delete(request, site_pk, pk):
     obj = get_object_or_404(Device, pk=pk)
     obj.delete()
@@ -165,7 +165,7 @@ class DeviceHistoryListView(TemplateView):
         }
 
     @method_decorator(permission_required(
-                        'bluusites.change_bluusite',
+                        'bluusites.view_bluusite',
                         (BluuSite, 'pk', 'site_pk'),
                         accept_global_perms=True))
     @method_decorator(permission_required(

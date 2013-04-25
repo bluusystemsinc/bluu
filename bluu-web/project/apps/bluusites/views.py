@@ -20,8 +20,7 @@ class SiteListView(TemplateView):
     template_name = "bluusites/site_list.html"
 
     @method_decorator(login_required)
-    @method_decorator(permission_required('bluusites.browse_bluusites', 
-                                          accept_global_perms=True))
+    @method_decorator(permission_required('bluusites.browse_bluusites'))
     def dispatch(self, *args, **kwargs):
         sites = self.request.user.can_see_sites(perm='bluusites.change_bluusite')
         site = sites.get('bluusite', None)
@@ -101,7 +100,8 @@ class SiteAccessListView(TemplateView):
         return super(SiteAccessListView, self).dispatch(*args, **kwargs)
 
 
-@permission_required('bluusites.delete_bluusite', (BluuSite, 'pk', 'pk'))
+@permission_required('bluusites.delete_bluusite', (BluuSite, 'pk', 'pk'),
+                     accept_global_perms=True)
 def site_delete(request, pk):
     obj = get_object_or_404(BluuSite, pk=pk)
     obj.delete()
@@ -308,7 +308,8 @@ class RoomUpdateView(UpdateView):
 
 
 @permission_required('bluusites.delete_room',
-                     (BluuSite, 'pk', 'site_pk'))
+                     (BluuSite, 'pk', 'site_pk'),
+                     accept_global_perms=True)
 def room_delete(request, site_pk, pk):
     obj = get_object_or_404(Room, pk=pk)
     obj.delete()

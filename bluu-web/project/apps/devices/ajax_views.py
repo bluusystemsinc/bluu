@@ -75,14 +75,14 @@ class DeviceListJson(BaseDatatableView):
             actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
                     reverse('devices:device_edit', args=(device.bluusite_id, device.pk,)), _('Manage'),
                     reverse('devices:device_delete', args=(device.bluusite_id, device.pk,)), 
-                    _('Are you sure you want delete this device?'),
+                    _('Are you sure you want to delete this device?'),
                     _('Delete'))
 
             #actions = '<a href="{0}">{1}</a>'.format(
             #        reverse('devices:device_edit',
             #                args=(device.bluusite_id, device.pk,)),
             #        _('Manage'))
-
+            print actions
             json_data.append(
                 {
                     "device":{
@@ -172,17 +172,6 @@ class DeviceHistoryListJson(BaseDatatableView):
             no = 0
 
         for status in qs:
-            #actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
-            #        reverse('devices:device_edit', args=(device.bluusite_id, device.pk,)), _('Manage'),
-            #        reverse('devices:device_delete', args=(device.bluusite_id, device.pk,)), 
-            #        _('Are you sure you want delete this device?'),
-            #        _('Delete'))
-
-            #actions = '<a href="{0}">{1}</a>'.format(
-            #        reverse('devices:device_edit',
-            #                args=(device.bluusite_id, device.pk,)),
-            #        _('Manage'))
-
             json_data.append(
                 {
                     "device":{
@@ -198,7 +187,7 @@ class DeviceHistoryListJson(BaseDatatableView):
         return json_data
 
     @method_decorator(permission_required_or_403(
-        'bluusites.change_bluusite',
+        'bluusites.view_bluusite',
         (BluuSite, 'pk', 'site_pk'),
         accept_global_perms=True))
     @method_decorator(permission_required_or_403(

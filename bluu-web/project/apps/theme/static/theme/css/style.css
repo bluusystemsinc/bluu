@@ -347,19 +347,24 @@ table.table thead .sorting_desc_disabled {
   width: 100%;
 }
 
-/* line 304, ../sass/style.scss */
+/* line 305, ../sass/style.scss */
+.row-fluid .masonry-brick {
+  margin-left: 0;
+}
+
+/* line 310, ../sass/style.scss */
 .input-mili {
   width: 30px;
   text-align: right;
 }
 
 @media (min-width: 768px) and (max-width: 979px) {
-  /* line 312, ../sass/style.scss */
+  /* line 318, ../sass/style.scss */
   .box-row-fluid {
     width: 100%;
   }
 
-  /* line 318, ../sass/style.scss */
+  /* line 324, ../sass/style.scss */
   [class*="span"],
   .uneditable-input[class*="span"],
   .box-row-fluid [class*="span"] {
@@ -372,7 +377,7 @@ table.table thead .sorting_desc_disabled {
     box-sizing: border-box;
   }
 
-  /* line 326, ../sass/style.scss */
+  /* line 332, ../sass/style.scss */
   .span12,
   .box-row-fluid .span12 {
     width: 100%;
@@ -381,7 +386,7 @@ table.table thead .sorting_desc_disabled {
     box-sizing: border-box;
   }
 
-  /* line 330, ../sass/style.scss */
+  /* line 336, ../sass/style.scss */
   .box-row-fluid [class*="offset"]:first-child {
     margin-left: 0;
   }

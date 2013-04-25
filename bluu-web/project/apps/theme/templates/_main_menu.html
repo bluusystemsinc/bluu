@@ -9,13 +9,16 @@
         {% if main_menu.bluusites.view.bluusite %}
             <li class="divider-vertical"></li>
             {% with m_bluusite=main_menu.bluusites.view.bluusite %}
-                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' m_bluusite.bluusite.pk %}">{% trans "Alerts" %}</a></li>
+                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' m_bluusite.bluusite.pk %}"><i class="icon-warning-sign"></i> {% trans "Alerts" %}</a></li>
+                <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' m_bluusite.bluusite.pk %}"><i class="icon-eye-open"></i> {% trans "Devices" %}</a></li>
             {% endwith %}
+
             <li class="divider-vertical"></li>
         {% elif main_menu.bluusites.view.bluusites %}
             {% if bluusite %}
                 <li class="divider-vertical"></li>
-                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}">{% trans "Alerts" %}</a></li>
+                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}"><i class="icon-warning-sign"></i> {% trans "Alerts" %}</a></li>
+                <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' bluusite.pk %}"><i class="icon-eye-open"></i> {% trans "Devices" %}</a></li>
                 <li class="divider-vertical"></li>
             {%  endif %}
         {% endif %}

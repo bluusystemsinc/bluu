@@ -1,5 +1,8 @@
-{% load i18n thumbnail %}
+{% load i18n thumbnail grontextual_tags %}
 
+{% get_uog_perms request.user for bluusite as "site_perms" %}
+
+{% if perms.bluusites.browse_devices or "browse_devices" in site_perms %}
 <div class="mod monitor row-fluid">
   <div class="inner span12">
     <div class="hd">
@@ -10,13 +13,21 @@
         {% for device in devices %}
         <tr>
           <td class="name">{{ device.name }}</td> 
-          <td class="status"><div class="circle {% if device.is_online %}online{% else %}offline{% endif %}"></div></td> 
-          <td class="action center"><a href="{% url "site_devices:device_edit" bluusite.pk device.pk %}">{% trans "Manage" %}</a></td> 
-          <td class="action center"><a href="{% url "site_devices:device_history" bluusite.pk device.pk %}">{% trans "History" %}</a></td> 
-          <td class="action center"><a href="{% url "site_devices:device_delete" bluusite.pk device.pk %}">{% trans "Delete" %}</a></td> 
+          <td class="status"><div class="circle {% if device.is_online %}online{% else %}offline{% endif %}"></div></td>
+          {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
+            <td class="action center"><a href="{% url "site_devices:device_edit" bluusite.pk device.pk %}">{% trans "Manage" %}</a></td>
+          {% endif %}
+          <td class="action center"><a href="{% url "site_devices:device_history" bluusite.pk device.pk %}">{% trans "History" %}</a></td>
+          {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
+          <td class="action center">
+              <a href="{% url "site_devices:device_delete" bluusite.pk device.pk %}"
+                              onclick="return confirm('{%  trans "Are you sure you want to delete this device?" %}');">{% trans "Delete" %}</a>
+          </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </table>
     </div>
   </div>
 </div>
+{% endif %}
