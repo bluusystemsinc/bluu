@@ -12,6 +12,32 @@ from bluusites.models import BluuSite
 from utils.misc import get_client_ip
 
 
+def is_heartbeat(device, status):
+    """
+    Checks if last device status is equal to incoming status
+    :param device: device under check
+    :param status: incoming status
+    :return: Boolean
+    """
+    try:
+        latest = Status.objects.filter(device=device).latest('created')
+        if latest.data == status.data['data'] and \
+                        latest.signal == status.data['signal'] and \
+                        latest.float_data == status.data['float_data'] and \
+                        latest.action == status.data['action'] and \
+                        latest.battery == status.data['battery'] and \
+                        latest.input1 == status.data['input1'] and \
+                        latest.input2 == status.data['input2'] and \
+                        latest.input3 == status.data['input3'] and \
+                        latest.input4 == status.data['input4'] and \
+                        latest.supervisory == status.data['supervisory'] and \
+                        latest.tamper == status.data['tamper']:
+            return True
+    except Status.DoesNotExist:
+        pass
+    return False
+
+
 class DeviceStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status
@@ -44,7 +70,7 @@ class DeviceStatusCreateView(generics.CreateAPIView):
         device = get_object_or_404(Device, bluusite=bluusite, serial=serial)
 
         # Permissions check has to be called here and not as a dispatch 
-        # decorator because of defered user authentication in DRF.
+        # decorator because of deferred user authentication in DRF.
         # DRF authenticates user inside it's dispatch.
         has_permissions = False
         perms = ['bluusites.browse_devices', 'bluusites.change_device']
@@ -54,7 +80,7 @@ class DeviceStatusCreateView(generics.CreateAPIView):
         # if no permission granted then try object perms
         if not has_permissions:
             has_permissions = all(request.user.has_perm(perm, bluusite) \
-                                                            for perm in perms)
+                                  for perm in perms)
 
         if not has_permissions:
             return HttpResponse(status=403)
@@ -64,18 +90,24 @@ class DeviceStatusCreateView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=data, files=request.FILES,
                                          partial=True)
+        timestamp = datetime.now()
         if serializer.is_valid():
-            serializer.object.device = device
-            serializer.object.device_type = device.device_type
-            serializer.object.bluusite = device.bluusite
-            serializer.object.room = device.room
-            self.pre_save(serializer.object)
-            self.object = serializer.save()
-            self.post_save(self.object, created=True)
+            # check if signal is only a heartbeat
+            if not is_heartbeat(device, serializer):
+                serializer.object.device = device
+                serializer.object.device_type = device.device_type
+                serializer.object.bluusite = device.bluusite
+                serializer.object.room = device.room
+                self.pre_save(serializer.object)
+                self.object = serializer.save()
+                self.post_save(self.object, created=True)
+                timestamp = self.object.created
 
             # send signal with caller ip address
             data_received.send(sender=Status,
-                               instance=serializer.object,
+                               data=serializer.data,
+                               device=device,
+                               timestamp=timestamp,
                                ip_address=get_client_ip(request))
             headers = self.get_success_headers(data)
             # revert data to be returned to contain serial instead of device

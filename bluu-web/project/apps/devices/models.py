@@ -154,30 +154,32 @@ class Status(models.Model):
                 return True
         return False
 
-@receiver(post_save, sender=Status)
-def set_device_last_seen(sender, instance, *args, **kwargs):
+
+@receiver(data_received, sender=Status)
+def set_device_last_seen(sender, device, data, timestamp, *args, **kwargs):
     """
     Sets device's last seen after a status update was received
     """
-    instance.device.last_seen = instance.created
-    instance.device.save()
-
-
-@receiver(post_save, sender=Status)
-def set_site_last_seen(sender, instance, *args, **kwargs):
-    """
-    Sets site's last seen after a status update was received
-    """
-    instance.device.bluusite.last_seen = instance.created
-    instance.device.bluusite.save()
+    device.last_seen = timestamp
+    device.save()
 
 
 @receiver(data_received, sender=Status)
-def update_site_ip_address(sender, instance, ip_address, *args, **kwargs):
+def set_site_last_seen(sender, device, data, timestamp, *args, **kwargs):
+    """
+    Sets site's last seen after a status update was received
+    """
+    device.bluusite.last_seen = timestamp
+    device.bluusite.save()
+
+
+@receiver(data_received, sender=Status)
+def update_site_ip_address(sender, device, data, timestamp, ip_address,
+                           *args, **kwargs):
     """
     Sets site's ip address to ip addres from which last status update was received
     """
-    if instance.device.bluusite.ip != ip_address:
-        instance.device.bluusite.ip = ip_address
-        instance.device.bluusite.save()
+    if device.bluusite.ip != ip_address:
+        device.bluusite.ip = ip_address
+        device.bluusite.save()
 

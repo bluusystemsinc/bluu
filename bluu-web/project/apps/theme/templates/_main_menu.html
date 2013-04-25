@@ -35,7 +35,7 @@
             {% with m_bluusite=main_menu.bluusites.manage.bluusite %}
                 <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' m_bluusite.bluusite.pk %}">{% trans "Site management" %}</a></li>
                 {% if m_bluusite.can_browse_devices %}
-                    <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'devices:device_list' m_bluusite.bluusite.pk %}">{% trans "Device management" %}</a></li>
+                    <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' m_bluusite.bluusite.pk %}">{% trans "Device management" %}</a></li>
                 {% endif %}
                 {% if m_bluusite.can_browse_rooms %}
                     <li class="{% active request "^/sites/\d+/rooms" %}"><a href="{% url 'room_list' m_bluusite.bluusite.pk %}">{% trans "Room management" %}</a></li>
