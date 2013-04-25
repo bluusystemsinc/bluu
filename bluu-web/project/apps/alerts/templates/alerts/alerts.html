@@ -28,15 +28,17 @@
 
 <div class="masonry-container">
 {% for device_type in device_types %}
-    {% if 0 and not forloop.counter|divisibleby:2 %}
+    {% comment %} %}{% if not forloop.counter|divisibleby:2 %}
     <div class="row-fluid box-row-fluid">
-    {% endif %}
-        <div class="alertbox box-span6 span5">
+    {% endif %}{% endcomment %}
+        <div class="masonry-box span5">
             {% alerts_for_device_type bluusite device_type %}
         </div>
-    {% if 0 and forloop.counter|divisibleby:2 or forloop.last %}
+    {% comment %}
+    {% if forloop.counter|divisibleby:2 or forloop.last %}
     </div>
     {% endif %}
+    {% endcomment %}
 {% empty %}
     <p>{% trans "Sorry. No devices in this site." %}</p>
 {% endfor %}
@@ -60,7 +62,7 @@
   $(document).ready(function() {
     $('.masonry-container').masonry({
         // options
-        itemSelector : '.alertbox',
+        itemSelector : '.masonry-box',
         isAnimated: true,
         columnWidth : function (containerWidth){
             var width = $('.masonry-container').width();
