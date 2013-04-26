@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
+from alerts.models import UserAlertDevice
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -8,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from autoslug import AutoSlugField
 from model_utils.models import TimeStampedModel
-from .signals import data_received
+from .signals import data_received, data_received_and_stored
 
 
 class DeviceType(models.Model):
@@ -177,9 +178,19 @@ def set_site_last_seen(sender, device, data, timestamp, *args, **kwargs):
 def update_site_ip_address(sender, device, data, timestamp, ip_address,
                            *args, **kwargs):
     """
-    Sets site's ip address to ip addres from which last status update was received
+    Sets site's ip address to ip address from which last status update was received
     """
     if device.bluusite.ip != ip_address:
         device.bluusite.ip = ip_address
         device.bluusite.save()
 
+
+@receiver(data_received_and_stored, sender=Status)
+def check_alerts(sender, status, *args, **kwargs):
+    if status.device_type == DeviceType.MOTION:
+        pass
+    else:
+        alerts = UserAlertDevice.objects.filter(device=status.device)
+        alert_types = alerts.values('alert')
+        for alert_type in alert_types:
+            print alert_type

@@ -11,9 +11,6 @@ from django.db.models import F
 from django.dispatch import receiver
 from django.db.models.signals import (post_save, pre_save, pre_delete)
 
-from bluusites.models import (BluuSite, Room)
-from devices.models import (Device, DeviceType)
-
 
 class Alert(models.Model):
     OPEN = 'o'
@@ -58,7 +55,7 @@ class Alert(models.Model):
     )
 
     alert_type = models.CharField(_('alert'), max_length=50, choices=ALERT_CHOICES)
-    device_types = models.ManyToManyField(DeviceType)
+    device_types = models.ManyToManyField("devices.DeviceType")
 
     class Meta:
         verbose_name = _("alert")
@@ -70,8 +67,8 @@ class Alert(models.Model):
 
 
 class UserAlertConfig(models.Model):
-    bluusite = models.ForeignKey(BluuSite)
-    device_type = models.ForeignKey(DeviceType)
+    bluusite = models.ForeignKey("bluusites.BluuSite")
+    device_type = models.ForeignKey("devices.DeviceType")
     user = models.ForeignKey(
                 settings.AUTH_USER_MODEL,
                 verbose_name=_('user'))
@@ -98,8 +95,8 @@ class UserAlertConfig(models.Model):
 
 
 class UserAlertWeightConfig(models.Model):
-    bluusite = models.ForeignKey(BluuSite)
-    device_type = models.ForeignKey(DeviceType)
+    bluusite = models.ForeignKey("bluusites.BluuSite")
+    device_type = models.ForeignKey("devices.DeviceType")
     user = models.ForeignKey(
                 settings.AUTH_USER_MODEL,
                 verbose_name=_('user'))
@@ -134,7 +131,7 @@ class UserAlertDevice(models.Model):
                 Alert,
                 verbose_name=_('alert'))
     device = models.ForeignKey(
-                Device,
+                "devices.Device",
                 verbose_name=_('device'), db_index=True)
     duration = models.IntegerField(_('duration'), blank=True, null=True)
     unit = models.CharField(_('unit'), blank=True, null=True, choices=Alert.UNITS,
@@ -162,7 +159,7 @@ class UserAlertRoom(models.Model):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'))
     alert = models.ForeignKey(Alert, verbose_name=_('alert'))
-    room = models.ForeignKey(Room, verbose_name=_('room'))
+    room = models.ForeignKey("bluusites.Room", verbose_name=_('room'))
     duration = models.IntegerField(_('duration'), blank=True, null=True)
     unit = models.CharField(_('unit'), blank=True, null=True,
                             choices=Alert.UNITS, max_length=2)
@@ -213,6 +210,7 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
     If alert settings, for specific device_type were changed then
     update all related set alerts
     """
+    from devices.models import DeviceType
     if instance.pk:
         if instance.device_type.name == DeviceType.MOTION:
             for uar in UserAlertRoom.objects.filter(

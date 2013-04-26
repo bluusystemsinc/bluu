@@ -82,7 +82,7 @@ class BluuUser(AbstractUser):
     def can_see_companies(self, perm='companies.view_company'):
         companies = self.get_companies(perm)
         ccount = companies.count()
-        if (self.has_perm('companies.browse_companies') and \
+        if (self.has_perm('companies.browse_companies') and
             self.has_perm('companies.add_company')) or \
            (ccount > 1):
             return {'companies': True, 'company': None}

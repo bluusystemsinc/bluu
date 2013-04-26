@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import (generics, serializers, status)
 
 from devices.models import Device, Status
-from devices.signals import data_received
+from devices.signals import (data_received, data_received_and_stored)
 from bluusites.models import BluuSite
 from utils.misc import get_client_ip
 
@@ -102,6 +102,8 @@ class DeviceStatusCreateView(generics.CreateAPIView):
                 self.object = serializer.save()
                 self.post_save(self.object, created=True)
                 timestamp = self.object.created
+                data_received_and_stored.send(sender=Status, status=self.object)
+
 
             # send signal with caller ip address
             data_received.send(sender=Status,
