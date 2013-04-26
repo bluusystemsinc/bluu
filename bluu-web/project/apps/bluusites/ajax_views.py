@@ -39,10 +39,10 @@ class BluuSiteListJson(BaseDatatableView):
     def filter_queryset(self, qs):
         q = self.request.GET.get('sSearch', None)
         if q is not None:
-            return qs.filter(Q(first_name__istartswith=q) |\
+            return qs.filter(Q(first_name__istartswith=q) | \
                              Q(last_name__istartswith=q))
         return qs
- 
+
     def prepare_results(self, qs):
         # prepare list with output column data
         # queryset is already paginated here
@@ -54,19 +54,32 @@ class BluuSiteListJson(BaseDatatableView):
             no = 0
         user = self.request.user
         for item in qs:
-            if user.has_perm('bluusites.change_bluusite') or\
+            actions = ''
+            sep = ''
+
+            if user.has_perm('bluusites.change_bluusite') or \
                     user.has_perm('bluusites.change_bluusite', item):
-                actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
-                        reverse('site_edit', args=(item.pk,)), _('Manage'),
-                        reverse('site_delete', args=(item.pk,)),
-                        _('Are you sure you want delete this site?'),
-                        _('Delete'))
-            elif user.has_perm('bluusites.view_bluusite') or\
+                actions += '<a href="{0}">{1}</a>'.format(
+                    reverse('site_edit', args=(item.pk,)), _('Manage'))
+                sep = ' '
+
+            if user.has_perm('bluusites.delete_bluusite') or \
+                    user.has_perm('bluusites.delete_bluusite', item):
+                actions += sep
+                actions += \
+                    '<a href="{0}" onclick="return confirm(\'{1}\')">{2}</a>'.\
+                    format(reverse('site_delete', args=(item.pk,)),
+                           _('Are you sure you want delete this site?'),
+                           _('Delete'))
+
+            if not actions:
+                if user.has_perm('bluusites.view_bluusite') or \
                     user.has_perm('bluusites.view_bluusite', item):
-                actions = '<a href="{0}">{1}</a>'.format(
-                        reverse('site_alerts:alert_list', args=(item.pk,)), _('Alerts'))
-            else:
-                actions = '---'
+                    actions = '<a href="{0}">{1}</a>'.format(
+                        reverse('site_alerts:alert_list', args=(item.pk,)),
+                        _('Alerts'))
+                else:
+                    actions = '---'
             json_data.append(
                 {
                     "no": no,
@@ -112,11 +125,11 @@ class BluuSiteAccessListJson(BaseDatatableView):
 
         self.bluusite = self.get_site(kwargs.get('pk'))
 
-        qs = BluuSiteAccess.objects.filter(site=self.bluusite).\
-                exclude(user__username__startswith=\
-                            settings.WEBSERVICE_USERNAME_PREFIX,
-                        user__is_active=False).\
-                exclude(user__groups__name='WebService')
+        qs = BluuSiteAccess.objects.filter(site=self.bluusite). \
+            exclude(user__username__startswith= \
+                        settings.WEBSERVICE_USERNAME_PREFIX,
+                    user__is_active=False). \
+            exclude(user__groups__name='WebService')
         # number of records before filtering
         total_records = qs.count()
         qs = self.filter_queryset(qs)
@@ -133,7 +146,7 @@ class BluuSiteAccessListJson(BaseDatatableView):
                'iTotalRecords': total_records,
                'iTotalDisplayRecords': total_display_records,
                'aaData': aaData
-               }
+        }
 
         return ret
 
@@ -193,12 +206,13 @@ class BluuSiteAccessListJson(BaseDatatableView):
                                                         current_access_pk)
             json_data.append(
                 {
-                    "access":{
+                    "access": {
                         "no": no,
                         "id": access.pk,
                         "email": access.get_email_or_username,
                         "groups": rendered_groups,
-                        "invitation": access.invitations.filter(registrant__isnull=True).exists(),
+                        "invitation": access.invitations.filter(
+                            registrant__isnull=True).exists(),
                         "current_user_access_id": current_access_pk
                     }
                 }
@@ -209,9 +223,10 @@ class BluuSiteAccessListJson(BaseDatatableView):
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
                                                  (BluuSite, 'pk', 'pk'),
                                                  accept_global_perms=True))
-    @method_decorator(permission_required_or_403('bluusites.browse_bluusiteaccesses',
-                                                 (BluuSite, 'pk', 'pk'),
-                                                 accept_global_perms=True))
+    @method_decorator(
+        permission_required_or_403('bluusites.browse_bluusiteaccesses',
+                                   (BluuSite, 'pk', 'pk'),
+                                   accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteAccessListJson, self).dispatch(*args, **kwargs)
 
@@ -232,9 +247,9 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
     def post(self, request, pk, format=None):
         site = self.get_site(pk)
         form = SiteInvitationForm(request.DATA,
-                                     request=request,
-                                     site=site)
- 
+                                  request=request,
+                                  site=site)
+
         if form.is_valid():
             group = form.cleaned_data.get('group', None)
             email = form.cleaned_data.get('email', None)
@@ -245,9 +260,9 @@ class BluuSiteAccessCreateView(generics.CreateAPIView):
                                 status=status.HTTP_201_CREATED)
             else:
                 return Response({'errors': {
-                                    'has_access': _('{} already has access'.\
-                                                            format(email))}},
-                                 status=status.HTTP_400_BAD_REQUEST)
+                    'has_access': _('{} already has access'. \
+                        format(email))}},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'errors': form.errors},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -274,14 +289,14 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
         access_pk = int(kwargs.get('pk'))
         try:
             current_access = BluuSiteAccess.objects.get(
-                                user=request.user,
-                                site__pk=site_pk)
+                user=request.user,
+                site__pk=site_pk)
             if current_access.pk == access_pk:
                 messages.success(request, _('Site access changed'))
         except BluuSiteAccess.DoesNotExist:
             pass
         return super(BluuSiteAccessUpdateView, self).update(request,
-                                                           *args, **kwargs)
+                                                            *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         site_pk = int(kwargs.get('site_pk'))
@@ -290,8 +305,8 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
             # If user removes his own access then there will be a redirection,
             # so we should show information about the operation.
             current_access = BluuSiteAccess.objects.get(
-                                user=request.user,
-                                site__pk=site_pk)
+                user=request.user,
+                site__pk=site_pk)
             if current_access.pk == access_pk:
                 messages.success(request, _('Site access removed'))
         except BluuSiteAccess.DoesNotExist:
@@ -303,9 +318,10 @@ class BluuSiteAccessUpdateView(generics.RetrieveUpdateDestroyAPIView):
     @method_decorator(permission_required_or_403('bluusites.change_bluusite',
                                                  (BluuSite, 'pk', 'site_pk'),
                                                  accept_global_perms=True))
-    @method_decorator(permission_required_or_403('bluusites.change_bluusiteaccess',
-                                                 (BluuSite, 'pk', 'site_pk'),
-                                                 accept_global_perms=True))
+    @method_decorator(
+        permission_required_or_403('bluusites.change_bluusiteaccess',
+                                   (BluuSite, 'pk', 'site_pk'),
+                                   accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
         return super(BluuSiteAccessUpdateView, self).dispatch(*args, **kwargs)
 
@@ -353,7 +369,7 @@ class RoomListJson(BaseDatatableView):
                'iTotalRecords': total_records,
                'iTotalDisplayRecords': total_display_records,
                'aaData': aaData
-               }
+        }
 
         return ret
 
@@ -369,14 +385,15 @@ class RoomListJson(BaseDatatableView):
 
         for room in qs:
             actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
-                    reverse('room_edit', args=(room.bluusite_id, room.pk,)), _('Manage'),
-                    reverse('room_delete', args=(room.bluusite_id, room.pk,)), 
-                    _('Are you sure you want delete this room?'),
-                    _('Delete'))
+                reverse('room_edit', args=(room.bluusite_id, room.pk,)),
+                _('Manage'),
+                reverse('room_delete', args=(room.bluusite_id, room.pk,)),
+                _('Are you sure you want delete this room?'),
+                _('Delete'))
 
             json_data.append(
                 {
-                    "room":{
+                    "room": {
                         "no": no,
                         "name": room.name,
                         "actions": actions

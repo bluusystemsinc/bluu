@@ -14,15 +14,22 @@
         <tr>
           <td class="name">{{ device.name }}</td> 
           <td class="status"><div class="circle {% if device.is_online %}online{% else %}offline{% endif %}"></div></td>
+
           {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
-            <td class="action center"><a href="{% url "site_devices:device_edit" bluusite.pk device.pk %}">{% trans "Manage" %}</a></td>
+            {% if perms.bluusites.change_device or "change_device" in site_perms %}
+                <td class="action center"><a href="{% url "site_devices:device_edit" bluusite.pk device.pk %}">{% trans "Manage" %}</a></td>
+            {% endif %}
           {% endif %}
+
           <td class="action center"><a href="{% url "site_devices:device_history" bluusite.pk device.pk %}">{% trans "History" %}</a></td>
+
           {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
-          <td class="action center">
-              <a href="{% url "site_devices:device_delete" bluusite.pk device.pk %}"
-                              onclick="return confirm('{%  trans "Are you sure you want to delete this device?" %}');">{% trans "Delete" %}</a>
-          </td>
+            {% if perms.bluusites.change_device or "change_device" in site_perms %}
+              <td class="action center">
+                  <a href="{% url "site_devices:device_delete" bluusite.pk device.pk %}"
+                                  onclick="return confirm('{%  trans "Are you sure you want to delete this device?" %}');">{% trans "Delete" %}</a>
+              </td>
+            {% endif %}
           {% endif %}
         </tr>
         {% endfor %}

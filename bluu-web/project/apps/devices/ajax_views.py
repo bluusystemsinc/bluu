@@ -73,16 +73,11 @@ class DeviceListJson(BaseDatatableView):
 
         for device in qs:
             actions = '<a href="{0}">{1}</a> <a href="{2}" onclick="return confirm(\'{3}\')">{4}</a>'.format(
-                    reverse('devices:device_edit', args=(device.bluusite_id, device.pk,)), _('Manage'),
-                    reverse('devices:device_delete', args=(device.bluusite_id, device.pk,)), 
+                    reverse('site_devices:device_edit', args=(device.bluusite_id, device.pk,)), _('Manage'),
+                    reverse('site_devices:device_delete', args=(device.bluusite_id, device.pk,)),
                     _('Are you sure you want to delete this device?'),
                     _('Delete'))
 
-            #actions = '<a href="{0}">{1}</a>'.format(
-            #        reverse('devices:device_edit',
-            #                args=(device.bluusite_id, device.pk,)),
-            #        _('Manage'))
-            print actions
             json_data.append(
                 {
                     "device":{

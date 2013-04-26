@@ -28,11 +28,10 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        companies = self.request.user.can_see_companies(\
+        companies = self.request.user.get_companies(
                 perm='companies.change_company')
-        company = companies.get('company', None)
-        if company is not None:
-            return redirect('company_edit', pk=company.pk)
+        if companies.count() == 1:
+            return redirect('company_edit', pk=companies[0].pk)
 
         return super(CompanyListView, self).dispatch(*args, **kwargs)
 

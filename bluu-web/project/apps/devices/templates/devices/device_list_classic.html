@@ -22,7 +22,7 @@
 {% if perms.bluusites.add_device or "add_device" in bluusite_perms %}
     <ul class="nav nav-pills">
         <li>
-            <a href="{% url 'devices:device_add' bluusite.pk %}">{% trans "Add Device" %}</a>
+            <a href="{% url 'site_devices:device_add' bluusite.pk %}">{% trans "Add Device" %}</a>
         </li>
     </ul>
 {% endif %}

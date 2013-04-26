@@ -19,15 +19,15 @@ from .forms import SiteForm
 class SiteListView(TemplateView):
     template_name = "bluusites/site_list.html"
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('bluusites.browse_bluusites'))
-    def dispatch(self, *args, **kwargs):
-        sites = self.request.user.can_see_sites(perm='bluusites.change_bluusite')
-        site = sites.get('bluusite', None)
-        if site is not None:
-            return redirect('site_edit', pk=site.pk)
-
-        return super(SiteListView, self).dispatch(*args, **kwargs)
+    #@method_decorator(login_required)
+    #@method_decorator(permission_required('bluusites.browse_bluusites'))
+    #def dispatch(self, *args, **kwargs):
+    #    sites = self.request.user.can_see_sites(perm='bluusites.change_bluusite')
+    #    site = sites.get('bluusite', None)
+    #    if site is not None:
+    #        return redirect('site_edit', pk=site['bluusite'].pk)
+#
+#        return super(SiteListView, self).dispatch(*args, **kwargs)
 
 
 class SiteCreateView(CreateView):

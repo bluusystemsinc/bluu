@@ -1,57 +1,36 @@
 {% load i18n grontextual_tags theme_tags compress %}
 <ul class="nav">
     {% if user.is_authenticated %}
-        <li class="{% active request "^/dashboard/" %}"><a href="/"><i class="icon-home"></i> {% trans "Dashboard" %}</a></li>
+        <li class="{% active request "^/dashboard/" %}"><a href="/"><i class="icon-th"></i> {% trans "Dashboard" %}</a></li>
     {% else %}
-        <li class="{% active request "^/$" %}"><a href="/"><i class="icon-home"></i> {% trans "Home Page" %}</a></li>
+        <li class="{% active request "^/$" %}"><a href="/"><i class="icon-th"></i> {% trans "Home Page" %}</a></li>
     {% endif %}
+
     {% if user.is_authenticated %}
-        {% if main_menu.bluusites.view.bluusite %}
+        {% if main_menu.bluusite %}
             <li class="divider-vertical"></li>
-            {% with m_bluusite=main_menu.bluusites.view.bluusite %}
+
+            {% with m_bluusite=main_menu.bluusite %}
                 <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' m_bluusite.bluusite.pk %}"><i class="icon-warning-sign"></i> {% trans "Alerts" %}</a></li>
-                <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' m_bluusite.bluusite.pk %}"><i class="icon-eye-open"></i> {% trans "Devices" %}</a></li>
+                {% if m_bluusite.show_devices %}
+                    <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' m_bluusite.bluusite.pk %}"><i class="icon-eye-open"></i> {% trans "Devices" %}</a></li>
+                {% endif %}
+                {% if m_bluusite.show_management %}
+                    <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' m_bluusite.bluusite.pk %}"><i class="icon-th-list"></i> {% trans "Site management" %}</a></li>
+                {% endif %}
             {% endwith %}
 
             <li class="divider-vertical"></li>
-        {% elif main_menu.bluusites.view.bluusites %}
-            {% if bluusite %}
-                <li class="divider-vertical"></li>
-                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}"><i class="icon-warning-sign"></i> {% trans "Alerts" %}</a></li>
-                <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' bluusite.pk %}"><i class="icon-eye-open"></i> {% trans "Devices" %}</a></li>
-                <li class="divider-vertical"></li>
-            {%  endif %}
+        {% endif %}
+
+        {% if main_menu.bluusites %}
+            <li class="{% active request "^/sites/$" %}"><a href="{% url 'site_list' %}"><i class="icon-home"></i> {% trans "Sites" %}</a></li>
         {% endif %}
 
         {% if main_menu.companies.company %}
-            <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.companies.company.pk %}"><i class="icon-th-large"></i> {% trans "Company" %}</a></li>
+            <li class="{% active request "^/companies/\d+/" %}"><a href="{% url 'company_edit' main_menu.companies.company.pk %}"><i class="icon-book"></i> {% trans "Company management" %}</a></li>
         {% elif main_menu.companies.companies %}
-            <li class="{% active request "^/companies/" %}"><a href="{% url 'company_list' %}"><i class="icon-th-large"></i> {% trans "Companies" %}</a></li>
-        {% else %}
-        {% comment %}<li><a href="#"><i class="icon-th-large"></i> {% trans "No companies assigned" %}</a></li>{% endcomment %}
-        {% endif %}
-
-        {% if main_menu.bluusites.manage.bluusite %}
-            {% with m_bluusite=main_menu.bluusites.manage.bluusite %}
-                <li class="{% active request "^/sites/\d+/$" %}"><a href="{% url 'site_edit' m_bluusite.bluusite.pk %}">{% trans "Site management" %}</a></li>
-                {% if m_bluusite.can_browse_devices %}
-                    <li class="{% active request "^/sites/\d+/devices" %}"><a href="{% url 'site_devices:device_list' m_bluusite.bluusite.pk %}">{% trans "Device management" %}</a></li>
-                {% endif %}
-                {% if m_bluusite.can_browse_rooms %}
-                    <li class="{% active request "^/sites/\d+/rooms" %}"><a href="{% url 'room_list' m_bluusite.bluusite.pk %}">{% trans "Room management" %}</a></li>
-                {% endif %}
-            {% endwith %}
-        {% elif main_menu.bluusites.manage.bluusites %}
-            <li class="{% active request "^/sites/" %}"><a href="{% url 'site_list' %}"><i class="icon-eye-open"></i> {% trans "Sites" %}</a></li>
-        {% comment %}{% elif main_menu.bluusites.view.bluusite %}
-            {% with m_bluusite=main_menu.bluusites.view.bluusite %}
-                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' m_bluusite.bluusite.pk %}">{% trans "Alerts" %}</a></li>
-            {% endwith %}
-        {% elif main_menu.bluusites.view.bluusites %}
-            {% if bluusite %}
-                <li class="{% active request "^/sites/\d+/alerts/$" %}"><a href="{% url 'site_alerts:alert_list' bluusite.pk %}">{% trans "Alerts" %}</a></li>
-            {%  endif %}
-        {% endcomment %}
+            <li class="{% active request "^/companies/" %}"><a href="{% url 'company_list' %}"><i class="icon-book"></i> {% trans "Companies" %}</a></li>
         {% endif %}
 
         {% if perms.accounts.browse_bluuusers %}
@@ -61,16 +40,15 @@
 </ul>
 <ul class="nav pull-right">
   {% if user.is_authenticated %}
-  <li class="dropdown" id="auth-menu">
-  <a class="dropdown-toggle" data-toggle="dropdown" href="#auth-menu"><i class="icon-user"></i> {{ user.get_name }}<b class="caret"></b></a>
-    <ul class="dropdown-menu">
-      <li><a href="{% url 'account_edit' %}"><i class="icon-user"></i> {% trans "Account" %}</a></li>
-      <li class="divider"></li>
-      <li><a href="{% url 'auth_logout' %}"><i class="icon-off"></i> {% trans "Sign out" %}</a></li>
-      </ul>
-  </li>
+      <li class="dropdown" id="auth-menu">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#auth-menu"><i class="icon-user"></i> {{ user.get_name }}<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url 'account_edit' %}"><i class="icon-user"></i> {% trans "Account" %}</a></li>
+          <li class="divider"></li>
+          <li><a href="{% url 'auth_logout' %}"><i class="icon-off"></i> {% trans "Sign out" %}</a></li>
+        </ul>
+      </li>
   {% else %}
-    <li class="{% active request "^/accounts/login/$" %}"><a href="{% url 'auth_login' %}">{% trans "Sign in" %}</a></li>
-    {% comment %}<li class="{% active request "^/accounts/register/$" %}"><a href="{% url 'registration_register' %}">{% trans "Register" %}</a></li>{% endcomment %}
+      <li class="{% active request "^/accounts/login/$" %}"><a href="{% url 'auth_login' %}">{% trans "Sign in" %}</a></li>
   {% endif %}
 </ul>

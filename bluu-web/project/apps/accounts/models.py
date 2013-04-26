@@ -98,7 +98,7 @@ class BluuUser(AbstractUser):
             return BluuSite.objects.all()
         return get_objects_for_user(self, perm)
 
-    def _can_add_sites(self):
+    def can_add_sites(self):
         """
         If there is a company or companies a user has permission to
         add bluusites to them then return true.
@@ -106,40 +106,6 @@ class BluuUser(AbstractUser):
         if self.get_sites(perm='bluusites.add_bluusite').count() > 0:
             return True
         return False
-
-    def can_see_sites(self, perm='bluusites.view_bluusite'):
-        sites = self.get_sites(perm=perm)
-        scount = sites.count()
-        #if (self.has_perm('bluusites.browse_bluusites') and \
-            #self.has_perm('bluusites.add_bluusite')) or \
-        if (self.has_perm('bluusites.browse_bluusites') and \
-            self._can_add_sites()) or \
-           (scount > 1): 
-            """
-            If user is Bluu then show sites
-            If user is Dealer or Technician then show sites
-            If user is assigned to more than one site then show sites
-            """
-            return {'bluusites': True, 'bluusite': None}
-        elif (scount == 1) and \
-                self.has_perm(perm, sites[0]):
-            """
-            If user isn't Bluu or Dealer or Technician and is assigned
-            to only one site then show this one site
-            """
-            perm_dict = {
-                'bluusites': False,
-                'bluusite': 
-                    {'bluusite':sites[0],
-                     'can_browse_devices': 
-                        self.has_perm('bluusites.browse_devices', sites[0]),
-                     'can_browse_rooms': 
-                        self.has_perm('bluusites.browse_rooms', sites[0])
-                    }
-                }
-            return perm_dict
-        else:
-            return {'bluusites': False, 'bluusite': None}
 
     def assign_group(self, obj, group):
         UserObjectGroup.objects.assign_group(group=group, 
@@ -156,7 +122,6 @@ class BluuUser(AbstractUser):
                                                     obj=obj)
 
 
-
 @receiver(post_save, sender=BluuUser)
 def _set_default_groups(sender, instance, *args, **kwargs):
     """
@@ -169,6 +134,7 @@ def _set_default_groups(sender, instance, *args, **kwargs):
         except Group.DoesNotExist:
             pass
 
+
 @receiver(post_save, sender=BluuUser)
 def _set_accesses(sender, instance, created, *args, **kwargs):
     """
@@ -180,6 +146,7 @@ def _set_accesses(sender, instance, created, *args, **kwargs):
             instance.groups.add(default_group)
         except Group.DoesNotExist:
             pass
+
 
 @receiver(post_save, sender=BluuUser)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
