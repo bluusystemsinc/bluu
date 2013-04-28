@@ -1,4 +1,7 @@
+from datetime import timedelta, datetime
+import time
 import json
+from alerts.models import UserAlertConfig, Alert, UserAlertDevice, AlertRunner
 from apiv1.views import DeviceStatusSerializer, is_heartbeat
 from django_webtest import WebTest
 from django_dynamic_fixture import G
@@ -8,7 +11,7 @@ from django.contrib.auth.models import Group
 from accounts.models import BluuUser
 from companies.models import Company
 from bluusites.models import BluuSite
-from devices.models import (Device, Status)
+from devices.models import (Device, Status, DeviceType)
 
 
 class AlertsTestCase(WebTest):
@@ -16,13 +19,20 @@ class AlertsTestCase(WebTest):
 
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
         run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.bed = DeviceType.objects.get(name=DeviceType.BED)
+        self.alert_ogt = Alert.objects.get(alert_type=Alert.OPEN_GREATER_THAN)
 
         self.company1 = G(Company, name="C1")
         self.bluusite1 = G(BluuSite, ip='', company=self.company1)
-        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1)
 
-        
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.bed)
+
+
         self.user2 = G(BluuUser, username='test2',
                        groups=[Group.objects.get(name='Bluu')])
 
@@ -32,6 +42,24 @@ class AlertsTestCase(WebTest):
 
         self.user3 = G(BluuUser, username='test3')
 
+        #set some alerts
+        UserAlertConfig.objects.create(bluusite=self.bluusite1,
+                                       device_type=self.bed,
+                                       user=self.user3,
+                                       alert=self.alert_ogt,
+                                       duration=10,
+                                       unit=Alert.MINUTES
+                                       )
+
+        UserAlertDevice.objects.create(alert=self.alert_ogt,
+                                        device=self.device1,
+                                        user=self.user3,
+                                        duration=10,
+                                        unit=Alert.MINUTES,
+                                        email_notification=True
+                                       )
+
+
     def testAlerts(self):
         """
         Test if alert checks are fired
@@ -39,9 +67,9 @@ class AlertsTestCase(WebTest):
         form_data = {"serial": "serial",
                      "input4": "on", 
                      "float_data": "1.22", 
-                     "timestamp": "2013-03-07T23:00:09.822000", 
+                     "timestamp": "2013-03-07T23:00:09",
                      "signal": "1", 
-                     "action": "on", 
+                     "action": True,
                      "data": "123"}
         self.app.post(
                 reverse('v1:create_status',
@@ -51,6 +79,10 @@ class AlertsTestCase(WebTest):
                 content_type='application/json;charset=utf-8',
                 user='ws',
                 status=201)
-        self.assertEquals(Status.objects.filter(device=self.device1).count(), 1)
+
+        # assert runner is set
+        runner = AlertRunner.objects.all()[0]
+        self.assertEqual(runner.when, datetime.strptime("2013-03-07T23:10:09",
+                                                        "%Y-%m-%dT%H:%M:%S"))
 
 

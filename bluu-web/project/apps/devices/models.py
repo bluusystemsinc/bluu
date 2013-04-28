@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
-from alerts.models import UserAlertDevice
+from alerts.models import UserAlertDevice, AlertRunner, Alert
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -184,13 +184,71 @@ def update_site_ip_address(sender, device, data, timestamp, ip_address,
         device.bluusite.ip = ip_address
         device.bluusite.save()
 
+TIME_UNITS = {
+    Alert.SECONDS: 'seconds',
+    Alert.MINUTES: 'minutes',
+    Alert.HOURS: 'hours',
+    Alert.DAYS: 'days',
+
+}
+def get_alert_time(status, alert):
+    timestamp = status.timestamp
+    duration = alert.duration
+    unit = alert.unit
+
+    params = {TIME_UNITS.get(alert.unit, ''): duration}
+    delta = timedelta(**params)
+    return timestamp + delta
+
 
 @receiver(data_received_and_stored, sender=Status)
 def check_alerts(sender, status, *args, **kwargs):
+    """
+    Checks what alerts should be set for current status
+
+    1. Bed
+        Status: active: true
+        a) set open greater than
+        b) reset "closed" schedules
+
+        Status: closed
+        a) set closed greater than
+        b) set inactive in period greater than
+        c) reset "open" schedules
+
+    2. Seat
+        Status: active: true
+        a) set open greater than
+        b) set active in period greater than
+
+        Status: closed: true
+        a) reset "open" schedules
+
+    3. Door
+        Status: active: true
+        a) send alert open
+        b) set open greater than
+        c) set open greater than no motion
+        d) reset "closed" schedules
+
+        Status: closed
+        a) start closed greater than
+        b) start inactive in period greater than
+        c) reset "open" schedules
+
+    5. Window
+
+    """
     if status.device_type == DeviceType.MOTION:
         pass
     else:
         alerts = UserAlertDevice.objects.filter(device=status.device)
+        for alert in alerts:
+            alert_time = get_alert_time(status, alert)
+            AlertRunner.objects.create(when=alert_time,
+                                       user_alert_device=alert,
+                                       since=status.timestamp)
+            # also clear alerts
         alert_types = alerts.values('alert')
         for alert_type in alert_types:
             print alert_type
