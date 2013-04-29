@@ -17,6 +17,16 @@ from devices.models import (Device, Status, DeviceType)
 class AlertsTestCase(WebTest):
     csrf_checks = False
 
+    def post_status(self, slug, serial, form_data):
+        return self.app.post(
+                reverse('v1:create_status',
+                        kwargs={'site_slug': self.bluusite1.slug,
+                                'device_slug': self.device1.serial}),
+                json.dumps(form_data),
+                content_type='application/json;charset=utf-8',
+                user='ws',
+                status=201)
+
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
@@ -60,9 +70,9 @@ class AlertsTestCase(WebTest):
                                        )
 
 
-    def testAlerts(self):
+    def testOpenGT(self):
         """
-        Test if alert checks are fired
+        Test if alert runner for open greater than is properly set
         """
         form_data = {"serial": "serial",
                      "input4": "on", 
@@ -71,18 +81,46 @@ class AlertsTestCase(WebTest):
                      "signal": "1", 
                      "action": True,
                      "data": "123"}
-        self.app.post(
-                reverse('v1:create_status',
-                        kwargs={'site_slug': self.bluusite1.slug,
-                                'device_slug': self.device1.serial}),
-                json.dumps(form_data),
-                content_type='application/json;charset=utf-8',
-                user='ws',
-                status=201)
+        self.post_status(self.bluusite1.slug,
+                         self.device1.serial,
+                         form_data)
 
-        # assert runner is set
+        # assert runner is set 10 minutes after the signal arrived
         runner = AlertRunner.objects.all()[0]
         self.assertEqual(runner.when, datetime.strptime("2013-03-07T23:10:09",
                                                         "%Y-%m-%dT%H:%M:%S"))
 
 
+    def testOpenGTInvalidated(self):
+        """
+        Test if alert runner for open greater than is invalidated after close
+        """
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "1.22",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+        self.post_status(self.bluusite1.slug,
+                         self.device1.serial,
+                         form_data)
+
+        form_data['action'] = False
+        form_data['timestamp'] = "2013-03-07T23:15:09"
+        self.post_status(self.bluusite1.slug,
+                         self.device1.serial,
+                         form_data)
+        # assert runner is not set
+        self.assertFalse(AlertRunner.objects.all().exists())
+
+        form_data['action'] = True
+        form_data['timestamp'] = "2013-03-07T23:15:09"
+        self.post_status(self.bluusite1.slug,
+                         self.device1.serial,
+                         form_data)
+
+
+        when = datetime.strptime("2013-03-07T23:25:09", "%Y-%m-%dT%H:%M:%S")
+        runner = AlertRunner.objects.filter(when=when)
+        self.assertTrue(runner.exists())

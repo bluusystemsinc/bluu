@@ -234,3 +234,11 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
                 uad.save()
 
 
+@receiver(post_save, sender=UserAlertDevice)
+def _update_alert_device(sender, instance, created, *args, **kwargs):
+    print "after useralertdevice has been updated alert runners should be reconfigured"
+
+
+@receiver(post_save, sender=UserAlertRoom)
+def _update_alert_room(sender, instance, created, *args, **kwargs):
+    print "after useralertroom has been updated alert runners should be reconfigured"
