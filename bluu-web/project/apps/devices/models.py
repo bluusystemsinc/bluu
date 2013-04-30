@@ -3,12 +3,14 @@ from datetime import datetime, timedelta
 from alerts.models import UserAlertDevice, AlertRunner, Alert
 
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from autoslug import AutoSlugField
 from model_utils.models import TimeStampedModel
+from alerts.tasks import (alert_open, alert_open_greater_than)
 from .signals import data_received, data_received_and_stored
 
 
@@ -239,29 +241,36 @@ def check_alerts(sender, status, *args, **kwargs):
     5. Window
 
     """
-    statuses = Status.objects.filter(device=status.device).order_by('-created')[:2]
+    statuses = Status.objects.filter(
+        device=status.device).order_by('-created')[:2]
     if statuses and len(statuses) == 2:
         previous_action = statuses[1].action
     else:
         previous_action = None
 
     if status.device_type == DeviceType.MOTION:
+        # set motion alerts
+        # reset "NO_MOTION" alerts
         pass
     elif status.device_type == DeviceType.SCALE:
         pass
+    elif status.device_type == DeviceType.BLOOD_PRESSURE:
+        pass
     else:
-        """
-        If status' "action" is the same as previous action then do nothing,
-        because this status is probably a tamper etc. and not a state change
-        """
         if status.action != previous_action:
+            """
+            If status' "action" is different than the previous status' "action",
+            then this is a state change
+            """
             # get all alerts configured for this device
             uads = UserAlertDevice.objects.select_related('alert').\
                 filter(device=status.device)
             for uad in uads:
                 # If alert is: open or closed
                 # Send alert immediately
-                pass
+                if uad.alert.alert_type == Alert.OPEN:
+                    print 'calling celery task for Open'
+                    alert_open.delay(uad, status)
 
                 """
                 If alert is of type:
@@ -271,7 +280,7 @@ def check_alerts(sender, status, *args, **kwargs):
                   and
                     - duration is set
                 then:
-                    - just add configured duration to status timestamp
+                    - add configured duration to status timestamp
                     - set alert runner
                 """
                 # invalidate old alert runners
@@ -293,3 +302,24 @@ def check_alerts(sender, status, *args, **kwargs):
                         AlertRunner.objects.create(when=alert_time,
                                                    user_alert_device=uad,
                                                    since=status.timestamp)
+
+        #elif status.action == status.device.active:
+            """
+            If action is "open" and is the same as it was for previous signal
+            then just clean CLOSE alert runners
+            """
+            # status is "open", so invalidate any CLOSED runners
+        #    AlertRunner.objects.filter(
+        #        user_alert_device__alert__alert_type=Alert.CLOSED_GREATER_THAN)\
+        #        .delete()
+        #else:
+            """
+            If action is "closed" and is the same as it was for previous signal
+            then just clean OPEN alert runners
+            """
+             # status is "closed", so invalidate any OPEN runners
+        #    AlertRunner.objects.filter(
+        #        Q(user_alert_device__alert__alert_type=\
+        #            Alert.OPEN_GREATER_THAN) |\
+        #        Q(user_alert_device__alert__alert_type=\
+        #            Alert.OPEN_GREATER_THAN_NO_MOTION)).delete()
