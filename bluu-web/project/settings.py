@@ -297,6 +297,11 @@ SLEEP_TIME_GAP = 15
 # then count is as a sleep
 SLEEP_DURATION = 60
 
+
+# Alert runner settings
+# how often daemon scans runners table (seconds)
+ALERT_RUNNER_TIME = 30
+
 try:
     from settings_local import *
 except Exception, err:

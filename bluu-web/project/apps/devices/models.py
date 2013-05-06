@@ -186,6 +186,7 @@ def update_site_ip_address(sender, device, data, timestamp, ip_address,
         device.bluusite.ip = ip_address
         device.bluusite.save()
 
+
 TIME_UNITS = {
     Alert.SECONDS: 'seconds',
     Alert.MINUTES: 'minutes',
@@ -193,6 +194,8 @@ TIME_UNITS = {
     Alert.DAYS: 'days',
 
 }
+
+
 def get_alert_time(status, alert):
     timestamp = status.timestamp
     duration = alert.duration
@@ -269,7 +272,6 @@ def check_alerts(sender, status, *args, **kwargs):
                 # If alert is: open or closed
                 # Send alert immediately
                 if uad.alert.alert_type == Alert.OPEN:
-                    print 'calling celery task for Open'
                     alert_open.delay(uad, status)
 
                 """

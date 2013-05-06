@@ -54,7 +54,8 @@ class Alert(models.Model):
         (DAYS, _('days')),
     )
 
-    alert_type = models.CharField(_('alert'), max_length=50, choices=ALERT_CHOICES)
+    alert_type = models.CharField(_('alert'), max_length=50,
+                                  choices=ALERT_CHOICES)
     device_types = models.ManyToManyField("devices.DeviceType")
 
     class Meta:

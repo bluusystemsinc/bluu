@@ -169,6 +169,7 @@ class SiteHeartBeatView(generics.UpdateAPIView):
             # instead we're interested in real last seen - so it's now()
             self.object.last_seen = datetime.now()
             self.object.save()
+
             success_status_code = status.HTTP_200_OK
             return Response(serializer.data, status=success_status_code)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
