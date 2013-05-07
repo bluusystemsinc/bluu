@@ -4,14 +4,12 @@ from alerts.models import UserAlertDevice, AlertRunner, Alert
 
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from autoslug import AutoSlugField
 from model_utils.models import TimeStampedModel
-from alerts.tasks import (alert_open, alert_open_greater_than)
-from .signals import data_received, data_received_and_stored
+from .signals import data_received
 
 
 class DeviceType(models.Model):
@@ -187,141 +185,3 @@ def update_site_ip_address(sender, device, data, timestamp, ip_address,
         device.bluusite.save()
 
 
-TIME_UNITS = {
-    Alert.SECONDS: 'seconds',
-    Alert.MINUTES: 'minutes',
-    Alert.HOURS: 'hours',
-    Alert.DAYS: 'days',
-
-}
-
-
-def get_alert_time(status, alert):
-    timestamp = status.timestamp
-    duration = alert.duration
-    unit = alert.unit
-
-    params = {TIME_UNITS.get(alert.unit, ''): duration}
-    delta = timedelta(**params)
-    return timestamp + delta
-
-
-@receiver(data_received_and_stored, sender=Status)
-def check_alerts(sender, status, *args, **kwargs):
-    """
-    Checks what alerts should be set for current status
-
-    1. Bed
-        Status: action: true
-        a) set open greater than
-        b) reset "closed" schedules
-
-        Status: closed
-        a) set closed greater than
-        b) set inactive in period greater than
-        c) reset "open" schedules
-
-    2. Seat
-        Status: action: true
-        a) set open greater than
-        b) set active in period greater than
-
-        Status: closed: true
-        a) reset "open" schedules
-
-    3. Door
-        Status: action: true
-        a) send alert open
-        b) set open greater than
-        c) set open greater than no motion
-        d) reset "closed" schedules
-
-        Status: closed
-        a) start closed greater than
-        b) start inactive in period greater than
-        c) reset "open" schedules
-
-    5. Window
-
-    """
-    statuses = Status.objects.filter(
-        device=status.device).order_by('-created')[:2]
-    if statuses and len(statuses) == 2:
-        previous_action = statuses[1].action
-    else:
-        previous_action = None
-
-    if status.device_type == DeviceType.MOTION:
-        # set motion alerts
-        # reset "NO_MOTION" alerts
-        pass
-    elif status.device_type == DeviceType.SCALE:
-        pass
-    elif status.device_type == DeviceType.BLOOD_PRESSURE:
-        pass
-    else:
-        if status.action != previous_action:
-            """
-            If status' "action" is different than the previous status' "action",
-            then this is a state change
-            """
-            # get all alerts configured for this device
-            uads = UserAlertDevice.objects.select_related('alert').\
-                filter(device=status.device)
-            for uad in uads:
-                # If alert is: open or closed
-                # Send alert immediately
-                if uad.alert.alert_type == Alert.OPEN:
-                    alert_open.delay(uad, status)
-
-                """
-                If alert is of type:
-                    - OPEN_GREATER_THAN
-                    - OPEN_GREATER_THAN_NO_MOTION
-                    - CLOSED_GREATER_THAN
-                  and
-                    - duration is set
-                then:
-                    - add configured duration to status timestamp
-                    - set alert runner
-                """
-                # invalidate old alert runners
-                AlertRunner.objects.filter(user_alert_device=uad).delete()
-
-                # if duration is set
-                if uad.duration > 0:
-                    if status.action is status.device.active and\
-                            uad.alert.alert_type in\
-                            [Alert.OPEN_GREATER_THAN,
-                             Alert.OPEN_GREATER_THAN_NO_MOTION]:
-                        alert_time = get_alert_time(status, uad)
-                        AlertRunner.objects.create(when=alert_time,
-                                                   user_alert_device=uad,
-                                                   since=status.timestamp)
-                    elif status.action is status.device.inactive and\
-                            uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
-                        alert_time = get_alert_time(status, uad)
-                        AlertRunner.objects.create(when=alert_time,
-                                                   user_alert_device=uad,
-                                                   since=status.timestamp)
-
-        #elif status.action == status.device.active:
-            """
-            If action is "open" and is the same as it was for previous signal
-            then just clean CLOSE alert runners
-            """
-            # status is "open", so invalidate any CLOSED runners
-        #    AlertRunner.objects.filter(
-        #        user_alert_device__alert__alert_type=Alert.CLOSED_GREATER_THAN)\
-        #        .delete()
-        #else:
-            """
-            If action is "closed" and is the same as it was for previous signal
-            then just clean OPEN alert runners
-            """
-             # status is "closed", so invalidate any OPEN runners
-        #    AlertRunner.objects.filter(
-        #        Q(user_alert_device__alert__alert_type=\
-        #            Alert.OPEN_GREATER_THAN) |\
-        #        Q(user_alert_device__alert__alert_type=\
-        #            Alert.OPEN_GREATER_THAN_NO_MOTION)).delete()

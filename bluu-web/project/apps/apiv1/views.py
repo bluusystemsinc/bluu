@@ -14,29 +14,11 @@ from utils.misc import get_client_ip
 
 def is_heartbeat(device, status):
     """
-    Checks if last device status is equal to incoming status
-    :param device: device under check
-    :param status: incoming status
-    :return: Boolean
+    Checks if status is a heartbeat. This is determined by supervisory parameter
     """
-    try:
-        latest = Status.objects.filter(device=device).latest('created')
-        if latest.data == status.data['data'] and \
-                        latest.signal == status.data['signal'] and \
-                        latest.float_data == status.data['float_data'] and \
-                        latest.action == status.data['action'] and \
-                        latest.battery == status.data['battery'] and \
-                        latest.input1 == status.data['input1'] and \
-                        latest.input2 == status.data['input2'] and \
-                        latest.input3 == status.data['input3'] and \
-                        latest.input4 == status.data['input4'] and \
-                        latest.supervisory == status.data['supervisory'] and \
-                        latest.tamper == status.data['tamper']:
-            return True
-    except Status.DoesNotExist:
-        pass
+    if status.data['supervisory']:
+        return True
     return False
-
 
 class DeviceStatusSerializer(serializers.ModelSerializer):
     class Meta:

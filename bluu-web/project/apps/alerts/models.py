@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
 import calendar
+from devices.models import Status, DeviceType
+from devices.signals import data_received_and_stored
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,7 +12,9 @@ from django.db.models import Q
 from django.db.models import F
 from django.dispatch import receiver
 from django.db.models.signals import (post_save, pre_save, pre_delete)
+from django.db.models.signals import post_save
 
+from alerts.tasks import (alert_open, alert_open_greater_than)
 
 class Alert(models.Model):
     OPEN = 'o'
@@ -200,9 +204,55 @@ class AlertRunner(models.Model):
         verbose_name = _("alert runner")
         verbose_name_plural = _("alert runners")
 
-    #def __unicode__(self):
-    #    return u'{0} | {1} | {2}'.format(unicode(self.when),
-    #                                    )
+
+TIME_UNITS = {Alert.SECONDS: 'seconds',
+              Alert.MINUTES: 'minutes',
+              Alert.HOURS: 'hours',
+              Alert.DAYS: 'days'}
+
+
+def get_alert_time(status, alert):
+    timestamp = status.timestamp
+    duration = alert.duration
+    unit = alert.unit
+
+    params = {TIME_UNITS.get(alert.unit, ''): duration}
+    delta = timedelta(**params)
+    return timestamp + delta
+
+
+def set_runners(uad, status):
+    """
+    Sets runners for specific uad and last status
+    If alert is of type:
+        - OPEN_GREATER_THAN
+        - OPEN_GREATER_THAN_NO_MOTION
+        - CLOSED_GREATER_THAN
+      and
+        - duration is set
+    then:
+        - add configured duration to status timestamp
+        - set alert runner
+    """
+    # invalidate old alert runners
+    AlertRunner.objects.filter(user_alert_device=uad).delete()
+
+    # if duration is set
+    if uad.duration > 0:
+        if status.action is status.device.active and\
+                uad.alert.alert_type in\
+                [Alert.OPEN_GREATER_THAN,
+                 Alert.OPEN_GREATER_THAN_NO_MOTION]:
+            alert_time = get_alert_time(status, uad)
+            AlertRunner.objects.create(when=alert_time,
+                                       user_alert_device=uad,
+                                       since=status.timestamp)
+        elif status.action is status.device.inactive and\
+                uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
+            alert_time = get_alert_time(status, uad)
+            AlertRunner.objects.create(when=alert_time,
+                                       user_alert_device=uad,
+                                       since=status.timestamp)
 
 
 @receiver(post_save, sender=UserAlertConfig)
@@ -237,9 +287,58 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
 
 @receiver(post_save, sender=UserAlertDevice)
 def _update_alert_device(sender, instance, created, *args, **kwargs):
-    print "after useralertdevice has been updated alert runners should be reconfigured"
+    """
+    If useralertdevice has been updated then
+    alert runners should be reconfigured
+    """
+    # delete all alert runners for updated uad
+    AlertRunner.objects.filter(is_active=True, user_alert_device=instance).delete()
 
+    # set new alert runners
+    last_status = Status.objects.filter(device=instance.device).latest('created')
+    set_runners(instance, last_status)
+    print "TEST ME!!"
 
 @receiver(post_save, sender=UserAlertRoom)
 def _update_alert_room(sender, instance, created, *args, **kwargs):
     print "after useralertroom has been updated alert runners should be reconfigured"
+
+
+
+@receiver(data_received_and_stored, sender=Status)
+def check_alerts(sender, status, *args, **kwargs):
+    """
+    Checks what alerts should be set for status that has just been
+    saved.
+    """
+    statuses = Status.objects.filter(
+        device=status.device).order_by('-created')[:2]
+    if statuses and len(statuses) == 2:
+        previous_action = statuses[1].action
+    else:
+        previous_action = None
+
+    if status.device_type == DeviceType.MOTION:
+        # set motion alerts
+        # reset "NO_MOTION" alerts
+        pass
+    elif status.device_type == DeviceType.SCALE:
+        pass
+    elif status.device_type == DeviceType.BLOOD_PRESSURE:
+        pass
+    else:
+        if status.action != previous_action:
+            """
+            If status' "action" is different than the previous status' "action",
+            then this is a state change
+            """
+            # get all alerts configured for this device
+            uads = UserAlertDevice.objects.select_related('alert').\
+                filter(device=status.device)
+            for uad in uads:
+                # If alert is: open or closed
+                # Send alert immediately
+                if uad.alert.alert_type == Alert.OPEN:
+                    alert_open.delay(uad, status)
+                else:
+                    set_runners(uad, status)

@@ -16,7 +16,7 @@ djcelery.setup_loader()
 
 BROKER_URL = 'redis://localhost:6379/0'
 
-CELERY_IMPORTS = ('bluusites.tasks', 'companies.tasks') 
+CELERY_IMPORTS = ('bluusites.tasks', 'companies.tasks', 'alerts.tasks')
 CELERYBEAT_SCHEDULE = {
     'cleanup_siteacess': {
         'task': 'bluusites.tasks.cleanup_siteaccess',
@@ -25,6 +25,10 @@ CELERYBEAT_SCHEDULE = {
     'cleanup_companyaacess': {
         'task': 'companies.tasks.cleanup_companyaccess',
         'schedule': crontab(hour='*', minute='*/1'),
+    },
+    'cleanup_alert_runners': {
+        'task': 'alerts.clean_runners',
+        'schedule': crontab(hour='0', minute='0'),
     },
 }
 
