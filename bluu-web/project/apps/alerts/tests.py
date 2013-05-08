@@ -11,7 +11,7 @@ from django.core import mail
 from accounts.models import BluuUser
 from bluusites.models import BluuSite
 from devices.models import (Device, DeviceType)
-from alerts.tasks import alert_periodic_runner
+from alerts.tasks import alert_trigger_runners
 
 
 class AlertsOpenTestCase(WebTest):
@@ -262,8 +262,7 @@ class AlertsOGTRunnerTestCase(WebTest):
         Test if alert runner for open greater than is properly run
         """
         #run alert runner task
-        alert_periodic_runner.delay()
-        runner = AlertRunner.objects.all()
+        alert_trigger_runners.delay()
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject,
@@ -332,7 +331,7 @@ class AlertsCGTRunnerTestCase(WebTest):
         Test if alert runner for open greater than is properly run
         """
         #run alert runner task
-        alert_periodic_runner.delay()
+        alert_trigger_runners.delay()
         runner = AlertRunner.objects.all()
 
         self.assertEqual(len(mail.outbox), 1)

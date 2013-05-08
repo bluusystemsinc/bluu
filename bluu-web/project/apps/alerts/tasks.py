@@ -2,10 +2,10 @@ from celery import task
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from datetime import (datetime, timedelta)
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from utils.misc import BluuMessage
 
-from alerts.models import UserAlertDevice, AlertRunner, Alert
 
 logger = get_task_logger(__name__)
 
@@ -127,6 +127,7 @@ def alert_trigger_runners():
     """
     Periodically check alert runner table and trigger alerts.
     """
+    from alerts.models import AlertRunner, Alert
     now = datetime.now()
     # add 5 more seconds to be sure that all alert runners are used
     t = timedelta(seconds=settings.ALERT_RUNNER_TIME + 5)
@@ -163,6 +164,7 @@ def alert_clear_runners():
     """
     Removes alert runners that were run and are older than one day.
     """
+    from alerts.models import AlertRunner, Alert
     now = datetime.now()
     t = timedelta(days=1)
     AlertRunner.objects.select_related().filter(is_active=False,

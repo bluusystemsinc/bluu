@@ -24,6 +24,9 @@ class DeviceStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status
         exclude = (id,)
+        fields = ('data', 'signal', 'float_data', 'action', 'battery',
+                  'input1', 'input2', 'input3', 'input4',
+                  'supervisory', 'tamper', 'timestamp')
         depth = 1
 
 
@@ -68,10 +71,10 @@ class DeviceStatusCreateView(generics.CreateAPIView):
             return HttpResponse(status=403)
 
         data = request.DATA.copy()
-        data['device'] = device
+        #data['device'] = device
 
-        serializer = self.get_serializer(data=data, files=request.FILES,
-                                         partial=True)
+        serializer = self.get_serializer(data=data, files=request.FILES)
+                                         #partial=True)
         timestamp = datetime.now()
         if serializer.is_valid():
             # check if signal is only a heartbeat
@@ -95,7 +98,7 @@ class DeviceStatusCreateView(generics.CreateAPIView):
                                ip_address=get_client_ip(request))
             headers = self.get_success_headers(data)
             # revert data to be returned to contain serial instead of device
-            data.pop('device')
+            #data.pop('device')
             return Response(data, status=status.HTTP_201_CREATED,
                             headers=headers)
 

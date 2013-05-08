@@ -42,7 +42,7 @@ class BluuMessage:
     Simple wrapper for EmailMessage class
     """
     def __init__(self, subject, body, to):
-        self.msg = EmailMessage(subject, body, to)
+        self.msg = EmailMessage(subject, body, to=[to])
         #self.msg.content_subtype = 'html'
 
     def send(self):

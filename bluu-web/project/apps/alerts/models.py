@@ -295,12 +295,37 @@ def _update_alert_device(sender, instance, created, *args, **kwargs):
     AlertRunner.objects.filter(is_active=True, user_alert_device=instance).delete()
 
     # set new alert runners
-    last_status = Status.objects.filter(device=instance.device).latest('created')
-    set_runners(instance, last_status)
+    try:
+        last_status = Status.objects.filter(device=instance.device).latest('created')
+    except Status.DoesNotExist:
+        last_status = None
+    else:
+        set_runners(instance, last_status)
     print "TEST ME!!"
+
 
 @receiver(post_save, sender=UserAlertRoom)
 def _update_alert_room(sender, instance, created, *args, **kwargs):
+    """
+    If useralertroom has been updated then
+    alert runners should be reconfigured
+    """
+    # delete all alert runners for updated uad
+    AlertRunner.objects.filter(is_active=True, user_alert_room=instance).delete()
+
+    # set new alert runners
+    try:
+        last_status = Status.objects.filter(device=instance.device).latest('created')
+    except Status.DoesNotExist:
+        last_status = None
+    else:
+        print "set motion runners here (alerts/models)"
+        #set_motion_runners(instance, last_status)
+    print "TEST ME TOO!!"
+
+
+
+
     print "after useralertroom has been updated alert runners should be reconfigured"
 
 
