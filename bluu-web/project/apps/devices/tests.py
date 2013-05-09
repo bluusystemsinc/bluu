@@ -108,7 +108,8 @@ class SignalsTestCase(WebTest):
                      "timestamp": "2013-03-07T23:00:09.822000",
                      "signal": "1",
                      "action": True,
-                     "data": "123"}
+                     "data": "123",
+                     }
 
         status = Status.objects.create(device=self.device1,
                                        bluusite=self.device1.bluusite,
@@ -118,13 +119,14 @@ class SignalsTestCase(WebTest):
 
         form_data['timestamp'] = "2013-03-07T23:20:09.822000"
         form_data['serial'] = "serial"
+        form_data['supervisory'] = True
         status_serializer = DeviceStatusSerializer(data=form_data)
         self.assertTrue(status_serializer.is_valid())
-
         self.assertTrue(is_heartbeat(status, status_serializer))
 
         form_data['timestamp'] = "2013-03-07T23:25:09.822000"
         form_data['action'] = False
+        form_data['supervisory'] = False
         status_serializer = DeviceStatusSerializer(data=form_data)
         self.assertTrue(status_serializer.is_valid())
         self.assertFalse(is_heartbeat(status, status_serializer))

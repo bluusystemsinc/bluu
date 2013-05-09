@@ -7,11 +7,13 @@ from django_dynamic_fixture import G
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.core import mail
+from django.test.client import RequestFactory
 
 from accounts.models import BluuUser
 from bluusites.models import BluuSite
 from devices.models import (Device, DeviceType)
 from alerts.tasks import alert_trigger_runners
+from alerts.ajax_views import UserAlertConfigSetView
 
 
 class AlertsOpenTestCase(WebTest):
@@ -70,8 +72,8 @@ class AlertsOpenTestCase(WebTest):
         self.post_status(self.bluusite1.slug, self.device1.serial, form_data)
 
         # assert notifications sent
-        # Test that one message has been sent.
-        self.assertEqual(len(mail.outbox), 1)
+        # Test that two messages has been sent (email and text).
+        self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].subject,
                          'Jan Kowalski alert - device open')
         #print mail.outbox[0].subject
@@ -337,3 +339,110 @@ class AlertsCGTRunnerTestCase(WebTest):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject,
                          'Jan Kowalski alert - device closed too long')
+
+
+class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
+    csrf_checks = False
+
+    def post_status(self, slug, serial, form_data):
+        return self.app.post(
+                reverse('v1:create_status',
+                        kwargs={'site_slug': self.bluusite1.slug,
+                                'device_slug': self.device1.serial}),
+                json.dumps(form_data),
+                content_type='application/json;charset=utf-8',
+                user='ws',
+                status=201)
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.factory = RequestFactory()
+
+        self.bluusite1 = G(BluuSite)
+
+        #USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1')
+
+        # ALERTS & DEVICES
+        self.bed = DeviceType.objects.get(name=DeviceType.BED)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.bed)
+
+        self.alert_ogt = Alert.objects.get(alert_type=Alert.OPEN_GREATER_THAN)
+
+        #set some alerts
+        self.uac = UserAlertConfig.objects.create(bluusite=self.bluusite1,
+                                       device_type=self.bed,
+                                       user=self.user1,
+                                       alert=self.alert_ogt,
+                                       duration=10,
+                                       unit=Alert.MINUTES
+                                       )
+
+        UserAlertDevice.objects.create(alert=self.alert_ogt,
+                                        device=self.device1,
+                                        user=self.user1,
+                                        duration=10,
+                                        unit=Alert.MINUTES,
+                                        email_notification=True
+                                       )
+
+    def testAlertRunnerChangedAfterAlertConfigChangeSet(self):
+        """
+        Test if alert runner is properly changed after alert config
+        has been changed.
+        """
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "1.22",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+
+
+        self.post_status(self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert runner is set 10 minutes after the signal arrived
+        runner = AlertRunner.objects.all()[0]
+        self.assertEqual(runner.when, datetime.strptime("2013-03-07T23:10:09",
+                                                        "%Y-%m-%dT%H:%M:%S"))
+
+        # change alert configuration
+        config_data = {'user': self.user1.pk,
+                       'device_type': self.device1.device_type.pk,
+                       'alert': self.alert_ogt.pk,
+                       'duration': "5",
+                       'unit': Alert.MINUTES,
+                       'email_notification': True,
+                       'text_notification': False}
+
+
+        request = self.factory.post('/fake-path', config_data,
+                                    content_type='application/json')
+        request.user = self.user1
+        view = UserAlertConfigSetView.as_view()
+        response = view(request)
+
+        self.app.post(
+                reverse('site_alerts:user_alert_config_set',
+                        kwargs={'pk': self.bluusite1.pk}),
+                json.dumps(config_data),
+                content_type='application/json;charset=utf-8',
+                user='test1',
+                status=200)
+
+
+        # assert runner is set 5 minutes after the signal arrived
+        self.assertEqual(1, AlertRunner.objects.count())
+        runner = AlertRunner.objects.all()[0]
+        self.assertEqual(runner.when, datetime.strptime("2013-03-07T23:05:09",
+                                                        "%Y-%m-%dT%H:%M:%S"))
+

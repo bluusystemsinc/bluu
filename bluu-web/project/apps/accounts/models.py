@@ -23,8 +23,7 @@ class BluuUser(AbstractUser):
     """
     cell = models.CharField(_('cell'), max_length=10, blank=True)
     cell_text_email = models.EmailField(_('cell text email address'),
-            blank=True
-            )
+                                        blank=True)
 
     # objects = UserManager() is required to have it treated as default manager
     objects = UserManager()

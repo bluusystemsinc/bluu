@@ -29,10 +29,17 @@ def alert_open(uad, status):
                                dict(site_name=site_name,
                                     alert_name=_('device open')))
 
-    logger.info('Open alert sent to {0} for device {1}'.format(user.email,
-                                                               device_name))
-    msg = BluuMessage(subject, body, user.email)
-    msg.send()
+    if uad.email_notification:
+        logger.info('Open alert sent to {0} for device {1}'.format(user.email,
+                                                                   device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uad.text_notification:
+        logger.info('Open alert sent to {0} for device {1}'.\
+                    format(user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
 
 
 @task(name='alerts.call_ogt')
@@ -60,8 +67,17 @@ def alert_open_greater_than(runner):
                 {'site_name': site_name,
                  'alert_name': _('device open too long')}
 
-    msg = BluuMessage(subject, body, user.email)
-    msg.send()
+    if uad.email_notification:
+        logger.info('OGT alert sent to {0} for device {1}'.format(user.email,
+                                                                  device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uad.text_notification:
+        logger.info('OGT alert sent to {0} for device {1}'.\
+                    format(user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
 
 
 @task(name='alerts.call_ogtnm')
@@ -89,8 +105,17 @@ def alert_open_greater_than_no_motion(runner):
                 {'site_name': site_name,
                  'alert_name': _('device open too long with no motion')}
 
-    msg = BluuMessage(subject, body, user.email)
-    msg.send()
+    if uad.email_notification:
+        logger.info('OGTNM alert sent to {0} for device {1}'.\
+                    format(user.email, device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uad.text_notification:
+        logger.info('OGTNM alert sent to {0} for device {1}'.\
+                    format(user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
 
 
 @task(name='alerts.call_cgt')
@@ -118,8 +143,17 @@ def alert_closed_greater_than(runner):
                 {'site_name': site_name,
                  'alert_name': _('device closed too long')}
 
-    msg = BluuMessage(subject, body, user.email)
-    msg.send()
+    if uad.email_notification:
+        logger.info('CGT alert sent to {0} for device {1}'.\
+                    format(user.email, device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uad.text_notification:
+        logger.info('CGT alert sent to {0} for device {1}'.\
+                    format(user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
 
 
 @task(name="alerts.trigger_runners")

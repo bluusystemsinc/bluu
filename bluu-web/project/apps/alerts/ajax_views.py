@@ -80,7 +80,7 @@ class UserAlertConfigSetView(generics.GenericAPIView):
             serializer.object.bluusite = site
             serializer.save()
             return Response(serializer.data, status=success_status_code)
- 
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

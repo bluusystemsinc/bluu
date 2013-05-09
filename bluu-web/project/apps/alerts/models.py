@@ -16,6 +16,7 @@ from django.db.models.signals import post_save
 
 from alerts.tasks import (alert_open, alert_open_greater_than)
 
+
 class Alert(models.Model):
     OPEN = 'o'
     OPEN_GREATER_THAN = 'ogt'
@@ -182,8 +183,7 @@ class UserAlertRoom(models.Model):
         return u'{0} | {1} | {2}'.format(unicode(self.user.get_full_name() or\
                                                  self.user.username),
                                          unicode(self.alert.get_alert_type_display()),
-                                         unicode(self.room.name),
-                                        )
+                                         unicode(self.room.name))
 
 
 class AlertRunner(models.Model):
@@ -211,8 +211,7 @@ TIME_UNITS = {Alert.SECONDS: 'seconds',
               Alert.DAYS: 'days'}
 
 
-def get_alert_time(status, alert):
-    timestamp = status.timestamp
+def get_alert_time(timestamp, alert):
     duration = alert.duration
     unit = alert.unit
 
@@ -221,7 +220,7 @@ def get_alert_time(status, alert):
     return timestamp + delta
 
 
-def set_runners(uad, status):
+def set_runners(uad, status, timestamp=None):
     """
     Sets runners for specific uad and last status
     If alert is of type:
@@ -239,20 +238,35 @@ def set_runners(uad, status):
 
     # if duration is set
     if uad.duration > 0:
+        if timestamp is None:
+            timestamp = status.timestamp
         if status.action is status.device.active and\
                 uad.alert.alert_type in\
                 [Alert.OPEN_GREATER_THAN,
                  Alert.OPEN_GREATER_THAN_NO_MOTION]:
-            alert_time = get_alert_time(status, uad)
+            alert_time = get_alert_time(timestamp, uad)
             AlertRunner.objects.create(when=alert_time,
                                        user_alert_device=uad,
-                                       since=status.timestamp)
+                                       since=timestamp)
         elif status.action is status.device.inactive and\
                 uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
-            alert_time = get_alert_time(status, uad)
+            alert_time = get_alert_time(timestamp, uad)
             AlertRunner.objects.create(when=alert_time,
                                        user_alert_device=uad,
-                                       since=status.timestamp)
+                                       since=timestamp)
+
+
+def update_alert_runners(uad, timestamp=None):
+     # delete all alert runners for user alert device
+    AlertRunner.objects.filter(is_active=True, user_alert_device=uad).delete()
+
+    # set new alert runners
+    try:
+        last_status = Status.objects.filter(device=uad.device).latest('created')
+    except Status.DoesNotExist:
+        last_status = None
+    else:
+        set_runners(uad, last_status, timestamp)
 
 
 @receiver(post_save, sender=UserAlertConfig)
@@ -273,6 +287,8 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
                 uar.email_notification = instance.email_notification
                 uar.text_notification = instance.text_notification
                 uar.save()
+        elif instance.device_type.name == DeviceType.SCALE:
+            print "NO scale support yet"
         else:
             for uad in UserAlertDevice.objects.filter(
                     user=instance.user,
@@ -288,20 +304,10 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
 @receiver(post_save, sender=UserAlertDevice)
 def _update_alert_device(sender, instance, created, *args, **kwargs):
     """
-    If useralertdevice has been updated then
+    If useralertdevice has been updated (alerts configuration change) then
     alert runners should be reconfigured
     """
-    # delete all alert runners for updated uad
-    AlertRunner.objects.filter(is_active=True, user_alert_device=instance).delete()
-
-    # set new alert runners
-    try:
-        last_status = Status.objects.filter(device=instance.device).latest('created')
-    except Status.DoesNotExist:
-        last_status = None
-    else:
-        set_runners(instance, last_status)
-    print "TEST ME!!"
+    update_alert_runners(instance)
 
 
 @receiver(post_save, sender=UserAlertRoom)
@@ -321,13 +327,7 @@ def _update_alert_room(sender, instance, created, *args, **kwargs):
     else:
         print "set motion runners here (alerts/models)"
         #set_motion_runners(instance, last_status)
-    print "TEST ME TOO!!"
-
-
-
-
-    print "after useralertroom has been updated alert runners should be reconfigured"
-
+    print "TEST ME!!"
 
 
 @receiver(data_received_and_stored, sender=Status)
@@ -345,8 +345,19 @@ def check_alerts(sender, status, *args, **kwargs):
 
     if status.device_type == DeviceType.MOTION:
         # set motion alerts
-        # reset "NO_MOTION" alerts
         pass
+
+        # reset "NO_MOTION" alerts
+        # get all userdevicealerts in the site where motion has just occured
+        # that have NOMOTION alerts configured
+        uads = UserAlertDevice.objects.filter(
+                device__bluusite=status.device.bluusite,
+                alert__alert_type=Alert.OPEN_GREATER_THAN_NO_MOTION)
+        # reset runners
+        for uad in uads:
+            # nomotion runners ar set again starting with current
+            # motion's status timestamp
+            update_alert_runners(uad, status.timestamp)
     elif status.device_type == DeviceType.SCALE:
         pass
     elif status.device_type == DeviceType.BLOOD_PRESSURE:
