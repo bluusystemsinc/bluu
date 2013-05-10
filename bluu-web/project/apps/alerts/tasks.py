@@ -36,7 +36,7 @@ def alert_open(uad, status):
         msg.send()
 
     if uad.text_notification:
-        logger.info('Open alert sent to {0} for device {1}'.\
+        logger.info('Open text alert sent to {0} for device {1}'.\
                     format(user.cell_text_email, device_name))
         msg = BluuMessage(subject, body, user.cell_text_email)
         msg.send()
@@ -74,7 +74,7 @@ def alert_open_greater_than(runner):
         msg.send()
 
     if uad.text_notification:
-        logger.info('OGT alert sent to {0} for device {1}'.\
+        logger.info('OGT text alert sent to {0} for device {1}'.\
                     format(user.cell_text_email, device_name))
         msg = BluuMessage(subject, body, user.cell_text_email)
         msg.send()
@@ -112,7 +112,7 @@ def alert_open_greater_than_no_motion(runner):
         msg.send()
 
     if uad.text_notification:
-        logger.info('OGTNM alert sent to {0} for device {1}'.\
+        logger.info('OGTNM text alert sent to {0} for device {1}'.\
                     format(user.cell_text_email, device_name))
         msg = BluuMessage(subject, body, user.cell_text_email)
         msg.send()
@@ -150,8 +150,40 @@ def alert_closed_greater_than(runner):
         msg.send()
 
     if uad.text_notification:
-        logger.info('CGT alert sent to {0} for device {1}'.\
+        logger.info('CGT text alert sent to {0} for device {1}'.\
                     format(user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
+
+
+@task(name='alerts.call_mir')
+def alert_mir(uar, status):
+    user = uar.user
+    device_name = status.device.name
+    room = uar.room.name
+    site_name = status.device.bluusite.get_name
+    timestamp = status.timestamp
+
+    body = render_to_string('alerts/notifications/mir.html', {
+        'user': user,
+        'device_name': device_name,
+        'room': room,
+        'site_name': site_name,
+        'timestamp': timestamp
+    })
+    subject = render_to_string('alerts/notifications/notification_title.html',
+                               dict(site_name=site_name,
+                                    alert_name=_('motion in room')))
+
+    if uar.email_notification:
+        logger.info('Motion in room {0} alert sent to {1} for device {2}'.
+                    format(room, user.email, device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uar.text_notification:
+        logger.info('Motion in room {0} text alert sent to {1} for device {2}'.
+                    format(room, user.cell_text_email, device_name))
         msg = BluuMessage(subject, body, user.cell_text_email)
         msg.send()
 

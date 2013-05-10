@@ -12,13 +12,14 @@ from bluusites.models import BluuSite
 from utils.misc import get_client_ip
 
 
-def is_heartbeat(device, status):
+def is_heartbeat(status):
     """
     Checks if status is a heartbeat. This is determined by supervisory parameter
     """
     if status.data['supervisory']:
         return True
     return False
+
 
 class DeviceStatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,6 +33,30 @@ class DeviceStatusSerializer(serializers.ModelSerializer):
 
 class DeviceStatusCreateView(generics.CreateAPIView):
     serializer_class = DeviceStatusSerializer
+
+    def has_perms(self, request):
+        # Permissions check has to be called here and not as a dispatch
+        # decorator because of deferred user authentication in DRF.
+        # DRF authenticates user inside it's dispatch.
+        has_permissions = False
+        perms = ['bluusites.browse_devices', 'bluusites.change_device']
+
+        # check global perms
+        has_permissions = all(request.user.has_perm(perm) for perm in perms)
+        # if no permission granted then try object perms
+        if not has_permissions:
+            has_permissions = all(request.user.has_perm(perm, self.bluusite) \
+                                  for perm in perms)
+        return has_permissions
+
+    def pre_save(self, obj):
+        obj.device = self.device
+        obj.device_type = self.device.device_type
+        obj.bluusite = self.device.bluusite
+        obj.room = self.device.room
+
+    def post_save(self, obj, created=False):
+        data_received_and_stored.send(sender=Status, status=obj)
 
     def create(self, request, *args, **kwargs):
         """
@@ -50,56 +75,31 @@ class DeviceStatusCreateView(generics.CreateAPIView):
 
         """
         site_slug = self.kwargs.get('site_slug', None)
-        bluusite = get_object_or_404(BluuSite, slug=site_slug)
         serial = self.kwargs.get('device_slug', None)
-        device = get_object_or_404(Device, bluusite=bluusite, serial=serial)
-
-        # Permissions check has to be called here and not as a dispatch 
-        # decorator because of deferred user authentication in DRF.
-        # DRF authenticates user inside it's dispatch.
-        has_permissions = False
-        perms = ['bluusites.browse_devices', 'bluusites.change_device']
-
-        # check global perms
-        has_permissions = all(request.user.has_perm(perm) for perm in perms)
-        # if no permission granted then try object perms
-        if not has_permissions:
-            has_permissions = all(request.user.has_perm(perm, bluusite) \
-                                  for perm in perms)
-
-        if not has_permissions:
+        self.bluusite = get_object_or_404(BluuSite, slug=site_slug)
+        self.device = get_object_or_404(Device, bluusite=self.bluusite,
+                                        serial=serial)
+        if not self.has_perms(request):
             return HttpResponse(status=403)
 
-        data = request.DATA.copy()
-        #data['device'] = device
-
-        serializer = self.get_serializer(data=data, files=request.FILES)
-                                         #partial=True)
+        serializer = self.get_serializer(data=request.DATA, files=request.FILES)
         timestamp = datetime.now()
         if serializer.is_valid():
-            # check if signal is only a heartbeat
-            if not is_heartbeat(device, serializer):
-                serializer.object.device = device
-                serializer.object.device_type = device.device_type
-                serializer.object.bluusite = device.bluusite
-                serializer.object.room = device.room
+            # if signal isn't a heartbeat then process it
+            if not is_heartbeat(serializer):
                 self.pre_save(serializer.object)
                 self.object = serializer.save()
                 self.post_save(self.object, created=True)
                 timestamp = self.object.created
-                data_received_and_stored.send(sender=Status, status=self.object)
-
 
             # send signal with caller ip address
             data_received.send(sender=Status,
                                data=serializer.data,
-                               device=device,
+                               device=self.device,
                                timestamp=timestamp,
                                ip_address=get_client_ip(request))
-            headers = self.get_success_headers(data)
-            # revert data to be returned to contain serial instead of device
-            #data.pop('device')
-            return Response(data, status=status.HTTP_201_CREATED,
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED,
                             headers=headers)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -115,6 +115,20 @@ class SiteHeartBeatView(generics.UpdateAPIView):
     model = BluuSite
     slug_url_kwarg = 'site_slug'
     serializer_class = SiteHeartBeatSerializer
+
+    def has_perms(self, request):
+        # Permissions check has to be called here and not as a dispatch
+        # decorator because of defered user authentication in DRF.
+        # DRF authenticates user inside it's dispatch.
+        has_permissions = False
+        perm = 'bluusites.browse_devices'
+
+        # check global perms
+        has_permissions = request.user.has_perm(perm)
+        # if no permission granted then try object perms
+        if not has_permissions:
+            has_permissions = request.user.has_perm(perm, self.object)
+        return has_permissions
 
     def update(self, request, *args, **kwargs):
         """
@@ -133,19 +147,7 @@ class SiteHeartBeatView(generics.UpdateAPIView):
         except Http404:
             return HttpResponse(status=404)
 
-        # Permissions check has to be called here and not as a dispatch 
-        # decorator because of defered user authentication in DRF.
-        # DRF authenticates user inside it's dispatch.
-        has_permissions = False
-        perm = 'bluusites.browse_devices'
-
-        # check global perms
-        has_permissions = request.user.has_perm(perm)
-        # if no permission granted then try object perms
-        if not has_permissions:
-            has_permissions = request.user.has_perm(perm, self.object)
-
-        if not has_permissions:
+        if not self.has_perms():
             return HttpResponse(status=403)
 
         serializer = self.get_serializer(self.object, data=request.DATA)
