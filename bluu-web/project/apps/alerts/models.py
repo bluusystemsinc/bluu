@@ -233,13 +233,12 @@ def set_runners(uad, status, timestamp=None):
         - add configured duration to status timestamp
         - set alert runner
     """
-    # invalidate old alert runners
-    AlertRunner.objects.filter(user_alert_device=uad).delete()
+    # Delete all alert runners for user alert device
+    AlertRunner.objects.filter(is_active=True, user_alert_device=uad).delete()
 
     # if duration is set
     if uad.duration > 0:
-        if timestamp is None:
-            timestamp = status.timestamp
+
         if status.action is status.device.active and\
                 uad.alert.alert_type in\
                 [Alert.OPEN_GREATER_THAN,
@@ -256,24 +255,32 @@ def set_runners(uad, status, timestamp=None):
                                        since=timestamp)
 
 
-def update_alert_runners(uad, timestamp=None):
-     # delete all alert runners for user alert device
-    AlertRunner.objects.filter(is_active=True, user_alert_device=uad).delete()
-
-    # set new alert runners
+def update_alert_runners(uad, status=None, timestamp=None):
+    """
+    Updates alert runners when:
+    1. new status for a specific monitored device arrived
+    2. alert settings were changed
+    3. new status for motion device arrived - it's possible that "open greater
+    than no motion" type of alert is set so it has to be updated. This is also
+    why arbitrary timestamp is passed into this function - it might be
+    timestamp for motion event, and not for the last status for device.
+    """
     try:
-        last_status = Status.objects.filter(device=uad.device).latest('created')
+        if not status:
+            status = Status.objects.filter(device=uad.device).latest('created')
     except Status.DoesNotExist:
-        last_status = None
+        status = None
     else:
-        set_runners(uad, last_status, timestamp)
+        if timestamp is None:
+            timestamp = status.timestamp
+        set_runners(uad, status, timestamp)
 
 
 def set_motion_runners(uar, status, timestamp=None):
     """
     Sets motion runners for specific room.
 
-    1. Get last active motion status in the room
+    1. "status" param of this function is last active motion status in the room
     2. Set runners for specific uar and last active motion status
     If alert is of type:
         - NO_MOTION_GREATER_THAN
@@ -290,47 +297,48 @@ def set_motion_runners(uar, status, timestamp=None):
       then
         -...
     """
-    AlertRunner.objects.filter(user_alert_room=uar).delete()
+    # Delete all alert runners for user room
+    AlertRunner.objects.filter(is_active=True, user_alert_room=uar).delete()
 
     # all devices in the room
     motion_devices = Device.objects.filter(room=uar.room,
                                            device_type__name=DeviceType.MOTION)
-    last_status = Status.objects.filter(
-        device__room=uar.room,
-        device__device_type__name=DeviceType.MOTION).latest('created')
 
-    print motion_devices
-    print last_status
-
-    for device in motion_devices:
-        print device
-    # invalidate old alert runners
     # if duration is set
     if uar.duration > 0:
         if timestamp is None:
             timestamp = status.timestamp
         if status.action is status.device.active and\
-                uad.alert.alert_type in\
-                [Alert.OPEN_GREATER_THAN,
-                 Alert.OPEN_GREATER_THAN_NO_MOTION]:
-            alert_time = get_alert_time(timestamp, uad)
+                uar.alert.alert_type == Alert.NOMOTION_IN_ROOM_GREATER_THAN:
+            alert_time = get_alert_time(timestamp, uar)
             AlertRunner.objects.create(when=alert_time,
-                                       user_alert_device=uad,
+                                       user_alert_room=uar,
                                        since=timestamp)
-        elif status.action is status.device.inactive and\
-                uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
-            alert_time = get_alert_time(timestamp, uad)
-            AlertRunner.objects.create(when=alert_time,
-                                       user_alert_device=uad,
-                                       since=timestamp)
+        #elif status.action is status.device.inactive and\
+        #        uar.alert.alert_type == Alert.CLOSED_GREATER_THAN:
+        #    alert_time = get_alert_time(timestamp, uad)
+        #    AlertRunner.objects.create(when=alert_time,
+        #                               user_alert_device=uad,
+        #                               since=timestamp)
 
 
-def update_motion_alert_runners(uar, timestamp=None):
-     # delete all alert runners for user alert device
-    AlertRunner.objects.filter(is_active=True, user_alert_device=uad).delete()
-
-    # set new alert runners
-    set_motion_runners(uar, timestamp)
+def update_motion_alert_runners(uar, status=None, timestamp=None):
+    """
+    Updates motion alert runners when:
+    1. new status for a specific monitored room arrived
+    2. alert settings were changed
+    """
+    try:
+        if not status:
+            status = Status.objects.filter(
+                device__room=uar.room,
+                device__device_type__name=DeviceType.MOTION).latest('created')
+    except Status.DoesNotExist:
+        status = None
+    else:
+        if not timestamp:
+            timestamp = status.timestamp
+        set_motion_runners(uar, status, timestamp)
 
 
 @receiver(post_save, sender=UserAlertConfig)
@@ -389,43 +397,56 @@ def check_alerts(sender, status, *args, **kwargs):
     Checks what alerts should be set for status that has just been
     saved.
     """
-    statuses = Status.objects.filter(
-        device=status.device).order_by('-created')[:2]
-    if statuses and len(statuses) == 2:
-        previous_action = statuses[1].action
-    else:
-        previous_action = None
-    if status.device_type.name == DeviceType.MOTION:
-        # Each motion device sends "open" and then "closed" after some time
-        # set motion alerts
-        # if motion come then it is required to set alerts per room
-        if status.action is status.device.active:
-            # Get alerts defined for this room
-            uars = UserAlertRoom.objects.select_related('alert').\
-                filter(room=status.device.room)
-            for uar in uars:
-                # If alert is: Motion in room then send alert immediately
-                if uar.alert.alert_type == Alert.MOTION_IN_ROOM:
-                    alert_mir.delay(uar, status)
 
-        # if it's a motion and not motion end
-        if status.action is status.device.active:
-            # Reset "NO_MOTION" alerts
-            # get all userdevicealerts in the site where motion has just occured
-            # that have NOMOTION alerts configured
-            uads = UserAlertDevice.objects.filter(
-                    device__bluusite=status.device.bluusite,
-                    alert__alert_type=Alert.OPEN_GREATER_THAN_NO_MOTION)
-            # reset runners
-            for uad in uads:
-                # nomotion runners ar set again starting with current
-                # motion's status timestamp
-                update_alert_runners(uad, status.timestamp)
+    previous_action = None
+    if status.device_type.name == DeviceType.MOTION:
+        # get previous status in the current room to check if there's a state
+        # change
+        statuses = Status.objects.filter(
+            device__room=status.device.room).order_by('-created')[:2]
+        if statuses and len(statuses) == 2:
+            # Set previous action to active value
+            previous_action = statuses[1].action == statuses[1].device.active
+
+        action = status.action == status.device.active
+        if action != previous_action:
+            # Each motion device sends "open" and then "closed" after some time
+            # set motion alerts
+            # if motion come then it is required to set alerts per room
+            if status.action is status.device.active:
+                # Get alerts defined for this room
+                uars = UserAlertRoom.objects.select_related('alert').\
+                    filter(room=status.device.room)
+                for uar in uars:
+                    # If alert is: Motion in room then send alert immediately
+                    if uar.alert.alert_type == Alert.MOTION_IN_ROOM:
+                        alert_mir.delay(uar, status)
+                    elif uar.alert.alert_type ==\
+                            Alert.NOMOTION_IN_ROOM_GREATER_THAN:
+                        update_motion_alert_runners(uar, status,
+                                                    status.timestamp)
+
+                # Reset "NO_MOTION" alerts
+                # get all userdevicealerts in the site where motion has just
+                # occured that have NOMOTION alerts configured
+                uads = UserAlertDevice.objects.filter(
+                        device__bluusite=status.device.bluusite,
+                        alert__alert_type=Alert.OPEN_GREATER_THAN_NO_MOTION)
+                # reset runners
+                for uad in uads:
+                    # nomotion runners are set again, starting with current
+                    # motion's status timestamp
+                    update_alert_runners(uad, status, status.timestamp)
     elif status.device_type.name == DeviceType.SCALE:
         pass
     elif status.device_type.name == DeviceType.BLOOD_PRESSURE:
         pass
     else:
+        statuses = Status.objects.filter(
+            device=status.device).order_by('-created')[:2]
+        if statuses and len(statuses) == 2:
+            previous_action = statuses[1].action
+
         if status.action != previous_action:
             """
             If status' "action" is different than the previous status' "action",
