@@ -17,7 +17,7 @@ class DashboardView(TemplateView, RedirectView):
         if last_site is not None:
             try:
                 BluuSite.objects.get(slug=last_site)
-            except:
+            except BluuSite.DoesNotExist:
                 last_site = None
 
         if not last_site:
@@ -66,7 +66,6 @@ class BluuSiteDashboardView(DetailView):
         self.request.session['last_dashboard_site'] = self.object.slug
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context) 
-
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):

@@ -22,6 +22,7 @@ from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.countries import CountryField
 from south.modelsinspector import add_introspection_rules
+
 add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
 from accounts.models import BluuUser
@@ -39,17 +40,17 @@ class BluuSite(models.Model):
     last_name = models.CharField(_('last name'), max_length=30)
     slug = AutoSlugField(populate_from=get_site_slug, unique=True)
     middle_initial = models.CharField(
-                _('middle initial'), max_length=2, 
-                blank=True)
+        _('middle initial'), max_length=2,
+        blank=True)
     company = models.ForeignKey(
-                "companies.Company", verbose_name=_('company'),
-                on_delete=models.PROTECT)
+        "companies.Company", verbose_name=_('company'),
+        on_delete=models.PROTECT)
     users = models.ManyToManyField(
-                settings.AUTH_USER_MODEL,
-                blank=True,
-                null=True,
-                verbose_name=_('users'),
-                through='BluuSiteAccess')
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        null=True,
+        verbose_name=_('users'),
+        through='BluuSiteAccess')
     street = models.CharField(_('street'), max_length=50)
     city = models.CharField(_('city'), max_length=50)
     state = models.CharField(_('state'), max_length=50)
@@ -59,8 +60,8 @@ class BluuSite(models.Model):
     last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
     ip = models.IPAddressField(_('ip address'), null=True, blank=True)
     many_inhabitants = models.BooleanField(
-                   _('more than one person living in this house'),
-                   default=False)
+        _('more than one person living in this house'),
+        default=False)
 
     class Meta:
         verbose_name = _("Site")
@@ -94,7 +95,7 @@ class BluuSite(models.Model):
 
     @property
     def is_online(self):
-        if (datetime.now() - self.last_seen) > timedelta(hours = 1):
+        if (datetime.now() - self.last_seen) > timedelta(hours=1):
             return False
         return True
 
@@ -109,8 +110,8 @@ class BluuSite(models.Model):
         devices = self.device_set.filter(device_type__name=DeviceType.SCALE)
         try:
             last_scale = devices.latest('last_seen')
-            status = last_scale.status_set.filter(float_data__isnull=False).\
-                                                               latest('created')
+            status = last_scale.status_set.filter(float_data__isnull=False). \
+                latest('created')
             return status.float_data
         except ObjectDoesNotExist:
             return None
@@ -119,9 +120,9 @@ class BluuSite(models.Model):
         ret = []
         try:
             scale_statuses = Status.objects.filter(
-                    device__bluusite=self,
-                    device__device_type__name=DeviceType.SCALE,
-                    float_data__isnull=False).order_by('-created')[:count]
+                device__bluusite=self,
+                device__device_type__name=DeviceType.SCALE,
+                float_data__isnull=False).order_by('-created')[:count]
             for status in scale_statuses:
                 dat = calendar.timegm(status.timestamp.timetuple()) * 1000
                 ret.append((dat, status.float_data))
@@ -133,9 +134,9 @@ class BluuSite(models.Model):
         ret = []
         try:
             scale_statuses = Status.objects.filter(
-                    device__bluusite=self,
-                    device__device_type__name=DeviceType.BLOOD_PRESSURE,
-                    float_data__isnull=False).order_by('-created')[:count]
+                device__bluusite=self,
+                device__device_type__name=DeviceType.BLOOD_PRESSURE,
+                float_data__isnull=False).order_by('-created')[:count]
             for status in scale_statuses:
                 dat = calendar.timegm(status.timestamp.timetuple()) * 1000
                 ret.append((dat, status.float_data))
@@ -160,38 +161,38 @@ class BluuSite(models.Model):
     @property
     def has_activities(self):
         return Status.objects.filter(
-                device__bluusite=self,
-                device__device_type__name=DeviceType.MOTION,
-                ).exists()
+            device__bluusite=self,
+            device__device_type__name=DeviceType.MOTION,
+        ).exists()
 
     def get_activity(self):
         rooms = {}
         for room in Room.objects.filter(bluusite=self):
-            rooms[room.pk]=0
+            rooms[room.pk] = 0
 
         last_activity = None
         last_room_activity = {}
         timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
 
         activities = Status.objects.filter(
-                device__bluusite=self,
-                device__device_type__name=DeviceType.MOTION,
-                action=F('device__active')
-                ).order_by('timestamp')
+            device__bluusite=self,
+            device__device_type__name=DeviceType.MOTION,
+            action=F('device__active')
+        ).order_by('timestamp')
         for activity in activities:
             if self.many_inhabitants:
-                # there is more than one inhabitant in a house so
-                # the timers should overlap and not cancel each other
-                # check current room
+                # There is more than one inhabitant in a house so
+                # the timers should overlap and not cancel each other.
+                # Get last activity in current room so that it doesn't break
+                # activities in other rooms
                 room = activity.device.room
-                # get last activity in this room
                 last_activity = last_room_activity.get(room.pk, None)
 
             if last_activity:
                 room = last_activity.device.room
-                # store time since last activity
-                # but no more than time gap
-                last_time = last_activity.timestamp 
+                # Store time since last activity
+                # but no more than time gap.
+                last_time = last_activity.timestamp
                 new_time = activity.timestamp
                 diff = new_time - last_time
 
@@ -238,8 +239,8 @@ class BluuSite(models.Model):
         }
         """
         beds = {}
-        sleep_duration = timedelta(minutes=settings.SLEEP_DURATION) 
-        sleep_duration_seconds = sleep_duration.total_seconds() 
+        sleep_duration = timedelta(minutes=settings.SLEEP_DURATION)
+        sleep_duration_seconds = sleep_duration.total_seconds()
         timegap = timedelta(minutes=settings.SLEEP_TIME_GAP)
         if bed_pk:
             bed_list = self.device_set.filter(pk=bed_pk)
@@ -247,25 +248,25 @@ class BluuSite(models.Model):
             bed_list = self.device_set.filter(device_type__name=DeviceType.BED)
 
         for bed in bed_list:
-            beds[bed.pk]={'sleeps': [0]}
-            beds[bed.pk]=[{'length': 0, 'timestamp': None}]
+            beds[bed.pk] = {'sleeps': [0]}
+            beds[bed.pk] = [{'length': 0, 'timestamp': None}]
 
             last_activity = None
             last_sleep = 0
             activities = Status.objects.filter(
-                    device__bluusite=self,
-                    device=bed,
-                    ).order_by('timestamp')
+                device__bluusite=self,
+                device=bed,
+            ).order_by('timestamp')
             for activity in activities:
                 if last_activity:
                     if last_activity.action == bed.active and \
-                            activity.action == bed.inactive:
+                                    activity.action == bed.inactive:
                         # someone was lying in a bed and has just stand up
                         diff = activity.timestamp - last_activity.timestamp
                         beds[bed.pk][-1]['length'] += diff.total_seconds()
                         beds[bed.pk][-1]['timestamp'] = activity.timestamp
                     elif last_activity.action == bed.inactive and \
-                            activity.action == bed.active:
+                                    activity.action == bed.active:
                         # someone was absent in a bed and has just laid into it
                         # we have to check whether the gap between last
                         # activity timestamp and current action timestamp
@@ -278,16 +279,18 @@ class BluuSite(models.Model):
                             beds[bed.pk][-1]['timestamp'] = activity.timestamp
                         else:
                             # break took more than SLEEP_TIME_GAP -> start new sleep
-                            if beds[bed.pk][-1]['length'] > sleep_duration_seconds:
+                            if beds[bed.pk][-1][
+                                'length'] > sleep_duration_seconds:
                                 last_sleep = beds[bed.pk][-1]['length']
-                            beds[bed.pk].append({'length': 0, 'timestamp': None})
+                            beds[bed.pk].append(
+                                {'length': 0, 'timestamp': None})
                     elif last_activity.action == bed.active and \
-                            activity.action == bed.active:
+                                    activity.action == bed.active:
                         # dobule active action - we treat is as a heartbeat
                         diff = activity.timestamp - last_activity.timestamp
                         beds[bed.pk][-1]['length'] += diff.total_seconds()
                         beds[bed.pk][-1]['timestamp'] = activity.timestamp
-                    #elif last_activity.action == bed.inactive and \
+                        #elif last_activity.action == bed.inactive and \
                         #    activity.action == bed.inactive:
                         # dobule inactive action - heartbeat 
                         # Nobody's in a bed so do nothing
@@ -308,8 +311,8 @@ class BluuSite(models.Model):
             # if calculated sleep is shorter than SLEEP_DURATION then use
             # last_sleep value
             if beds[bed.pk][-1]['length'] <= sleep_duration_seconds and \
-                                       last_sleep > beds[bed.pk][-1]['length']:
-                del(beds[bed.pk][-1])
+                            last_sleep > beds[bed.pk][-1]['length']:
+                del (beds[bed.pk][-1])
         return beds
 
     def get_last_sleep(self):
@@ -325,8 +328,8 @@ class BluuSite(models.Model):
             else:
                 bed_stamp = bed[-1].get('timestamp')
                 last_stamp = last[-1].get('timestamp')
-                if (bed_stamp is not None and last_stamp is not None) and\
-                    bed_stamp > last_stamp:
+                if (bed_stamp is not None and last_stamp is not None) and \
+                                bed_stamp > last_stamp:
                     last = bed
         return last[-1]['length']
 
@@ -355,13 +358,13 @@ class BluuSite(models.Model):
 
     def add_user(self, user, group):
         BluuSiteAccess.objects.create(user=user, email=user.email,
-                                           group=group, site=self)
+                                      group=group, site=self)
 
     def invite_user(self, inviter, obj):
         invitation = InvitationKey.objects.create_invitation(
-                user=inviter,
-                content_object=obj
-                )
+            user=inviter,
+            content_object=obj
+        )
         invitation.send_to(obj.email)
 
 
@@ -386,7 +389,7 @@ class BluuSiteAccess(models.Model):
             unicode(self.site),
             unicode(getattr(self, 'user', '---')),
             unicode(getattr(self, 'email', '---')))
-    
+
     @property
     def get_email(self):
         if self.user is not None:
@@ -408,14 +411,15 @@ class Room(models.Model):
 
     def __unicode__(self):
         return u'%s' % unicode(self.name)
- 
+
     @models.permalink
     def get_absolute_url(self):
         return ('room_edit', [str(self.bluusite_id), str(self.id)])
 
 
 @receiver(pre_save, sender=BluuSite)
-def _remove_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
+def _remove_access_for_company_users_on_new_site(sender, instance, *args,
+                                                 **kwargs):
     """
     When site is reassigned (assigned to other company) then
     remove perms.
@@ -429,7 +433,8 @@ def _remove_access_for_company_users_on_new_site(sender, instance, *args, **kwar
             """
             ctype = ContentType.objects.get(app_label="companies",
                                             model="company")
-            for uog in UserObjectGroup.objects.filter(object_pk=old_site.company.pk,
+            for uog in UserObjectGroup.objects.filter(
+                    object_pk=old_site.company.pk,
                     content_type=ctype):
                 UserObjectGroup.objects.remove_access(group=uog.group,
                                                       user=uog.user,
@@ -437,7 +442,8 @@ def _remove_access_for_company_users_on_new_site(sender, instance, *args, **kwar
 
 
 @receiver(post_save, sender=BluuSite)
-def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs):
+def _set_access_for_company_users_on_new_site(sender, instance, *args,
+                                              **kwargs):
     """
     Assign user to a group in the context of company.
     Assign user to a group in the context of sites belonging to company.
@@ -445,7 +451,7 @@ def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs)
     """
     ctype = ContentType.objects.get(app_label="companies",
                                     model="company")
-    company = instance.company 
+    company = instance.company
     # Assign users the same permissions to a site 
     # as they have for company the site is
     # assigned to
@@ -457,17 +463,19 @@ def _set_access_for_company_users_on_new_site(sender, instance, *args, **kwargs)
 
 
 @receiver(post_save, sender=BluuSite)
-def _create_webservice_user_for_site(sender, instance, created, *args, **kwargs):
+def _create_webservice_user_for_site(sender, instance, created, *args,
+                                     **kwargs):
     if created:
         from django.contrib.auth import get_user_model
+
         user = get_user_model().objects.create_user(
-                            username='{0}_{1}'.format(
-                                            settings.WEBSERVICE_USERNAME_PREFIX,
-                                            instance.slug),
-                            email='',
-                            password=instance.slug,
-                            first_name=instance.first_name,
-                            last_name=instance.last_name)
+            username='{0}_{1}'.format(
+                settings.WEBSERVICE_USERNAME_PREFIX,
+                instance.slug),
+            email='',
+            password=instance.slug,
+            first_name=instance.first_name,
+            last_name=instance.last_name)
         group = Group.objects.get(name='WebService')
         # create siteaccess
         BluuSiteAccess.objects.create(site=instance, group=group, user=user)
@@ -482,7 +490,7 @@ def _remove_access_for_site_user(sender, instance, *args, **kwargs):
     if instance.pk and instance.user:
         ba = BluuSiteAccess.objects.get(pk=instance.pk)
         instance.user.remove_access(group=ba.group, obj=instance.site)
-        
+
 
 @receiver(post_save, sender=BluuSiteAccess)
 def _assign_access_for_site_user(sender, instance, created, *args, **kwargs):
@@ -494,7 +502,8 @@ def _assign_access_for_site_user(sender, instance, created, *args, **kwargs):
 
 
 @receiver(signals.user_registered)
-def _assign_access_for_newly_registered_user(sender, user, request, *args, **kwargs):
+def _assign_access_for_newly_registered_user(sender, user, request, *args,
+                                             **kwargs):
     """
     Sets user object on on access objects with user email (invitations)
     """

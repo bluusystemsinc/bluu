@@ -282,22 +282,16 @@ def set_motion_runners(uar, status, timestamp=None):
 
     1. "status" param of this function is last active motion status in the room
     2. Set runners for specific uar and last active motion status
-    If alert is of type:
-        - NO_MOTION_GREATER_THAN
-        and
-        - duration is set
-      then:
-        - add configured duration to status timestamp
-        - set alert runner
-    Else If alert is of type:
-        - MOTION_GREATER_THAN (in 24h)
-        - MOTION_LESS_THAN (in 24h)
-        and
-        - duration is set
-      then
-        -...
+     Motion is "Active" then:
+      - NO_MOTION_GREATER_THAN - remove old and set again including timegap
+      - MOTION_GREATER_THAN in a period - remove old and set again
+        assuming activity time equal to the timegap
+      - MOTION_LESS_THAN in a period - remove and set again starting at
+        timegap end
+     Motion is "Inactive" then:
+       because activity is calculated in a way where a predefined timegap
+       plays role then "inactive/close" signal is not relevant here.
     """
-    # Delete all alert runners for user room
     AlertRunner.objects.filter(is_active=True, user_alert_room=uar).delete()
 
     # all devices in the room
@@ -310,7 +304,10 @@ def set_motion_runners(uar, status, timestamp=None):
             timestamp = status.timestamp
         if status.action is status.device.active and\
                 uar.alert.alert_type == Alert.NOMOTION_IN_ROOM_GREATER_THAN:
-            alert_time = get_alert_time(timestamp, uar)
+            # Activity has just been started so nomotion has to be started after
+            # MOTION_TIME_GAP time has passed
+            timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
+            alert_time = get_alert_time(timestamp + timegap, uar)
             AlertRunner.objects.create(when=alert_time,
                                        user_alert_room=uar,
                                        since=timestamp)
@@ -326,7 +323,8 @@ def update_motion_alert_runners(uar, status=None, timestamp=None):
     """
     Updates motion alert runners when:
     1. new status for a specific monitored room arrived
-    2. alert settings were changed
+    2. alert settings were changed (status is None then, so last motion status
+       in current room is used)
     """
     try:
         if not status:

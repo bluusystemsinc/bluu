@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 import time
 import json
-from alerts.models import UserAlertConfig, Alert, UserAlertDevice, AlertRunner, UserAlertRoom
+from django.conf import settings
 from django_webtest import WebTest
 from django_dynamic_fixture import G
 from django.core.urlresolvers import reverse
@@ -9,22 +9,23 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.test.client import RequestFactory
 
+from alerts.models import (UserAlertConfig, Alert, UserAlertDevice,
+                           AlertRunner, UserAlertRoom)
 from accounts.models import BluuUser
 from bluusites.models import BluuSite, Room
-from devices.models import (Device, DeviceType)
+from devices.models import Device, DeviceType
 from alerts.tasks import alert_trigger_runners
 from alerts.ajax_views import UserAlertConfigSetView
 
 
 def post_status(testcase, slug, serial, form_data):
-    return testcase.app.post(
-            reverse('v1:create_status',
-                    kwargs={'site_slug': slug,
-                            'device_slug': serial}),
-            json.dumps(form_data),
-            content_type='application/json;charset=utf-8',
-            user='ws',
-            status=201)
+    return testcase.app.post(reverse('v1:create_status',
+                                     kwargs={'site_slug': slug,
+                                             'device_slug': serial}),
+                             json.dumps(form_data),
+                             content_type='application/json;charset=utf-8',
+                             user='ws',
+                             status=201)
 
 
 class AlertsOpenTestCase(WebTest):
@@ -512,7 +513,6 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
                                                         "%Y-%m-%dT%H:%M:%S"))
 
 
-
 class AlertsMotionInRoomTestCase(WebTest):
     csrf_checks = False
 
@@ -564,3 +564,117 @@ class AlertsMotionInRoomTestCase(WebTest):
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].subject,
                          'Jan Kowalski alert - device open')
+
+
+
+class AlertsNoMotionGreaterThanTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
+        self.room1 = G(Room, name="room1", bluusite=self.bluusite1)
+
+        # USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1')
+
+        # DEVICES AND ALERTS
+        self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         room=self.room1, device_type=self.motion_type)
+
+        self.alert = Alert.objects.get(
+            alert_type=Alert.NOMOTION_IN_ROOM_GREATER_THAN)
+        self.uar = UserAlertRoom.objects.create(alert=self.alert,
+                                                room=self.room1,
+                                                user=self.user1,
+                                                duration=10,
+                                                unit=Alert.MINUTES,
+                                                email_notification=True,
+                                                text_notification=True
+                                                )
+
+    def testNoMotionGTSet(self):
+        """
+        Test if alert runner for nomotion in room greater than is properly set
+        """
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "1.22",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert runner set to be run after settings.MOTION_TIME_GAP + alert duration
+        self.assertEqual(1, AlertRunner.objects.count())
+        runner = AlertRunner.objects.all()[0]
+        duration_time= datetime.strptime("2013-03-07T23:10:09",
+                                         "%Y-%m-%dT%H:%M:%S")
+        timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
+
+        self.assertEqual(runner.when, duration_time+timegap)
+
+    def testNoMotionGTUpdated(self):
+        """
+        Test if alert runner for nomotion in room greater than is properly
+        updated.
+        """
+        # Set alert runner
+        when = datetime.strptime("2013-03-07T23:15:09", "%Y-%m-%dT%H:%M:%S")
+        AlertRunner.objects.create(
+            when=when,
+            user_alert_room=self.uar,
+            since=datetime.strptime("2013-03-07T23:00:09",
+                                    "%Y-%m-%dT%H:%M:%S"))
+
+        # Test if runner is updated properly after new status arrived
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "1.22",
+                     "timestamp": "2013-03-07T23:11:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert only one runner exists and
+        # this runner is set to be run after
+        # settings.MOTION_TIME_GAP + alert duration (10 minutes)
+        self.assertEqual(1, AlertRunner.objects.count())
+
+        runner = AlertRunner.objects.all()[0]
+        duration_time= datetime.strptime("2013-03-07T23:21:09",
+                                         "%Y-%m-%dT%H:%M:%S")
+        timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
+
+        self.assertEqual(runner.when, duration_time+timegap)
+
+    def testNoMotionInRoomGTNotificationsSent(self):
+        """
+        Test if alert runner for nomotion in room gt is properly set
+        """
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "1.22",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert notifications sent
+        # Test that two messages has been sent (email and text).
+        alert_trigger_runners.delay()
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(
+            mail.outbox[0].subject,
+            'Jan Kowalski alert - no motion in room for too much time')

@@ -36,7 +36,7 @@ class InvitationKeyManager(models.Manager):
         
     def is_key_valid(self, invitation_key):
         """
-        Check if an ``InvitationKey`` is valid or not, returning a boolean,
+        Checks if an ``InvitationKey`` is valid or not, returning a boolean,
         ``True`` if the key is valid.
         """
         invitation_key = self.get_key(invitation_key)

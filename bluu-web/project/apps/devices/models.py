@@ -118,7 +118,6 @@ class Device(TimeStampedModel):
 
 class Status(models.Model):
     created = models.DateTimeField(_('created'),
-                                   editable=False,
                                    auto_now_add=True)
     device = models.ForeignKey(Device)
     bluusite = models.ForeignKey('bluusites.BluuSite', db_index=True)
