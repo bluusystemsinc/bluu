@@ -208,8 +208,8 @@ def alert_nomotion_greater_than(runner):
     })
 
     subject = _(u'%(site_name)s alert - %(alert_name)s') % \
-              {'site_name': site_name,
-               'alert_name': _('no motion in room for too much time')}
+                {'site_name': site_name,
+                 'alert_name': _('no motion in room for too much time')}
 
     if uar.email_notification:
         logger.info('NMIRGT alert sent to {0} for room {1}'.format(

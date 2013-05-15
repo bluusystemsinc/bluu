@@ -297,6 +297,9 @@ SLEEP_TIME_GAP = 15
 # then count is as a sleep
 SLEEP_DURATION = 60
 
+# Default period for alerts is 24h
+# here in minutes
+ALERT_PERIOD = 1440
 
 # Alert runner settings
 # how often daemon scans runners table (seconds)
