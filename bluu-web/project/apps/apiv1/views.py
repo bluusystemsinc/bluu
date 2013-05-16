@@ -83,7 +83,6 @@ class DeviceStatusCreateView(generics.CreateAPIView):
             return HttpResponse(status=403)
 
         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
-        timestamp = datetime.now()
         if serializer.is_valid():
             # if signal isn't a heartbeat then process it
             if not is_heartbeat(serializer):
@@ -91,6 +90,8 @@ class DeviceStatusCreateView(generics.CreateAPIView):
                 self.object = serializer.save()
                 self.post_save(self.object, created=True)
                 timestamp = self.object.created
+            else:
+                timestamp = datetime.now()
 
             # send signal with caller ip address
             data_received.send(sender=Status,

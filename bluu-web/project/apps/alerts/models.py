@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from datetime import datetime, timedelta
+import datetime
 import calendar
 
 from django.conf import settings
@@ -197,7 +197,7 @@ class AlertRunnerManager(models.Manager):
         unit = alert.unit
 
         params = {TIME_UNITS.get(alert.unit, ''): duration}
-        delta = timedelta(**params)
+        delta = datetime.timedelta(**params)
         return timestamp + delta
 
     def set_runners(self, uad, status, timestamp=None):
@@ -219,38 +219,63 @@ class AlertRunnerManager(models.Manager):
         # if duration is set
         if uad.duration > 0:
             timestamp = timestamp or status.timestamp
-            if status.action is status.device.active and\
-                    uad.alert.alert_type in\
-                    [Alert.OPEN_GREATER_THAN,
-                     Alert.OPEN_GREATER_THAN_NO_MOTION]:
-                alert_time = self.get_alert_time(timestamp, uad)
-                self.create(when=alert_time, user_alert_device=uad,
-                            since=timestamp)
-            elif status.action is status.device.inactive:
-                if uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
+            if status.is_active:
+                if uad.alert.alert_type in [Alert.OPEN_GREATER_THAN,
+                                            Alert.OPEN_GREATER_THAN_NO_MOTION]:
                     alert_time = self.get_alert_time(timestamp, uad)
                     self.create(when=alert_time, user_alert_device=uad,
                                 since=timestamp)
                 elif uad.alert.alert_type == \
                         Alert.ACTIVE_IN_PERIOD_GREATER_THAN:
                     kwargs = {TIME_UNITS[uad.unit]: uad.duration}
-                    duration = timedelta(**kwargs)
-                    activity = uad.device.get_activity_time(till=timestamp)
+                    duration = datetime.timedelta(**kwargs)
+                    activity_time = uad.device.get_activity_time(till=timestamp)
                     target_date = timestamp
-                    while activity != duration:
-                        if activity < duration:
-                            target_date = target_date + (duration - activity)
+                    while activity_time != duration:
+                        if activity_time < duration:
+                            target_date = target_date + (duration -
+                                                         activity_time)
                         else:
-                            target_date = target_date - (activity - duration)
-                        activity = uad.device.get_inactivity_time(
+                            target_date = target_date - (activity_time -
+                                                         duration)
+                        activity_time = uad.device.get_activity_time(
                             till=target_date)
+                    # don't set alert in past - this might happen when alert
+                    # configuration has been changed and device  turns to be
+                    # immediately active greater than
+                    now = datetime.datetime.now()
+                    if target_date < now:
+                        target_date = now
                     self.create(when=target_date, user_alert_device=uad,
                                 since=timestamp)
-
+            else:
+                if uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
+                    alert_time = self.get_alert_time(timestamp, uad)
+                    self.create(when=alert_time, user_alert_device=uad,
+                                since=timestamp)
                 elif uad.alert.alert_type == \
-                        Alert.ACTIVE_IN_PERIOD_GREATER_THAN:
-                    pass
-
+                        Alert.ACTIVE_IN_PERIOD_LESS_THAN:
+                    kwargs = {TIME_UNITS[uad.unit]: uad.duration}
+                    duration = datetime.timedelta(**kwargs)
+                    activity_time = uad.device.get_activity_time(till=timestamp)
+                    target_date = timestamp
+                    # If activity is longer or equal than expected duration
+                    # then find out when it would be less (assuming that
+                    # inactivity period has just started).
+                    # Else schedule alert to be send immediately
+                    if activity_time > duration:
+                        while activity_time > duration:
+                            target_date = target_date + activity_time - duration
+                            activity_time = uad.device.get_activity_time(
+                                till=target_date)
+                    # don't set alert in past - this might happen when alert
+                    # configuration has been changed and device  turns to be
+                    # immediately active less than
+                    now = datetime.datetime.now()
+                    if target_date < now:
+                        target_date = now
+                    self.create(when=target_date, user_alert_device=uad,
+                                since=timestamp)
 
     def set_motion_runners(self, uar, status, timestamp=None):
         """
@@ -278,7 +303,7 @@ class AlertRunnerManager(models.Manager):
                     uar.alert.alert_type == Alert.NOMOTION_IN_ROOM_GREATER_THAN:
                 # Activity has just been started so nomotion has to be started after
                 # MOTION_TIME_GAP time has passed
-                timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
+                timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
                 alert_time = self.get_alert_time(timestamp + timegap, uar)
                 self.create(when=alert_time, user_alert_room=uar,
                             since=timestamp)
@@ -412,7 +437,7 @@ def check_alerts(sender, status, *args, **kwargs):
         # get previous status in the current room to check if there's a state
         # change
         statuses = Status.objects.filter(
-            device__room=status.device.room).order_by('-created')[:2]
+            device__room=status.device.room).order_by('-timestamp')[:2]
         if statuses and len(statuses) == 2:
             # Set previous action to active value
             previous_action = statuses[1].action == statuses[1].device.active
@@ -452,7 +477,7 @@ def check_alerts(sender, status, *args, **kwargs):
         pass
     else:
         statuses = Status.objects.filter(
-            device=status.device).order_by('-created')[:2]
+            device=status.device).order_by('-timestamp')[:2]
         if statuses and len(statuses) == 2:
             previous_action = statuses[1].action
 

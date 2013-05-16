@@ -36,8 +36,8 @@ def alert_open(uad, status):
         msg.send()
 
     if uad.text_notification:
-        logger.info('Open text alert sent to {0} for device {1}'. \
-            format(user.cell_text_email, device_name))
+        logger.info('Open text alert sent to {0} for device {1}'.
+                    format(user.cell_text_email, device_name))
         msg = BluuMessage(subject, body, user.cell_text_email)
         msg.send()
 

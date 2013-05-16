@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from datetime import datetime, timedelta
+import datetime
 
 from django.conf import settings
 from django.db import models
@@ -83,13 +83,12 @@ class Device(TimeStampedModel):
     name = models.CharField(_('name'), max_length=255)
     serial = models.CharField(_('serial'), max_length=6)
     slug = AutoSlugField(populate_from='serial')
-    #device_type = models.CharField(_('type'), max_length=8, choices=DEVICE_CHOICES)
     device_type = models.ForeignKey(DeviceType)
     bluusite = models.ForeignKey('bluusites.BluuSite')
     room = models.ForeignKey('bluusites.Room')
     last_seen = models.DateTimeField(_('last seen'), null=True, blank=True)
-    active = models.BooleanField(_(
-        'check this if device active state is when action bit\'s value equals to "ON"'),
+    active = models.BooleanField(_('check this if device active state is when'
+                                   ' action bit\'s value equals to "ON"'),
                                  default=True)
 
     @property
@@ -115,7 +114,8 @@ class Device(TimeStampedModel):
 
     @property
     def is_online(self):
-        if (datetime.now() - self.last_seen) > timedelta(hours=1):
+        if (datetime.datetime.now() - self.last_seen) >\
+                datetime.timedelta(hours=1):
             return False
         return True
 
@@ -128,45 +128,42 @@ class Device(TimeStampedModel):
         :param period: number of minutes
         """
         if not till:
-            till = datetime.now()
+            till = datetime.datetime.now()
         if not period:
             period = settings.ALERT_PERIOD
-        period = timedelta(minutes=period)
+        period = datetime.timedelta(minutes=period)
         # Get all statuses for this device in a period of `period` till
         # `timestamp`
         active_status = self.active
-        active = timedelta()
-        last_before = None
+        activity_time = datetime.timedelta()
         period_start = till - period
         try:
-            last_before_status = self.status_set.filter(
-                timestamp__lt=till - period).latest('timestamp')
-        except Status.DoesNotExist:
-            pass
-        else:
             # if last status was active then we will have to increase
             # activity time with:
             # from period_start till first status in period
-            if last_before_status.action == active_status:
-                last_before = last_before_status
+            initial_status = self.status_set.filter(
+                timestamp__lt=period_start,
+                action=active_status).latest('timestamp')
+        except Status.DoesNotExist:
+            initial_status = None
 
         statuses = self.status_set.filter(timestamp__gte=period_start)
 
         prev_status = None
         for status in statuses:
             # add time since period_start till first status in period
-            if active == timedelta() and last_before:
-                active = status.timestamp - last_before.timestamp
+            if activity_time == datetime.timedelta() and initial_status:
+                activity_time += status.timestamp - period_start
 
-            if prev_status and prev_status.action == active_status:
-                active += status.timestamp - prev_status.timestamp
+            if prev_status and prev_status.is_active:
+                activity_time += status.timestamp - prev_status.timestamp
 
             prev_status = status
 
         # add time since last status till now
-        if prev_status and prev_status.action == active_status:
-            active += till - prev_status.timestamp
-        return active
+        if prev_status and prev_status.is_active:
+            activity_time += till - prev_status.timestamp
+        return activity_time
 
 
 class Status(models.Model):
@@ -193,7 +190,7 @@ class Status(models.Model):
     class Meta:
         verbose_name = _("status")
         verbose_name_plural = _("statuses")
-        ordering = ['-timestamp']
+        ordering = ['timestamp']
 
     def __unicode__(self):
         return "{0} | {1} | {2}".format(self.timestamp,
@@ -202,10 +199,10 @@ class Status(models.Model):
 
     @property
     def is_active(self):
-        if self.device.device_type.name == DeviceType.MOTION:
-            if self.action:
-                return True
-        return False
+        #if self.device.device_type.name == DeviceType.MOTION:
+        #    if self.action:
+        #        return True
+        return self.action == self.device.active
 
 
 @receiver(data_received, sender=Status)
