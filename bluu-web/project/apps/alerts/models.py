@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
-import datetime
-import calendar
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -197,7 +196,7 @@ class AlertRunnerManager(models.Manager):
         unit = alert.unit
 
         params = {TIME_UNITS.get(alert.unit, ''): duration}
-        delta = datetime.timedelta(**params)
+        delta = timedelta(**params)
         return timestamp + delta
 
     def set_runners(self, uad, status, timestamp=None):
@@ -228,7 +227,7 @@ class AlertRunnerManager(models.Manager):
                 elif uad.alert.alert_type == \
                         Alert.ACTIVE_IN_PERIOD_GREATER_THAN:
                     kwargs = {TIME_UNITS[uad.unit]: uad.duration}
-                    duration = datetime.timedelta(**kwargs)
+                    duration = timedelta(**kwargs)
                     activity_time = uad.device.get_activity_time(till=timestamp)
                     target_date = timestamp
                     while activity_time != duration:
@@ -243,7 +242,7 @@ class AlertRunnerManager(models.Manager):
                     # don't set alert in past - this might happen when alert
                     # configuration has been changed and device  turns to be
                     # immediately active greater than
-                    now = datetime.datetime.now()
+                    now = datetime.now()
                     if target_date < now:
                         target_date = now
                     self.create(when=target_date, user_alert_device=uad,
@@ -256,7 +255,7 @@ class AlertRunnerManager(models.Manager):
                 elif uad.alert.alert_type == \
                         Alert.ACTIVE_IN_PERIOD_LESS_THAN:
                     kwargs = {TIME_UNITS[uad.unit]: uad.duration}
-                    duration = datetime.timedelta(**kwargs)
+                    duration = timedelta(**kwargs)
                     activity_time = uad.device.get_activity_time(till=timestamp)
                     target_date = timestamp
                     # If activity is longer or equal than expected duration
@@ -269,9 +268,9 @@ class AlertRunnerManager(models.Manager):
                             activity_time = uad.device.get_activity_time(
                                 till=target_date)
                     # don't set alert in past - this might happen when alert
-                    # configuration has been changed and device  turns to be
+                    # configuration has been changed and device turns out to be
                     # immediately active less than
-                    now = datetime.datetime.now()
+                    now = datetime.now()
                     if target_date < now:
                         target_date = now
                     self.create(when=target_date, user_alert_device=uad,
@@ -303,7 +302,7 @@ class AlertRunnerManager(models.Manager):
                     uar.alert.alert_type == Alert.NOMOTION_IN_ROOM_GREATER_THAN:
                 # Activity has just been started so nomotion has to be started after
                 # MOTION_TIME_GAP time has passed
-                timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
+                timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
                 alert_time = self.get_alert_time(timestamp + timegap, uar)
                 self.create(when=alert_time, user_alert_room=uar,
                             since=timestamp)
@@ -461,11 +460,11 @@ def check_alerts(sender, status, *args, **kwargs):
                                                     status.timestamp)
 
                 # Reset "NO_MOTION" alerts
-                # get all userdevicealerts in the site where motion has just
-                # occured that have NOMOTION alerts configured
+                # get all UserDeviceAlerts in the site where motion has just
+                # occurred that have NOMOTION alerts configured
                 uads = UserAlertDevice.objects.filter(
-                        device__bluusite=status.device.bluusite,
-                        alert__alert_type=Alert.OPEN_GREATER_THAN_NO_MOTION)
+                    device__bluusite=status.device.bluusite,
+                    alert__alert_type=Alert.OPEN_GREATER_THAN_NO_MOTION)
                 # reset runners
                 for uad in uads:
                     # nomotion runners are set again, starting with current

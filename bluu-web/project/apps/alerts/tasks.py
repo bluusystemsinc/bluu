@@ -37,7 +37,7 @@ def alert_open(uad, status):
 
     if uad.text_notification:
         logger.info('Open text alert sent to {0} for device {1}'.
-                    format(user.cell_text_email, device_name))
+        format(user.cell_text_email, device_name))
         msg = BluuMessage(subject, body, user.cell_text_email)
         msg.send()
 
@@ -208,8 +208,8 @@ def alert_nomotion_greater_than(runner):
     })
 
     subject = _(u'%(site_name)s alert - %(alert_name)s') % \
-                {'site_name': site_name,
-                 'alert_name': _('no motion in room for too much time')}
+              {'site_name': site_name,
+               'alert_name': _('no motion in room for too much time')}
 
     if uar.email_notification:
         logger.info('NMIRGT alert sent to {0} for room {1}'.format(
@@ -226,6 +226,45 @@ def alert_nomotion_greater_than(runner):
         msg.send()
 
 
+@task(name='alerts.call_aiplt')
+def alert_active_in_period_less_than(runner):
+    uad = runner.user_alert_device
+    user = uad.user
+    device_name = uad.device.name
+    room = uad.device.room.name
+    site_name = uad.device.bluusite.get_name
+    duration = uad.duration
+    unit = uad.get_unit_display()
+    timestamp = runner.since
+
+    body = render_to_string('alerts/notifications/open_aiplt.html', {
+        'user': user,
+        'device_name': device_name,
+        'room': room,
+        'site_name': site_name,
+        'timestamp': timestamp,
+        'duration': duration,
+        'unit': unit,
+        'period': settings.ALERT_PERIOD / 60
+    })
+
+    subject = _(u'%(site_name)s alert - %(alert_name)s') % \
+              {'site_name': site_name,
+               'alert_name': _('active less than expected in a period')}
+
+    if uad.email_notification:
+        logger.info('AIPLT alert sent to {0} for device {1}'.format(user.email,
+                                                                   device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uad.text_notification:
+        logger.info('AIPLT text alert sent to {0} for device {1}'. \
+            format(user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
+
+
 @task(name="alerts.trigger_runners")
 def alert_trigger_runners():
     """
@@ -234,12 +273,8 @@ def alert_trigger_runners():
     from alerts.models import AlertRunner, Alert
 
     now = datetime.now()
-    # add 5 more seconds to be sure that all alert runners are used
-    #t = timedelta(seconds=settings.ALERT_RUNNER_TIME + 5)
     ars = AlertRunner.objects.select_related().filter(is_active=True,
-                                                      #when__gt=now - t,
-                                                      when__lte=now
-    )
+                                                      when__lte=now)
     for ar in ars:
         # trigger action for specific alert runner
         if ar.user_alert_device is not None:
@@ -258,6 +293,11 @@ def alert_trigger_runners():
             elif ar.user_alert_device.alert.alert_type \
                     == Alert.CLOSED_GREATER_THAN:
                 alert_closed_greater_than.delay(ar)
+                ar.is_active = False
+                ar.save()
+            elif ar.user_alert_device.alert.alert_type \
+                    == Alert.ACTIVE_IN_PERIOD_LESS_THAN:
+                alert_active_in_period_less_than.delay(ar)
                 ar.is_active = False
                 ar.save()
         elif ar.user_alert_room is not None:

@@ -195,7 +195,7 @@ class Status(models.Model):
     def __unicode__(self):
         return "{0} | {1} | {2}".format(self.timestamp,
                                         self.device.name,
-                                        self.data)
+                                        self.action)
 
     @property
     def is_active(self):

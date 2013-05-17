@@ -16,6 +16,7 @@ from devices.models import Device, DeviceType, Status
 from alerts.tasks import alert_trigger_runners
 from alerts.ajax_views import UserAlertConfigSetView
 from utils.misc import mock_now
+from mock import patch
 
 
 def post_status(testcase, slug, serial, form_data):
@@ -95,7 +96,7 @@ class AlertsOGTTestCase(WebTest):
         self.ws_user = G(BluuUser, username='ws')
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
-        self.user3 = G(BluuUser, username='test3')
+        self.user1 = G(BluuUser, username='test1')
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -107,7 +108,7 @@ class AlertsOGTTestCase(WebTest):
         #set some alerts
         UserAlertConfig.objects.create(bluusite=self.bluusite1,
                                        device_type=self.bed,
-                                       user=self.user3,
+                                       user=self.user1,
                                        alert=self.alert_ogt,
                                        duration=10,
                                        unit=Alert.MINUTES
@@ -115,7 +116,7 @@ class AlertsOGTTestCase(WebTest):
 
         UserAlertDevice.objects.create(alert=self.alert_ogt,
                                         device=self.device1,
-                                        user=self.user3,
+                                        user=self.user1,
                                         duration=10,
                                         unit=Alert.MINUTES,
                                         email_notification=True
@@ -875,7 +876,10 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
         is properly set when there are no other statuses recorded
         """
         strptime = datetime.datetime.strptime
-        with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
             form_data = {"serial": "serial",
                          "input4": "on",
                          "float_data": "1.22",
@@ -938,27 +942,86 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
                               action=True)
 
         #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
-        form_data = {"serial": "serial",
-                     "input4": "on",
-                     "float_data": "1.22",
-                     "timestamp": "2013-03-07T23:00:09",
-                     "signal": "1",
-                     "action": False,
-                     "data": "123"}
-        post_status(self, self.bluusite1.slug, self.device1.serial,
-                    form_data)
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            #mock_now.side_effect = lambda *args, **kw: datetime(*args, **kw)
 
-        # assert runner is set properly
-        self.assertEqual(AlertRunner.objects.count(), 1)
-        #runner = AlertRunner.objects.all()[0]
-        #self.assertEqual(runner.when,
-        #                 datetime.datetime.strptime("2013-03-08T13:00:09",
-        #                                                "%Y-%m-%dT%H:%M:%S"))
+            form_data = {"serial": "serial",
+                         "input4": "on",
+                         "float_data": "1.22",
+                         "timestamp": "2013-03-07T23:00:09",
+                         "signal": "1",
+                         "action": False,
+                         "data": "123"}
+            post_status(self, self.bluusite1.slug, self.device1.serial,
+                        form_data)
 
-    def testAlertSetWithPreviousStatus(self):
+            # assert runner is set properly
+            self.assertEqual(AlertRunner.objects.count(), 1)
+            runner = AlertRunner.objects.all()[0]
+            self.assertEqual(runner.when,
+                             datetime.datetime.strptime("2013-03-08T13:00:09",
+                                                            "%Y-%m-%dT%H:%M:%S"))
+
+
+class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
+    csrf_checks = False
+
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
+
+        #USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1')
+
+        # ALERTS & DEVICES
+        self.bed = DeviceType.objects.get(name=DeviceType.BED)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.bed)
+
+        self.alert = Alert.objects.get(
+            alert_type=Alert.ACTIVE_IN_PERIOD_LESS_THAN)
+
+        #set some alerts
+        UserAlertConfig.objects.create(bluusite=self.bluusite1,
+                                       device_type=self.bed,
+                                       user=self.user1,
+                                       alert=self.alert,
+                                       duration=10,
+                                       unit=Alert.HOURS
+                                       )
+
+        uad = UserAlertDevice.objects.create(alert=self.alert,
+                                             device=self.device1,
+                                             user=self.user1,
+                                             duration=10,
+                                             unit=Alert.HOURS,
+                                             email_notification=True
+                                            )
+        # set alert runner
+        AlertRunner.objects.create(
+            when=datetime.datetime.now(),
+            user_alert_device=uad,
+            since=datetime.datetime.strptime("2013-03-07T23:00:09",
+                                             "%Y-%m-%dT%H:%M:%S"))
+
+    def testAIPLTRunnerRun(self):
         """
-        Test if alert runner for inactive in period greater than
-        is properly set when there are statuses older than `period`
+        Test if alert runner for open greater than is properly run
         """
-        pass
+        #run alert runner task
+        alert_trigger_runners.delay()
 
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            mail.outbox[0].subject,
+            'Jan Kowalski alert - active less than expected in a period')
