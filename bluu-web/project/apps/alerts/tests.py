@@ -162,11 +162,11 @@ class AlertsOGTTestCase(WebTest):
         self.assertFalse(AlertRunner.objects.all().exists())
 
         form_data['action'] = True
-        form_data['timestamp'] = "2013-03-07T23:15:09"
+        form_data['timestamp'] = "2013-03-07T23:20:09"
         post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
         # assert runner is properly set again after open
         # alert is configured to be triggered after ten minutes so +10m here
-        when = datetime.datetime.strptime("2013-03-07T23:25:09",
+        when = datetime.datetime.strptime("2013-03-07T23:30:09",
                                           "%Y-%m-%dT%H:%M:%S")
         runner = AlertRunner.objects.filter(when=when)
         self.assertTrue(runner.exists())
@@ -835,22 +835,14 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
                                        user=self.user1,
                                        alert=self.alert,
                                        duration=10,
-                                       unit=Alert.HOURS
-                                       )
+                                       unit=Alert.HOURS)
 
         uad = UserAlertDevice.objects.create(alert=self.alert,
                                              device=self.device1,
                                              user=self.user1,
                                              duration=10,
                                              unit=Alert.HOURS,
-                                             email_notification=True
-                                            )
-        # set alert runner
-        #AlertRunner.objects.create(
-        #    when=datetime.now(),
-        #    user_alert_device=uad,
-        #    since=datetime.strptime("2013-03-07T23:00:09",
-        #                            "%Y-%m-%dT%H:%M:%S"))
+                                             email_notification=True)
 
     def testAlertNotSetForActiveStatus(self):
         """
@@ -872,7 +864,7 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
 
     def testAlertSetForFirstStatus(self):
         """
-        Test if alert runner for inactive in period greater than
+        Test if alert runner for active in period less than
         is properly set when there are no other statuses recorded
         """
         strptime = datetime.datetime.strptime
@@ -897,7 +889,7 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
 
     def testAlertSetForManyStatuses(self):
         """
-        Test if alert runner for inactive in period greater than
+        Test if alert runner for active in period less than
         is properly set when there are many statuses recorded
         """
         Status.objects.create(device=self.device1,
@@ -962,12 +954,11 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
             runner = AlertRunner.objects.all()[0]
             self.assertEqual(runner.when,
                              datetime.datetime.strptime("2013-03-08T13:00:09",
-                                                            "%Y-%m-%dT%H:%M:%S"))
+                                                        "%Y-%m-%dT%H:%M:%S"))
 
 
 class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
     csrf_checks = False
-
 
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
@@ -1016,7 +1007,7 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
 
     def testAIPLTRunnerRun(self):
         """
-        Test if alert runner for open greater than is properly run
+        Test if alert runner for open less than in period is properly run
         """
         #run alert runner task
         alert_trigger_runners.delay()
@@ -1025,3 +1016,229 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
         self.assertEqual(
             mail.outbox[0].subject,
             'Jan Kowalski alert - active less than expected in a period')
+
+
+
+class AlertsActiveInPeriodGTTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
+
+        #USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1')
+
+        # ALERTS & DEVICES
+        self.seat = DeviceType.objects.get(name=DeviceType.SEAT)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.seat)
+
+        self.alert = Alert.objects.get(
+            alert_type=Alert.ACTIVE_IN_PERIOD_GREATER_THAN)
+
+        #set some alerts
+        UserAlertConfig.objects.create(bluusite=self.bluusite1,
+                                       device_type=self.seat,
+                                       user=self.user1,
+                                       alert=self.alert,
+                                       duration=6,
+                                       unit=Alert.HOURS
+                                       )
+
+        uad = UserAlertDevice.objects.create(alert=self.alert,
+                                             device=self.device1,
+                                             user=self.user1,
+                                             duration=6,
+                                             unit=Alert.HOURS,
+                                             email_notification=True
+                                            )
+
+    def testAlertNotSetForInactiveStatus(self):
+        """
+        Test if alert runner for active in period greater than
+        isn't set after "inactive / closed" signal arrived
+        """
+
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "1.22",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": False,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert runner is set 10 minutes after the signal arrived
+        self.assertEqual(AlertRunner.objects.count(), 0)
+
+    def testAlertSetForFirstStatus(self):
+        """
+        Test if alert runner for active in period greater than
+        is properly set when there are no other statuses recorded
+        """
+        strptime = datetime.datetime.strptime
+        #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            form_data = {"serial": "serial",
+                         "input4": "on",
+                         "float_data": "1.22",
+                         "timestamp": "2013-03-07T23:00:09",
+                         "signal": "1",
+                         "action": True,
+                         "data": "123"}
+            post_status(self, self.bluusite1.slug, self.device1.serial,
+                        form_data)
+
+            # assert runner is set to be run after 10 hours of activity
+            # since now
+            runner = AlertRunner.objects.all()[0]
+            self.assertEqual(runner.when, strptime("2013-03-08T05:00:09",
+                                                   "%Y-%m-%dT%H:%M:%S"))
+
+    def testAlertSetForManyStatuses(self):
+        """
+        Test if alert runner for active in period greater than
+        is properly set when there are many statuses recorded
+        """
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.seat,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T20:00:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.seat,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:30:09",
+                              action=False)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.seat,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T09:30:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.seat,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T10:40:09",
+                              action=False)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.seat,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T20:00:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.seat,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T21:00:09",
+                              action=False)
+
+        #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            #mock_now.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
+            form_data = {"serial": "serial",
+                         "input4": "on",
+                         "float_data": "1.22",
+                         "timestamp": "2013-03-07T23:00:09",
+                         "signal": "1",
+                         "action": True,
+                         "data": "123"}
+            post_status(self, self.bluusite1.slug, self.device1.serial,
+                        form_data)
+
+            # assert runner is set properly
+            self.assertEqual(AlertRunner.objects.count(), 1)
+            runner = AlertRunner.objects.all()[0]
+            self.assertEqual(runner.when,
+                             datetime.datetime.strptime("2013-03-08T02:20:09",
+                                                        "%Y-%m-%dT%H:%M:%S"))
+
+
+class AlertsActiveInPeriodGTRunnerTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
+
+        #USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1')
+
+        # ALERTS & DEVICES
+        self.seat = DeviceType.objects.get(name=DeviceType.SEAT)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.seat)
+
+        self.alert = Alert.objects.get(
+            alert_type=Alert.ACTIVE_IN_PERIOD_GREATER_THAN)
+
+        #set some alerts
+        UserAlertConfig.objects.create(bluusite=self.bluusite1,
+                                       device_type=self.seat,
+                                       user=self.user1,
+                                       alert=self.alert,
+                                       duration=10,
+                                       unit=Alert.HOURS
+                                       )
+
+        uad = UserAlertDevice.objects.create(alert=self.alert,
+                                             device=self.device1,
+                                             user=self.user1,
+                                             duration=10,
+                                             unit=Alert.HOURS,
+                                             email_notification=True
+                                            )
+        # set alert runner
+        AlertRunner.objects.create(
+            when=datetime.datetime.now(),
+            user_alert_device=uad,
+            since=datetime.datetime.strptime("2013-03-07T23:00:09",
+                                             "%Y-%m-%dT%H:%M:%S"))
+
+    def testAIPLTRunnerRun(self):
+        """
+        Test if alert runner for open greater than in period is properly run
+        """
+        #run alert runner task
+        alert_trigger_runners.delay()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            mail.outbox[0].subject,
+            'Jan Kowalski alert - active greater than expected in a period')

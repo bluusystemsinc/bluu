@@ -31,20 +31,20 @@ class Alert(models.Model):
     SCALE_USED = 'su'
 
     ALERT_CHOICES = (
-             (OPEN, _('open')),
-             (OPEN_GREATER_THAN, _('open greater than')),
-             (OPEN_GREATER_THAN_NO_MOTION, _('open greater than (no motion)')),
-             (CLOSED_GREATER_THAN, _('closed greater than')),
-             (ACTIVE_IN_PERIOD_GREATER_THAN, _('active in period greater than')),
-             (ACTIVE_IN_PERIOD_LESS_THAN, _('active in period less than')),
-             (MOTION_IN_ROOM, _('motion in room')),
-             (MOTION_IN_ROOM_GREATER_THAN, _('motion in room greater than')),
-             (MOTION_IN_ROOM_LESS_THAN, _('motion in room less than')),
-             (NOMOTION_IN_ROOM_GREATER_THAN, _('no motion in room greater than')),
-             (WEIGHT_GREATER_THAN, _('weight greater than')),
-             (WEIGHT_LESS_THAN, _('weight less than')),
-             (SCALE_USED, _('scale used')),
-            )
+        (OPEN, _('open')),
+        (OPEN_GREATER_THAN, _('open greater than')),
+        (OPEN_GREATER_THAN_NO_MOTION, _('open greater than (no motion)')),
+        (CLOSED_GREATER_THAN, _('closed greater than')),
+        (ACTIVE_IN_PERIOD_GREATER_THAN, _('active in period greater than')),
+        (ACTIVE_IN_PERIOD_LESS_THAN, _('active in period less than')),
+        (MOTION_IN_ROOM, _('motion in room')),
+        (MOTION_IN_ROOM_GREATER_THAN, _('motion in room greater than')),
+        (MOTION_IN_ROOM_LESS_THAN, _('motion in room less than')),
+        (NOMOTION_IN_ROOM_GREATER_THAN, _('no motion in room greater than')),
+        (WEIGHT_GREATER_THAN, _('weight greater than')),
+        (WEIGHT_LESS_THAN, _('weight less than')),
+        (SCALE_USED, _('scale used')),
+    )
 
     SECONDS = 's'
     MINUTES = 'm'
@@ -184,10 +184,43 @@ class UserAlertRoom(models.Model):
         unique_together = ('user', 'room', 'alert')
 
     def __unicode__(self):
-        return u'{0} | {1} | {2}'.format(unicode(self.user.get_full_name() or\
+        return u'{0} | {1} | {2}'.format(unicode(self.user.get_full_name() or
                                                  self.user.username),
                                          unicode(self.alert.get_alert_type_display()),
                                          unicode(self.room.name))
+
+
+class UserAlertScale(models.Model):
+    """
+    Set alerts for specific scales
+    """
+    user = models.ForeignKey(
+                settings.AUTH_USER_MODEL,
+                verbose_name=_('user'))
+    alert = models.ForeignKey(
+                Alert,
+                verbose_name=_('alert'))
+    device = models.ForeignKey(
+                "devices.Device",
+                verbose_name=_('device'), db_index=True)
+    duration = models.IntegerField(_('duration'), blank=True, null=True)
+    unit = models.CharField(_('unit'), blank=True, null=True, choices=Alert.UNITS,
+                            max_length=2)
+    email_notification = models.BooleanField(_('email notification'),
+                                             default=True)
+    text_notification = models.BooleanField(_('text notification'),
+                                            default=False)
+
+    class Meta:
+        verbose_name = _("user alert")
+        verbose_name_plural = _("user alerts")
+        unique_together = ('user', 'device', 'alert')
+
+    def __unicode__(self):
+        return u'{0} | {1} | {2}'.format(
+            unicode(self.user.get_full_name() or self.user.username),
+            unicode(self.alert.get_alert_type_display()),
+            unicode(self.device.name))
 
 
 class AlertRunnerManager(models.Manager):
@@ -230,13 +263,9 @@ class AlertRunnerManager(models.Manager):
                     duration = timedelta(**kwargs)
                     activity_time = uad.device.get_activity_time(till=timestamp)
                     target_date = timestamp
-                    while activity_time != duration:
-                        if activity_time < duration:
-                            target_date = target_date + (duration -
-                                                         activity_time)
-                        else:
-                            target_date = target_date - (activity_time -
-                                                         duration)
+                    while activity_time < duration:
+                        target_date = target_date + (duration -
+                                                     activity_time)
                         activity_time = uad.device.get_activity_time(
                             till=target_date)
                     # don't set alert in past - this might happen when alert
@@ -262,11 +291,10 @@ class AlertRunnerManager(models.Manager):
                     # then find out when it would be less (assuming that
                     # inactivity period has just started).
                     # Else schedule alert to be send immediately
-                    if activity_time > duration:
-                        while activity_time > duration:
-                            target_date = target_date + activity_time - duration
-                            activity_time = uad.device.get_activity_time(
-                                till=target_date)
+                    while activity_time > duration:
+                        target_date = target_date + activity_time - duration
+                        activity_time = uad.device.get_activity_time(
+                            till=target_date)
                     # don't set alert in past - this might happen when alert
                     # configuration has been changed and device turns out to be
                     # immediately active less than
@@ -414,6 +442,15 @@ def _update_alert_device(sender, instance, created, *args, **kwargs):
     alert runners should be reconfigured
     """
     update_alert_runners(instance)
+
+
+@receiver(post_save, sender=UserAlertWeightConfig)
+def _update_alert_motions(sender, instance, created, *args, **kwargs):
+    """
+    If useralertroom has been updated (alert configuration change) then
+    alert runners should be reconfigured
+    """
+    update_motion_alert_runners(instance)
 
 
 @receiver(post_save, sender=UserAlertRoom)

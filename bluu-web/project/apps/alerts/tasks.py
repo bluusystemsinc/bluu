@@ -259,7 +259,46 @@ def alert_active_in_period_less_than(runner):
         msg.send()
 
     if uad.text_notification:
-        logger.info('AIPLT text alert sent to {0} for device {1}'. \
+        logger.info('AIPLT text alert sent to {0} for device {1}'.
+            format(user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
+
+
+@task(name='alerts.call_aipgt')
+def alert_active_in_period_greater_than(runner):
+    uad = runner.user_alert_device
+    user = uad.user
+    device_name = uad.device.name
+    room = uad.device.room.name
+    site_name = uad.device.bluusite.get_name
+    duration = uad.duration
+    unit = uad.get_unit_display()
+    timestamp = runner.since
+
+    body = render_to_string('alerts/notifications/open_aipgt.html', {
+        'user': user,
+        'device_name': device_name,
+        'room': room,
+        'site_name': site_name,
+        'timestamp': timestamp,
+        'duration': duration,
+        'unit': unit,
+        'period': settings.ALERT_PERIOD / 60
+    })
+
+    subject = _(u'%(site_name)s alert - %(alert_name)s') % \
+                {'site_name': site_name,
+                 'alert_name': _('active greater than expected in a period')}
+
+    if uad.email_notification:
+        logger.info('AIPGT alert sent to {0} for device {1}'.format(user.email,
+                                                                   device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uad.text_notification:
+        logger.info('AIPGT text alert sent to {0} for device {1}'.
             format(user.cell_text_email, device_name))
         msg = BluuMessage(subject, body, user.cell_text_email)
         msg.send()
@@ -295,9 +334,16 @@ def alert_trigger_runners():
                 alert_closed_greater_than.delay(ar)
                 ar.is_active = False
                 ar.save()
+            # if AIPLT
             elif ar.user_alert_device.alert.alert_type \
                     == Alert.ACTIVE_IN_PERIOD_LESS_THAN:
                 alert_active_in_period_less_than.delay(ar)
+                ar.is_active = False
+                ar.save()
+            # if AIPGT
+            elif ar.user_alert_device.alert.alert_type \
+                    == Alert.ACTIVE_IN_PERIOD_GREATER_THAN:
+                alert_active_in_period_greater_than.delay(ar)
                 ar.is_active = False
                 ar.save()
         elif ar.user_alert_room is not None:

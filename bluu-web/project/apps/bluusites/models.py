@@ -5,6 +5,7 @@ import json
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver
@@ -85,9 +86,8 @@ class BluuSite(models.Model):
             unicode(getattr(self, 'first_name', '---')),
             unicode(getattr(self, 'last_name', '---')))
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('site_edit', [str(self.id)])
+        return reverse('site_edit', args=(self.id))
 
     @property
     def get_name(self):
@@ -412,9 +412,8 @@ class Room(models.Model):
     def __unicode__(self):
         return u'%s' % unicode(self.name)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('room_edit', [str(self.bluusite_id), str(self.id)])
+        return reverse('room_edit', args=(self.bluusite_id, self.id))
 
 
 @receiver(pre_save, sender=BluuSite)

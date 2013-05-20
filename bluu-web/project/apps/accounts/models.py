@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 from django.conf import settings
 from django.db import models
@@ -49,9 +50,9 @@ class BluuUser(AbstractUser):
         except Group.DoesNotExist:
             pass
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('bluuuser_edit', (), {"username": self.username})
+        return reverse('bluuuser_edit', args=(),
+                       kwargs={"username": self.username})
 
     @property
     def get_name(self):

@@ -31,6 +31,7 @@ class CompanyListView(GPermissionRequiredMixin, ListView):
         companies = self.request.user.get_companies(
                 perm='companies.change_company')
         if companies.count() == 1:
+            a = redirect('company_edit', pk=companies[0].pk)
             return redirect('company_edit', pk=companies[0].pk)
 
         return super(CompanyListView, self).dispatch(*args, **kwargs)
@@ -62,10 +63,7 @@ class CompanyUpdateView(UpdateView):
         messages.success(self.request, _('Company changed'))
         return response
 
-    @method_decorator(login_required)
-    @method_decorator(permission_required('companies.change_company',
-                                          (Company, 'pk', 'pk'),
-                                           accept_global_perms=True))
+
     def dispatch(self, *args, **kwargs):
         return super(CompanyUpdateView, self).dispatch(*args, **kwargs)
 

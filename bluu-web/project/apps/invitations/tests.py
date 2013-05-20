@@ -26,8 +26,8 @@ from django.core import management
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from invitation import forms
-from invitation.models import InvitationKey, InvitationUser
+from invitations import forms
+from invitations.models import InvitationKey
 
 class InvitationTestCase(TestCase):
     """

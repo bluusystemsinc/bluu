@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import datetime
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver
@@ -107,10 +108,9 @@ class Device(TimeStampedModel):
     def __unicode__(self):
         return "{0} | {1}".format(self.serial, self.device_type.name)
 
-    @models.permalink
     def get_absolute_url(self):
-        return (
-            'site_devices:device_edit', [str(self.bluusite_id), str(self.id)])
+        return reverse('site_devices:device_edit',
+                       args=(self.bluusite_id, self.id))
 
     @property
     def is_online(self):

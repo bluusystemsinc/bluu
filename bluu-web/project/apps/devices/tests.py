@@ -122,14 +122,14 @@ class SignalsTestCase(WebTest):
         form_data['supervisory'] = True
         status_serializer = DeviceStatusSerializer(data=form_data)
         self.assertTrue(status_serializer.is_valid())
-        self.assertTrue(is_heartbeat(status, status_serializer))
+        self.assertTrue(is_heartbeat(status_serializer))
 
         form_data['timestamp'] = "2013-03-07T23:25:09.822000"
         form_data['action'] = False
         form_data['supervisory'] = False
         status_serializer = DeviceStatusSerializer(data=form_data)
         self.assertTrue(status_serializer.is_valid())
-        self.assertFalse(is_heartbeat(status, status_serializer))
+        self.assertFalse(is_heartbeat(status_serializer))
         """
         self.app.post(
                 reverse('v1:create_status',

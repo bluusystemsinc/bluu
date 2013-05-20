@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
+from django.core.urlresolvers import reverse
 
 from django.db import models
 from django.db.models import Q
@@ -53,9 +54,8 @@ class Company(models.Model):
     def __unicode__(self):
         return self.name
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('company_edit', [str(self.id)])
+        return reverse('company_edit', args=(str(self.id)))
 
     def save(self, *args, **kwargs):
         if self.code == "":

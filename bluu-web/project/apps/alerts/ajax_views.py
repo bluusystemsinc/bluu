@@ -108,7 +108,7 @@ class UserAlertWeightConfigSetView(generics.GenericAPIView):
 
     def post(self, request, pk):
         """
-        Create a new UserAlertConfig
+        Create a new UserAlertWeightConfig
         """
         site = self.get_site(pk)
 
