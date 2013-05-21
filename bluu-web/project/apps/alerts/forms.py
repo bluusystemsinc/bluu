@@ -36,7 +36,7 @@ class WeightForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
-        weight = layout.Field('weight', css_class="alert_weight_config input-mili weight", maxlength="3", template='alerts/conf_weight_template.html')
+        weight = layout.Field('weight', css_class="alert_scale_config input-mili weight", maxlength="3", template='alerts/conf_weight_template.html')
 
         self.helper.layout = layout.Layout(weight,)
 

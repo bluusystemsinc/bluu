@@ -1,5 +1,5 @@
 /*jslint browser: true, devel: true*/
-/*global jQuery, SET_ALERT_CONFIG_URL:false, SET_ALERT_WEIGHT_CONFIG_URL:false, SET_DEVICE_ALERT_URL:false, SET_ROOM_ALERT_URL:false, JSON */
+/*global jQuery, SET_ALERT_CONFIG_URL:false, SET_ALERT_WEIGHT_CONFIG_URL:false, SET_DEVICE_ALERT_URL:false, SET_SCALE_ALERT_URL:false, SET_ROOM_ALERT_URL:false, JSON */
 
 var Bluu = (function ($) {
     "use strict";
@@ -20,7 +20,7 @@ var Bluu = (function ($) {
 
             return data;
         },
-        get_weight_config_data = function (alert_cfg) {
+        get_scale_config_data = function (alert_cfg) {
             var data, weight;
             data = {};
             data.device_type_id = alert_cfg.data('device_type_id');
@@ -91,6 +91,34 @@ var Bluu = (function ($) {
                 console.log('Error! SET_ALERT_URL is not defined.');
             }
         },
+        set_scale_alert = function (checked, user_id, alert_id, device_id, weight, text, email) {
+            if (typeof SET_DEVICE_ALERT_URL !== 'undefined') {
+                var data = {
+                    'checked': checked,
+                    'user': user_id,
+                    'alert': alert_id,
+                    'device': device_id,
+                    'weight': weight,
+                    'text_notification': text,
+                    'email_notification': email
+                };
+                $.ajax({
+                    type: "POST",
+                    url: SET_SCALE_ALERT_URL,
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data);
+                    },
+                    failure: function (errMsg) {
+                        alert(errMsg);
+                    }
+                });
+            } else {
+                console.log('Error! SET_WEIGHT_ALERT_URL is not defined.');
+            }
+        },
         set_alert_config = function (user_id, alert_id, device_type_id, duration, unit, text, email) {
             if (typeof SET_ALERT_CONFIG_URL !== 'undefined') {
                 var data = {
@@ -119,8 +147,8 @@ var Bluu = (function ($) {
                 console.log('Error! SET_ALERT_CONFIG_URL is not defined.');
             }
         },
-        set_alert_weight_config = function (user_id, alert_id, device_type_id, weight, text, email) {
-            if (typeof SET_ALERT_WEIGHT_CONFIG_URL !== 'undefined') {
+        set_alert_scale_config = function (user_id, alert_id, device_type_id, weight, text, email) {
+            if (typeof SET_ALERT_SCALE_CONFIG_URL !== 'undefined') {
                 var data = {
                     'user': user_id,
                     'alert': alert_id,
@@ -131,7 +159,7 @@ var Bluu = (function ($) {
                 };
                 $.ajax({
                     type: "POST",
-                    url: SET_ALERT_WEIGHT_CONFIG_URL,
+                    url: SET_ALERT_SCALE_CONFIG_URL,
                     data: JSON.stringify(data),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
@@ -149,11 +177,12 @@ var Bluu = (function ($) {
 
     return {
         get_config_data: get_config_data,
-        get_weight_config_data: get_weight_config_data,
+        get_scale_config_data: get_scale_config_data,
         set_device_alert: set_device_alert,
         set_room_alert: set_room_alert,
+        set_scale_alert: set_scale_alert,
         set_alert_config: set_alert_config,
-        set_alert_weight_config: set_alert_weight_config
+        set_alert_scale_config: set_alert_scale_config
     };
 
 }(jQuery));

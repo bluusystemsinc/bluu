@@ -203,17 +203,15 @@ class UserAlertScale(models.Model):
     device = models.ForeignKey(
                 "devices.Device",
                 verbose_name=_('device'), db_index=True)
-    duration = models.IntegerField(_('duration'), blank=True, null=True)
-    unit = models.CharField(_('unit'), blank=True, null=True, choices=Alert.UNITS,
-                            max_length=2)
+    weight = models.IntegerField(_('weight'), blank=True, null=True)
     email_notification = models.BooleanField(_('email notification'),
                                              default=True)
     text_notification = models.BooleanField(_('text notification'),
                                             default=False)
 
     class Meta:
-        verbose_name = _("user alert")
-        verbose_name_plural = _("user alerts")
+        verbose_name = _("user weight alert")
+        verbose_name_plural = _("user weight alerts")
         unique_together = ('user', 'device', 'alert')
 
     def __unicode__(self):

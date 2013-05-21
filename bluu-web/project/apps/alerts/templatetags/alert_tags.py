@@ -8,10 +8,12 @@ from django.utils.translation import ugettext as _
 from django.forms.models import modelformset_factory
 from django.db.models import Count
 
-from devices.models import (Device, DeviceType)
+from devices.models import Device, DeviceType
 from bluusites.models import Room
-from ..forms import (AlertDeviceForm, DurationForm, NotificationForm, WeightForm)
-from ..models import (UserAlertDevice, UserAlertConfig, UserAlertRoom, UserAlertWeightConfig)
+from ..forms import (AlertDeviceForm, DurationForm, NotificationForm,
+                     WeightForm)
+from ..models import (UserAlertDevice, UserAlertConfig, UserAlertRoom,
+                      UserAlertScale, UserAlertWeightConfig)
 
 register = Library()
 
@@ -124,8 +126,6 @@ class AlertDeviceNode(template.Node):
             # get all rooms that have devices of type MOTION
             rooms = Room.objects.filter(bluusite=bluusite,
                                         device__device_type=device_type)
-            #rooms = rooms.annotate(num_devices=Count('device')).\
-            #    filter(num_devices__gte=1)
             for room in rooms:
                 try:
                     UserAlertRoom.objects.get(user=user.pk,
@@ -151,20 +151,37 @@ class AlertDeviceNode(template.Node):
             forms = []
             devices = Device.objects.filter(bluusite=bluusite,
                                             device_type=device_type)
-            for device in devices:
-                try:
-                    UserAlertDevice.objects.get(user=user.pk,
-                                                           device=device.pk,
-                                                           alert=alert.pk)
-                    selected = True
-                except UserAlertDevice.DoesNotExist:
-                    selected = False
-                
-                forms.append({'selected': selected,
-                              'device': device,
-                              'name': device.name})
 
-            t = template.loader.get_template('alerts/conf_alert_device.html')
+            if device_type.name == DeviceType.SCALE:
+                for device in devices:
+                    try:
+                        UserAlertScale.objects.get(user=user.pk,
+                                                   device=device.pk,
+                                                   alert=alert.pk)
+                        selected = True
+                    except UserAlertScale.DoesNotExist:
+                        selected = False
+
+                    forms.append({'selected': selected,
+                                  'device': device,
+                                  'name': device.name})
+
+                t = template.loader.get_template('alerts/conf_alert_scale.html')
+            else:
+                for device in devices:
+                    try:
+                        UserAlertDevice.objects.get(user=user.pk,
+                                                    device=device.pk,
+                                                    alert=alert.pk)
+                        selected = True
+                    except UserAlertDevice.DoesNotExist:
+                        selected = False
+
+                    forms.append({'selected': selected,
+                                  'device': device,
+                                  'name': device.name})
+
+                t = template.loader.get_template('alerts/conf_alert_device.html')
 
             ctx = template.Context({'alert': alert,
                                     'user': request.user,

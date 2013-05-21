@@ -8,7 +8,7 @@ from rest_framework import (serializers, status, permissions, generics)
 
 from bluusites.models import BluuSite, Room
 from .models import (UserAlertDevice, UserAlertConfig, UserAlertWeightConfig,
-                     UserAlertRoom)
+                     UserAlertRoom, UserAlertScale)
 
 
 class UserAlertConfigSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class UserAlertConfigSerializer(serializers.ModelSerializer):
                   'email_notification', 'text_notification')
 
 
-class UserAlertWeightConfigSerializer(serializers.ModelSerializer):
+class UserAlertScaleConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAlertWeightConfig
         fields = ('user', 'device_type', 'alert', 'weight',
@@ -36,6 +36,13 @@ class UserAlertRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAlertRoom
         fields = ('user', 'room', 'alert', 'duration', 'unit', 
+                  'email_notification', 'text_notification')
+
+
+class UserAlertScaleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAlertScale
+        fields = ('user', 'device', 'alert', 'weight',
                   'email_notification', 'text_notification')
 
 
@@ -84,9 +91,9 @@ class UserAlertConfigSetView(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserAlertWeightConfigSetView(generics.GenericAPIView):
+class UserAlertScaleConfigSetView(generics.GenericAPIView):
     """
-    Set weight alert configuration for user
+    Set scale alert configuration for user
     """
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -120,7 +127,8 @@ class UserAlertWeightConfigSetView(generics.GenericAPIView):
         else:
             success_status_code = status.HTTP_200_OK
 
-        serializer = UserAlertWeightConfigSerializer(self.object, data=request.DATA)
+        serializer = UserAlertScaleConfigSerializer(self.object,
+                                                    data=request.DATA)
         if serializer.is_valid():
             serializer.object.bluusite = site
             serializer.save()
@@ -218,3 +226,45 @@ class UserAlertRoomSetView(generics.GenericAPIView):
  
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UserAlertScaleSetView(generics.GenericAPIView):
+    """
+    Set alert for user for scale device
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_site(self, pk):
+        try:
+            return BluuSite.objects.get(pk=pk)
+        except BluuSite.DoesNotExist:
+            raise Http404
+
+    def get_object(self, data):
+        try:
+            return UserAlertScale.objects.get(user=data.get('user'),
+                                               device=data.get('device'),
+                                               alert=data.get('alert'))
+        except UserAlertScale.DoesNotExist:
+            raise Http404
+
+    def post(self, request, pk):
+        """
+        Create or delete UserAlertDevice depending on checkbox state
+        """
+        self.object = None
+        try:
+            self.object = self.get_object(request.DATA)
+        except Http404:
+            success_status_code = status.HTTP_201_CREATED
+        else:
+            if not request.DATA.get('checked', False):
+                self.object.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            success_status_code = status.HTTP_200_OK
+
+        serializer = UserAlertScaleSerializer(self.object, data=request.DATA)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=success_status_code)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -85,8 +85,7 @@ class CompaniesTestCase(WebTest):
         """
         User can delete only companies that are assigned to him."""
         res = self.app.get(reverse('company_delete', args=[self.company1.pk]),
-                user='test2').follow()
-        print res.html
+                user='test2').follow().follow()
         assert "Company deleted" in res
 
     def testCompanyDontDeleteUnassignedCompany(self):

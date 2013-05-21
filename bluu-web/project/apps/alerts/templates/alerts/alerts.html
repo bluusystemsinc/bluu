@@ -55,9 +55,10 @@
   var SITE_ID = {{ bluusite.pk }};
   var USER_ID = {{ user.pk }};
   var SET_ALERT_CONFIG_URL = "{% url "site_alerts:user_alert_config_set" bluusite.pk %}";
-  var SET_ALERT_WEIGHT_CONFIG_URL = "{% url "site_alerts:user_alert_weight_config_set" bluusite.pk %}";
+  var SET_ALERT_SCALE_CONFIG_URL = "{% url "site_alerts:user_alert_scale_config_set" bluusite.pk %}";
   var SET_DEVICE_ALERT_URL = "{% url "site_alerts:user_alert_device_set" bluusite.pk %}";
   var SET_ROOM_ALERT_URL = "{% url "site_alerts:user_alert_room_set" bluusite.pk %}";
+  var SET_SCALE_ALERT_URL = "{% url "site_alerts:user_alert_scale_set" bluusite.pk %}";
 
   $(document).ready(function() {
     $('.masonry-container').masonry({
@@ -87,13 +88,13 @@
                             data.email)
     });
 
-     $('.alert_weight_config').change(function(event){
+     $('.alert_scale_config').change(function(event){
       // save alert configuration when changed
       var alert_cfg, data;
       alert_cfg = $(this).closest('.alert_cfg');
-      data = Bluu.get_weight_config_data(alert_cfg);
+      data = Bluu.get_scale_config_data(alert_cfg);
 
-      Bluu.set_alert_weight_config(USER_ID,
+      Bluu.set_alert_scale_config(USER_ID,
                             data.alert_id,
                             data.device_type_id,
                             data.weight,
@@ -136,6 +137,24 @@
                      data.text,
                      data.email)
     });
+
+    $('.scale').change(function(event){
+      // set alert for scale when device checked / unchecked
+      var alert_cfg, data, device_id, checked;
+      alert_cfg = $(this).closest('.alert_cfg');
+      data = Bluu.get_scale_config_data(alert_cfg);
+      device_id = $(this).data('device_id');
+      checked = $(this).is(':checked');
+
+      Bluu.set_scale_alert(checked,
+                            USER_ID,
+                            data.alert_id,
+                            device_id,
+                            data.weight,
+                            data.text,
+                            data.email)
+    });
+
   });
 </script>
 {% endblock %}
