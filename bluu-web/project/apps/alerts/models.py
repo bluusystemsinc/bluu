@@ -12,7 +12,7 @@ from django.db.models.signals import post_save
 
 from devices.models import Status, DeviceType, Device
 from devices.signals import data_received_and_stored
-from alerts.tasks import (alert_open, alert_mir)
+from alerts.tasks import (alert_open, alert_mir, alert_wgt, alert_wlt, alert_su)
 
 
 class Alert(models.Model):
@@ -104,7 +104,7 @@ class UserAlertConfig(models.Model):
                                    unicode(self.alert.get_alert_type_display()))
 
 
-class UserAlertWeightConfig(models.Model):
+class UserAlertScaleConfig(models.Model):
     bluusite = models.ForeignKey("bluusites.BluuSite")
     device_type = models.ForeignKey("devices.DeviceType")
     user = models.ForeignKey(
@@ -419,8 +419,6 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
                 uar.email_notification = instance.email_notification
                 uar.text_notification = instance.text_notification
                 uar.save()
-        elif instance.device_type.name == DeviceType.SCALE:
-            print "NO scale support yet"
         else:
             for uad in UserAlertDevice.objects.filter(
                     user=instance.user,
@@ -433,6 +431,24 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
                 uad.save()
 
 
+@receiver(post_save, sender=UserAlertScaleConfig)
+def _update_alert_scale_settings(sender, instance, created, *args, **kwargs):
+    """
+    If alert settings, for specific scale were changed then
+    update all related set alerts
+    """
+    from devices.models import DeviceType
+    if instance.pk:
+        if instance.device_type.name == DeviceType.SCALE:
+            for uas in UserAlertScale.objects.filter(
+                    user=instance.user,
+                    alert=instance.alert,
+                    device__device_type=instance.device_type):
+                uas.weight = instance.weight
+                uas.email_notification = instance.email_notification
+                uas.text_notification = instance.text_notification
+                uas.save()
+
 @receiver(post_save, sender=UserAlertDevice)
 def _update_alert_device(sender, instance, created, *args, **kwargs):
     """
@@ -440,15 +456,6 @@ def _update_alert_device(sender, instance, created, *args, **kwargs):
     alert runners should be reconfigured
     """
     update_alert_runners(instance)
-
-
-@receiver(post_save, sender=UserAlertWeightConfig)
-def _update_alert_motions(sender, instance, created, *args, **kwargs):
-    """
-    If useralertroom has been updated (alert configuration change) then
-    alert runners should be reconfigured
-    """
-    update_motion_alert_runners(instance)
 
 
 @receiver(post_save, sender=UserAlertRoom)
@@ -506,7 +513,19 @@ def check_alerts(sender, status, *args, **kwargs):
                     # motion's status timestamp
                     update_alert_runners(uad, status, status.timestamp)
     elif status.device_type.name == DeviceType.SCALE:
-        pass
+        # if there's a weight
+        if status.float_data:
+            # get all alerts configured for this scale
+            uass = UserAlertScale.objects.select_related('alert').\
+                filter(device=status.device)
+            for uas in uass:
+                # Send alert immediately
+                if uas.alert.alert_type == Alert.WEIGHT_GREATER_THAN:
+                    alert_wgt.delay(uas, status)
+                if uas.alert.alert_type == Alert.WEIGHT_LESS_THAN:
+                    alert_wlt.delay(uas, status)
+                if uas.alert.alert_type == Alert.SCALE_USED:
+                    alert_su.delay(uas, status)
     elif status.device_type.name == DeviceType.BLOOD_PRESSURE:
         pass
     else:

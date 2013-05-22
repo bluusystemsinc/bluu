@@ -304,6 +304,110 @@ def alert_active_in_period_greater_than(runner):
         msg.send()
 
 
+@task(name='alerts.call_wgt')
+def alert_wgt(uas, status):
+    user = uas.user
+    device_name = uas.device.name
+    room = uas.device.room.name
+    site_name = uas.device.bluusite.get_name
+    timestamp = status.timestamp
+    weight = '{:.2f}'.format(status.float_data)
+    weight_guard = uas.weight
+
+    body = render_to_string('alerts/notifications/wgt.html', {
+        'user': user,
+        'device_name': device_name,
+        'room': room,
+        'site_name': site_name,
+        'timestamp': timestamp,
+        'weight': weight,
+        'weight_guard': weight_guard
+    })
+    subject = render_to_string('alerts/notifications/notification_title.html',
+                               dict(site_name=site_name,
+                                    alert_name=_('weight greater than expected')))
+
+    if uas.email_notification:
+        logger.info('WGT alert sent to {0} for device {1}'.format(user.email,
+                                                                  device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uas.text_notification:
+        logger.info('WGT text alert sent to {0} for device {1}'.format(
+            user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
+
+
+@task(name='alerts.call_wlt')
+def alert_wlt(uas, status):
+    user = uas.user
+    device_name = uas.device.name
+    room = uas.device.room.name
+    site_name = uas.device.bluusite.get_name
+    timestamp = status.timestamp
+    weight = '{:.2f}'.format(status.float_data)
+    weight_guard = uas.weight
+
+    body = render_to_string('alerts/notifications/wlt.html', {
+        'user': user,
+        'device_name': device_name,
+        'room': room,
+        'site_name': site_name,
+        'timestamp': timestamp,
+        'weight': weight,
+        'weight_guard': weight_guard
+    })
+    subject = render_to_string('alerts/notifications/notification_title.html',
+                               dict(site_name=site_name,
+                                    alert_name=_('weight less than expected')))
+
+    if uas.email_notification:
+        logger.info('WLT alert sent to {0} for device {1}'.format(user.email,
+                                                                  device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uas.text_notification:
+        logger.info('WLT text alert sent to {0} for device {1}'.format(
+            user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
+
+
+@task(name='alerts.call_su')
+def alert_su(uas, status):
+    user = uas.user
+    device_name = uas.device.name
+    room = uas.device.room.name
+    site_name = uas.device.bluusite.get_name
+    timestamp = status.timestamp
+
+    body = render_to_string('alerts/notifications/su.html', {
+        'user': user,
+        'device_name': device_name,
+        'room': room,
+        'site_name': site_name,
+        'timestamp': timestamp,
+    })
+    subject = render_to_string('alerts/notifications/notification_title.html',
+                               dict(site_name=site_name,
+                                    alert_name=_('scale used')))
+
+    if uas.email_notification:
+        logger.info('SU alert sent to {0} for device {1}'.format(user.email,
+                                                                  device_name))
+        msg = BluuMessage(subject, body, user.email)
+        msg.send()
+
+    if uas.text_notification:
+        logger.info('SU text alert sent to {0} for device {1}'.format(
+            user.cell_text_email, device_name))
+        msg = BluuMessage(subject, body, user.cell_text_email)
+        msg.send()
+
+
 @task(name="alerts.trigger_runners")
 def alert_trigger_runners():
     """

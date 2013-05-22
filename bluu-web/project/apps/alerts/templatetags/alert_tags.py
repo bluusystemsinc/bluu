@@ -13,7 +13,7 @@ from bluusites.models import Room
 from ..forms import (AlertDeviceForm, DurationForm, NotificationForm,
                      WeightForm)
 from ..models import (UserAlertDevice, UserAlertConfig, UserAlertRoom,
-                      UserAlertScale, UserAlertWeightConfig)
+                      UserAlertScale, UserAlertScaleConfig)
 
 register = Library()
 
@@ -60,7 +60,7 @@ class AlertBoxNode(template.Node):
         if device_type.name == DeviceType.SCALE:
             cform = WeightForm
             cinitial = {'weight': 0}
-            config_class = UserAlertWeightConfig
+            config_class = UserAlertScaleConfig
         else:
             cform = DurationForm
             cinitial = {'duration': 0, 'unit': 'h'}

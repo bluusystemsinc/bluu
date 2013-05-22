@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import (serializers, status, permissions, generics)
 
 from bluusites.models import BluuSite, Room
-from .models import (UserAlertDevice, UserAlertConfig, UserAlertWeightConfig,
+from .models import (UserAlertDevice, UserAlertConfig, UserAlertScaleConfig,
                      UserAlertRoom, UserAlertScale)
 
 
@@ -20,7 +20,7 @@ class UserAlertConfigSerializer(serializers.ModelSerializer):
 
 class UserAlertScaleConfigSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserAlertWeightConfig
+        model = UserAlertScaleConfig
         fields = ('user', 'device_type', 'alert', 'weight',
                   'email_notification', 'text_notification')
 
@@ -105,12 +105,12 @@ class UserAlertScaleConfigSetView(generics.GenericAPIView):
 
     def get_object(self, bluusite, data):
         try:
-            return UserAlertWeightConfig.objects.get(
+            return UserAlertScaleConfig.objects.get(
                                             bluusite=bluusite,
                                             user=data.get('user'),
                                             device_type=data.get('device_type'),
                                             alert=data.get('alert'))
-        except UserAlertWeightConfig.DoesNotExist:
+        except UserAlertScaleConfig.DoesNotExist:
             raise Http404
 
     def post(self, request, pk):

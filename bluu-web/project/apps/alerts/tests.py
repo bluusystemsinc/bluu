@@ -1,20 +1,22 @@
 import datetime
 import json
 from django.conf import settings
+from django.contrib.auth import login
 from django_webtest import WebTest
 from django_dynamic_fixture import G
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test.client import RequestFactory
+from django.test.client import Client
 
 from alerts.models import (UserAlertConfig, Alert, UserAlertDevice,
-                           AlertRunner, UserAlertRoom)
+                           AlertRunner, UserAlertRoom, UserAlertScaleConfig, UserAlertScale)
 from accounts.models import BluuUser
 from bluusites.models import BluuSite, Room
 from devices.models import Device, DeviceType, Status
 from alerts.tasks import alert_trigger_runners
-from alerts.ajax_views import UserAlertConfigSetView
+from alerts.ajax_views import UserAlertConfigSetView, UserAlertScaleConfigSetView
 from utils.misc import mock_now
 from mock import patch
 
@@ -63,7 +65,7 @@ class AlertsOpenTestCase(WebTest):
 
     def testOpenNotificationsSent(self):
         """
-        Test if alert runner for open greater than is properly set
+        Test if notification for open greater than is sent
         """
         form_data = {"serial": "serial",
                      "input4": "on",
@@ -1242,3 +1244,204 @@ class AlertsActiveInPeriodGTRunnerTestCase(WebTest):
         self.assertEqual(
             mail.outbox[0].subject,
             'Jan Kowalski alert - active greater than expected in a period')
+
+
+class ScaleAlertChangedAfterScaleConfigChangeTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.factory = RequestFactory()
+
+        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
+
+        #USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1', password='test1')
+
+        # ALERTS & DEVICES
+        self.scale = DeviceType.objects.get(name=DeviceType.SCALE)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.scale)
+
+        self.alert_wgt = Alert.objects.get(alert_type=Alert.WEIGHT_GREATER_THAN)
+
+        #set some alerts
+        self.uac = UserAlertScaleConfig.objects.create(bluusite=self.bluusite1,
+                                                       device_type=self.scale,
+                                                       user=self.user1,
+                                                       alert=self.alert_wgt,
+                                                       weight=100)
+
+        UserAlertScale.objects.create(alert=self.alert_wgt,
+                                      device=self.device1,
+                                      user=self.user1,
+                                      weight=100,
+                                      email_notification=True)
+
+
+    def testUserAlertScaleChangedAfterAlertConfigChangeSet(self):
+        """
+        Test if alert sclae is properly changed after alert config
+        has been changed.
+        """
+        # change alert configuration
+        config_data = {'user': self.user1.pk,
+                       'device_type': self.device1.device_type.pk,
+                       'alert': self.alert_wgt.pk,
+                       'weight': "90",
+                       'email_notification': True,
+                       'text_notification': False}
+        res = self.app.post(reverse('site_alerts:user_alert_scale_config_set',
+                             kwargs={'pk': self.bluusite1.pk}),
+                             json.dumps(config_data),
+                             content_type='application/json;charset=utf-8',
+                             user=self.user1.username,
+                             status=200)
+
+        self.assertEqual(UserAlertScale.objects.count(), 1)
+        self.assertEqual(UserAlertScale.objects.all()[0].weight, 90)
+
+    def testWGTNotificationSent(self):
+        """
+        Test if notification for weight greater than is sent
+        """
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert notifications sent
+        # Test that one message has been sent (email and no text).
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject,
+                         'Jan Kowalski alert - weight greater than expected')
+
+
+class ScaleWLTAlertSentTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.factory = RequestFactory()
+
+        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
+
+        #USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1', password='test1')
+
+        # ALERTS & DEVICES
+        self.scale = DeviceType.objects.get(name=DeviceType.SCALE)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.scale)
+
+        self.alert_wlt = Alert.objects.get(alert_type=Alert.WEIGHT_LESS_THAN)
+
+        #set some alerts
+        self.uac = UserAlertScaleConfig.objects.create(bluusite=self.bluusite1,
+                                                       device_type=self.scale,
+                                                       user=self.user1,
+                                                       alert=self.alert_wlt,
+                                                       weight=100)
+
+        UserAlertScale.objects.create(alert=self.alert_wlt,
+                                      device=self.device1,
+                                      user=self.user1,
+                                      weight=100,
+                                      email_notification=True)
+
+    def testWLTNotificationSent(self):
+        """
+        Test if notification for weight less than is sent
+        """
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert notifications sent
+        # Test that one message has been sent (email and no text).
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject,
+                         'Jan Kowalski alert - weight less than expected')
+
+
+class ScaleSUAlertSentTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.factory = RequestFactory()
+
+        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
+
+        #USERS
+        self.ws_user = G(BluuUser, username='ws')
+        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
+                                  obj=self.bluusite1)
+        self.user1 = G(BluuUser, username='test1', password='test1')
+
+        # ALERTS & DEVICES
+        self.scale = DeviceType.objects.get(name=DeviceType.SCALE)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.scale)
+
+        self.alert_su = Alert.objects.get(alert_type=Alert.SCALE_USED)
+
+        #set some alerts
+        self.uac = UserAlertScaleConfig.objects.create(bluusite=self.bluusite1,
+                                                       device_type=self.scale,
+                                                       user=self.user1,
+                                                       alert=self.alert_su,
+                                                       weight=100)
+
+        UserAlertScale.objects.create(alert=self.alert_su,
+                                      device=self.device1,
+                                      user=self.user1,
+                                      weight=100,
+                                      email_notification=True)
+
+
+    def testSUNotificationSent(self):
+        """
+        Test if notification for weight less than is sent
+        """
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert notifications sent
+        # Test that one message has been sent (email and no text).
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject,
+                         'Jan Kowalski alert - scale used')

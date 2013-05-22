@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from crispy_forms.helper import FormHelper
 from crispy_forms import layout
 
-from .models import (UserAlertDevice, UserAlertConfig, UserAlertWeightConfig)
+from .models import (UserAlertDevice, UserAlertConfig, UserAlertScaleConfig)
 
 
 class DurationForm(forms.ModelForm):
@@ -41,7 +41,7 @@ class WeightForm(forms.ModelForm):
         self.helper.layout = layout.Layout(weight,)
 
     class Meta:
-        model = UserAlertWeightConfig
+        model = UserAlertScaleConfig
         fields = ('weight',)
 
 
