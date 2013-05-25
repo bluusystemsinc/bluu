@@ -46,3 +46,16 @@ def run():
     su, created = Alert.objects.get_or_create(alert_type=Alert.SCALE_USED)
     su.device_types.add(scale)
 
+    #system alerts
+    sysb, created = Alert.objects.get_or_create(alert_type=Alert.SYSTEM_BATTERY)
+    sysb.device_types.add(door, window, refrigerator, emergency, seat, bed,
+                          scale, blood_pressure, motion)
+    syst, created = Alert.objects.get_or_create(alert_type=Alert.SYSTEM_TAMPER)
+    syst.device_types.add(door, window, refrigerator, emergency, seat, bed,
+                          scale, blood_pressure, motion)
+    sysdo, created = Alert.objects.get_or_create(
+        alert_type=Alert.SYSTEM_DEVICE_OFFLINE)
+    sysdo.device_types.add(door, window, refrigerator, emergency, seat, bed,
+                          motion)
+    sysso, created = Alert.objects.get_or_create(
+        alert_type=Alert.SYSTEM_SITE_OFFLINE)

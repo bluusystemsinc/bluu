@@ -206,31 +206,16 @@ class Status(models.Model):
 
 
 @receiver(data_received, sender=Status)
-def set_device_last_seen(sender, device, data, timestamp, *args, **kwargs):
+def set_last_seen(sender, device, data, timestamp, ip_address,
+                  *args, **kwargs):
     """
     Sets device's last seen after a status update was received
+    Sets site's last seen after a status update was received
+    Sets site's ip address to ip address from which last status update was received
     """
     device.last_seen = timestamp
     device.save()
-
-
-@receiver(data_received, sender=Status)
-def set_site_last_seen(sender, device, data, timestamp, *args, **kwargs):
-    """
-    Sets site's last seen after a status update was received
-    """
     device.bluusite.last_seen = timestamp
-    device.bluusite.save()
-
-
-@receiver(data_received, sender=Status)
-def update_site_ip_address(sender, device, data, timestamp, ip_address,
-                           *args, **kwargs):
-    """
-    Sets site's ip address to ip address from which last status update was received
-    """
     if device.bluusite.ip != ip_address:
         device.bluusite.ip = ip_address
-        device.bluusite.save()
-
-
+    device.bluusite.save()

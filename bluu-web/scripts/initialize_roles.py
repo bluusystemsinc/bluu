@@ -88,8 +88,9 @@ perm_change_room = Permission.objects.get(content_type=site_type,
 perm_delete_room = Permission.objects.get(content_type=site_type,
                         codename=u"delete_room")
 
-
-
+perm_manage_dealer_alerts = Permission.objects.get(
+    content_type=site_type,
+    codename=u"manage_dealer_alerts")
 
 def run():
     """We're going to have TestCenter Admin and Group Admin roles.
@@ -140,6 +141,8 @@ def run():
         perm_add_room,
         perm_change_room,
         perm_delete_device,
+
+        perm_manage_dealer_alerts,
     ]
 
     # create Dealer role
@@ -186,6 +189,7 @@ def run():
         perm_add_room,
         perm_change_room,
         perm_delete_device,
+        perm_manage_dealer_alerts,
     ]
 
     # create Technician role
@@ -226,6 +230,7 @@ def run():
         perm_add_room,
         perm_change_room,
         perm_delete_device,
+        perm_manage_dealer_alerts,
     ]
 
     # create Company Employee role

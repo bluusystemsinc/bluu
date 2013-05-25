@@ -63,6 +63,10 @@ class BluuSite(models.Model):
     many_inhabitants = models.BooleanField(
         _('more than one person living in this house'),
         default=False)
+    dealer_alerts = models.BooleanField(_('dealers receive alerts'),
+                                        default=True)
+    user_alerts = models.BooleanField(_('users receive alerts'),
+                                      default=True)
 
     class Meta:
         verbose_name = _("Site")
@@ -78,6 +82,7 @@ class BluuSite(models.Model):
             ("add_room", "Can add room"),
             ("change_room", "Can change room"),
             ("delete_room", "Can delete room"),
+            ("manage_dealer_alerts", "Can manage dealer alerts"),
         )
 
     def __unicode__(self):

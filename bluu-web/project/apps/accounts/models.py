@@ -121,6 +121,24 @@ class BluuUser(AbstractUser):
         UserObjectGroup.objects.remove_all_accesses(user=self, 
                                                     obj=obj)
 
+    def is_site_dealer(self, bluusite):
+        perm = 'companies.view_company'
+        if bluusite.company in self.get_companies(perm):
+            return True
+        return False
+
+    def is_site_user(self, bluusite):
+        perm = 'bluusites.view_bluusite'
+        if bluusite in self.get_sites(perm):
+            return True
+        return False
+
+    def is_site_masteruser(self, bluusite):
+        perm = 'bluusites.change_bluusite'
+        if bluusite in self.get_sites(perm):
+            return True
+        return False
+
 
 @receiver(post_save, sender=BluuUser)
 def _set_default_groups(sender, instance, *args, **kwargs):

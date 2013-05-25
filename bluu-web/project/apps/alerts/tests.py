@@ -40,13 +40,16 @@ class AlertsOpenTestCase(WebTest):
         run_initialize_script()
         run_initialize_dicts_script()
 
-        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
+        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski',
+                           site_alerts=True, site_dealer_alerts=True)
 
         # USERS
         self.ws_user = G(BluuUser, username='ws')
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
 
         # DEVICES AND ALERTS
         self.window = DeviceType.objects.get(name=DeviceType.WINDOW)
@@ -99,6 +102,9 @@ class AlertsOGTTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -213,7 +219,10 @@ class AlertsOGTRunnerTestCase(WebTest):
         self.ws_user = G(BluuUser, username='ws')
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
-        self.user3 = G(BluuUser, username='test3')
+        self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -225,7 +234,7 @@ class AlertsOGTRunnerTestCase(WebTest):
         #set some alerts
         UserAlertConfig.objects.create(bluusite=self.bluusite1,
                                        device_type=self.bed,
-                                       user=self.user3,
+                                       user=self.user1,
                                        alert=self.alert_ogt,
                                        duration=10,
                                        unit=Alert.MINUTES
@@ -233,7 +242,7 @@ class AlertsOGTRunnerTestCase(WebTest):
 
         uad = UserAlertDevice.objects.create(alert=self.alert_ogt,
                                              device=self.device1,
-                                             user=self.user3,
+                                             user=self.user1,
                                              duration=10,
                                              unit=Alert.MINUTES,
                                              email_notification=True
@@ -272,7 +281,10 @@ class AlertsCGTRunnerTestCase(WebTest):
         self.ws_user = G(BluuUser, username='ws')
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
-        self.user3 = G(BluuUser, username='test3')
+        self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -284,7 +296,7 @@ class AlertsCGTRunnerTestCase(WebTest):
         #set some alerts
         UserAlertConfig.objects.create(bluusite=self.bluusite1,
                                        device_type=self.bed,
-                                       user=self.user3,
+                                       user=self.user1,
                                        alert=self.alert_cgt,
                                        duration=10,
                                        unit=Alert.MINUTES
@@ -292,7 +304,7 @@ class AlertsCGTRunnerTestCase(WebTest):
 
         uad = UserAlertDevice.objects.create(alert=self.alert_cgt,
                                              device=self.device1,
-                                             user=self.user3,
+                                             user=self.user1,
                                              duration=10,
                                              unit=Alert.MINUTES,
                                              email_notification=True
@@ -337,6 +349,9 @@ class AlertsOGTNMTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.device1_type = DeviceType.objects.get(name=DeviceType.DOOR)
@@ -444,6 +459,8 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -541,6 +558,8 @@ class AlertsMotionInRoomTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
 
         # DEVICES AND ALERTS
         self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
@@ -595,6 +614,9 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # DEVICES AND ALERTS
         self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
@@ -709,6 +731,9 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # DEVICES AND ALERTS
         self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
@@ -822,6 +847,9 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -975,6 +1003,9 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -1037,6 +1068,9 @@ class AlertsActiveInPeriodGTTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.seat = DeviceType.objects.get(name=DeviceType.SEAT)
@@ -1201,6 +1235,9 @@ class AlertsActiveInPeriodGTRunnerTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.seat = DeviceType.objects.get(name=DeviceType.SEAT)
@@ -1264,6 +1301,9 @@ class ScaleAlertChangedAfterScaleConfigChangeTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1', password='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.scale = DeviceType.objects.get(name=DeviceType.SCALE)
@@ -1346,6 +1386,9 @@ class ScaleWLTAlertSentTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1', password='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.scale = DeviceType.objects.get(name=DeviceType.SCALE)
@@ -1405,6 +1448,9 @@ class ScaleSUAlertSentTestCase(WebTest):
         self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
                                   obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1', password='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
 
         # ALERTS & DEVICES
         self.scale = DeviceType.objects.get(name=DeviceType.SCALE)

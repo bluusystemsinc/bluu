@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework import (generics, serializers, status)
 
 from devices.models import Device, Status
-from devices.signals import (data_received, data_received_and_stored)
+from devices.signals import data_received, data_received_and_stored,\
+    controller_heartbeat_received
 from bluusites.models import BluuSite
 from utils.misc import get_client_ip
 
@@ -158,6 +159,11 @@ class SiteHeartBeatView(generics.UpdateAPIView):
             self.object.last_seen = datetime.now()
             self.object.save()
 
+            # send signal
+            timestamp = datetime.now()
+            controller_heartbeat_received.send(sender=self.object,
+                                               timestamp=timestamp)
             success_status_code = status.HTTP_200_OK
+
             return Response(serializer.data, status=success_status_code)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
