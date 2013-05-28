@@ -67,7 +67,6 @@ class CompanyUpdateView(UpdateView):
                                           (Company, 'pk', 'pk'),
                                            accept_global_perms=True))
     def dispatch(self, *args, **kwargs):
-        print 'aaa'
         return super(CompanyUpdateView, self).dispatch(*args, **kwargs)
 
 

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-from devices.models import DeviceType
+from __future__ import unicode_literals
+
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import (serializers, status, permissions, generics)
 
 from bluusites.models import BluuSite, Room
+from devices.models import DeviceType
 from .models import (UserAlertDevice, UserAlertConfig, UserAlertScaleConfig,
                      UserAlertRoom, UserAlertScale)
 

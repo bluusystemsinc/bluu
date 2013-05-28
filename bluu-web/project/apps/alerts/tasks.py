@@ -10,7 +10,11 @@ from utils.misc import BluuMessage
 logger = get_task_logger(__name__)
 
 
-def alerts_allowed(user, bluusite):
+def alerts_allowed(bluusite):
+    return bluusite.user_alerts
+
+
+def user_alerts_allowed(user, bluusite):
     """
     Checks if current user is allowed to receive alert
     notifications:
@@ -40,7 +44,7 @@ def alert_open(uad, status):
     user = uad.user
     site = uad.device.bluusite
     # check here because this alert isn't called via alert runner
-    if (alerts_allowed(user, site) or
+    if (user_alerts_allowed(user, site) or
             dealer_alerts_allowed(user, site)):
         device_name = uad.device.name
         room = uad.device.room.name
@@ -197,7 +201,7 @@ def alert_mir(uar, status):
     user = uar.user
     site = status.device.bluusite
     # check here because this alert isn't called via alert runner
-    if (alerts_allowed(user, site) or
+    if (user_alerts_allowed(user, site) or
             dealer_alerts_allowed(user, site)):
         device_name = status.device.name
         room = uar.room.name
@@ -346,9 +350,12 @@ def alert_active_in_period_greater_than(runner):
 
 @task(name='alerts.call_wgt')
 def alert_wgt(uas, status):
+    """
+    Sends notification that weight is greater than
+    """
     user = uas.user
     site = uas.device.bluusite
-    if (alerts_allowed(user, site) or
+    if (user_alerts_allowed(user, site) or
             dealer_alerts_allowed(user, site)):
         device_name = uas.device.name
         room = uas.device.room.name
@@ -386,9 +393,12 @@ def alert_wgt(uas, status):
 
 @task(name='alerts.call_wlt')
 def alert_wlt(uas, status):
+    """
+    Sends notification that weight is less than
+    """
     user = uas.user
     site = uas.device.bluusite
-    if (alerts_allowed(user, site) or
+    if (user_alerts_allowed(user, site) or
             dealer_alerts_allowed(user, site)):
         device_name = uas.device.name
         room = uas.device.room.name
@@ -425,9 +435,12 @@ def alert_wlt(uas, status):
 
 @task(name='alerts.call_su')
 def alert_su(uas, status):
+    """
+    Sends notification that scale has been used
+    """
     user = uas.user
     site = uas.device.bluusite
-    if (alerts_allowed(user, site) or
+    if (user_alerts_allowed(user, site) or
             dealer_alerts_allowed(user, site)):
         device_name = uas.device.name
         room = uas.device.room.name
@@ -458,6 +471,45 @@ def alert_su(uas, status):
             msg.send()
 
 
+
+@task(name='alerts.call_sys_battery_low')
+def alert_sys_battery_low(user, device, timestamp, period=None):
+    """
+    Sends notification about battery low
+    """
+    site = device.bluusite
+    if (user_alerts_allowed(user, site) or
+            dealer_alerts_allowed(user, site)):
+        device_name = device.name
+        room = device.room
+        site_name = site.get_name
+        timestamp = timestamp
+
+        body = render_to_string('alerts/notifications/sys_battery_low.html', {
+            'user': user,
+            'device_name': device_name,
+            'room': room,
+            'site_name': site_name,
+            'timestamp': timestamp,
+            'period': period
+        })
+        subject = render_to_string('alerts/notifications/notification_title.html',
+                                   dict(site_name=site_name,
+                                        alert_name=_('battery low')))
+
+        if user.email:
+            logger.info('Sys battery low alert sent to {0} for device {1}'.format(user.email,
+                                                                     device_name))
+            msg = BluuMessage(subject, body, user.email)
+            msg.send()
+
+        if user.cell_text_email:
+            logger.info('Sys battery low text alert sent to {0} for device {1}'.format(
+                user.cell_text_email, device_name))
+            msg = BluuMessage(subject, body, user.cell_text_email)
+            msg.send()
+
+
 @task(name="alerts.trigger_runners")
 def alert_trigger_runners():
     """
@@ -475,7 +527,7 @@ def alert_trigger_runners():
             # for this bluusite
             user = ar.user_alert_device.user
             site = ar.user_alert_device.device.bluusite
-            if (alerts_allowed(user, site) or
+            if (user_alerts_allowed(user, site) or
                     dealer_alerts_allowed(user, site)):
                 # if OGT
                 if ar.user_alert_device.alert.alert_type == Alert.OPEN_GREATER_THAN:
@@ -516,7 +568,7 @@ def alert_trigger_runners():
             # if NoMotionGreaterThan
             user = ar.user_alert_room.user
             site = ar.user_alert_room.room.bluusite
-            if (alerts_allowed(user, site) or
+            if (user_alerts_allowed(user, site) or
                     dealer_alerts_allowed(user, site)):
                 if ar.user_alert_room.alert.alert_type \
                         == Alert.NOMOTION_IN_ROOM_GREATER_THAN:
@@ -540,3 +592,49 @@ def alert_clear_runners():
     AlertRunner.objects.select_related().filter(is_active=False,
                                                 when__lt=now - t).delete()
     logger.info('Cleaned inactive alert runners')
+
+
+
+@task(name="alerts.trigger_system_runners")
+def alert_trigger_system_runners():
+    """
+    Periodically check system alert runner table and trigger alerts.
+    """
+    from alerts.models import SystemAlertRunner, Alert
+
+    now = datetime.now()
+    ars = SystemAlertRunner.objects.select_related().filter(is_active=True,
+                                                            when__lte=now)
+    for ar in ars:
+        # trigger action for specific alert runner
+
+        # check if user alerts or dealer alerts are allowed
+        # for this bluusite
+        site = ar.device.bluusite
+        if alerts_allowed(site):
+            # if battery
+            if ar.alert.alert_type == Alert.SYSTEM_BATTERY:
+                SystemAlertRunner.objects.send_battery_alerts(ar.device, now,
+                                                              ar.period)
+                ar.is_active = False
+                ar.save()
+        else:
+            # alerts are not active for current site
+            # so mark alert runner as inactive
+            ar.is_active = False
+            ar.save()
+
+
+@task(name="alerts.clean_sytem_runners")
+def sys_alert_clear_runners():
+    """
+    Removes system alert runners that were run and are older than one day.
+    """
+    from alerts.models import SystemAlertRunner, Alert
+
+    now = datetime.now()
+    t = timedelta(days=1)
+    SystemAlertRunner.objects.select_related().filter(is_active=False,
+                                                when__lt=now - t).delete()
+    logger.info('Cleaned inactive system alert runners')
+

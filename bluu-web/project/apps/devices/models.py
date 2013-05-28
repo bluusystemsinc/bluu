@@ -92,10 +92,6 @@ class Device(TimeStampedModel):
                                    ' action bit\'s value equals to "ON"'),
                                  default=True)
 
-    @property
-    def inactive(self):
-        return not self.active
-
     class Meta:
         verbose_name = _("device")
         verbose_name_plural = _("devices")
@@ -111,6 +107,10 @@ class Device(TimeStampedModel):
     def get_absolute_url(self):
         return reverse('site_devices:device_edit',
                        args=(self.bluusite_id, self.id))
+
+    @property
+    def inactive(self):
+        return not self.active
 
     @property
     def is_online(self):
@@ -199,9 +199,6 @@ class Status(models.Model):
 
     @property
     def is_active(self):
-        #if self.device.device_type.name == DeviceType.MOTION:
-        #    if self.action:
-        #        return True
         return self.action == self.device.active
 
 

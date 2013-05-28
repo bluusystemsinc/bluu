@@ -23,6 +23,7 @@ from grontextual.models import UserObjectGroup
 from utils.misc import remove_orphaned_obj_perms
 from utils.countries import CountryField
 from south.modelsinspector import add_introspection_rules
+from guardian.compat import get_user_model
 
 add_introspection_rules([], ["^utils\.countries\.CountryField"])
 
@@ -103,6 +104,25 @@ class BluuSite(models.Model):
         if (datetime.now() - self.last_seen) > timedelta(hours=1):
             return False
         return True
+
+    def get_site_managers(self):
+        """
+        Returns queryset of all ``User`` objects with
+        *bluusites.change_bluusite* object permissions for current bluusite.
+        """
+        ctype = ContentType.objects.get_for_model(self)
+        related_name = 'userobjectgroup'
+        user_filters = {
+                '%s__content_type' % related_name: ctype,
+                '%s__object_pk' % related_name: self.pk,
+                '%s__group__permissions__content_type' % related_name: ctype,
+                '%s__group__permissions__codename' % related_name: 'change_bluusite',
+            }
+        qset = Q(**user_filters)
+
+        return get_user_model().objects.filter(qset).exclude(
+            userobjectgroup__group__name='WebService').distinct()
+
 
     def get_last_activity(self):
         devices = self.device_set.filter(device_type__name=DeviceType.MOTION)

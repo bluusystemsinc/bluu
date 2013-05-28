@@ -30,6 +30,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'alerts.clean_runners',
         'schedule': crontab(hour='0', minute='0'),
     },
+    'cleanup_system_alert_runners': {
+        'task': 'alerts.clean_system_runners',
+        'schedule': crontab(hour='0', minute='0'),
+    },
 }
 
 try:

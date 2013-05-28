@@ -164,3 +164,4 @@ def get_objects_for_user(user, perms, klass=None, use_groups=True, any_perm=Fals
     objects = queryset.filter(pk__in=pk_list)
     return objects
 
+

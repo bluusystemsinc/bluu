@@ -1,5 +1,6 @@
 import datetime
 import json
+from companies.models import Company
 from django.conf import settings
 from django.contrib.auth import login
 from django_webtest import WebTest
@@ -11,11 +12,11 @@ from django.test.client import RequestFactory
 from django.test.client import Client
 
 from alerts.models import (UserAlertConfig, Alert, UserAlertDevice,
-                           AlertRunner, UserAlertRoom, UserAlertScaleConfig, UserAlertScale)
+                           AlertRunner, UserAlertRoom, UserAlertScaleConfig, UserAlertScale, SystemAlertRunner)
 from accounts.models import BluuUser
 from bluusites.models import BluuSite, Room
 from devices.models import Device, DeviceType, Status
-from alerts.tasks import alert_trigger_runners
+from alerts.tasks import alert_trigger_runners, alert_trigger_system_runners
 from alerts.ajax_views import UserAlertConfigSetView, UserAlertScaleConfigSetView
 from utils.misc import mock_now
 from mock import patch
@@ -27,7 +28,8 @@ def post_status(testcase, slug, serial, form_data):
                                              'device_slug': serial}),
                              json.dumps(form_data),
                              content_type='application/json;charset=utf-8',
-                             user='ws',
+                             user='{}_{}'.format(
+                                 settings.WEBSERVICE_USERNAME_PREFIX, slug),
                              status=201)
 
 
@@ -44,9 +46,6 @@ class AlertsOpenTestCase(WebTest):
                            site_alerts=True, site_dealer_alerts=True)
 
         # USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -98,9 +97,6 @@ class AlertsOGTTestCase(WebTest):
         self.bluusite1 = G(BluuSite)
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -216,9 +212,6 @@ class AlertsOGTRunnerTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -278,9 +271,6 @@ class AlertsCGTRunnerTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -345,9 +335,6 @@ class AlertsOGTNMTestCase(WebTest):
         self.bluusite1 = G(BluuSite)
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -455,9 +442,6 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
         self.bluusite1 = G(BluuSite)
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -554,9 +538,6 @@ class AlertsMotionInRoomTestCase(WebTest):
         self.room1 = G(Room, name="room1", bluusite=self.bluusite1)
 
         # USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -610,9 +591,6 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
         self.room1 = G(Room, name="room1", bluusite=self.bluusite1)
 
         # USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -727,9 +705,6 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
         self.room1 = G(Room, name="room1", bluusite=self.bluusite1)
 
         # USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -843,9 +818,6 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -999,9 +971,6 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -1064,9 +1033,6 @@ class AlertsActiveInPeriodGTTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -1102,7 +1068,6 @@ class AlertsActiveInPeriodGTTestCase(WebTest):
         Test if alert runner for active in period greater than
         isn't set after "inactive / closed" signal arrived
         """
-
         form_data = {"serial": "serial",
                      "input4": "on",
                      "float_data": "1.22",
@@ -1231,9 +1196,6 @@ class AlertsActiveInPeriodGTRunnerTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name="Jan", last_name="Kowalski")
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -1297,9 +1259,6 @@ class ScaleAlertChangedAfterScaleConfigChangeTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1', password='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -1382,9 +1341,6 @@ class ScaleWLTAlertSentTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1', password='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -1444,9 +1400,6 @@ class ScaleSUAlertSentTestCase(WebTest):
         self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
 
         #USERS
-        self.ws_user = G(BluuUser, username='ws')
-        self.ws_user.assign_group(group=Group.objects.get(name='WebService'),
-                                  obj=self.bluusite1)
         self.user1 = G(BluuUser, username='test1', password='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
@@ -1491,3 +1444,117 @@ class ScaleSUAlertSentTestCase(WebTest):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject,
                          'Jan Kowalski alert - scale used')
+
+
+class SysAlertBatteryTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.dealer_group = Group.objects.get(name='Dealer')
+        self.technician_group = Group.objects.get(name='Technician')
+        self.masteruser_group = Group.objects.get(name='Master User')
+        self.user_group = Group.objects.get(name='User')
+
+        self.factory = RequestFactory()
+        self.company1 = G(Company, name="C1")
+        self.bluusite1 = G(BluuSite, company=self.company1,
+                           first_name='Jan', last_name='Kowalski',
+                           email='jkowalski@example.com')
+
+        #USERS
+        self.user1 = G(BluuUser, username='test1', password='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
+        self.user2 = G(BluuUser, username='test2', password='test2')
+        self.user2.assign_group(group=Group.objects.get(name='Master User'),
+                                obj=self.bluusite1)
+
+        self.dealer = G(BluuUser, username='dealer',
+                        first_name='Dealer', last_name='Dealer',
+                        email='dealer@example.com', cell_text_email='')
+
+        # ALERTS & DEVICES
+        self.door = DeviceType.objects.get(name=DeviceType.DOOR)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.door)
+
+        self.alert_battery = Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY)
+
+    def testBatteryNotificationsSent(self):
+        """
+        Test if system notifications for battery are sent
+        """
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        dealer = BluuUser.objects.get(username='dealer')
+        #self.assertTrue(dealer.has_perm('bluusites.change_bluusite',
+        #                                self.site1))
+
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "battery": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert notifications sent
+        # Test that three messages has been sent: email and text for master user
+        #  and email for dealer
+        self.assertEqual(len(mail.outbox), 3)
+        #for email in mail.outbox:
+        #    print email.subject, email.body
+
+    def testBatteryRunnersSet(self):
+        """
+        Test if system runners for battery are set
+        """
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        dealer = BluuUser.objects.get(username='dealer')
+        #self.assertTrue(dealer.has_perm('bluusites.change_bluusite',
+        #                                self.site1))
+
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "battery": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert runners set
+        self.assertEquals(SystemAlertRunner.objects.all().count(), 3)
+
+    def testBatteryRunnersRun(self):
+        """
+        Test if system runners for battery are run
+        """
+
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        # set alert runner
+        SystemAlertRunner.objects.create(
+            device=self.device1,
+            alert=Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY),
+            when=datetime.datetime.now(),
+            period='period',
+            since=datetime.datetime.strptime("2013-03-07T23:00:09",
+                                             "%Y-%m-%dT%H:%M:%S"))
+
+        alert_trigger_system_runners.delay()
+        self.assertEqual(len(mail.outbox), 3)
+

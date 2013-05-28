@@ -13,7 +13,8 @@ from django.db.models.signals import post_save
 
 from devices.models import Status, DeviceType, Device
 from devices.signals import data_received, data_received_and_stored, controller_heartbeat_received
-from alerts.tasks import (alert_open, alert_mir, alert_wgt, alert_wlt, alert_su)
+from alerts.tasks import (alert_open, alert_mir, alert_wgt, alert_wlt, alert_su, alert_sys_battery_low)
+from utils.misc import add_one_month
 
 
 class Alert(models.Model):
@@ -239,7 +240,7 @@ class AlertRunnerManager(models.Manager):
         delta = timedelta(**params)
         return timestamp + delta
 
-    def set_runners(self, uad, status, timestamp=None):
+    def set_runners(self, uad, status=None, timestamp=None):
         """
         Sets runners for specific uad and last status
         If alert is of type:
@@ -252,70 +253,86 @@ class AlertRunnerManager(models.Manager):
             - add configured duration to status timestamp
             - set alert runner
         """
-        # Delete all alert runners for user alert device
-        self.filter(is_active=True, user_alert_device=uad).delete()
+        try:
+            # If there's no status then this is probably because
+            # config of alert has been changed. So use latest status to
+            # recalculate runner.
+            if not status:
+                status = Status.objects.filter(device=uad.device).latest(
+                    'created')
+        except Status.DoesNotExist:
+            status = None
+        else:
+            if timestamp is None:
+                timestamp = status.timestamp
 
-        # if duration is set
-        if uad.duration > 0:
-            timestamp = timestamp or status.timestamp
-            if status.is_active:
-                if uad.alert.alert_type in [Alert.OPEN_GREATER_THAN,
-                                            Alert.OPEN_GREATER_THAN_NO_MOTION]:
-                    alert_time = self.get_alert_time(timestamp, uad)
-                    self.create(when=alert_time, user_alert_device=uad,
-                                since=timestamp)
-                elif uad.alert.alert_type == \
-                        Alert.ACTIVE_IN_PERIOD_GREATER_THAN:
-                    kwargs = {TIME_UNITS[uad.unit]: uad.duration}
-                    duration = timedelta(**kwargs)
-                    activity_time = uad.device.get_activity_time(till=timestamp)
-                    target_date = timestamp
-                    while activity_time < duration:
-                        target_date = target_date + (duration -
-                                                     activity_time)
-                        activity_time = uad.device.get_activity_time(
-                            till=target_date)
-                    # don't set alert in past - this might happen when alert
-                    # configuration has been changed and device  turns to be
-                    # immediately active greater than
-                    now = datetime.now()
-                    if target_date < now:
-                        target_date = now
-                    self.create(when=target_date, user_alert_device=uad,
-                                since=timestamp)
-            else:
-                if uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
-                    alert_time = self.get_alert_time(timestamp, uad)
-                    self.create(when=alert_time, user_alert_device=uad,
-                                since=timestamp)
-                elif uad.alert.alert_type == \
-                        Alert.ACTIVE_IN_PERIOD_LESS_THAN:
-                    kwargs = {TIME_UNITS[uad.unit]: uad.duration}
-                    duration = timedelta(**kwargs)
-                    activity_time = uad.device.get_activity_time(till=timestamp)
-                    target_date = timestamp
-                    # If activity is longer or equal than expected duration
-                    # then find out when it would be less (assuming that
-                    # inactivity period has just started).
-                    # Else schedule alert to be send immediately
-                    while activity_time > duration:
-                        target_date = target_date + activity_time - duration
-                        activity_time = uad.device.get_activity_time(
-                            till=target_date)
-                    # don't set alert in past - this might happen when alert
-                    # configuration has been changed and device turns out to be
-                    # immediately active less than
-                    now = datetime.now()
-                    if target_date < now:
-                        target_date = now
-                    self.create(when=target_date, user_alert_device=uad,
-                                since=timestamp)
+            # Delete all alert runners for user alert device
+            self.filter(is_active=True, user_alert_device=uad).delete()
 
-    def set_motion_runners(self, uar, status, timestamp=None):
+            # if duration is set
+            if uad.duration > 0:
+                if status.is_active:
+                    if uad.alert.alert_type in \
+                            [Alert.OPEN_GREATER_THAN,
+                             Alert.OPEN_GREATER_THAN_NO_MOTION]:
+                        alert_time = self.get_alert_time(timestamp, uad)
+                        self.create(when=alert_time, user_alert_device=uad,
+                                    since=timestamp)
+                    elif uad.alert.alert_type == \
+                            Alert.ACTIVE_IN_PERIOD_GREATER_THAN:
+                        kwargs = {TIME_UNITS[uad.unit]: uad.duration}
+                        duration = timedelta(**kwargs)
+                        activity_time = uad.device.get_activity_time(
+                            till=timestamp)
+                        target_date = timestamp
+                        while activity_time < duration:
+                            target_date = target_date + (duration -
+                                                         activity_time)
+                            activity_time = uad.device.get_activity_time(
+                                till=target_date)
+                        # don't set alert in past - this might happen when alert
+                        # configuration has been changed and device  turns to be
+                        # immediately active greater than
+                        now = datetime.now()
+                        if target_date < now:
+                            target_date = now
+                        self.create(when=target_date, user_alert_device=uad,
+                                    since=timestamp)
+                else:
+                    if uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
+                        alert_time = self.get_alert_time(timestamp, uad)
+                        self.create(when=alert_time, user_alert_device=uad,
+                                    since=timestamp)
+                    elif uad.alert.alert_type == \
+                            Alert.ACTIVE_IN_PERIOD_LESS_THAN:
+                        kwargs = {TIME_UNITS[uad.unit]: uad.duration}
+                        duration = timedelta(**kwargs)
+                        activity_time = uad.device.get_activity_time(
+                            till=timestamp)
+                        target_date = timestamp
+                        # If activity is longer or equal than expected duration
+                        # then find out when it would be less (assuming that
+                        # inactivity period has just started).
+                        # Else schedule alert to be send immediately
+                        while activity_time > duration:
+                            target_date = target_date + activity_time - duration
+                            activity_time = uad.device.get_activity_time(
+                                till=target_date)
+                        # don't set alert in past - this might happen when alert
+                        # configuration has been changed and device turns out to
+                        # be immediately active less than
+                        now = datetime.now()
+                        if target_date < now:
+                            target_date = now
+                        self.create(when=target_date, user_alert_device=uad,
+                                    since=timestamp)
+
+    def set_motion_runners(self, uar, status=None, timestamp=None):
         """
         Sets motion runners for specific room.
 
-        1. "status" param of this function is last active motion status in the room
+        1. "status" param of this function is last active motion status in the
+            room
         2. Set runners for specific uar and last active motion status
          Motion is "Active" then:
           - NO_MOTION_GREATER_THAN - remove old and set again including timegap
@@ -327,26 +344,33 @@ class AlertRunnerManager(models.Manager):
            because activity is calculated in a way where a predefined timegap
            plays role then "inactive/close" signal is not relevant here.
         """
-        self.filter(is_active=True, user_alert_room=uar).delete()
-
-        # if duration is set
-        if uar.duration > 0:
-            if timestamp is None:
+        try:
+            if not status:
+                status = Status.objects.filter(
+                    device__room=uar.room,
+                    device__device_type__name=DeviceType.MOTION).latest(
+                        'created')
+        except Status.DoesNotExist:
+            status = None
+        else:
+            if not timestamp:
                 timestamp = status.timestamp
-            if status.action is status.device.active and\
-                    uar.alert.alert_type == Alert.NOMOTION_IN_ROOM_GREATER_THAN:
-                # Activity has just been started so nomotion has to be started after
-                # MOTION_TIME_GAP time has passed
-                timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
-                alert_time = self.get_alert_time(timestamp + timegap, uar)
-                self.create(when=alert_time, user_alert_room=uar,
-                            since=timestamp)
-            #elif status.action is status.device.inactive and\
-            #        uar.alert.alert_type == Alert.CLOSED_GREATER_THAN:
-            #    alert_time = get_alert_time(timestamp, uad)
-            #    AlertRunner.objects.create(when=alert_time,
-            #                               user_alert_device=uad,
-            #                               since=timestamp)
+
+            self.filter(is_active=True, user_alert_room=uar).delete()
+
+            # if duration is set
+            if uar.duration > 0:
+                if timestamp is None:
+                    timestamp = status.timestamp
+                if status.action is status.device.active and\
+                        uar.alert.alert_type ==\
+                                Alert.NOMOTION_IN_ROOM_GREATER_THAN:
+                    # Activity has just been started so nomotion has to be
+                    # started after MOTION_TIME_GAP time has passed
+                    timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
+                    alert_time = self.get_alert_time(timestamp + timegap, uar)
+                    self.create(when=alert_time, user_alert_room=uar,
+                                since=timestamp)
 
 
 class AlertRunner(models.Model):
@@ -378,68 +402,45 @@ class SystemAlertRunnerManager(models.Manager):
         delta = timedelta(**params)
         return timestamp + delta
 
-    def set_runners(self, device, timestamp, alert_type):
+    def send_battery_alerts(self, device, timestamp=None, period=None):
         """
-        Sets runners for system alerts
+        Sends battery system alerts to all dealer/technicians and
+        masterusers.
         """
-        # Delete all system alert runners for current device
-        self.filter(is_active=True, device=device,
-                    alert__alert_type=alert_type).delete()
+        bluusite = device.bluusite
+        # get all dealers and masterusers for bluusite
+        users = bluusite.get_site_managers()
+        for user in users:
+            # send immediately
+            alert_sys_battery_low.delay(user, device, timestamp, period)
 
+    def set_battery_runners(self, device, timestamp=None):
+        """
+        Sets runners for battery related system alerts.
+        Alert has to:
+         1. set to be sent in 24 hours
+         2. set to be sent in a week
+         3. set to be sent in a month
+        """
+        alert = Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY)
 
+        delta = timedelta(hours=24)
+        when = timestamp + delta
+        self.create(device=device, alert=alert, when=when,
+                    period=_('24h'), since=timestamp)
 
-            if status.is_active:
-                if uad.alert.alert_type in [Alert.OPEN_GREATER_THAN,
-                                            Alert.OPEN_GREATER_THAN_NO_MOTION]:
-                    alert_time = self.get_alert_time(timestamp, uad)
-                    self.create(when=alert_time, user_alert_device=uad,
-                                since=timestamp)
-                elif uad.alert.alert_type == \
-                        Alert.ACTIVE_IN_PERIOD_GREATER_THAN:
-                    kwargs = {TIME_UNITS[uad.unit]: uad.duration}
-                    duration = timedelta(**kwargs)
-                    activity_time = uad.device.get_activity_time(till=timestamp)
-                    target_date = timestamp
-                    while activity_time < duration:
-                        target_date = target_date + (duration -
-                                                     activity_time)
-                        activity_time = uad.device.get_activity_time(
-                            till=target_date)
-                    # don't set alert in past - this might happen when alert
-                    # configuration has been changed and device  turns to be
-                    # immediately active greater than
-                    now = datetime.now()
-                    if target_date < now:
-                        target_date = now
-                    self.create(when=target_date, user_alert_device=uad,
-                                since=timestamp)
-            else:
-                if uad.alert.alert_type == Alert.CLOSED_GREATER_THAN:
-                    alert_time = self.get_alert_time(timestamp, uad)
-                    self.create(when=alert_time, user_alert_device=uad,
-                                since=timestamp)
-                elif uad.alert.alert_type == \
-                        Alert.ACTIVE_IN_PERIOD_LESS_THAN:
-                    kwargs = {TIME_UNITS[uad.unit]: uad.duration}
-                    duration = timedelta(**kwargs)
-                    activity_time = uad.device.get_activity_time(till=timestamp)
-                    target_date = timestamp
-                    # If activity is longer or equal than expected duration
-                    # then find out when it would be less (assuming that
-                    # inactivity period has just started).
-                    # Else schedule alert to be send immediately
-                    while activity_time > duration:
-                        target_date = target_date + activity_time - duration
-                        activity_time = uad.device.get_activity_time(
-                            till=target_date)
-                    # don't set alert in past - this might happen when alert
-                    # configuration has been changed and device turns out to be
-                    # immediately active less than
-                    now = datetime.now()
-                    if target_date < now:
-                        target_date = now
-                    self.create(when=target_date, user_alert_device=uad,
-                                since=timestamp)
+        delta = timedelta(days=7)
+        when = timestamp + delta
+        self.create(device=device, alert=alert, when=when,
+                    period=_('week'), since=timestamp)
+
+        when = add_one_month(timestamp)
+        self.create(device=device, alert=alert, when=when,
+                    period=_('month'), since=timestamp)
+
+    def reset_battery_runners(self, device, timestamp=None, alert_type=None):
+        alert = Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY)
+        self.filter(device=device, alert=alert, is_active=True).delete()
 
 
 class SystemAlertRunner(models.Model):
@@ -473,47 +474,9 @@ class SystemAlertRunner(models.Model):
         verbose_name_plural = _("system alert runners")
 
 
-def update_alert_runners(uad, status=None, timestamp=None):
-    """
-    Updates alert runners when:
-    1. new status for a specific monitored device arrived
-    2. alert settings were changed
-    3. new status for motion device arrived - it's possible that "open greater
-    than no motion" type of alert is set so it has to be updated. This is also
-    why arbitrary timestamp is passed into this function - it might be
-    timestamp for motion event, and not for the last status for device.
-    """
-    try:
-        if not status:
-            status = Status.objects.filter(device=uad.device).latest('created')
-    except Status.DoesNotExist:
-        status = None
-    else:
-        if timestamp is None:
-            timestamp = status.timestamp
-        AlertRunner.objects.set_runners(uad, status, timestamp)
-
-
-def update_motion_alert_runners(uar, status=None, timestamp=None):
-    """
-    Updates motion alert runners when:
-    1. new status for a specific monitored room arrived
-    2. alert settings were changed (status is None then, so last motion status
-       in current room is used)
-    """
-    try:
-        if not status:
-            status = Status.objects.filter(
-                device__room=uar.room,
-                device__device_type__name=DeviceType.MOTION).latest('created')
-    except Status.DoesNotExist:
-        status = None
-    else:
-        if not timestamp:
-            timestamp = status.timestamp
-        AlertRunner.objects.set_motion_runners(uar, status, timestamp)
-
-
+"""
+Alert configuration changes
+"""
 @receiver(post_save, sender=UserAlertConfig)
 def _update_alert_settings(sender, instance, created, *args, **kwargs):
     """
@@ -547,7 +510,7 @@ def _update_alert_settings(sender, instance, created, *args, **kwargs):
 @receiver(post_save, sender=UserAlertScaleConfig)
 def _update_alert_scale_settings(sender, instance, created, *args, **kwargs):
     """
-    If alert settings, for specific scale were changed then
+    If alert settings, for specific scale alert were changed then
     update all related set alerts
     """
     from devices.models import DeviceType
@@ -562,54 +525,57 @@ def _update_alert_scale_settings(sender, instance, created, *args, **kwargs):
                 uas.text_notification = instance.text_notification
                 uas.save()
 
+
+"""
+Update runners after alert has been enabled/disabled by specific user
+"""
 @receiver(post_save, sender=UserAlertDevice)
-def _update_alert_device(sender, instance, created, *args, **kwargs):
+def _update_alert_device_runners(sender, instance, created, *args, **kwargs):
     """
     If useralertdevice has been updated (alert configuration change) then
     alert runners should be reconfigured
     """
-    update_alert_runners(instance)
+    AlertRunner.objects.set_runners(uad=instance)
 
 
 @receiver(post_save, sender=UserAlertRoom)
-def _update_alert_motions(sender, instance, created, *args, **kwargs):
+def _update_alert_motion_runners(sender, instance, created, *args, **kwargs):
     """
     If useralertroom has been updated (alert configuration change) then
     alert runners should be reconfigured
     """
-    update_motion_alert_runners(instance)
+    AlertRunner.objects.set_motion_runners(uar=instance)
 
 
-def update_system_alert_runners(device, timestamp, alert_type):
-    """
-    Updates system alert runners when:
-    1. new status for a specific monitored device arrived
-    2. alert settings were changed
-    3. new status for motion device arrived - it's possible that "open greater
-    than no motion" type of alert is set so it has to be updated. This is also
-    why arbitrary timestamp is passed into this function - it might be
-    timestamp for motion event, and not for the last status for device.
-    """
-    SystemAlertRunner.objects.set_runners(device, timestamp, alert_type)
-
-
+"""
+Dispatch alerts to specific tasks (send immediately or set runners)
+"""
 @receiver(data_received, sender=Status)
-def check_system_device_alerts(sender, data, device, timestamp,
+def dispatch_system_device_alerts(sender, data, device, timestamp,
                                *args, **kwargs):
     """
     Checks which system alerts should be set for status that has just been
     saved.
     """
     if data['battery']:
-        update_system_alert_runners(device, timestamp, Alert.SYSTEM_BATTERY)
+        # send alerts
+        SystemAlertRunner.objects.send_battery_alerts(device, timestamp)
+        # set alerts for battery
+        SystemAlertRunner.objects.set_battery_runners(device, timestamp)
+    else:
+        # reset alerts for battery if such alerts were set
+        SystemAlertRunner.objects.reset_battery_runners(device)
+
     if data['tamper']:
-        update_system_alert_runners(device, timestamp, Alert.SYSTEM_BATTERY)
+        SystemAlertRunner.objects.run_tamper_alert(device, timestamp)
+
     # set runner for offline
-    update_system_alert_runners(device, timestamp, Alert.SYSTEM_DEVICE_OFFLINE)
+    SystemAlertRunner.objects.set_runners(device, timestamp,
+                                          Alert.SYSTEM_DEVICE_OFFLINE)
 
 
 @receiver(controller_heartbeat_received, sender=BluuSite)
-def check_system_site_alerts(sender, *args, **kwargs):
+def dispatch_system_site_alerts(sender, *args, **kwargs):
     timestamp = kwargs['timestamp']
     # set runner for offline for site controller
     # remove old runners
@@ -618,7 +584,7 @@ def check_system_site_alerts(sender, *args, **kwargs):
 
 
 @receiver(data_received_and_stored, sender=Status)
-def check_alerts(sender, status, *args, **kwargs):
+def dispatch_alerts(sender, status, *args, **kwargs):
     """
     Checks which alerts should be set for status that has just been
     saved.
@@ -635,9 +601,9 @@ def check_alerts(sender, status, *args, **kwargs):
 
         action = status.action == status.device.active
         if action != previous_action:
-            # Each motion device sends "open" and then "closed" after some time
-            # set motion alerts
-            # if motion come then it is required to set alerts per room
+            # Each motion device sends "open" and then "closed" after some time.
+            # Set motion alerts
+            # If motion comes then it is required to set alerts per room
             if status.action is status.device.active:
                 # Get alerts defined for this room
                 uars = UserAlertRoom.objects.select_related('alert').\
@@ -648,8 +614,8 @@ def check_alerts(sender, status, *args, **kwargs):
                         alert_mir.delay(uar, status)
                     elif uar.alert.alert_type ==\
                             Alert.NOMOTION_IN_ROOM_GREATER_THAN:
-                        update_motion_alert_runners(uar, status,
-                                                    status.timestamp)
+                        AlertRunner.objects.set_motion_runners(
+                            uar, status, status.timestamp)
 
                 # Reset "NO_MOTION" alerts
                 # get all UserDeviceAlerts in the site where motion has just
@@ -661,7 +627,8 @@ def check_alerts(sender, status, *args, **kwargs):
                 for uad in uads:
                     # nomotion runners are set again, starting with current
                     # motion's status timestamp
-                    update_alert_runners(uad, status, status.timestamp)
+                    AlertRunner.objects.set_runners(uad, status,
+                                                    status.timestamp)
     elif status.device_type.name == DeviceType.SCALE:
         # if there's a weight
         if status.float_data:
