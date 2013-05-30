@@ -8,4 +8,4 @@ data_received = django.dispatch.Signal(providing_args=["device",
 data_received_and_stored = django.dispatch.Signal(providing_args=["status"])
 
 controller_heartbeat_received =\
-    django.dispatch.Signal(providing_args=["timestamp"])
+    django.dispatch.Signal(providing_args=["bluusite", "timestamp"])

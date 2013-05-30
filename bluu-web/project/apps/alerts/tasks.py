@@ -48,7 +48,7 @@ def alert_open(uad, status):
             dealer_alerts_allowed(user, site)):
         device_name = uad.device.name
         room = uad.device.room.name
-        site_name = uad.device.bluusite.get_name
+        site_name = uad.device.bluusite.name
         timestamp = status.timestamp
 
         body = render_to_string('alerts/notifications/open.html', {
@@ -83,7 +83,7 @@ def alert_open_greater_than(runner):
     user = uad.user
     device_name = uad.device.name
     room = uad.device.room.name
-    site_name = uad.device.bluusite.get_name
+    site_name = uad.device.bluusite.name
     duration = uad.duration
     unit = uad.get_unit_display()
     timestamp = runner.since
@@ -122,7 +122,7 @@ def alert_open_greater_than_no_motion(runner):
     user = uad.user
     device_name = uad.device.name
     room = uad.device.room.name
-    site_name = uad.device.bluusite.get_name
+    site_name = uad.device.bluusite.name
     duration = uad.duration
     unit = uad.get_unit_display()
     timestamp = runner.since
@@ -160,7 +160,7 @@ def alert_closed_greater_than(runner):
     user = uad.user
     device_name = uad.device.name
     room = uad.device.room.name
-    site_name = uad.device.bluusite.get_name
+    site_name = uad.device.bluusite.name
     duration = uad.duration
     unit = uad.get_unit_display()
     timestamp = runner.since
@@ -205,7 +205,7 @@ def alert_mir(uar, status):
             dealer_alerts_allowed(user, site)):
         device_name = status.device.name
         room = uar.room.name
-        site_name = status.device.bluusite.get_name
+        site_name = status.device.bluusite.name
         timestamp = status.timestamp
 
         body = render_to_string('alerts/notifications/mir.html', {
@@ -237,7 +237,7 @@ def alert_nomotion_greater_than(runner):
     uar = runner.user_alert_room
     user = uar.user
     room = uar.room.name
-    site_name = uar.room.bluusite.get_name
+    site_name = uar.room.bluusite.name
     duration = uar.duration
     unit = uar.get_unit_display()
     timestamp = runner.since
@@ -276,7 +276,7 @@ def alert_active_in_period_less_than(runner):
     user = uad.user
     device_name = uad.device.name
     room = uad.device.room.name
-    site_name = uad.device.bluusite.get_name
+    site_name = uad.device.bluusite.name
     duration = uad.duration
     unit = uad.get_unit_display()
     timestamp = runner.since
@@ -315,7 +315,7 @@ def alert_active_in_period_greater_than(runner):
     user = uad.user
     device_name = uad.device.name
     room = uad.device.room.name
-    site_name = uad.device.bluusite.get_name
+    site_name = uad.device.bluusite.name
     duration = uad.duration
     unit = uad.get_unit_display()
     timestamp = runner.since
@@ -359,7 +359,7 @@ def alert_wgt(uas, status):
             dealer_alerts_allowed(user, site)):
         device_name = uas.device.name
         room = uas.device.room.name
-        site_name = uas.device.bluusite.get_name
+        site_name = uas.device.bluusite.name
         timestamp = status.timestamp
         weight = '{:.2f}'.format(status.float_data)
         weight_guard = uas.weight
@@ -402,7 +402,7 @@ def alert_wlt(uas, status):
             dealer_alerts_allowed(user, site)):
         device_name = uas.device.name
         room = uas.device.room.name
-        site_name = uas.device.bluusite.get_name
+        site_name = uas.device.bluusite.name
         timestamp = status.timestamp
         weight = '{:.2f}'.format(status.float_data)
         weight_guard = uas.weight
@@ -444,7 +444,7 @@ def alert_su(uas, status):
             dealer_alerts_allowed(user, site)):
         device_name = uas.device.name
         room = uas.device.room.name
-        site_name = uas.device.bluusite.get_name
+        site_name = uas.device.bluusite.name
         timestamp = status.timestamp
 
         body = render_to_string('alerts/notifications/su.html', {
@@ -471,7 +471,6 @@ def alert_su(uas, status):
             msg.send()
 
 
-
 @task(name='alerts.call_sys_battery_low')
 def alert_sys_battery_low(user, device, timestamp, period=None):
     """
@@ -482,7 +481,7 @@ def alert_sys_battery_low(user, device, timestamp, period=None):
             dealer_alerts_allowed(user, site)):
         device_name = device.name
         room = device.room
-        site_name = site.get_name
+        site_name = site.name
         timestamp = timestamp
 
         body = render_to_string('alerts/notifications/sys_battery_low.html', {
@@ -505,6 +504,118 @@ def alert_sys_battery_low(user, device, timestamp, period=None):
 
         if user.cell_text_email:
             logger.info('Sys battery low text alert sent to {0} for device {1}'.format(
+                user.cell_text_email, device_name))
+            msg = BluuMessage(subject, body, user.cell_text_email)
+            msg.send()
+
+
+@task(name='alerts.call_sys_device_offline')
+def alert_sys_device_offline(user, device, timestamp, period=None):
+    """
+    Sends notification about device offline
+    """
+    site = device.bluusite
+    if (user_alerts_allowed(user, site) or
+            dealer_alerts_allowed(user, site)):
+        device_name = device.name
+        room = device.room
+        site_name = site.name
+        timestamp = timestamp
+
+        body = render_to_string('alerts/notifications/sys_device_offline.html', {
+            'user': user,
+            'device_name': device_name,
+            'room': room,
+            'site_name': site_name,
+            'timestamp': timestamp,
+            'period': period
+        })
+        subject = render_to_string('alerts/notifications/notification_title.html',
+                                   dict(site_name=site_name,
+                                        alert_name=_('device offline')))
+
+        if user.email:
+            logger.info('Sys device offline alert'
+                        ' sent to {0} for device {1}'.format(user.email,
+                                                             device_name))
+            msg = BluuMessage(subject, body, user.email)
+            msg.send()
+
+        if user.cell_text_email:
+            logger.info('Sys device offline text alert sent to {0} for'
+                        ' device {1}'.format(user.cell_text_email, device_name))
+            msg = BluuMessage(subject, body, user.cell_text_email)
+            msg.send()
+
+
+@task(name='alerts.call_sys_bluusite_offline')
+def alert_sys_bluusite_offline(user, bluusite, timestamp, period=None):
+    """
+    Sends notification about device offline
+    """
+    site = bluusite
+    if (user_alerts_allowed(user, site) or
+            dealer_alerts_allowed(user, site)):
+        site_name = site.name
+        timestamp = timestamp
+
+        body = render_to_string('alerts/notifications/sys_bluusite_offline.html', {
+            'user': user,
+            'site_name': site_name,
+            'timestamp': timestamp,
+            'period': period
+        })
+        subject = render_to_string('alerts/notifications/notification_title.html',
+                                   dict(site_name=site_name,
+                                        alert_name=_('site offline')))
+
+        if user.email:
+            logger.info('Sys bluusite offline alert'
+                        ' sent to {0} for device {1}'.format(
+                user.email, bluusite.name))
+            msg = BluuMessage(subject, body, user.email)
+            msg.send()
+
+        if user.cell_text_email:
+            logger.info('Sys bluusite offline text alert sent to {0} for'
+                        ' device {1}'.format(
+                user.cell_text_email, bluusite.name))
+            msg = BluuMessage(subject, body, user.cell_text_email)
+            msg.send()
+
+
+@task(name='alerts.call_sys_tamper')
+def alert_sys_tamper(user, device, timestamp):
+    """
+    Sends notification about tamper
+    """
+    site = device.bluusite
+    if (user_alerts_allowed(user, site) or
+            dealer_alerts_allowed(user, site)):
+        device_name = device.name
+        room = device.room
+        site_name = site.name
+        timestamp = timestamp
+
+        body = render_to_string('alerts/notifications/sys_tamper.html', {
+            'user': user,
+            'device_name': device_name,
+            'room': room,
+            'site_name': site_name,
+            'timestamp': timestamp,
+        })
+        subject = render_to_string('alerts/notifications/notification_title.html',
+                                   dict(site_name=site_name,
+                                        alert_name=_('tamper')))
+
+        if user.email:
+            logger.info('Sys tamper alert sent to {0} for device {1}'.format(user.email,
+                                                                     device_name))
+            msg = BluuMessage(subject, body, user.email)
+            msg.send()
+
+        if user.cell_text_email:
+            logger.info('Sys tamper text alert sent to {0} for device {1}'.format(
                 user.cell_text_email, device_name))
             msg = BluuMessage(subject, body, user.cell_text_email)
             msg.send()
@@ -603,6 +714,21 @@ def alert_trigger_system_runners():
     from alerts.models import SystemAlertRunner, Alert
 
     now = datetime.now()
+    # if there is site offline alert to be run then delete all device offline
+    # alerts for this site
+    ars = SystemAlertRunner.objects.select_related('bluusite').filter(
+        is_active=True,
+        when__lte=now,
+        alert__alert_type=Alert.SYSTEM_SITE_OFFLINE)
+
+    for ar in ars:
+        SystemAlertRunner.objects.filter(
+            bluusite=ar.bluusite,
+            is_active=True,
+            when__lte=now,
+            alert__alert_type=Alert.SYSTEM_DEVICE_OFFLINE,
+            device__isnull=False).delete()
+
     ars = SystemAlertRunner.objects.select_related().filter(is_active=True,
                                                             when__lte=now)
     for ar in ars:
@@ -610,12 +736,22 @@ def alert_trigger_system_runners():
 
         # check if user alerts or dealer alerts are allowed
         # for this bluusite
-        site = ar.device.bluusite
-        if alerts_allowed(site):
+        bluusite = ar.bluusite
+        if alerts_allowed(bluusite):
             # if battery
             if ar.alert.alert_type == Alert.SYSTEM_BATTERY:
                 SystemAlertRunner.objects.send_battery_alerts(ar.device, now,
                                                               ar.period)
+                ar.is_active = False
+                ar.save()
+            if ar.alert.alert_type == Alert.SYSTEM_SITE_OFFLINE:
+                SystemAlertRunner.objects.send_bluusite_offline_alerts(
+                    ar.bluusite, now, ar.period)
+                ar.is_active = False
+                ar.save()
+            if ar.alert.alert_type == Alert.SYSTEM_DEVICE_OFFLINE:
+                SystemAlertRunner.objects.send_device_offline_alerts(
+                    ar.device, now, ar.period)
                 ar.is_active = False
                 ar.save()
         else:
@@ -625,7 +761,7 @@ def alert_trigger_system_runners():
             ar.save()
 
 
-@task(name="alerts.clean_sytem_runners")
+@task(name="alerts.clean_system_runners")
 def sys_alert_clear_runners():
     """
     Removes system alert runners that were run and are older than one day.

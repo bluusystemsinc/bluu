@@ -1,0 +1,11 @@
+Dear {{ user.first_name }},
+
+   Site: {{ site_name }} is offline since: {{ timestamp|date:"Y-m-d h:i:s A" }}.
+
+   {% if period %}The event has first been reported {{ period }} ago.{% endif %}
+
+This e-mail was generated automatically. Please do not respond to it.
+
+--
+Bluu Systems
+http://bluusystems.com

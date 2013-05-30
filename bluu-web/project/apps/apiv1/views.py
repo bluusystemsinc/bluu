@@ -149,7 +149,7 @@ class SiteHeartBeatView(generics.UpdateAPIView):
         except Http404:
             return HttpResponse(status=404)
 
-        if not self.has_perms():
+        if not self.has_perms(request):
             return HttpResponse(status=403)
 
         serializer = self.get_serializer(self.object, data=request.DATA)
@@ -161,7 +161,8 @@ class SiteHeartBeatView(generics.UpdateAPIView):
 
             # send signal
             timestamp = datetime.now()
-            controller_heartbeat_received.send(sender=self.object,
+            controller_heartbeat_received.send(sender=BluuSite,
+                                               bluusite=self.object,
                                                timestamp=timestamp)
             success_status_code = status.HTTP_200_OK
 

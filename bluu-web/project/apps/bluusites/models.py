@@ -96,7 +96,7 @@ class BluuSite(models.Model):
         return reverse('site_edit', args=(self.id))
 
     @property
-    def get_name(self):
+    def name(self):
         return "{0} {1}".format(self.first_name, self.last_name)
 
     @property

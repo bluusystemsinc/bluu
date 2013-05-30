@@ -1536,7 +1536,8 @@ class SysAlertBatteryTestCase(WebTest):
         post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
 
         # assert runners set
-        self.assertEquals(SystemAlertRunner.objects.all().count(), 3)
+        self.assertEquals(SystemAlertRunner.objects.filter(
+            alert__alert_type=Alert.SYSTEM_BATTERY).count(), 3)
 
     def testBatteryRunnersRun(self):
         """
@@ -1548,6 +1549,7 @@ class SysAlertBatteryTestCase(WebTest):
 
         # set alert runner
         SystemAlertRunner.objects.create(
+            bluusite=self.bluusite1,
             device=self.device1,
             alert=Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY),
             when=datetime.datetime.now(),
@@ -1558,3 +1560,304 @@ class SysAlertBatteryTestCase(WebTest):
         alert_trigger_system_runners.delay()
         self.assertEqual(len(mail.outbox), 3)
 
+
+class SysDeviceOfflineTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.dealer_group = Group.objects.get(name='Dealer')
+        self.technician_group = Group.objects.get(name='Technician')
+        self.masteruser_group = Group.objects.get(name='Master User')
+        self.user_group = Group.objects.get(name='User')
+
+        self.factory = RequestFactory()
+        self.company1 = G(Company, name="C1")
+        self.bluusite1 = G(BluuSite, company=self.company1,
+                           first_name='Jan', last_name='Kowalski',
+                           email='jkowalski@example.com')
+
+        #USERS
+        self.user1 = G(BluuUser, username='test1', password='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
+        self.user2 = G(BluuUser, username='test2', password='test2')
+        self.user2.assign_group(group=Group.objects.get(name='Master User'),
+                                obj=self.bluusite1)
+
+        self.dealer = G(BluuUser, username='dealer',
+                        first_name='Dealer', last_name='Dealer',
+                        email='dealer@example.com', cell_text_email='')
+
+        # ALERTS & DEVICES
+        self.door = DeviceType.objects.get(name=DeviceType.DOOR)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.door)
+
+        self.alert_battery = Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY)
+
+    def testDeviceOfflineRunnersSet(self):
+        """
+        Test if system runners for device offline are set
+        """
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        dealer = BluuUser.objects.get(username='dealer')
+        #self.assertTrue(dealer.has_perm('bluusites.change_bluusite',
+        #                                self.site1))
+
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "battery": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert 4 runners set (15m, 24h, week, month)
+        self.assertEquals(SystemAlertRunner.objects.filter(
+            alert__alert_type=Alert.SYSTEM_DEVICE_OFFLINE).count(), 4)
+
+    def testDeviceOfflineRunnersRun(self):
+        """
+        Test if system runners for device offline are run
+        """
+
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        # set alert runner
+        SystemAlertRunner.objects.create(
+            bluusite=self.bluusite1,
+            device=self.device1,
+            alert=Alert.objects.get(alert_type=Alert.SYSTEM_DEVICE_OFFLINE),
+            when=datetime.datetime.now(),
+            period='period',
+            since=datetime.datetime.strptime("2013-03-07T23:00:09",
+                                             "%Y-%m-%dT%H:%M:%S"))
+
+        alert_trigger_system_runners.delay()
+        self.assertEqual(len(mail.outbox), 3)
+
+
+
+class SysBluuSiteOfflineTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.dealer_group = Group.objects.get(name='Dealer')
+        self.technician_group = Group.objects.get(name='Technician')
+        self.masteruser_group = Group.objects.get(name='Master User')
+        self.user_group = Group.objects.get(name='User')
+
+        self.factory = RequestFactory()
+        self.company1 = G(Company, name="C1")
+        self.bluusite1 = G(BluuSite, company=self.company1,
+                           first_name='Jan', last_name='Kowalski',
+                           email='jkowalski@example.com')
+
+        #USERS
+        self.user1 = G(BluuUser, username='test1', password='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
+        self.user2 = G(BluuUser, username='test2', password='test2')
+        self.user2.assign_group(group=Group.objects.get(name='Master User'),
+                                obj=self.bluusite1)
+
+        self.dealer = G(BluuUser, username='dealer',
+                        first_name='Dealer', last_name='Dealer',
+                        email='dealer@example.com', cell_text_email='')
+
+        # ALERTS & DEVICES
+        self.door = DeviceType.objects.get(name=DeviceType.DOOR)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.door)
+
+        self.alert_battery = Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY)
+
+    def testBluuSiteOfflineRunnersSet(self):
+        """
+        Test if system runners for bluusite offline are set
+        """
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        dealer = BluuUser.objects.get(username='dealer')
+        #self.assertTrue(dealer.has_perm('bluusites.change_bluusite',
+        #                                self.site1))
+
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "battery": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert 4 runners set (15m, 24h, week, month)
+        self.assertEquals(SystemAlertRunner.objects.filter(
+            alert__alert_type=Alert.SYSTEM_SITE_OFFLINE).count(), 4)
+
+    def testBluuSiteHeartbeatOfflineRunnersSet(self):
+        """
+        Test if system runners for bluusite offline are set after heartbeat
+        """
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        dealer = BluuUser.objects.get(username='dealer')
+        #self.assertTrue(dealer.has_perm('bluusites.change_bluusite',
+        #                                self.site1))
+
+        form_data = {"last_seen": "2013-03-07T23:00:09"}
+
+        self.app.put(reverse('v1:site_heartbeat',
+                              kwargs={'site_slug': self.bluusite1.slug}),
+                             json.dumps(form_data),
+                             content_type='application/json;charset=utf-8',
+                             user='{}_{}'.format(
+                                 settings.WEBSERVICE_USERNAME_PREFIX,
+                                 self.bluusite1.slug),
+                             status=200)
+
+        #post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert 4 runners set (15m, 24h, week, month)
+        self.assertEquals(SystemAlertRunner.objects.filter(
+            alert__alert_type=Alert.SYSTEM_SITE_OFFLINE).count(), 4)
+
+    def testBluuSiteOfflineRunnersRun(self):
+        """
+        Test if system runners for device offline are run
+        """
+
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        # set alert runner
+        SystemAlertRunner.objects.create(
+            bluusite=self.bluusite1,
+            alert=Alert.objects.get(alert_type=Alert.SYSTEM_SITE_OFFLINE),
+            when=datetime.datetime.now(),
+            period='period',
+            since=datetime.datetime.strptime("2013-03-07T23:00:09",
+                                             "%Y-%m-%dT%H:%M:%S"))
+
+        alert_trigger_system_runners.delay()
+        self.assertEqual(len(mail.outbox), 3)
+
+    def testDeviceOfflineRunnersNotRunIfSiteOffline(self):
+        """
+        Test if system runners for device offline are not run if whole site
+        is offline
+        """
+
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        # set alert runner
+        SystemAlertRunner.objects.create(
+            bluusite=self.bluusite1,
+            device=self.device1,
+            alert=Alert.objects.get(alert_type=Alert.SYSTEM_DEVICE_OFFLINE),
+            when=datetime.datetime.now(),
+            period='period',
+            since=datetime.datetime.strptime("2013-03-07T23:00:09",
+                                             "%Y-%m-%dT%H:%M:%S"))
+
+        # set alert runner
+        SystemAlertRunner.objects.create(
+            bluusite=self.bluusite1,
+            alert=Alert.objects.get(alert_type=Alert.SYSTEM_SITE_OFFLINE),
+            when=datetime.datetime.now(),
+            period='period',
+            since=datetime.datetime.strptime("2013-03-07T23:00:09",
+                                             "%Y-%m-%dT%H:%M:%S"))
+
+        alert_trigger_system_runners.delay()
+        self.assertEqual(len(mail.outbox), 3)
+
+
+class SysAlertTamperTestCase(WebTest):
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.dealer_group = Group.objects.get(name='Dealer')
+        self.technician_group = Group.objects.get(name='Technician')
+        self.masteruser_group = Group.objects.get(name='Master User')
+        self.user_group = Group.objects.get(name='User')
+
+        self.factory = RequestFactory()
+        self.company1 = G(Company, name="C1")
+        self.bluusite1 = G(BluuSite, company=self.company1,
+                           first_name='Jan', last_name='Kowalski',
+                           email='jkowalski@example.com')
+
+        #USERS
+        self.user1 = G(BluuUser, username='test1', password='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
+        self.user2 = G(BluuUser, username='test2', password='test2')
+        self.user2.assign_group(group=Group.objects.get(name='Master User'),
+                                obj=self.bluusite1)
+
+        self.dealer = G(BluuUser, username='dealer',
+                        first_name='Dealer', last_name='Dealer',
+                        email='dealer@example.com', cell_text_email='')
+
+        # ALERTS & DEVICES
+        self.door = DeviceType.objects.get(name=DeviceType.DOOR)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         device_type=self.door)
+
+        self.alert_tamper = Alert.objects.get(alert_type=Alert.SYSTEM_TAMPER)
+
+    def testTamperNotificationsSent(self):
+        """
+        Test if system notifications for battery are sent
+        """
+        self.company1.assign_user(self.dealer, 'dealer@example.com',
+                                  self.dealer_group)
+
+        dealer = BluuUser.objects.get(username='dealer')
+        #self.assertTrue(dealer.has_perm('bluusites.change_bluusite',
+        #                                self.site1))
+
+        form_data = {"serial": "serial",
+                     "input4": "on",
+                     "float_data": "120",
+                     "timestamp": "2013-03-07T23:00:09",
+                     "signal": "1",
+                     "action": True,
+                     "battery": True,
+                     "data": "123"}
+        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+
+        # assert notifications sent
+        # Test that three messages has been sent: email and text for master user
+        #  and email for dealer
+        self.assertEqual(len(mail.outbox), 3)
+        #for email in mail.outbox:
+        #    print email.subject, email.body

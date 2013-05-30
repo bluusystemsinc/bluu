@@ -12,8 +12,11 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 from devices.models import Status, DeviceType, Device
-from devices.signals import data_received, data_received_and_stored, controller_heartbeat_received
-from alerts.tasks import (alert_open, alert_mir, alert_wgt, alert_wlt, alert_su, alert_sys_battery_low)
+from devices.signals import (data_received, data_received_and_stored,
+                             controller_heartbeat_received)
+from alerts.tasks import (alert_open, alert_mir, alert_wgt, alert_wlt, alert_su,
+                          alert_sys_battery_low, alert_sys_device_offline,
+                          alert_sys_bluusite_offline)
 from utils.misc import add_one_month
 
 
@@ -426,21 +429,122 @@ class SystemAlertRunnerManager(models.Manager):
 
         delta = timedelta(hours=24)
         when = timestamp + delta
-        self.create(device=device, alert=alert, when=when,
-                    period=_('24h'), since=timestamp)
+        self.create(bluusite=device.bluusite, device=device, alert=alert,
+                    when=when, period=_('24h'), since=timestamp)
 
         delta = timedelta(days=7)
         when = timestamp + delta
-        self.create(device=device, alert=alert, when=when,
-                    period=_('week'), since=timestamp)
+        self.create(bluusite=device.bluusite, device=device, alert=alert,
+                    when=when, period=_('week'), since=timestamp)
 
         when = add_one_month(timestamp)
-        self.create(device=device, alert=alert, when=when,
-                    period=_('month'), since=timestamp)
+        self.create(bluusite=device.bluusite, device=device, alert=alert,
+                    when=when, period=_('month'), since=timestamp)
 
     def reset_battery_runners(self, device, timestamp=None, alert_type=None):
         alert = Alert.objects.get(alert_type=Alert.SYSTEM_BATTERY)
         self.filter(device=device, alert=alert, is_active=True).delete()
+
+    def set_device_offline_runners(self, device, timestamp=None):
+        """
+        Sets runners for device offline system alerts.
+        Alert has to:
+         1. set to be sent in 15 minutes
+         2. set to be sent in 24 hours
+         3. set to be sent in a week
+         4. set to be sent in a month
+        """
+        alert = Alert.objects.get(alert_type=Alert.SYSTEM_DEVICE_OFFLINE)
+
+        # delete old offline runners
+        self.filter(device=device, alert=alert, is_active=True).delete()
+        bluusite = device.bluusite
+
+        delta = timedelta(minutes=15)
+        when = timestamp + delta
+        self.create(bluusite=bluusite, device=device, alert=alert, when=when,
+                    period=_('15 minutes'), since=timestamp)
+
+        delta = timedelta(hours=24)
+        when = timestamp + delta
+        self.create(bluusite=bluusite, device=device, alert=alert, when=when,
+                    period=_('24h'), since=timestamp)
+
+        delta = timedelta(days=7)
+        when = timestamp + delta
+        self.create(bluusite=bluusite, device=device, alert=alert, when=when,
+                    period=_('week'), since=timestamp)
+
+        when = add_one_month(timestamp)
+        self.create(bluusite=bluusite, device=device, alert=alert, when=when,
+                    period=_('month'), since=timestamp)
+
+    def send_device_offline_alerts(self, device, timestamp=None, period=None):
+        """
+        Sends device offline system alerts to all dealer/technicians and
+        masterusers.
+        """
+        bluusite = device.bluusite
+        # get all dealers and masterusers for bluusite
+        users = bluusite.get_site_managers()
+        for user in users:
+            alert_sys_device_offline.delay(user, device, timestamp, period)
+
+    def set_bluusite_offline_runners(self, bluusite, timestamp=None):
+        """
+        Sets runners for offline related system alerts.
+        Alert has to:
+         1. set to be sent in 15 minutes
+         2. set to be sent in 24 hours
+         3. set to be sent in a week
+         4. set to be sent in a month
+        """
+        alert = Alert.objects.get(alert_type=Alert.SYSTEM_SITE_OFFLINE)
+
+        # delete old offline runners
+        self.filter(bluusite=bluusite, alert=alert, is_active=True).delete()
+
+        delta = timedelta(minutes=15)
+        when = timestamp + delta
+        self.create(bluusite=bluusite, alert=alert, when=when,
+                    period=_('15 minutes'), since=timestamp)
+
+        delta = timedelta(hours=24)
+        when = timestamp + delta
+        self.create(bluusite=bluusite, alert=alert, when=when,
+                    period=_('24h'), since=timestamp)
+
+        delta = timedelta(days=7)
+        when = timestamp + delta
+        self.create(bluusite=bluusite, alert=alert, when=when,
+                    period=_('week'), since=timestamp)
+
+        when = add_one_month(timestamp)
+        self.create(bluusite=bluusite, alert=alert, when=when,
+                    period=_('month'), since=timestamp)
+
+    def send_bluusite_offline_alerts(self, bluusite, timestamp=None,
+                                     period=None):
+        """
+        Sends bluusite offline system alerts to all dealer/technicians and
+        masterusers.
+        """
+        # get all dealers and masterusers for bluusite
+        users = bluusite.get_site_managers()
+        for user in users:
+            alert_sys_bluusite_offline.delay(user, bluusite, timestamp, period)
+
+    def send_tamper_alerts(self, device, timestamp=None):
+        """
+        Sends tamper system alerts to all dealer/technicians and
+        masterusers.
+        """
+        bluusite = device.bluusite
+        # get all dealers and masterusers for bluusite
+        users = bluusite.get_site_managers()
+        for user in users:
+            # send immediately
+            alert_sys_tamper.delay(user, device, timestamp)
 
 
 class SystemAlertRunner(models.Model):
@@ -457,6 +561,7 @@ class SystemAlertRunner(models.Model):
     )
 
     device = models.ForeignKey(Device, null=True, blank=True)
+    bluusite = models.ForeignKey(BluuSite)
     alert = models.ForeignKey(Alert, null=True, blank=True)
 
     when = models.DateTimeField(_('when'), db_index=True)
@@ -567,20 +672,20 @@ def dispatch_system_device_alerts(sender, data, device, timestamp,
         SystemAlertRunner.objects.reset_battery_runners(device)
 
     if data['tamper']:
-        SystemAlertRunner.objects.run_tamper_alert(device, timestamp)
+        SystemAlertRunner.objects.send_tamper_alerts(device, timestamp)
 
     # set runner for offline
-    SystemAlertRunner.objects.set_runners(device, timestamp,
-                                          Alert.SYSTEM_DEVICE_OFFLINE)
+    SystemAlertRunner.objects.set_device_offline_runners(device, timestamp)
+    SystemAlertRunner.objects.set_bluusite_offline_runners(device.bluusite,
+                                                           timestamp)
 
 
 @receiver(controller_heartbeat_received, sender=BluuSite)
-def dispatch_system_site_alerts(sender, *args, **kwargs):
-    timestamp = kwargs['timestamp']
+def dispatch_system_site_alerts(sender, bluusite, timestamp, *args, **kwargs):
     # set runner for offline for site controller
     # remove old runners
     # set new one
-    pass
+    SystemAlertRunner.objects.set_bluusite_offline_runners(bluusite, timestamp)
 
 
 @receiver(data_received_and_stored, sender=Status)
