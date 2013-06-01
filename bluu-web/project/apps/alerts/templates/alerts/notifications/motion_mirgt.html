@@ -2,7 +2,10 @@ Dear {{ user.first_name }},
 
    The event described below has just happened at site: {{ site_name }}.
 
-   The {{ device_name }} ({{ room }}) has been tampered at: {{ timestamp|date:"Y-m-d h:i:s A" }}.
+   Total motion detected in the room: {{ room }} in a period of {{ period }} {{period_unit }}
+   is greater than: {{ duration }} {{ unit }}.
+
+   (event time: {{ timestamp|date:"Y-m-d h:i:s A" }}).
 
 
 This e-mail was generated automatically. Please do not respond to it.

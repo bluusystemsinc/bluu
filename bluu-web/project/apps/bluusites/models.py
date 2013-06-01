@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from datetime import datetime, timedelta
+import datetime
 import calendar
 import json
 
@@ -101,7 +101,8 @@ class BluuSite(models.Model):
 
     @property
     def is_online(self):
-        if (datetime.now() - self.last_seen) > timedelta(hours=1):
+        if (datetime.datetime.now() - self.last_seen) > \
+                datetime.timedelta(hours=1):
             return False
         return True
 
@@ -197,7 +198,7 @@ class BluuSite(models.Model):
 
         last_activity = None
         last_room_activity = {}
-        timegap = timedelta(minutes=settings.MOTION_TIME_GAP)
+        timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
 
         activities = Status.objects.filter(
             device__bluusite=self,
@@ -233,12 +234,12 @@ class BluuSite(models.Model):
         # add time for latest activities to the total
         if self.many_inhabitants:
             for activity in last_room_activity.values():
-                diff = datetime.now() - activity.timestamp
+                diff = datetime.datetime.now() - activity.timestamp
                 if diff > timegap:
                     diff = timegap
                 rooms[activity.device.room.pk] += diff.total_seconds()
         else:
-            diff = datetime.now() - last_activity.timestamp
+            diff = datetime.datetime.now() - last_activity.timestamp
             if diff > timegap:
                 diff = timegap
             rooms[last_activity.device.room.pk] += diff.total_seconds()
@@ -264,9 +265,9 @@ class BluuSite(models.Model):
         }
         """
         beds = {}
-        sleep_duration = timedelta(minutes=settings.SLEEP_DURATION)
+        sleep_duration = datetime.timedelta(minutes=settings.SLEEP_DURATION)
         sleep_duration_seconds = sleep_duration.total_seconds()
-        timegap = timedelta(minutes=settings.SLEEP_TIME_GAP)
+        timegap = datetime.timedelta(minutes=settings.SLEEP_TIME_GAP)
         if bed_pk:
             bed_list = self.device_set.filter(pk=bed_pk)
         else:
@@ -323,7 +324,7 @@ class BluuSite(models.Model):
 
             # count also time since last action if it's not a close
             if last_activity and (last_activity.action == bed.active):
-                diff = datetime.now() - last_activity.timestamp
+                diff = datetime.datetime.now() - last_activity.timestamp
                 if diff <= timegap:
                     beds[bed.pk][-1]['length'] += diff.total_seconds()
                     beds[bed.pk][-1]['timestamp'] = activity.timestamp
@@ -439,6 +440,74 @@ class Room(models.Model):
 
     def get_absolute_url(self):
         return reverse('room_edit', args=(self.bluusite_id, self.id))
+
+    def get_motion_activity_time(self, till=None, period=None):
+        """
+        Calculates activity till `till` in a period of `period`
+        for a room.
+
+        :param till: timestamp
+        :param period: number of minutes
+        """
+        if not till:
+            till = datetime.datetime.now()
+        if not period:
+            period = settings.ALERT_PERIOD
+        period = datetime.timedelta(minutes=period)
+        # Get all statuses for this device in a period of `period` till
+        # `timestamp`
+        activity_time = datetime.timedelta()
+        period_start = till - period
+        room = self
+        motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
+        timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
+
+        try:
+            # if last status before till-period
+            # was active then we will have to increase
+            # activity time with:
+            # from period_start till first status in period
+            initial_status = Status.objects.filter(
+                room=room,
+                device_type=motion_type,
+                timestamp__lt=period_start,
+                action=F('device__active')).latest('timestamp')
+        except Status.DoesNotExist:
+            initial_status = None
+        statuses = Status.objects.select_related('device').filter(
+            room=room,
+            device_type=motion_type,
+            action=F('device__active'),
+            timestamp__gte=period_start)
+
+        prev_status = None
+        for status in statuses:
+            active_status = status.device.active
+            # add time since period_start till first status in period
+            if activity_time == datetime.timedelta() and initial_status:
+                # activity time is a time caluclated as:
+                #   activity since period start till current time
+                #   but not longer than MOTION_TIME_GAP
+                #   (after MOTION_TIME_GAP motion is considered to be finished)
+                if initial_status.timestamp + timegap > period_start:
+                    diff = initial_status.timestamp + timegap - period_start
+                    activity_time += diff
+            if prev_status: #and prev_status.is_active:
+                diff = status.timestamp - prev_status.timestamp
+                delta = diff <= timegap and diff or timegap
+                activity_time += delta
+
+            prev_status = status
+
+        # add time since last status till now
+        if prev_status:
+            if prev_status.timestamp + timegap > till:
+                diff = prev_status.timestamp + timegap - till
+            else:
+                diff = timegap
+            activity_time += diff
+
+        return activity_time
 
 
 @receiver(pre_save, sender=BluuSite)

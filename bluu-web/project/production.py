@@ -22,7 +22,7 @@ CELERYBEAT_SCHEDULE = {
         'task': 'bluusites.tasks.cleanup_siteaccess',
         'schedule': crontab(hour='*', minute='*/1'),
     },
-    'cleanup_companyaacess': {
+    'cleanup_companyaccess': {
         'task': 'companies.tasks.cleanup_companyaccess',
         'schedule': crontab(hour='*', minute='*/1'),
     },
@@ -33,6 +33,18 @@ CELERYBEAT_SCHEDULE = {
     'cleanup_system_alert_runners': {
         'task': 'alerts.clean_system_runners',
         'schedule': crontab(hour='0', minute='0'),
+    },
+    'trigger_runners': {
+        'task': 'alerts.trigger_runners',
+        'schedule': crontab(hour='*', minute='*/1'),
+    },
+    'trigger_system_runners': {
+        'task': 'alerts.trigger_system_runners',
+        'schedule': crontab(hour='*', minute='*/1'),
+    },
+    'trigger_motion_in_room_checks': {
+        'task': 'alerts.trigger_motion_in_room_checks',
+        'schedule': crontab(hour='*', minute='*/30'),
     },
 }
 

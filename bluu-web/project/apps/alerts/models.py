@@ -16,7 +16,7 @@ from devices.signals import (data_received, data_received_and_stored,
                              controller_heartbeat_received)
 from alerts.tasks import (alert_open, alert_mir, alert_wgt, alert_wlt, alert_su,
                           alert_sys_battery_low, alert_sys_device_offline,
-                          alert_sys_bluusite_offline)
+                          alert_sys_bluusite_offline, alert_sys_tamper)
 from utils.misc import add_one_month
 
 

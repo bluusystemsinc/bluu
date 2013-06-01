@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta
+from bluusites.models import Room
 from celery import task
 from celery.utils.log import get_task_logger
 from django.conf import settings
-from datetime import datetime, timedelta
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from utils.misc import BluuMessage
@@ -774,3 +775,114 @@ def sys_alert_clear_runners():
                                                 when__lt=now - t).delete()
     logger.info('Cleaned inactive system alert runners')
 
+
+@task(name='alerts.call_mirgt')
+def alert_mirgt(uar, timestamp):
+    """
+    Sends notification about motion in room greater than
+    """
+    site = uar.room.bluusite
+    user = uar.user
+    if (user_alerts_allowed(user, site) or
+            dealer_alerts_allowed(user, site)):
+        room = uar.room.name
+        site_name = site.name
+        duration = uar.duration
+        unit = uar.get_unit_display()
+        period = settings.ALERT_PERIOD / 60
+
+        body = render_to_string('alerts/notifications/motion_mirgt.html', {
+            'user': user,
+            'room': room,
+            'site_name': site_name,
+            'timestamp': timestamp,
+            'duration': duration,
+            'unit': unit,
+            'period': period,
+            'period_unit': _('hours')
+        })
+
+        subject = render_to_string('alerts/notifications/notification_title.html',
+                                   dict(site_name=site_name,
+                                        alert_name=_('to much motion in room')))
+
+        if user.email:
+            logger.info('MIRGT alert sent to {0} for device {1}'.format(
+                user.email, room))
+            msg = BluuMessage(subject, body, user.email)
+            msg.send()
+
+        if user.cell_text_email:
+            logger.info('MIRGT text alert sent to {0} for device {1}'.format(
+                user.cell_text_email, room))
+            msg = BluuMessage(subject, body, user.cell_text_email)
+            msg.send()
+
+
+
+@task(name='alerts.call_mirlt')
+def alert_mirlt(uar, timestamp):
+    """
+    Sends notification about motion in room less than
+    """
+    site = uar.room.bluusite
+    user = uar.user
+    if (user_alerts_allowed(user, site) or
+            dealer_alerts_allowed(user, site)):
+        room = uar.room.name
+        site_name = site.name
+        duration = uar.duration
+        unit = uar.get_unit_display()
+        period = settings.ALERT_PERIOD / 60
+
+        body = render_to_string('alerts/notifications/motion_mirlt.html', {
+            'user': user,
+            'room': room,
+            'site_name': site_name,
+            'timestamp': timestamp,
+            'duration': duration,
+            'unit': unit,
+            'period': period,
+            'period_unit': _('hours')
+        })
+
+        subject = render_to_string('alerts/notifications/notification_title.html',
+                                   dict(site_name=site_name,
+                                        alert_name=_('to much motion in room')))
+
+        if user.email:
+            logger.info('MIRLT alert sent to {0} for device {1}'.format(
+                user.email, room))
+            msg = BluuMessage(subject, body, user.email)
+            msg.send()
+
+        if user.cell_text_email:
+            logger.info('MIRLT text alert sent to {0} for device {1}'.format(
+                user.cell_text_email, room))
+            msg = BluuMessage(subject, body, user.cell_text_email)
+            msg.send()
+
+
+@task(name="alerts.trigger_motion_in_room_checks")
+def alert_trigger_motion_in_room_checks():
+    """
+    Periodically check if motion in rooms is gt or lt.
+    """
+    from alerts.models import AlertRunner, Alert, TIME_UNITS
+    period = settings.ALERT_PERIOD
+    period = timedelta(minutes=period)
+
+    now = datetime.now()
+
+    for room in Room.objects.filter(device__isnull=False).distinct():
+        activity = room.get_motion_activity_time(till=datetime.now())
+        for uar in room.useralertroom_set.select_related('alert'):
+            kwargs = {TIME_UNITS[uar.unit]: uar.duration}
+            duration = timedelta(**kwargs)
+
+            if uar.alert.alert_type == Alert.MOTION_IN_ROOM_GREATER_THAN:
+                if activity > duration:
+                    alert_mirgt.delay(uar, now)
+            elif uar.alert.alert_type == Alert.MOTION_IN_ROOM_LESS_THAN:
+                if activity < duration:
+                    alert_mirlt.delay(uar, now)

@@ -1,24 +1,23 @@
-import datetime
 import json
+
+import datetime
 from companies.models import Company
 from django.conf import settings
-from django.contrib.auth import login
 from django_webtest import WebTest
 from django_dynamic_fixture import G
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test.client import RequestFactory
-from django.test.client import Client
-
 from alerts.models import (UserAlertConfig, Alert, UserAlertDevice,
-                           AlertRunner, UserAlertRoom, UserAlertScaleConfig, UserAlertScale, SystemAlertRunner)
+                           AlertRunner, UserAlertRoom, UserAlertScaleConfig,
+                           UserAlertScale, SystemAlertRunner)
 from accounts.models import BluuUser
 from bluusites.models import BluuSite, Room
 from devices.models import Device, DeviceType, Status
-from alerts.tasks import alert_trigger_runners, alert_trigger_system_runners
-from alerts.ajax_views import UserAlertConfigSetView, UserAlertScaleConfigSetView
-from utils.misc import mock_now
+from alerts.tasks import (alert_trigger_runners, alert_trigger_system_runners,
+                          alert_trigger_motion_in_room_checks)
+from alerts.ajax_views import (UserAlertConfigSetView )
 from mock import patch
 
 
@@ -39,6 +38,7 @@ class AlertsOpenTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -57,13 +57,13 @@ class AlertsOpenTestCase(WebTest):
                          device_type=self.window)
 
         UserAlertDevice.objects.create(alert=self.alert_o,
-                                        device=self.device1,
-                                        user=self.user1,
-                                        duration=0,
-                                        unit=Alert.MINUTES,
-                                        email_notification=True,
-                                        text_notification=True
-                                       )
+                                       device=self.device1,
+                                       user=self.user1,
+                                       duration=0,
+                                       unit=Alert.MINUTES,
+                                       email_notification=True,
+                                       text_notification=True
+        )
 
     def testOpenNotificationsSent(self):
         """
@@ -91,6 +91,7 @@ class AlertsOGTTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -116,25 +117,25 @@ class AlertsOGTTestCase(WebTest):
                                        alert=self.alert_ogt,
                                        duration=10,
                                        unit=Alert.MINUTES
-                                       )
+        )
 
         UserAlertDevice.objects.create(alert=self.alert_ogt,
-                                        device=self.device1,
-                                        user=self.user1,
-                                        duration=10,
-                                        unit=Alert.MINUTES,
-                                        email_notification=True
-                                       )
+                                       device=self.device1,
+                                       user=self.user1,
+                                       duration=10,
+                                       unit=Alert.MINUTES,
+                                       email_notification=True
+        )
 
     def testOpenGT(self):
         """
         Test if alert runner for open greater than is properly set
         """
         form_data = {"serial": "serial",
-                     "input4": "on", 
-                     "float_data": "1.22", 
+                     "input4": "on",
+                     "float_data": "1.22",
                      "timestamp": "2013-03-07T23:00:09",
-                     "signal": "1", 
+                     "signal": "1",
                      "action": True,
                      "data": "123"}
         post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
@@ -206,6 +207,7 @@ class AlertsOGTRunnerTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -231,7 +233,7 @@ class AlertsOGTRunnerTestCase(WebTest):
                                        alert=self.alert_ogt,
                                        duration=10,
                                        unit=Alert.MINUTES
-                                       )
+        )
 
         uad = UserAlertDevice.objects.create(alert=self.alert_ogt,
                                              device=self.device1,
@@ -239,7 +241,7 @@ class AlertsOGTRunnerTestCase(WebTest):
                                              duration=10,
                                              unit=Alert.MINUTES,
                                              email_notification=True
-                                            )
+        )
         # set alert runner
         AlertRunner.objects.create(
             when=datetime.datetime.now(),
@@ -265,6 +267,7 @@ class AlertsCGTRunnerTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -290,7 +293,7 @@ class AlertsCGTRunnerTestCase(WebTest):
                                        alert=self.alert_cgt,
                                        duration=10,
                                        unit=Alert.MINUTES
-                                       )
+        )
 
         uad = UserAlertDevice.objects.create(alert=self.alert_cgt,
                                              device=self.device1,
@@ -298,7 +301,7 @@ class AlertsCGTRunnerTestCase(WebTest):
                                              duration=10,
                                              unit=Alert.MINUTES,
                                              email_notification=True
-                                            )
+        )
         # set alert runner
         AlertRunner.objects.create(
             when=datetime.datetime.now(),
@@ -319,7 +322,6 @@ class AlertsCGTRunnerTestCase(WebTest):
                          'Jan Kowalski alert - device closed too long')
 
 
-
 class AlertsOGTNMTestCase(WebTest):
     """
     Tests if alerts for open greater than no motion are set properly
@@ -329,6 +331,7 @@ class AlertsOGTNMTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -359,15 +362,15 @@ class AlertsOGTNMTestCase(WebTest):
                                        alert=self.alert1,
                                        duration=10,
                                        unit=Alert.MINUTES
-                                       )
+        )
 
         UserAlertDevice.objects.create(alert=self.alert1,
-                                        device=self.device1,
-                                        user=self.user1,
-                                        duration=10,
-                                        unit=Alert.MINUTES,
-                                        email_notification=True
-                                       )
+                                       device=self.device1,
+                                       user=self.user1,
+                                       duration=10,
+                                       unit=Alert.MINUTES,
+                                       email_notification=True
+        )
 
     def testOpenGTNM(self):
         """
@@ -434,6 +437,7 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -455,20 +459,20 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
 
         #set some alerts
         self.uac = UserAlertConfig.objects.create(bluusite=self.bluusite1,
-                                       device_type=self.bed,
-                                       user=self.user1,
-                                       alert=self.alert_ogt,
-                                       duration=10,
-                                       unit=Alert.MINUTES
-                                       )
+                                                  device_type=self.bed,
+                                                  user=self.user1,
+                                                  alert=self.alert_ogt,
+                                                  duration=10,
+                                                  unit=Alert.MINUTES
+        )
 
         UserAlertDevice.objects.create(alert=self.alert_ogt,
-                                        device=self.device1,
-                                        user=self.user1,
-                                        duration=10,
-                                        unit=Alert.MINUTES,
-                                        email_notification=True
-                                       )
+                                       device=self.device1,
+                                       user=self.user1,
+                                       duration=10,
+                                       unit=Alert.MINUTES,
+                                       email_notification=True
+        )
 
     def testAlertRunnerChangedAfterAlertConfigChangeSet(self):
         """
@@ -482,7 +486,6 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
                      "signal": "1",
                      "action": True,
                      "data": "123"}
-
 
         post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
 
@@ -501,7 +504,6 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
                        'email_notification': True,
                        'text_notification': False}
 
-
         request = self.factory.post('/fake-path', config_data,
                                     content_type='application/json')
         request.user = self.user1
@@ -509,12 +511,12 @@ class ResetRunnersAfterDeviceConfigChangeTestCase(WebTest):
         response = view(request)
 
         self.app.post(
-                reverse('site_alerts:user_alert_config_set',
-                        kwargs={'pk': self.bluusite1.pk}),
-                json.dumps(config_data),
-                content_type='application/json;charset=utf-8',
-                user='test1',
-                status=200)
+            reverse('site_alerts:user_alert_config_set',
+                    kwargs={'pk': self.bluusite1.pk}),
+            json.dumps(config_data),
+            content_type='application/json;charset=utf-8',
+            user='test1',
+            status=200)
 
 
         # assert runner is set 5 minutes after the signal arrived
@@ -531,6 +533,7 @@ class AlertsMotionInRoomTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -549,13 +552,13 @@ class AlertsMotionInRoomTestCase(WebTest):
 
         self.alert = Alert.objects.get(alert_type=Alert.MOTION_IN_ROOM)
         UserAlertRoom.objects.create(alert=self.alert,
-                                        room=self.room1,
-                                        user=self.user1,
-                                        duration=0,
-                                        unit=Alert.MINUTES,
-                                        email_notification=True,
-                                        text_notification=True
-                                       )
+                                     room=self.room1,
+                                     user=self.user1,
+                                     duration=0,
+                                     unit=Alert.MINUTES,
+                                     email_notification=True,
+                                     text_notification=True
+        )
 
     def testMotionInRoomNotificationsSent(self):
         """
@@ -577,13 +580,13 @@ class AlertsMotionInRoomTestCase(WebTest):
                          'Jan Kowalski alert - motion in room')
 
 
-
 class AlertsNoMotionGreaterThanTestCase(WebTest):
     csrf_checks = False
 
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -594,7 +597,6 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
-
 
         # DEVICES AND ALERTS
         self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
@@ -610,7 +612,7 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
                                                 unit=Alert.MINUTES,
                                                 email_notification=True,
                                                 text_notification=True
-                                                )
+        )
 
     def testNoMotionGTSet(self):
         """
@@ -632,7 +634,7 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
                                                    "%Y-%m-%dT%H:%M:%S")
         timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
 
-        self.assertEqual(runner.when, duration_time+timegap)
+        self.assertEqual(runner.when, duration_time + timegap)
 
     def testNoMotionGTUpdated(self):
         """
@@ -668,121 +670,7 @@ class AlertsNoMotionGreaterThanTestCase(WebTest):
                                                    "%Y-%m-%dT%H:%M:%S")
         timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
 
-        self.assertEqual(runner.when, duration_time+timegap)
-
-    def testNoMotionInRoomGTNotificationsSent(self):
-        """
-        Test if alert runner for nomotion in room gt is properly set
-        """
-        form_data = {"serial": "serial",
-                     "input4": "on",
-                     "float_data": "1.22",
-                     "timestamp": "2013-03-07T23:00:09",
-                     "signal": "1",
-                     "action": True,
-                     "data": "123"}
-        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
-
-        # assert notifications sent
-        # Test that two messages has been sent (email and text).
-        alert_trigger_runners.delay()
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(
-            mail.outbox[0].subject,
-            'Jan Kowalski alert - no motion in room for too much time')
-
-
-class AlertsNoMotionGreaterThanTestCase(WebTest):
-    csrf_checks = False
-
-    def setUp(self):
-        from scripts.initialize_roles import run as run_initialize_script
-        from scripts.initialize_dicts import run as run_initialize_dicts_script
-        run_initialize_script()
-        run_initialize_dicts_script()
-
-        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
-        self.room1 = G(Room, name="room1", bluusite=self.bluusite1)
-
-        # USERS
-        self.user1 = G(BluuUser, username='test1')
-        self.user1.assign_group(group=Group.objects.get(name='User'),
-                                obj=self.bluusite1)
-
-
-        # DEVICES AND ALERTS
-        self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
-        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
-                         room=self.room1, device_type=self.motion_type)
-
-        self.alert = Alert.objects.get(
-            alert_type=Alert.NOMOTION_IN_ROOM_GREATER_THAN)
-        self.uar = UserAlertRoom.objects.create(alert=self.alert,
-                                                room=self.room1,
-                                                user=self.user1,
-                                                duration=10,
-                                                unit=Alert.MINUTES,
-                                                email_notification=True,
-                                                text_notification=True
-                                                )
-
-    def testNoMotionGTSet(self):
-        """
-        Test if alert runner for nomotion in room greater than is properly set
-        """
-        form_data = {"serial": "serial",
-                     "input4": "on",
-                     "float_data": "1.22",
-                     "timestamp": "2013-03-07T23:00:09",
-                     "signal": "1",
-                     "action": True,
-                     "data": "123"}
-        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
-
-        # assert runner set to be run after settings.MOTION_TIME_GAP + alert duration
-        self.assertEqual(1, AlertRunner.objects.count())
-        runner = AlertRunner.objects.all()[0]
-        duration_time= datetime.datetime.strptime("2013-03-07T23:10:09",
-                                                  "%Y-%m-%dT%H:%M:%S")
-        timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
-
-        self.assertEqual(runner.when, duration_time+timegap)
-
-    def testNoMotionGTUpdated(self):
-        """
-        Test if alert runner for nomotion in room greater than is properly
-        updated.
-        """
-        # Set alert runner
-        when = datetime.datetime.strptime("2013-03-07T23:15:09",
-                                          "%Y-%m-%dT%H:%M:%S")
-        AlertRunner.objects.create(
-            when=when,
-            user_alert_room=self.uar,
-            since=datetime.datetime.strptime("2013-03-07T23:00:09",
-                                             "%Y-%m-%dT%H:%M:%S"))
-
-        # Test if runner is updated properly after new status arrived
-        form_data = {"serial": "serial",
-                     "input4": "on",
-                     "float_data": "1.22",
-                     "timestamp": "2013-03-07T23:11:09",
-                     "signal": "1",
-                     "action": True,
-                     "data": "123"}
-        post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
-
-        # assert only one runner exists and
-        # this runner is set to be run after
-        # settings.MOTION_TIME_GAP + alert duration (10 minutes)
-        self.assertEqual(1, AlertRunner.objects.count())
-
-        runner = AlertRunner.objects.all()[0]
-        duration_time = datetime.datetime.strptime("2013-03-07T23:21:09",
-                                                   "%Y-%m-%dT%H:%M:%S")
-        timegap = datetime.timedelta(minutes=settings.MOTION_TIME_GAP)
-
-        self.assertEqual(runner.when, duration_time+timegap)
+        self.assertEqual(runner.when, duration_time + timegap)
 
     def testNoMotionInRoomGTNotificationsSent(self):
         """
@@ -812,6 +700,7 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -821,7 +710,6 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
         self.user1 = G(BluuUser, username='test1')
         self.user1.assign_group(group=Group.objects.get(name='User'),
                                 obj=self.bluusite1)
-
 
         # ALERTS & DEVICES
         self.bed = DeviceType.objects.get(name=DeviceType.BED)
@@ -881,7 +769,8 @@ class AlertsActiveInPeriodLTTestCase(WebTest):
                          "signal": "1",
                          "action": False,
                          "data": "123"}
-            post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
+            post_status(self, self.bluusite1.slug, self.device1.serial,
+                        form_data)
 
             # assert runner is set to be run immediately because activity time
             # is less than 10h
@@ -965,6 +854,7 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -991,7 +881,7 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
                                        alert=self.alert,
                                        duration=10,
                                        unit=Alert.HOURS
-                                       )
+        )
 
         uad = UserAlertDevice.objects.create(alert=self.alert,
                                              device=self.device1,
@@ -999,7 +889,7 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
                                              duration=10,
                                              unit=Alert.HOURS,
                                              email_notification=True
-                                            )
+        )
         # set alert runner
         AlertRunner.objects.create(
             when=datetime.datetime.now(),
@@ -1020,13 +910,13 @@ class AlertsActiveInPeriodLTRunnerTestCase(WebTest):
             'Jan Kowalski alert - active less than expected in a period')
 
 
-
 class AlertsActiveInPeriodGTTestCase(WebTest):
     csrf_checks = False
 
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1053,7 +943,7 @@ class AlertsActiveInPeriodGTTestCase(WebTest):
                                        alert=self.alert,
                                        duration=6,
                                        unit=Alert.HOURS
-                                       )
+        )
 
         uad = UserAlertDevice.objects.create(alert=self.alert,
                                              device=self.device1,
@@ -1061,7 +951,7 @@ class AlertsActiveInPeriodGTTestCase(WebTest):
                                              duration=6,
                                              unit=Alert.HOURS,
                                              email_notification=True
-                                            )
+        )
 
     def testAlertNotSetForInactiveStatus(self):
         """
@@ -1190,6 +1080,7 @@ class AlertsActiveInPeriodGTRunnerTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1216,7 +1107,7 @@ class AlertsActiveInPeriodGTRunnerTestCase(WebTest):
                                        alert=self.alert,
                                        duration=10,
                                        unit=Alert.HOURS
-                                       )
+        )
 
         uad = UserAlertDevice.objects.create(alert=self.alert,
                                              device=self.device1,
@@ -1224,7 +1115,7 @@ class AlertsActiveInPeriodGTRunnerTestCase(WebTest):
                                              duration=10,
                                              unit=Alert.HOURS,
                                              email_notification=True
-                                            )
+        )
         # set alert runner
         AlertRunner.objects.create(
             when=datetime.datetime.now(),
@@ -1251,6 +1142,7 @@ class ScaleAlertChangedAfterScaleConfigChangeTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1298,11 +1190,11 @@ class ScaleAlertChangedAfterScaleConfigChangeTestCase(WebTest):
                        'email_notification': True,
                        'text_notification': False}
         res = self.app.post(reverse('site_alerts:user_alert_scale_config_set',
-                             kwargs={'pk': self.bluusite1.pk}),
-                             json.dumps(config_data),
-                             content_type='application/json;charset=utf-8',
-                             user=self.user1.username,
-                             status=200)
+                                    kwargs={'pk': self.bluusite1.pk}),
+                            json.dumps(config_data),
+                            content_type='application/json;charset=utf-8',
+                            user=self.user1.username,
+                            status=200)
 
         self.assertEqual(UserAlertScale.objects.count(), 1)
         self.assertEqual(UserAlertScale.objects.all()[0].weight, 90)
@@ -1333,6 +1225,7 @@ class ScaleWLTAlertSentTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1392,6 +1285,7 @@ class ScaleSUAlertSentTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1452,6 +1346,7 @@ class SysAlertBatteryTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1567,6 +1462,7 @@ class SysDeviceOfflineTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1648,13 +1544,13 @@ class SysDeviceOfflineTestCase(WebTest):
         self.assertEqual(len(mail.outbox), 3)
 
 
-
 class SysBluuSiteOfflineTestCase(WebTest):
     csrf_checks = False
 
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1728,13 +1624,13 @@ class SysBluuSiteOfflineTestCase(WebTest):
         form_data = {"last_seen": "2013-03-07T23:00:09"}
 
         self.app.put(reverse('v1:site_heartbeat',
-                              kwargs={'site_slug': self.bluusite1.slug}),
-                             json.dumps(form_data),
-                             content_type='application/json;charset=utf-8',
-                             user='{}_{}'.format(
-                                 settings.WEBSERVICE_USERNAME_PREFIX,
-                                 self.bluusite1.slug),
-                             status=200)
+                             kwargs={'site_slug': self.bluusite1.slug}),
+                     json.dumps(form_data),
+                     content_type='application/json;charset=utf-8',
+                     user='{}_{}'.format(
+                         settings.WEBSERVICE_USERNAME_PREFIX,
+                         self.bluusite1.slug),
+                     status=200)
 
         #post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
 
@@ -1800,6 +1696,7 @@ class SysAlertTamperTestCase(WebTest):
     def setUp(self):
         from scripts.initialize_roles import run as run_initialize_script
         from scripts.initialize_dicts import run as run_initialize_dicts_script
+
         run_initialize_script()
         run_initialize_dicts_script()
 
@@ -1850,14 +1747,422 @@ class SysAlertTamperTestCase(WebTest):
                      "float_data": "120",
                      "timestamp": "2013-03-07T23:00:09",
                      "signal": "1",
+                     "tamper": True,
                      "action": True,
-                     "battery": True,
+                     "battery": False,
                      "data": "123"}
         post_status(self, self.bluusite1.slug, self.device1.serial, form_data)
 
         # assert notifications sent
         # Test that three messages has been sent: email and text for master user
         #  and email for dealer
-        self.assertEqual(len(mail.outbox), 3)
         #for email in mail.outbox:
         #    print email.subject, email.body
+        self.assertEqual(len(mail.outbox), 3)
+
+
+class AlertsMotionInRoomTestCase(WebTest):
+    """
+    Tests Motion in room calculations
+    """
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
+        self.room1 = G(Room, name="room1", bluusite=self.bluusite1)
+
+        # USERS
+        self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
+        # DEVICES AND ALERTS
+        self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         room=self.room1, device_type=self.motion_type)
+
+        self.device2 = G(Device, serial='serial2', bluusite=self.bluusite1,
+                         room=self.room1, device_type=self.motion_type)
+
+        self.alert = Alert.objects.get(
+            alert_type=Alert.NOMOTION_IN_ROOM_GREATER_THAN)
+
+        self.uar = UserAlertRoom.objects.create(alert=self.alert,
+                                                room=self.room1,
+                                                user=self.user1,
+                                                duration=10,
+                                                unit=Alert.MINUTES,
+                                                email_notification=True,
+                                                text_notification=True
+        )
+
+    def testMotionInRoomCalculationGaps(self):
+        """
+        Tests motion in room - long delays between statuses, so only gaps should
+        be considered
+        """
+        # Add some statuses
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T20:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:30:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:40:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T12:00:09",
+                              action=True)
+
+        #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            till = datetime.datetime.strptime("2013-03-07T23:00:09",
+                                              "%Y-%m-%dT%H:%M:%S")
+            #mock_now.side_effect = lambda *args, **kw: datetime(*args, **kw)
+            res = self.room1.get_motion_activity_time(till, 24 * 60)
+            self.assertEquals(res, datetime.timedelta(minutes=20))
+
+    def testMotionInRoomCalculationOverlaps(self):
+        """
+        Tests motion in room - some statues overlap other
+        """
+        # Add some statuses
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T20:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:30:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:34:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:04:09",
+                              action=True)
+
+        #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            till = datetime.datetime.strptime("2013-03-07T23:00:09",
+                                              "%Y-%m-%dT%H:%M:%S")
+            #mock_now.side_effect = lambda *args, **kw: datetime(*args, **kw)
+            res = self.room1.get_motion_activity_time(till, 24 * 60)
+            self.assertEquals(res, datetime.timedelta(minutes=18))
+
+    def testMotionInRoomCalculationEntryMotion(self):
+        """
+        Tests motion in room - entry status is active and should be added to
+        calculated time
+        """
+        # Add some statuses
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T22:58:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:30:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:34:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:04:09",
+                              action=True)
+
+        #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            till = datetime.datetime.strptime("2013-03-07T23:00:09",
+                                              "%Y-%m-%dT%H:%M:%S")
+            #mock_now.side_effect = lambda *args, **kw: datetime(*args, **kw)
+            res = self.room1.get_motion_activity_time(till, 24 * 60)
+            self.assertEquals(res, datetime.timedelta(minutes=21))
+
+    def testMotionInRoomCalculationExitMotion(self):
+        """
+        Tests motion in room - exit status is active and should be added to
+        calculated time not as timegap
+        """
+        # Add some statuses
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T22:58:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:30:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:34:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T22:57:09",
+                              action=True)
+
+        #with mock_now(datetime.datetime(2013, 03, 07, 23, 0, 9)):
+        with patch('alerts.models.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            till = datetime.datetime.strptime("2013-03-07T23:00:09",
+                                              "%Y-%m-%dT%H:%M:%S")
+            #mock_now.side_effect = lambda *args, **kw: datetime(*args, **kw)
+            res = self.room1.get_motion_activity_time(till, 24 * 60)
+            self.assertEquals(res, datetime.timedelta(minutes=19))
+
+
+class AlertsMIRGTTestCase(WebTest):
+    """
+    Tests Motion In Room Greater Than
+    """
+    csrf_checks = False
+
+    def setUp(self):
+        from scripts.initialize_roles import run as run_initialize_script
+        from scripts.initialize_dicts import run as run_initialize_dicts_script
+
+        run_initialize_script()
+        run_initialize_dicts_script()
+
+        self.bluusite1 = G(BluuSite, first_name='Jan', last_name='Kowalski')
+        self.room1 = G(Room, name="room1", bluusite=self.bluusite1)
+
+        # USERS
+        self.user1 = G(BluuUser, username='test1')
+        self.user1.assign_group(group=Group.objects.get(name='User'),
+                                obj=self.bluusite1)
+
+        # DEVICES AND ALERTS
+        self.motion_type = DeviceType.objects.get(name=DeviceType.MOTION)
+        self.device1 = G(Device, serial='serial', bluusite=self.bluusite1,
+                         room=self.room1, device_type=self.motion_type)
+
+        self.device2 = G(Device, serial='serial2', bluusite=self.bluusite1,
+                         room=self.room1, device_type=self.motion_type)
+
+        self.alert = Alert.objects.get(
+            alert_type=Alert.MOTION_IN_ROOM_GREATER_THAN)
+
+        self.alert_less = Alert.objects.get(
+            alert_type=Alert.MOTION_IN_ROOM_LESS_THAN)
+
+
+
+        self.uar = UserAlertRoom.objects.create(alert=self.alert,
+                                                room=self.room1,
+                                                user=self.user1,
+                                                duration=10,
+                                                unit=Alert.MINUTES,
+                                                email_notification=True,
+                                                text_notification=True
+        )
+
+        self.uar = UserAlertRoom.objects.create(alert=self.alert_less,
+                                                room=self.room1,
+                                                user=self.user1,
+                                                duration=10,
+                                                unit=Alert.MINUTES,
+                                                email_notification=True,
+                                                text_notification=True
+        )
+
+
+    def testMotionActivityGTCheckTriggered(self):
+        """
+        Tests if motion activity alert are triggered
+        when motion in room - is gt
+        """
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T20:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:30:09",
+                              action=True)
+        Status.objects.create(device=self.device1,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-06T23:40:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T12:00:09",
+                              action=True)
+
+        with patch('alerts.tasks.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            alert_trigger_motion_in_room_checks.delay()
+            self.assertEqual(len(mail.outbox), 2)
+
+    def testMotionActivityLTCheckTriggered(self):
+        """
+        Tests if motion activity alert are triggered
+        when motion in room - is gt
+        """
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:00:09",
+                              action=True)
+        Status.objects.create(device=self.device2,
+                              bluusite=self.bluusite1,
+                              device_type=self.motion_type,
+                              room=self.device1.room,
+                              data='123',
+                              signal='1',
+                              timestamp="2013-03-07T06:02:09",
+                              action=True)
+
+        with patch('alerts.tasks.datetime') as mock_now:
+            mock_now.now.return_value = datetime.datetime(2013, 03, 07, 23, 0,
+                                                          9)
+            alert_trigger_motion_in_room_checks.delay()
+            self.assertEqual(len(mail.outbox), 2)
+
