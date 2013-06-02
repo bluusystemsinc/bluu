@@ -22,7 +22,7 @@ register = Library()
 def alerts_for_device_type(context, bluusite, device_type):
 
     # get alerts for current device type
-    alerts = device_type.alert_set.all()
+    alerts = device_type.alert_set.all().exclude(alert_type__startswith='sys')
     context.update({'device_type': device_type,
                     'alerts': alerts,
                     })
