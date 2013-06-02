@@ -8,7 +8,7 @@
     <select class="site-select" data-placeholder="{% trans "Select another site" %}">
          <option value=""></option>
          {% for site in sites %}
-         <option value="{% url "bluusite_dashboard" site.slug %}">{{ site.get_name }}</option>
+         <option value="{% url "bluusite_dashboard" site.slug %}">{{ site.name }}</option>
          {% endfor %}
     </select>
 </div>
@@ -210,7 +210,7 @@
 
     var sleep_data = [ { 
                    label: "Sleep",
-                   data: {{ bluusite.get_sleeps_data }},
+                   data: {{ bluusite.get_sleeps_data }}
                 } ];
     $.plot('#sleepchart', sleep_data, options);
     {% endcomment %}
