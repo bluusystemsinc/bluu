@@ -11,9 +11,9 @@
     {% get_uog_perms request.user for bluusite as "site_perms" %}
     {% bluusites_breadcrumb %}
     {% if perms.bluusites.change_bluusite or "change_bluusite" in site_perms %}
-        <a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt;
+        <a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.name }}</a> &gt;
     {% else %}
-        {{ bluusite.get_name }} &gt;
+        {{ bluusite.name }} &gt;
     {% endif %} {% trans "Alerts" %}
 {% endblock breadcrumbs %}
 

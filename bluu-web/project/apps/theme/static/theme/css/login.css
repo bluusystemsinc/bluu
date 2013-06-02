@@ -33,7 +33,7 @@ a:hover, a:focus {
   text-indent: 10px;
   font-size: 20px;
   font-weight: bold;
-  font-family: "Lato", Arial, Helvetica, sans-serif;
+  font-family: "Lato",Arial, Helvetica, sans-serif;
   color: #666767;
   -webkit-border-radius: 4px 4px;
   -moz-border-radius: 4px / 4px;
@@ -89,7 +89,7 @@ a:hover, a:focus {
 /* line 73, ../sass/login.scss */
 .alert {
   background-color: #FCF8E3;
-  border: 1px solid #fbeed5;
+  border: 1px solid #FBEED5;
   -webkit-border-radius: 4px 4px;
   -moz-border-radius: 4px / 4px;
   border-radius: 4px / 4px;

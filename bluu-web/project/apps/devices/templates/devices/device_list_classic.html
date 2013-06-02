@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.get_name }}</a> &gt; {% trans "Devices management" %}
+{% bluusites_breadcrumb %}<a href="{% url "site_edit" bluusite.pk %}">{{ bluusite.name }}</a> &gt; {% trans "Devices management" %}
 {% endblock breadcrumbs %}
 
 

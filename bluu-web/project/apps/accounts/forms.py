@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from crispy_forms.layout import Div, Field
 from django.conf import settings
 from django import forms
 from django.forms import ModelForm
@@ -20,12 +21,14 @@ rev = lambda s: reverse(s)
 
 class BluuUserForm(ModelForm):
     username = forms.RegexField(label=_("Username"), max_length=30,
-        regex=r'^[\w.@+-]+$',
-        help_text=_("Required. 30 characters or fewer. Letters, digits and "
-                      "@/./+/-/_ only."),
-        error_messages={
-            'invalid': _("This value may contain only letters, numbers and "
-                         "@/./+/-/_ characters.")})
+                                regex=r'^[\w.@+-]+$',
+                                help_text=_(
+                                    "Required. 30 characters or fewer. Letters, digits and "
+                                    "@/./+/-/_ only."),
+                                error_messages={
+                                    'invalid': _(
+                                        "This value may contain only letters, numbers and "
+                                        "@/./+/-/_ characters.")})
 
     email = forms.EmailField(required=False, label=_('Email'))
     first_name = forms.CharField(required=True, label=_('First name'))
@@ -35,7 +38,8 @@ class BluuUserForm(ModelForm):
                                 required=False)
     password2 = forms.CharField(label=_("Password confirmation"),
                                 widget=forms.PasswordInput,
-                                help_text=_("Enter the same password as above, for verification."),
+                                help_text=_(
+                                    "Enter the same password as above, for verification."),
                                 required=False)
 
     def __init__(self, *args, **kwargs):
@@ -43,16 +47,18 @@ class BluuUserForm(ModelForm):
         self.helper.form_tag = False
         self.helper.layout = layout.Layout(
             layout.Div(
-                    'username',
-                    'first_name',
-                    'last_name',
-                    'groups',
-                    'email',
-                    'password1',
-                    'password2',
-                    'cell',
-                    'cell_text_email',
-                    'is_active',
+                'username',
+                'first_name',
+                'last_name',
+                'groups',
+                'email',
+                'password1',
+                'password2',
+                'cell',
+                Field('cell_text_email',
+                       template="accounts/cell_text_email_tpl.html"
+                ),
+                'is_active',
             ),
             FormActions(
                 layout.Submit('submit', _('Submit'), css_class="btn-primary")
@@ -61,18 +67,21 @@ class BluuUserForm(ModelForm):
         super(BluuUserForm, self).__init__(*args, **kwargs)
 
         self.fields['groups'].choices = [(group.pk, group.name) for group in \
-                     Group.objects.filter(name__in=['Bluu'])]
+                                         Group.objects.filter(
+                                             name__in=['Bluu'])]
 
         if self.instance.pk:
-            self.fields['password2'].help_text =\
-            ("Leave both password fields blank if you don't want to change it")
+            self.fields['password2'].help_text = \
+                (
+                    "Leave both password fields blank if you don't want to change it")
         else:
             self.fields['password1'].required = True
             self.fields['password2'].required = True
 
         self.fields.keyOrder = ['username',
-            'first_name', 'last_name', 'groups', 'email',
-            'password1', 'password2', 'cell', 'cell_text_email', 'is_active'
+                                'first_name', 'last_name', 'groups', 'email',
+                                'password1', 'password2', 'cell',
+                                'cell_text_email', 'is_active'
         ]
 
         #if self.user.has_perm('accounts.manage_group_admins'):
@@ -80,15 +89,16 @@ class BluuUserForm(ModelForm):
 
     class Meta:
         model = BluuUser
-        fields = ('username', 'first_name', 'last_name', 'groups', 'email', 'is_active',
-                  'groups', 'cell', 'cell_text_email')
+        fields = (
+            'username', 'first_name', 'last_name', 'groups', 'email', 'is_active',
+            'groups', 'cell', 'cell_text_email')
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if username.startswith(settings.WEBSERVICE_USERNAME_PREFIX):
             raise forms.ValidationError(
-                    'Names starting with "{}" are restricted!'.format(
-                                           settings.WEBSERVICE_USERNAME_PREFIX))
+                'Names starting with "{}" are restricted!'.format(
+                    settings.WEBSERVICE_USERNAME_PREFIX))
         return username
 
     def clean_password2(self):
@@ -126,12 +136,14 @@ class EmailAuthenticationForm(AuthenticationForm):
 
 class RegistrationForm(ModelForm):
     username = forms.RegexField(label=_("Username"), max_length=30,
-        regex=r'^[\w.@+-]+$',
-        help_text=_("Required. 30 characters or fewer. Letters, digits and "
-                      "@/./+/-/_ only."),
-        error_messages={
-            'invalid': _("This value may contain only letters, numbers and "
-                         "@/./+/-/_ characters.")})
+                                regex=r'^[\w.@+-]+$',
+                                help_text=_(
+                                    "Required. 30 characters or fewer. Letters, digits and "
+                                    "@/./+/-/_ only."),
+                                error_messages={
+                                    'invalid': _(
+                                        "This value may contain only letters, numbers and "
+                                        "@/./+/-/_ characters.")})
 
     email = forms.EmailField(required=False, label=_('Email'))
     first_name = forms.CharField(required=True, label=_('First name'))
@@ -141,7 +153,8 @@ class RegistrationForm(ModelForm):
                                 required=False)
     password2 = forms.CharField(label=_("Password confirmation"),
                                 widget=forms.PasswordInput,
-                                help_text=_("Enter the same password as above, for verification."),
+                                help_text=_(
+                                    "Enter the same password as above, for verification."),
                                 required=False)
 
     def __init__(self, *args, **kwargs):
@@ -149,13 +162,13 @@ class RegistrationForm(ModelForm):
         self.helper.form_tag = False
         self.helper.layout = layout.Layout(
             layout.Div(
-                    'username',
-                    'first_name',
-                    'last_name',
-                    'password1',
-                    'password2',
-                    'cell',
-                    'cell_text_email',
+                'username',
+                'first_name',
+                'last_name',
+                'password1',
+                'password2',
+                'cell',
+                'cell_text_email',
             ),
             FormActions(
                 layout.Submit('submit', _('Submit'), css_class="btn-primary")
@@ -164,20 +177,22 @@ class RegistrationForm(ModelForm):
         super(RegistrationForm, self).__init__(*args, **kwargs)
 
         if self.instance.pk:
-            self.fields['password2'].help_text =\
-            ("Leave both password fields blank if you don't want to change it")
+            self.fields['password2'].help_text = \
+                (
+                    "Leave both password fields blank if you don't want to change it")
         else:
             self.fields['password1'].required = True
             self.fields['password2'].required = True
 
         self.fields.keyOrder = ['username',
-            'first_name', 'last_name', 
-            'password1', 'password2', 'cell', 'cell_text_email'
+                                'first_name', 'last_name',
+                                'password1', 'password2', 'cell',
+                                'cell_text_email'
         ]
 
     class Meta:
         model = BluuUser
-        fields = ('username', 'first_name', 'last_name', 
+        fields = ('username', 'first_name', 'last_name',
                   'groups', 'cell', 'cell_text_email')
 
     def clean_password2(self):
@@ -200,15 +215,21 @@ class RegistrationForm(ModelForm):
         return user
 
 
-dummy_trans = _("If you don't want to change your password leave these fields empty.")
+dummy_trans = _(
+    "If you don't want to change your password leave these fields empty.")
 
 attrs_dict = {'class': 'required'}
+
+
 class RegistrationForm2(RegistrationFormTermsOfService):
     first_name = forms.CharField(label=_("First name"), max_length=30)
     last_name = forms.CharField(label=_("Last name"), max_length=30)
     tos = forms.BooleanField(widget=forms.CheckboxInput(attrs=attrs_dict),
-            label=_(u'I have read and agree to the <a href="%(url)s">Terms of Service</a>') % {'url': settings.TOS_URL},
-                             error_messages={'required': _("You must agree to the terms to register")})
+                             label=_(
+                                 u'I have read and agree to the <a href="%(url)s">Terms of Service</a>') % {
+                                       'url': settings.TOS_URL},
+                             error_messages={'required': _(
+                                 "You must agree to the terms to register")})
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
@@ -216,16 +237,16 @@ class RegistrationForm2(RegistrationFormTermsOfService):
         self.helper.form_tag = False
         self.helper.layout = layout.Layout(
             layout.Div(
-                    'username',
-                    'first_name',
-                    'last_name',
-                    'groups',
-                    'email',
-                    'password1',
-                    'password2',
-                    'cell',
-                    'cell_text_email',
-                    'is_active',
+                'username',
+                'first_name',
+                'last_name',
+                'groups',
+                'email',
+                'password1',
+                'password2',
+                'cell',
+                'cell_text_email',
+                'is_active',
             ),
             FormActions(
                 layout.Submit('submit', _('Submit'), css_class="btn-primary")
@@ -278,20 +299,22 @@ class AccountForm(forms.ModelForm):
         self.helper.form_style = 'inline'
         self.helper.form_tag = False
         self.helper.layout = layout.Layout(
-                layout.Fieldset(_(u'Your data'),
-                    'first_name',
-                    'last_name',
-                    'email',
-                    'cell',
-                    'cell_text_email',
-                    ),
-                layout.Fieldset(_(u'Password'),
-                    layout.HTML("""{% load i18n %}
+            layout.Fieldset(_(u'Your data'),
+                            'first_name',
+                            'last_name',
+                            'email',
+                            'cell',
+                            Field('cell_text_email',
+                                  template="accounts/cell_text_email_tpl.html"
+                            ),
+            ),
+            layout.Fieldset(_(u'Password'),
+                            layout.HTML("""{% load i18n %}
                     <p class="info">{% trans "If you don't want to change your password leave these fields empty." %}</p>
                     """),
-                    'old_password',
-                    'new_password1',
-                    'new_password2',),
+                            'old_password',
+                            'new_password1',
+                            'new_password2', ),
         )
 
     class Meta:
@@ -303,8 +326,8 @@ class AccountForm(forms.ModelForm):
         password1 = self.cleaned_data.get('new_password1')
         password2 = self.cleaned_data.get('new_password2')
         if password1 != password2:
-            raise forms.ValidationError(\
-                    _("The two password fields didn't match."))
+            raise forms.ValidationError( \
+                _("The two password fields didn't match."))
         return password2
 
     def clean(self):
@@ -312,9 +335,10 @@ class AccountForm(forms.ModelForm):
             password1 = self.cleaned_data.get('new_password1')
             password2 = self.cleaned_data.get('new_password2')
             if password1 and password2 and password1 == password2:
-                if not self.instance.check_password(\
-                    self.cleaned_data.get('old_password', '')):
-                    self._errors['old_password'] = self.error_class([_("Your old password was entered incorrectly. Please enter it again.")])
+                if not self.instance.check_password( \
+                        self.cleaned_data.get('old_password', '')):
+                    self._errors['old_password'] = self.error_class([_(
+                        "Your old password was entered incorrectly. Please enter it again.")])
                     del self.cleaned_data['old_password']
         return self.cleaned_data
 

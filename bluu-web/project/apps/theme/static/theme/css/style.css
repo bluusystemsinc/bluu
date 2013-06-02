@@ -72,7 +72,7 @@ form input.ng-valid.ng-dirty {
 /* line 74, ../sass/style.scss */
 footer {
   background-color: #F5F5F5;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid #E5E5E5;
   margin-top: 70px;
   padding: 70px 0;
 }
@@ -109,7 +109,7 @@ footer {
 .box-on {
   color: #FFF;
   background-color: #0088CC;
-  border: 1px solid #0088cc;
+  border: 1px solid #0088CC;
   -webkit-border-radius: 4px 4px;
   -moz-border-radius: 4px / 4px;
   border-radius: 4px / 4px;
@@ -119,7 +119,7 @@ footer {
 .box-off {
   color: #33BBFF;
   background-color: none;
-  border: 1px solid #33bbff;
+  border: 1px solid #33BBFF;
   -webkit-border-radius: 4px 4px;
   -moz-border-radius: 4px / 4px;
   border-radius: 4px / 4px;
@@ -390,4 +390,8 @@ table.table thead .sorting_desc_disabled {
   .box-row-fluid [class*="offset"]:first-child {
     margin-left: 0;
   }
+}
+/* line 341, ../sass/style.scss */
+.two-row-label {
+  margin-top: -10px;
 }
